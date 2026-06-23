@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:capstone_mobile/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('StayZ booking flow renders main screens', (tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Ana Mandara Villas Đà Lạt'), findsOneWidget);
+    expect(find.text('CHỌN PHÒNG'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.tap(find.text('CHỌN PHÒNG'));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Chọn phòng'), findsOneWidget);
+    expect(find.text('TIẾP TỤC ĐẶT PHÒNG'), findsOneWidget);
+
+    await tester.tap(find.text('TIẾP TỤC ĐẶT PHÒNG'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Xác nhận đặt phòng'), findsOneWidget);
+    await tester.drag(find.byType(Scrollable), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chi tiết thanh toán'), findsOneWidget);
   });
 }

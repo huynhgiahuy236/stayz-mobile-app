@@ -11,7 +11,7 @@ class StayZApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'StayZ',
       theme: AppTheme.light,
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.onboarding,
       routes: AppRoutes.routes,
     );
   }

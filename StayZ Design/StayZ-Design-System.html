@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StayZ — Design System v1.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Inter:wght@300;400;500&family=DM+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --cream: #F5F0E8;
+            --ink: #1A1612;
+            --white: #FFFFFF;
+            --accent: #8B3A3A;
+            --accent-light: #C4736A;
+            --accent-dark: #5C2020;
+            --accent-surface: #FAF0EE;
+            --n50: #F5F0E8;
+            --n100: #EAE4D8;
+            --n200: #D4C9B5;
+            --n300: #C4B9A5;
+            --n400: #A69E92;
+            --n500: #7A6E60;
+            --n600: #5A5248;
+            --n700: #3D3530;
+            --n800: #2C2820;
+            --n900: #1A1612;
+            --gold: #C4963A;
+            --gold-surface: #FAF3E0;
+            --success: #3B6D11;
+            --success-surface: #EAF3DE;
+            --warning: #BA7517;
+            --warning-surface: #FAEEDA;
+            --error: #A32D2D;
+            --error-surface: #FCEBEB;
+            --info: #185FA5;
+            --info-surface: #E6F1FB;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* SIDEBAR NAV */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--n800);
+            color: var(--n400);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+            padding: 0 0 32px;
+        }
+
+        .sidebar-logo {
+            padding: 28px 24px 24px;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 8px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: 22px;
+            letter-spacing: 0.12em;
+            color: var(--cream);
+        }
+
+        .sidebar-logo .logo-text a {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: 22px;
+            letter-spacing: 0.12em;
+            color: var(--cream);
+            padding: 10px 0;
+        }
+
+        .sidebar-logo .logo-text span {
+            color: var(--accent-light);
+        }
+
+        .sidebar-logo .logo-sub {
+            font-size: 10px;
+            color: var(--n500);
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+
+        }
+
+        .nav-group {
+            padding: 8px 0;
+        }
+
+        .nav-group-label {
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--n600);
+            padding: 8px 24px 4px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 8px 24px;
+            font-size: 12px;
+            color: var(--n400);
+            text-decoration: none;
+            transition: color 0.15s, background 0.15s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: var(--cream);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-item.active {
+            color: var(--accent-light);
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            margin-left: 240px;
+            flex: 1;
+            padding: 48px 60px;
+            max-width: 1100px;
+        }
+
+        /* SECTIONS */
+        .section {
+            margin-bottom: 72px;
+            scroll-margin-top: 32px;
+        }
+
+        .section-eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: 28px;
+            color: var(--ink);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .section-desc {
+            font-size: 14px;
+            color: var(--n500);
+            margin-bottom: 32px;
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .section-divider {
+            height: 0.5px;
+            background: var(--n200);
+            margin-bottom: 32px;
+        }
+
+        /* HERO */
+        .hero {
+            padding: 60px 0 48px;
+            border-bottom: 0.5px solid var(--n200);
+            margin-bottom: 64px;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            background: var(--accent-surface);
+            color: var(--accent);
+            font-size: 10px;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: 42px;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: var(--n500);
+            max-width: 480px;
+            line-height: 1.7;
+        }
+
+        .hero-meta {
+            margin-top: 24px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .hero-badge {
+            font-size: 11px;
+            color: var(--n600);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: block;
+        }
+
+        /* COLOR GRID */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .color-swatch {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 0.5px solid var(--n200);
+        }
+
+        .swatch-color {
+            height: 72px;
+        }
+
+        .swatch-info {
+            padding: 10px 12px;
+            background: white;
+        }
+
+        .swatch-name {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .swatch-hex {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--n500);
+        }
+
+        .swatch-desc {
+            font-size: 10px;
+            color: var(--n400);
+            margin-top: 2px;
+        }
+
+        .neutral-row {
+            display: flex;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 0.5px solid var(--n200);
+            margin-bottom: 12px;
+        }
+
+        .neutral-step {
+            flex: 1;
+        }
+
+        .neutral-step .swatch-color {
+            height: 48px;
+        }
+
+        .neutral-step .swatch-info {
+            padding: 6px 8px;
+            background: white;
+        }
+
+        .neutral-step .swatch-name {
+            font-size: 9px;
+        }
+
+        .neutral-step .swatch-hex {
+            font-size: 9px;
+        }
+
+        /* TYPOGRAPHY */
+        .type-scale-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .type-scale-table th {
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--n500);
+            padding: 8px 16px;
+            border-bottom: 0.5px solid var(--n200);
+            font-weight: 500;
+        }
+
+        .type-scale-table td {
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--n100);
+            vertical-align: middle;
+        }
+
+        .type-scale-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .type-scale-table tr:hover td {
+            background: rgba(245, 240, 232, 0.5);
+        }
+
+        .token-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            background: var(--n100);
+            color: var(--n700);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .type-preview {
+            color: var(--ink);
+        }
+
+        /* SPACING */
+        .spacing-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .spacing-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 16px;
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 8px;
+        }
+
+        .spacing-token {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--n500);
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .spacing-bar-wrap {
+            flex: 1;
+        }
+
+        .spacing-bar {
+            height: 8px;
+            background: var(--accent);
+            border-radius: 100px;
+            opacity: 0.7;
+        }
+
+        .spacing-value {
+            font-size: 12px;
+            color: var(--ink);
+            font-weight: 500;
+            width: 36px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .spacing-use {
+            font-size: 11px;
+            color: var(--n500);
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        /* RADIUS */
+        .radius-grid {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .radius-item {
+            text-align: center;
+        }
+
+        .radius-box {
+            width: 64px;
+            height: 64px;
+            background: var(--accent-surface);
+            border: 1.5px solid var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+        }
+
+        .radius-label {
+            font-size: 10px;
+            color: var(--n500);
+        }
+
+        .radius-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--n700);
+        }
+
+        /* COMPONENTS */
+        .component-demo {
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .component-title {
+            font-size: 11px;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--n500);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            height: 48px;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-sm {
+            height: 36px;
+            padding: 0 16px;
+            font-size: 11px;
+        }
+
+        .btn-compact {
+            height: 40px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--cream);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--n600);
+            border: 0.5px solid var(--n200);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-disabled {
+            background: var(--n100);
+            color: var(--n400);
+            cursor: not-allowed;
+        }
+
+        /* Inputs */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-size: 11px;
+            color: var(--n500);
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .input-field {
+            height: 52px;
+            width: 100%;
+            border: 0.5px solid var(--n200);
+            border-radius: 12px;
+            padding: 0 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
+            background: white;
+            outline: none;
+            transition: border 0.15s;
+        }
+
+        .input-field:focus {
+            border: 1.5px solid var(--accent);
+        }
+
+        .input-field.error {
+            border: 1px solid var(--error);
+        }
+
+        .input-field::placeholder {
+            color: var(--n400);
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--n500);
+            margin-top: 4px;
+        }
+
+        .input-error-msg {
+            font-size: 11px;
+            color: var(--error);
+            margin-top: 4px;
+        }
+
+        /* Filter pills */
+        .pills-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 100px;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .pill-active {
+            background: var(--n800);
+            color: var(--cream);
+        }
+
+        .pill-inactive {
+            background: transparent;
+            color: var(--n600);
+            border: 0.5px solid var(--n300);
+        }
+
+        /* Cards */
+        .hotel-card-h {
+            width: 200px;
+            border-radius: 16px;
+            border: 0.5px solid #E0D8CC;
+            overflow: hidden;
+            background: white;
+            display: inline-block;
+            margin-right: 14px;
+            vertical-align: top;
+        }
+
+        .card-img-placeholder {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #D4C9B5, #A89D88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .card-badge-pill {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(26, 22, 18, 0.65);
+            color: var(--cream);
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            letter-spacing: 0.06em;
+        }
+
+        .card-body-p {
+            padding: 12px 14px;
+        }
+
+        .card-loc {
+            font-size: 10px;
+            color: var(--n400);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .card-name {
+            font-size: 13px;
+            color: var(--ink);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .card-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-price {
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            color: var(--accent);
+        }
+
+        .card-price small {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: var(--n400);
+        }
+
+        .card-rating {
+            font-size: 11px;
+            color: var(--n600);
+        }
+
+        .star {
+            color: var(--gold);
+        }
+
+        /* Bottom Nav Demo */
+        .bottom-nav-demo {
+            background: white;
+            border: 0.5px solid #E0D8CC;
+            border-radius: 16px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 8px;
+        }
+
+        .nav-item-demo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 12px;
+            font-size: 11px;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-lbl {
+            font-size: 9px;
+            letter-spacing: 0.06em;
+        }
+
+        .nav-dot-demo {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .nav-active .nav-icon,
+        .nav-active .nav-lbl {
+            color: var(--accent);
+        }
+
+        .nav-inactive .nav-icon,
+        .nav-inactive .nav-lbl {
+            color: #B0A696;
+        }
+
+        /* Semantic badges */
+        .badge-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: var(--success-surface);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: var(--warning-surface);
+            color: var(--warning);
+        }
+
+        .badge-error {
+            background: var(--error-surface);
+            color: var(--error);
+        }
+
+        .badge-info {
+            background: var(--info-surface);
+            color: var(--info);
+        }
+
+        .badge-accent {
+            background: var(--accent-surface);
+            color: var(--accent);
+        }
+
+        .badge-gold {
+            background: var(--gold-surface);
+            color: var(--gold);
+        }
+
+        /* FLOW DIAGRAM */
+        .flow-wrap {
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .flow {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            min-width: max-content;
+        }
+
+        .flow-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flow-node {
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--ink);
+            text-align: center;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .flow-node.accent {
+            background: var(--accent);
+            color: var(--cream);
+            border-color: var(--accent);
+        }
+
+        .flow-node.muted {
+            background: var(--n100);
+            color: var(--n600);
+        }
+
+        .flow-node.success {
+            background: var(--success-surface);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            color: var(--n400);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .flow-label {
+            font-size: 9px;
+            color: var(--n500);
+            margin-top: 4px;
+            letter-spacing: 0.06em;
+        }
+
+        /* CHECKLIST */
+        .checklist {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--n700);
+        }
+
+        .check-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 1.5px solid var(--accent);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .check-box.done {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .check-box.done::after {
+            content: '✓';
+            font-size: 10px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .check-box::after {
+            content: '';
+        }
+
+        .check-section-title {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--n500);
+            font-weight: 500;
+            margin: 20px 0 10px;
+            grid-column: 1 / -1;
+        }
+
+        .check-tag {
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .tag-must {
+            background: var(--accent-surface);
+            color: var(--accent);
+        }
+
+        .tag-should {
+            background: var(--info-surface);
+            color: var(--info);
+        }
+
+        .tag-nice {
+            background: var(--n100);
+            color: var(--n600);
+        }
+
+        /* PACKAGES */
+        .pkg-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .pkg-item {
+            padding: 14px 16px;
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 10px;
+        }
+
+        .pkg-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 3px;
+        }
+
+        .pkg-version {
+            font-size: 10px;
+            color: var(--n400);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .pkg-desc {
+            font-size: 11px;
+            color: var(--n600);
+            margin-top: 4px;
+        }
+
+        .pkg-cat {
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--n500);
+            margin-bottom: 12px;
+            margin-top: 4px;
+        }
+
+        /* ANIMATIONS */
+        .anim-item {
+            padding: 12px 16px;
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .anim-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .anim-spec {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--n500);
+        }
+
+        /* JAPANESE PRINCIPLES */
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .principle-card {
+            padding: 24px;
+            background: white;
+            border: 0.5px solid var(--n200);
+            border-radius: 16px;
+        }
+
+        .principle-jp {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 28px;
+            color: var(--accent);
+            margin-bottom: 4px;
+            font-weight: 300;
+        }
+
+        .principle-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .principle-vi {
+            font-size: 12px;
+            color: var(--n500);
+            margin-bottom: 8px;
+        }
+
+        .principle-apply {
+            font-size: 12px;
+            color: var(--n600);
+            line-height: 1.6;
+        }
+
+        /* TABLE */
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .spec-table th {
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--n500);
+            padding: 10px 16px;
+            border-bottom: 0.5px solid var(--n200);
+            font-weight: 500;
+            background: var(--n50);
+        }
+
+        .spec-table td {
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--n100);
+            color: var(--n700);
+            vertical-align: top;
+        }
+
+        .spec-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .spec-table td:first-child {
+            font-family: 'DM Mono', monospace;
+            color: var(--accent);
+            font-size: 11px;
+        }
+
+        .spec-table code {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            background: var(--n100);
+            padding: 1px 5px;
+            border-radius: 3px;
+            color: var(--n700);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--n300);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                padding: 32px 28px;
+            }
+
+            .checklist {
+                grid-template-columns: 1fr;
+            }
+
+            .pkg-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .principles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">Stay<span>Z</span></div>
+                <div class="logo-sub">Design System v1.0</div>
+                <div class="logo-text"><a class="nav-item" href="./gallery.html">Trang Layout</a></div>
+                <div class="logo-text"><a class="nav-item"
+                        href="https://docs.google.com/spreadsheets/d/1Ac4Ro3uwFlZPd3u-E6oA90hu3doRevdV5guU8XvEOcY/edit?usp=sharing"
+                        target="_blank" rel="noopener noreferrer">Bảng phân chia Stack</a></div>
+            </div>
+            <div class="nav-group">
+                <div class="nav-group-label">Nền tảng</div>
+                <a class="nav-item" href="#philosophy">Triết học thiết kế</a>
+                <a class="nav-item" href="#colors">Màu sắc</a>
+                <a class="nav-item" href="#typography">Typography</a>
+                <a class="nav-item" href="#spacing">Spacing</a>
+                <a class="nav-item" href="#radius">Border Radius</a>
+                <a class="nav-item" href="#borders">Borders & Shadow</a>
+                <a class="nav-item" href="#icons">Icons</a>
+            </div>
+            <div class="nav-group">
+                <div class="nav-group-label">Components</div>
+                <a class="nav-item" href="#buttons">Buttons</a>
+                <a class="nav-item" href="#inputs">Inputs</a>
+                <a class="nav-item" href="#pills">Filter Pills</a>
+                <a class="nav-item" href="#cards">Cards</a>
+                <a class="nav-item" href="#badges">Badges</a>
+                <a class="nav-item" href="#bottomnav">Bottom Nav</a>
+            </div>
+            <div class="nav-group">
+                <div class="nav-group-label">App</div>
+                <a class="nav-item" href="#screens">Screens (10)</a>
+                <a class="nav-item" href="#flow">Navigation Flow</a>
+                <a class="nav-item" href="#animations">Animations</a>
+                <a class="nav-item" href="#packages">Flutter Packages</a>
+                <a class="nav-item" href="#checklist">Startup Checklist</a>
+            </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="main">
+
+            <!-- HERO -->
+            <div class="hero">
+                <div class="hero-tag">Design System · Japanese Aesthetic</div>
+                <h1>Stay<span>Z</span></h1>
+                <div class="hero-sub">Tài liệu thiết kế cho app đặt khách sạn StayZ — lấy cảm hứng từ triết học thẩm mỹ
+                    Nhật Bản.</div>
+                <div class="hero-meta">
+                    <span class="hero-badge">Flutter / Dart</span>
+                    <span class="hero-badge">Vietnamese Content</span>
+                    <span class="hero-badge">10 Screens</span>
+                    <span class="hero-badge">Beni-iro Accent</span>
+                </div>
+            </div>
+
+            <!-- PHILOSOPHY -->
+            <div class="section" id="philosophy">
+                <div class="section-eyebrow">01 — Nền tảng</div>
+                <div class="section-title">Triết học thiết kế</div>
+                <div class="section-desc">StayZ lấy cảm hứng từ 4 nguyên tắc thẩm mỹ cốt lõi của Nhật Bản.</div>
+                <div class="principles-grid">
+                    <div class="principle-card">
+                        <div class="principle-jp">間</div>
+                        <div class="principle-name">Ma — Khoảng trống</div>
+                        <div class="principle-vi">Negative space có chủ đích</div>
+                        <div class="principle-apply">Padding ngang 28px, không nhồi nhét element. Whitespace là thiết
+                            kế, không phải khoảng thừa.</div>
+                    </div>
+                    <div class="principle-card">
+                        <div class="principle-jp">侘寂</div>
+                        <div class="principle-name">Wabi-sabi — Giản dị</div>
+                        <div class="principle-vi">Vẻ đẹp trong sự không hoàn hảo</div>
+                        <div class="principle-apply">Palette trầm ấm, ít decoration. Màu cream #F5F0E8 thay cho trắng
+                            tinh thuần.</div>
+                    </div>
+                    <div class="principle-card">
+                        <div class="principle-jp">簡素</div>
+                        <div class="principle-name">Kanso — Đơn giản</div>
+                        <div class="principle-vi">Loại bỏ cái thừa</div>
+                        <div class="principle-apply">Mỗi màn hình chỉ 1 focal point. Không gradient, không shadow nặng,
+                            không decoration.</div>
+                    </div>
+                    <div class="principle-card">
+                        <div class="principle-jp">渋い</div>
+                        <div class="principle-name">Shibui — Tinh tế</div>
+                        <div class="principle-vi">Thanh lịch trong tiết chế</div>
+                        <div class="principle-apply">Typography mảnh (weight 300–400), 1 accent color duy nhất: đỏ son
+                            #8B3A3A.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLORS -->
+            <div class="section" id="colors">
+                <div class="section-eyebrow">02 — Nền tảng</div>
+                <div class="section-title">Màu sắc</div>
+                <div class="section-desc">Bảng màu lấy cảm hứng từ mực Nhật (sumi), giấy washi, và đỏ son beni-iro
+                    truyền thống.</div>
+
+                <div class="component-title">Primary</div>
+                <div class="color-grid" style="grid-template-columns: repeat(3,1fr); margin-bottom: 28px;">
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#F5F0E8;border-bottom:0.5px solid #D4C9B5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Cream</div>
+                            <div class="swatch-hex">#F5F0E8</div>
+                            <div class="swatch-desc">Background chính</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#1A1612;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Ink Black</div>
+                            <div class="swatch-hex">#1A1612</div>
+                            <div class="swatch-desc">Text primary</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#FFFFFF;border-bottom:0.5px solid #D4C9B5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Warm White</div>
+                            <div class="swatch-hex">#FFFFFF</div>
+                            <div class="swatch-desc">Card, surface</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-title">Accent — Beni-iro 紅色 (Đỏ son Nhật)</div>
+                <div class="color-grid" style="grid-template-columns: repeat(4,1fr); margin-bottom: 28px;">
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#8B3A3A;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Accent Primary</div>
+                            <div class="swatch-hex">#8B3A3A</div>
+                            <div class="swatch-desc">CTA, active, logo</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#C4736A;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Accent Light</div>
+                            <div class="swatch-hex">#C4736A</div>
+                            <div class="swatch-desc">Hover, tint</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#5C2020;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Accent Dark</div>
+                            <div class="swatch-hex">#5C2020</div>
+                            <div class="swatch-desc">Pressed state</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#FAF0EE;border-bottom:0.5px solid #D4C9B5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Accent Surface</div>
+                            <div class="swatch-hex">#FAF0EE</div>
+                            <div class="swatch-desc">BG tint nhẹ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-title">Neutral Scale</div>
+                <div class="neutral-row" style="margin-bottom:8px;">
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#F5F0E8;border-bottom:0.5px solid #D4C9B5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-50</div>
+                            <div class="swatch-hex">#F5F0E8</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#EAE4D8;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-100</div>
+                            <div class="swatch-hex">#EAE4D8</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#D4C9B5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-200</div>
+                            <div class="swatch-hex">#D4C9B5</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#C4B9A5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-300</div>
+                            <div class="swatch-hex">#C4B9A5</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#A69E92;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-400</div>
+                            <div class="swatch-hex">#A69E92</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#7A6E60;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-500</div>
+                            <div class="swatch-hex">#7A6E60</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#5A5248;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-600</div>
+                            <div class="swatch-hex">#5A5248</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#3D3530;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-700</div>
+                            <div class="swatch-hex">#3D3530</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#2C2820;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-800</div>
+                            <div class="swatch-hex">#2C2820</div>
+                        </div>
+                    </div>
+                    <div class="neutral-step">
+                        <div class="swatch-color" style="background:#1A1612;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">N-900</div>
+                            <div class="swatch-hex">#1A1612</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-title" style="margin-top:28px;">Semantic & Special</div>
+                <div class="color-grid" style="grid-template-columns: repeat(5,1fr);">
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#3B6D11;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Success</div>
+                            <div class="swatch-hex">#3B6D11</div>
+                            <div class="swatch-desc">Xác nhận đặt</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#BA7517;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Warning</div>
+                            <div class="swatch-hex">#BA7517</div>
+                            <div class="swatch-desc">Sắp hết phòng</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#A32D2D;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Error</div>
+                            <div class="swatch-hex">#A32D2D</div>
+                            <div class="swatch-desc">Lỗi, hủy đặt</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#185FA5;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Info</div>
+                            <div class="swatch-hex">#185FA5</div>
+                            <div class="swatch-desc">Thông báo</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="swatch-color" style="background:#C4963A;"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Gold</div>
+                            <div class="swatch-hex">#C4963A</div>
+                            <div class="swatch-desc">Rating, premium</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TYPOGRAPHY -->
+            <div class="section" id="typography">
+                <div class="section-eyebrow">03 — Nền tảng</div>
+                <div class="section-title">Typography</div>
+                <div class="section-desc">3 typeface với vai trò rõ ràng. Noto Serif JP cho cảm giác Nhật, Inter cho UI,
+                    DM Mono cho số tiền.</div>
+
+                <div class="component-demo" style="margin-bottom:28px;">
+                    <div style="display:flex; gap:40px; flex-wrap:wrap;">
+                        <div>
+                            <div class="component-title">Display — Noto Serif JP</div>
+                            <div
+                                style="font-family:'Noto Serif JP',serif; font-weight:300; font-size:32px; color:var(--ink); letter-spacing:0.02em;">
+                                StayZ</div>
+                            <div
+                                style="font-family:'Noto Serif JP',serif; font-weight:300; font-size:22px; color:var(--ink); margin-top:8px;">
+                                Khám phá không gian nghỉ</div>
+                            <div style="font-size:11px; color:var(--n500); margin-top:8px;">weight 300–400 ·
+                                letter-spacing 0.02em+</div>
+                        </div>
+                        <div>
+                            <div class="component-title">UI / Body — Inter</div>
+                            <div style="font-size:16px; font-weight:500; color:var(--ink);">Heading Medium 500</div>
+                            <div style="font-size:14px; color:var(--n700); margin-top:4px;">Body Large 400 — Mô tả khách
+                                sạn</div>
+                            <div style="font-size:12px; color:var(--n500); margin-top:4px;">Caption Small — Vị trí, meta
+                                info</div>
+                            <div
+                                style="font-size:10px; font-weight:500; letter-spacing:0.10em; text-transform:uppercase; color:var(--n500); margin-top:4px;">
+                                EYEBROW LABEL · 0.10em</div>
+                        </div>
+                        <div>
+                            <div class="component-title">Price — DM Mono</div>
+                            <div style="font-family:'DM Mono',monospace; font-size:22px; color:var(--accent);">
+                                ₫1.800.000</div>
+                            <div
+                                style="font-family:'DM Mono',monospace; font-size:16px; color:var(--accent); margin-top:4px;">
+                                ₫890K <span
+                                    style="font-family:'Inter',sans-serif; font-size:11px; color:var(--n400);">/đêm</span>
+                            </div>
+                            <div
+                                style="font-family:'DM Mono',monospace; font-size:13px; color:var(--n400); text-decoration:line-through; margin-top:4px;">
+                                ₫2.200.000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-demo">
+                    <div class="component-title">Type Scale</div>
+                    <table class="type-scale-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Size</th>
+                                <th>Weight</th>
+                                <th>Line-height</th>
+                                <th>Preview</th>
+                                <th>Dùng cho</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="token-badge">display-xl</span></td>
+                                <td>32px</td>
+                                <td>300</td>
+                                <td>1.2</td>
+                                <td><span class="type-preview"
+                                        style="font-family:'Noto Serif JP',serif;font-size:20px;font-weight:300;">Aa</span>
+                                </td>
+                                <td style="font-size:12px;color:var(--n500);">Hero, onboarding</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">display-lg</span></td>
+                                <td>26px</td>
+                                <td>300</td>
+                                <td>1.25</td>
+                                <td><span class="type-preview"
+                                        style="font-family:'Noto Serif JP',serif;font-size:18px;font-weight:300;">Aa</span>
+                                </td>
+                                <td style="font-size:12px;color:var(--n500);">Tiêu đề màn lớn</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">display-md</span></td>
+                                <td>22px</td>
+                                <td>400</td>
+                                <td>1.3</td>
+                                <td><span class="type-preview" style="font-size:16px;font-weight:400;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Tên khách sạn (detail)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">heading-lg</span></td>
+                                <td>18px</td>
+                                <td>500</td>
+                                <td>1.4</td>
+                                <td><span class="type-preview" style="font-size:15px;font-weight:500;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Section title</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">heading-md</span></td>
+                                <td>16px</td>
+                                <td>500</td>
+                                <td>1.4</td>
+                                <td><span class="type-preview" style="font-size:14px;font-weight:500;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Card title, form label</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">heading-sm</span></td>
+                                <td>14px</td>
+                                <td>500</td>
+                                <td>1.4</td>
+                                <td><span class="type-preview" style="font-size:13px;font-weight:500;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Sub-section, tab</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">body-lg</span></td>
+                                <td>15px</td>
+                                <td>400</td>
+                                <td>1.6</td>
+                                <td><span class="type-preview" style="font-size:13px;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Mô tả, paragraph</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">body-md</span></td>
+                                <td>13px</td>
+                                <td>400</td>
+                                <td>1.6</td>
+                                <td><span class="type-preview" style="font-size:12px;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Body chính</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">body-sm</span></td>
+                                <td>12px</td>
+                                <td>400</td>
+                                <td>1.5</td>
+                                <td><span class="type-preview" style="font-size:11px;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Caption, meta</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">label-lg</span></td>
+                                <td>12px</td>
+                                <td>500</td>
+                                <td>1.0</td>
+                                <td><span class="type-preview" style="font-size:11px;font-weight:500;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Button, badge</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">label-sm</span></td>
+                                <td>10px</td>
+                                <td>500</td>
+                                <td>1.0</td>
+                                <td><span class="type-preview" style="font-size:10px;font-weight:500;">Aa</span></td>
+                                <td style="font-size:12px;color:var(--n500);">Tag, pill, eyebrow</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">mono-price</span></td>
+                                <td>16px</td>
+                                <td>400</td>
+                                <td>1.0</td>
+                                <td><span class="type-preview"
+                                        style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);">₫1.2M</span>
+                                </td>
+                                <td style="font-size:12px;color:var(--n500);">Giá tiền chính</td>
+                            </tr>
+                            <tr>
+                                <td><span class="token-badge">mono-sm</span></td>
+                                <td>13px</td>
+                                <td>400</td>
+                                <td>1.0</td>
+                                <td><span class="type-preview"
+                                        style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);">₫890K</span>
+                                </td>
+                                <td style="font-size:12px;color:var(--n500);">Giá trong card</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SPACING -->
+            <div class="section" id="spacing">
+                <div class="section-eyebrow">04 — Nền tảng</div>
+                <div class="section-title">Spacing System</div>
+                <div class="section-desc">8px base grid. Padding ngang màn hình = 28px theo nguyên tắc Ma — rộng hơn app
+                    thông thường.</div>
+                <div class="spacing-grid">
+                    <div class="spacing-row"><span class="spacing-token">space-1</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:4px;"></div>
+                        </div><span class="spacing-value">4px</span><span class="spacing-use">Gap nội bộ
+                            icon-text</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-2</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:8px;"></div>
+                        </div><span class="spacing-value">8px</span><span class="spacing-use">Gap nhỏ trong
+                            component</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-3</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:16px;"></div>
+                        </div><span class="spacing-value">12px</span><span class="spacing-use">Gap giữa elements</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-4</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:24px;"></div>
+                        </div><span class="spacing-value">16px</span><span class="spacing-use">Padding component, card
+                            body</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-5</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:32px;"></div>
+                        </div><span class="spacing-value">20px</span><span class="spacing-use">Gap section nội bộ</span>
+                    </div>
+                    <div class="spacing-row"
+                        style="border: 1px solid var(--accent); background: var(--accent-surface);">
+                        <span class="spacing-token" style="color:var(--accent);">space-6</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:40px;background:var(--accent);opacity:1;"></div>
+                        </div><span class="spacing-value" style="color:var(--accent);">24px</span><span
+                            class="spacing-use" style="color:var(--accent-dark);">Padding horizontal màn hình
+                            (min)</span>
+                    </div>
+                    <div class="spacing-row"
+                        style="border: 1.5px solid var(--accent); background: var(--accent-surface);">
+                        <span class="spacing-token" style="color:var(--accent);">space-7 ★</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:48px;background:var(--accent);opacity:1;"></div>
+                        </div><span class="spacing-value" style="color:var(--accent);">28px</span><span
+                            class="spacing-use" style="color:var(--accent-dark); font-weight:500;">Ma principle — margin
+                            page chuẩn</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-8</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:64px;"></div>
+                        </div><span class="spacing-value">32px</span><span class="spacing-use">Khoảng cách lớn giữa
+                            sections</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-10</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:80px;"></div>
+                        </div><span class="spacing-value">40px</span><span class="spacing-use">Hero padding</span>
+                    </div>
+                    <div class="spacing-row"><span class="spacing-token">space-12</span>
+                        <div class="spacing-bar-wrap">
+                            <div class="spacing-bar" style="width:96px;"></div>
+                        </div><span class="spacing-value">48px</span><span class="spacing-use">Onboarding spacing</span>
+                    </div>
+                </div>
+
+                <div class="component-demo" style="margin-top:24px;">
+                    <div class="component-title">Screen Layout Heights</div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Element</th>
+                                <th>iOS</th>
+                                <th>Android</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Status bar</td>
+                                <td>44px</td>
+                                <td>variable</td>
+                            </tr>
+                            <tr>
+                                <td>Top app bar</td>
+                                <td>56px</td>
+                                <td>56px</td>
+                            </tr>
+                            <tr>
+                                <td>Bottom nav</td>
+                                <td>80px (incl. safe area)</td>
+                                <td>64px</td>
+                            </tr>
+                            <tr>
+                                <td>Content horizontal padding</td>
+                                <td>28px</td>
+                                <td>28px</td>
+                            </tr>
+                            <tr>
+                                <td>Content top padding (sau header)</td>
+                                <td>16px</td>
+                                <td>16px</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RADIUS -->
+            <div class="section" id="radius">
+                <div class="section-eyebrow">05 — Nền tảng</div>
+                <div class="section-title">Border Radius</div>
+                <div class="radius-grid">
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:4px;"></div>
+                        <div class="radius-label">radius-xs</div>
+                        <div class="radius-value">4px — badge</div>
+                    </div>
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:8px;"></div>
+                        <div class="radius-label">radius-sm</div>
+                        <div class="radius-value">8px — input</div>
+                    </div>
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:12px;"></div>
+                        <div class="radius-label">radius-md</div>
+                        <div class="radius-value">12px — card nhỏ</div>
+                    </div>
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:16px;"></div>
+                        <div class="radius-label">radius-lg ★</div>
+                        <div class="radius-value">16px — hotel card</div>
+                    </div>
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:24px;"></div>
+                        <div class="radius-label">radius-xl</div>
+                        <div class="radius-value">24px — modal</div>
+                    </div>
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:100px; width:80px; height:32px;"></div>
+                        <div class="radius-label">radius-pill</div>
+                        <div class="radius-value">100px — filter pill</div>
+                    </div>
+                    <div class="radius-item">
+                        <div class="radius-box" style="border-radius:9999px; width:64px; height:64px;"></div>
+                        <div class="radius-label">radius-full</div>
+                        <div class="radius-value">9999px — avatar</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BORDERS -->
+            <div class="section" id="borders">
+                <div class="section-eyebrow">06 — Nền tảng</div>
+                <div class="section-title">Borders & Elevation</div>
+                <div class="component-demo">
+                    <div class="component-title">Border Tokens</div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Value</th>
+                                <th>Dùng cho</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>border-default</td>
+                                <td><code>0.5px solid #D4C9B5</code></td>
+                                <td>Card, input mặc định</td>
+                            </tr>
+                            <tr>
+                                <td>border-emphasis</td>
+                                <td><code>1px solid #C4B9A5</code></td>
+                                <td>Hover, selected</td>
+                            </tr>
+                            <tr>
+                                <td>border-active</td>
+                                <td><code>1.5px solid #8B3A3A</code></td>
+                                <td>Input focus, card selected</td>
+                            </tr>
+                            <tr>
+                                <td>border-error</td>
+                                <td><code>1px solid #A32D2D</code></td>
+                                <td>Input error</td>
+                            </tr>
+                            <tr>
+                                <td>divider</td>
+                                <td><code>0.5px solid #EAE4D8</code></td>
+                                <td>Divider giữa list items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="component-demo">
+                    <div class="component-title">Elevation — Không dùng shadow nặng (nguyên tắc Nhật)</div>
+                    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                        <div
+                            style="width:140px;height:80px;border-radius:12px;background:var(--cream);border:0.5px solid var(--n200);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--n500);">
+                            elevation-0 (flat)</div>
+                        <div
+                            style="width:140px;height:80px;border-radius:12px;background:white;border:0.5px solid var(--n200);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--n500);">
+                            elevation-1 (card)</div>
+                        <div
+                            style="width:140px;height:80px;border-radius:12px;background:white;border:1px solid var(--n300);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--n500);">
+                            elevation-2 (hover)</div>
+                        <div
+                            style="width:140px;height:80px;border-radius:12px;background:white;box-shadow:0 8px 32px rgba(26,22,18,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--n500);">
+                            elevation-modal</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ICONS -->
+            <div class="section" id="icons">
+                <div class="section-eyebrow">07 — Nền tảng</div>
+                <div class="section-title">Iconography</div>
+                <div class="component-demo">
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Library</td>
+                                <td>Lucide Icons (Flutter: <code>lucide_flutter</code>)</td>
+                            </tr>
+                            <tr>
+                                <td>Size default</td>
+                                <td>20px</td>
+                            </tr>
+                            <tr>
+                                <td>Size small</td>
+                                <td>16px</td>
+                            </tr>
+                            <tr>
+                                <td>Size large</td>
+                                <td>24px</td>
+                            </tr>
+                            <tr>
+                                <td>Size hero</td>
+                                <td>32px</td>
+                            </tr>
+                            <tr>
+                                <td>Stroke width ★</td>
+                                <td>1.5px — quan trọng, tạo nét mảnh Nhật</td>
+                            </tr>
+                            <tr>
+                                <td>Color default</td>
+                                <td>#7A6E60 (Neutral-500)</td>
+                            </tr>
+                            <tr>
+                                <td>Color active</td>
+                                <td>#8B3A3A (Accent)</td>
+                            </tr>
+                            <tr>
+                                <td>Color on dark</td>
+                                <td>#F5F0E8 (Cream)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="section" id="buttons">
+                <div class="section-eyebrow">08 — Components</div>
+                <div class="section-title">Buttons</div>
+                <div class="component-demo">
+                    <div class="component-title">Button Variants</div>
+                    <div class="btn-row" style="margin-bottom:20px;">
+                        <button class="btn btn-primary">Đặt phòng ngay</button>
+                        <button class="btn btn-secondary">Xem chi tiết</button>
+                        <button class="btn btn-ghost">Bỏ qua</button>
+                        <button class="btn btn-danger">Hủy đặt phòng</button>
+                        <button class="btn btn-disabled" disabled>Không khả dụng</button>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn btn-compact btn-primary">Compact 40px</button>
+                        <button class="btn btn-sm btn-primary">Small 36px</button>
+                        <button class="btn btn-sm btn-secondary">Small outline</button>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="component-title">Button Spec</div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Background</th>
+                                <th>Text</th>
+                                <th>Border</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Primary</td>
+                                <td style="color:var(--n700);">#8B3A3A</td>
+                                <td style="color:var(--n700);">#F5F0E8</td>
+                                <td style="color:var(--n700);">none</td>
+                            </tr>
+                            <tr>
+                                <td>Secondary</td>
+                                <td style="color:var(--n700);">transparent</td>
+                                <td style="color:var(--n700);">#8B3A3A</td>
+                                <td style="color:var(--n700);">1px #8B3A3A</td>
+                            </tr>
+                            <tr>
+                                <td>Ghost</td>
+                                <td style="color:var(--n700);">transparent</td>
+                                <td style="color:var(--n700);">#5A5248</td>
+                                <td style="color:var(--n700);">0.5px #D4C9B5</td>
+                            </tr>
+                            <tr>
+                                <td>Danger</td>
+                                <td style="color:var(--n700);">#A32D2D</td>
+                                <td style="color:var(--n700);">#FFFFFF</td>
+                                <td style="color:var(--n700);">none</td>
+                            </tr>
+                            <tr>
+                                <td>Disabled</td>
+                                <td style="color:var(--n700);">#EAE4D8</td>
+                                <td style="color:var(--n700);">#A69E92</td>
+                                <td style="color:var(--n700);">none</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:12px; font-size:12px; color:var(--n500);">Height: 48px standard · 40px
+                        compact · 36px small &nbsp;|&nbsp; Radius: 12px &nbsp;|&nbsp; Font: 12px weight 500
+                        letter-spacing 0.08em</div>
+                </div>
+            </div>
+
+            <!-- INPUTS -->
+            <div class="section" id="inputs">
+                <div class="section-eyebrow">09 — Components</div>
+                <div class="section-title">Input Fields</div>
+                <div class="component-demo">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div>
+                            <div class="input-group">
+                                <label class="input-label">Email</label>
+                                <input class="input-field" type="text" value="huy@email.com">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Điểm đến</label>
+                                <input class="input-field" type="text" placeholder="Nhập tên thành phố...">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="input-group">
+                                <label class="input-label">Mật khẩu (focus)</label>
+                                <input class="input-field" type="password" style="border:1.5px solid var(--accent);"
+                                    value="password">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label" style="color:var(--error);">Số điện thoại (error)</label>
+                                <input class="input-field error" type="text" value="098xxx">
+                                <div class="input-error-msg">Số điện thoại không hợp lệ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="component-title">Input Spec</div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>height</td>
+                                <td>52px</td>
+                            </tr>
+                            <tr>
+                                <td>border (default)</td>
+                                <td><code>0.5px solid #D4C9B5</code></td>
+                            </tr>
+                            <tr>
+                                <td>border (focus)</td>
+                                <td><code>1.5px solid #8B3A3A</code></td>
+                            </tr>
+                            <tr>
+                                <td>border (error)</td>
+                                <td><code>1px solid #A32D2D</code></td>
+                            </tr>
+                            <tr>
+                                <td>border-radius</td>
+                                <td>12px</td>
+                            </tr>
+                            <tr>
+                                <td>padding</td>
+                                <td>0 16px</td>
+                            </tr>
+                            <tr>
+                                <td>label</td>
+                                <td>11px, #7A6E60, uppercase, letter-spacing 0.06em</td>
+                            </tr>
+                            <tr>
+                                <td>placeholder</td>
+                                <td>13px, #A69E92</td>
+                            </tr>
+                            <tr>
+                                <td>value text</td>
+                                <td>14px, #1A1612, weight 400</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PILLS -->
+            <div class="section" id="pills">
+                <div class="section-eyebrow">10 — Components</div>
+                <div class="section-title">Filter Pills</div>
+                <div class="component-demo">
+                    <div class="pills-row">
+                        <button class="pill pill-active">Tất cả</button>
+                        <button class="pill pill-inactive">Gần đây</button>
+                        <button class="pill pill-inactive">Cao cấp</button>
+                        <button class="pill pill-inactive">Boutique</button>
+                        <button class="pill pill-inactive">Resort</button>
+                        <button class="pill pill-inactive">Villa</button>
+                    </div>
+                    <div style="margin-top:16px; font-size:12px; color:var(--n500);">Height: 32px · Padding: 0 16px ·
+                        Radius: 100px · Font: 11px weight 400 letter-spacing 0.05em</div>
+                </div>
+            </div>
+
+            <!-- CARDS -->
+            <div class="section" id="cards">
+                <div class="section-eyebrow">11 — Components</div>
+                <div class="section-title">Hotel Cards</div>
+                <div class="component-demo">
+                    <div class="component-title">Horizontal Scroll Card (200px)</div>
+                    <div style="overflow-x:auto; padding-bottom:8px;">
+                        <div style="display:inline-flex; gap:14px;">
+                            <div class="hotel-card-h">
+                                <div class="card-img-placeholder"
+                                    style="background:linear-gradient(135deg,#C9BFA8,#A89D88);">
+                                    🏨
+                                    <div class="card-badge-pill">Featured</div>
+                                </div>
+                                <div class="card-body-p">
+                                    <div class="card-loc">Đà Lạt</div>
+                                    <div class="card-name">The Mist Retreat</div>
+                                    <div class="card-foot">
+                                        <div class="card-price">₫1.2M <small>/đêm</small></div>
+                                        <div class="card-rating"><span class="star">★</span> 4.9</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hotel-card-h">
+                                <div class="card-img-placeholder"
+                                    style="background:linear-gradient(135deg,#B8C4C2,#8A9E9C);">
+                                    🏮
+                                    <div class="card-badge-pill">New</div>
+                                </div>
+                                <div class="card-body-p">
+                                    <div class="card-loc">Hội An</div>
+                                    <div class="card-name">Lantern House</div>
+                                    <div class="card-foot">
+                                        <div class="card-price">₫890K <small>/đêm</small></div>
+                                        <div class="card-rating"><span class="star">★</span> 4.7</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hotel-card-h">
+                                <div class="card-img-placeholder"
+                                    style="background:linear-gradient(135deg,#C4B5B5,#9E8A8A);">
+                                    🌊
+                                    <div class="card-badge-pill">Popular</div>
+                                </div>
+                                <div class="card-body-p">
+                                    <div class="card-loc">Phú Quốc</div>
+                                    <div class="card-name">Coral Bay Villa</div>
+                                    <div class="card-foot">
+                                        <div class="card-price">₫2.4M <small>/đêm</small></div>
+                                        <div class="card-rating"><span class="star">★</span> 4.8</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="component-title">List View Card (full width)</div>
+                    <div
+                        style="border:0.5px solid #E0D8CC; border-radius:16px; overflow:hidden; background:white; max-width:420px;">
+                        <div
+                            style="height:180px; background:linear-gradient(135deg,#C9BFA8,#A89D88); display:flex; align-items:center; justify-content:center; font-size:48px; position:relative;">
+                            🏨
+                            <div class="card-badge-pill" style="top:12px;left:12px;">Còn 2 phòng</div>
+                        </div>
+                        <div style="padding:14px 16px;">
+                            <div class="card-loc">Đà Lạt</div>
+                            <div class="card-name" style="font-size:16px;">Đà Lạt Palace Heritage</div>
+                            <div
+                                style="display:flex; align-items:center; gap:4px; margin-bottom:10px; font-size:12px; color:var(--n500);">
+                                <span style="color:var(--gold);">★★★★★</span> 4.8 (324 đánh giá)
+                            </div>
+                            <div style="display:flex; gap:12px; margin-bottom:12px; font-size:12px; color:var(--n500);">
+                                <span>📶 Wifi</span><span>🅿️ Đỗ xe</span><span>🏊 Hồ bơi</span>
+                            </div>
+                            <div
+                                style="border-top:0.5px solid var(--n100); padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-family:'DM Mono',monospace; font-size:18px; color:var(--accent);">₫1.8M
+                                    <span
+                                        style="font-family:'Inter',sans-serif; font-size:11px; color:var(--n400);">/đêm</span>
+                                </div>
+                                <button class="btn btn-sm btn-ghost">Xem phòng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BADGES -->
+            <div class="section" id="badges">
+                <div class="section-eyebrow">12 — Components</div>
+                <div class="section-title">Badges & Labels</div>
+                <div class="component-demo">
+                    <div class="badge-row">
+                        <span class="badge badge-success">✓ Đặt phòng thành công</span>
+                        <span class="badge badge-warning">⚠ Sắp hết phòng</span>
+                        <span class="badge badge-error">✕ Đã hủy</span>
+                        <span class="badge badge-info">ℹ Thông báo mới</span>
+                        <span class="badge badge-accent">Sắp tới</span>
+                        <span class="badge badge-gold">★ 4.9</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM NAV -->
+            <div class="section" id="bottomnav">
+                <div class="section-eyebrow">13 — Components</div>
+                <div class="section-title">Bottom Navigation</div>
+                <div class="component-demo">
+                    <div class="bottom-nav-demo">
+                        <div class="nav-item-demo nav-active">
+                            <div class="nav-dot-demo"></div>
+                            <div class="nav-icon">🏠</div>
+                            <div class="nav-lbl">Trang chủ</div>
+                        </div>
+                        <div class="nav-item-demo nav-inactive">
+                            <div class="nav-icon">🔍</div>
+                            <div class="nav-lbl">Tìm kiếm</div>
+                        </div>
+                        <div class="nav-item-demo nav-inactive">
+                            <div class="nav-icon">♡</div>
+                            <div class="nav-lbl">Yêu thích</div>
+                        </div>
+                        <div class="nav-item-demo nav-inactive">
+                            <div class="nav-icon">📅</div>
+                            <div class="nav-lbl">Đặt phòng</div>
+                        </div>
+                        <div class="nav-item-demo nav-inactive">
+                            <div class="nav-icon">👤</div>
+                            <div class="nav-lbl">Tôi</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px; font-size:12px; color:var(--n500);">Height: 80px · Border-top: 0.5px
+                        #E0D8CC · Icon: 22px · Label: 9px letter-spacing 0.06em · Active dot: 4px circle #8B3A3A</div>
+                </div>
+            </div>
+
+            <!-- SCREENS -->
+            <div class="section" id="screens">
+                <div class="section-eyebrow">14 — App</div>
+                <div class="section-title">Screen Inventory</div>
+                <div style="display:grid; grid-template-columns: repeat(2,1fr); gap:10px;">
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            01</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Splash & Onboarding</div>
+                            <div style="font-size:11px;color:var(--n500);">Splash + 3 slides giới thiệu</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            02</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Login / Register</div>
+                            <div style="font-size:11px;color:var(--n500);">Login, register, forgot, OTP, reset password</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:var(--accent);border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--cream);font-weight:600;flex-shrink:0;">
+                            03</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--cream);">Home</div>
+                            <div style="font-size:11px;color:rgba(245,240,232,0.7);">Featured, hotel list, notifications</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            04</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Search & Filter</div>
+                            <div style="font-size:11px;color:var(--n500);">Search, filter, empty, offline states</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            05</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Hotel Detail</div>
+                            <div style="font-size:11px;color:var(--n500);">Gallery, tiện ích, review, booking info</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            06</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Room Selection</div>
+                            <div style="font-size:11px;color:var(--n500);">Chọn phòng + giá theo loại phòng</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            07</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Booking Checkout</div>
+                            <div style="font-size:11px;color:var(--n500);">Lịch lưu trú, khách, payment checkout</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--success-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--success);font-weight:600;flex-shrink:0;">
+                            08</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Confirmation</div>
+                            <div style="font-size:11px;color:var(--n500);">Mã đặt phòng, QR check-in, CTA chi tiết</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            09</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">My Bookings</div>
+                            <div style="font-size:11px;color:var(--n500);">List, detail, cancel result, review</div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px; background:white; border:0.5px solid var(--n200); border-radius:12px; display:flex; align-items:center; gap:14px;">
+                        <div
+                            style="width:36px;height:36px;border-radius:8px;background:var(--accent-surface);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0;">
+                            10</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:var(--ink);">Profile</div>
+                            <div style="font-size:11px;color:var(--n500);">Settings, profile form, edit profile, payment methods</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FLOW -->
+            <div class="section" id="flow">
+                <div class="section-eyebrow">15 — App</div>
+                <div class="section-title">Navigation Flow</div>
+
+                <div
+                    style="margin-bottom:20px; font-size:12px; color:var(--n600); font-weight:500; letter-spacing:0.06em; text-transform:uppercase;">
+                    Happy Path — Đặt phòng</div>
+                <div class="flow-wrap">
+                    <div class="flow">
+                        <div class="flow-col">
+                            <div class="flow-node muted">Splash</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node muted">Login</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node accent">Home</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node">Search</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node">Hotel Detail</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node">Room Select</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node">Schedule</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node">Checkout</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-col">
+                            <div class="flow-node success">Confirmation</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="margin: 28px 0 20px; font-size:12px; color:var(--n600); font-weight:500; letter-spacing:0.06em; text-transform:uppercase;">
+                    Feature Flows</div>
+
+                <div class="component-demo">
+                    <div class="component-title">Flow 1 — Tìm kiếm & Đặt phòng</div>
+                    <div
+                        style="font-family:'DM Mono',monospace; font-size:11px; color:var(--n600); line-height:2; background:var(--n50); padding:16px; border-radius:8px;">
+                        Home → Tap search → Search screen<br>
+                        &nbsp;&nbsp;→ Nhập điểm đến + ngày + số khách → Apply filter<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;→ Empty / Offline state nếu không có kết quả hoặc mất mạng<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;→ Tap khách sạn → Hotel Detail<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ "Chọn phòng" → Room Selection<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ "Đặt ngay" → Chọn thời gian & khách<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Checkout → Xác nhận thanh toán<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span
+                            style="color:var(--success);">Booking Confirmation (QR)</span>
+                    </div>
+                </div>
+
+                <div class="component-demo">
+                    <div class="component-title">Flow 2 — Auth</div>
+                    <div
+                        style="font-family:'DM Mono',monospace; font-size:11px; color:var(--n600); line-height:2; background:var(--n50); padding:16px; border-radius:8px;">
+                        App Launch → Check JWT token còn hạn?<br>
+                        &nbsp;&nbsp;YES → <span style="color:var(--accent);">Home</span><br>
+                        &nbsp;&nbsp;NO → Splash → Onboarding (lần đầu)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;→ Login → Success → <span style="color:var(--accent);">Home</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Fail → Hiển thị lỗi, giữ nguyên
+                        màn<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;→ "Đăng ký" → Register → OTP → <span
+                            style="color:var(--accent);">Home</span>
+                    </div>
+                </div>
+
+                <div class="component-demo">
+                    <div class="component-title">Flow 3 — Wishlist</div>
+                    <div
+                        style="font-family:'DM Mono',monospace; font-size:11px; color:var(--n600); line-height:2; background:var(--n50); padding:16px; border-radius:8px;">
+                        Bất kỳ màn có hotel card → Tap ♡<br>
+                        &nbsp;&nbsp;Chưa login → redirect Login<br>
+                        &nbsp;&nbsp;Đã login → Toggle save (optimistic UI) → Toast<br>
+                        Bottom Nav "Yêu thích" → Danh sách → Hotel Detail
+                    </div>
+                </div>
+
+                <div class="component-demo">
+                    <div class="component-title">Flow 4 — Quản lý đặt phòng</div>
+                    <div
+                        style="font-family:'DM Mono',monospace; font-size:11px; color:var(--n600); line-height:2; background:var(--n50); padding:16px; border-radius:8px;">
+                        Bottom Nav "Đặt phòng" → My Bookings<br>
+                        &nbsp;&nbsp;Tab "Sắp tới" → Upcoming Booking Detail → Xem QR<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;→ "Hủy" → Confirm dialog → Cancel Booking Result<br>
+                        &nbsp;&nbsp;Tab "Hoàn thành" → Completed Booking Detail → "Đánh giá" → Rating screen → Submit<br>
+                        &nbsp;&nbsp;Tab "Đã hủy" → Cancelled Booking Detail → Đặt lại phòng này
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANIMATIONS -->
+            <div class="section" id="animations">
+                <div class="section-eyebrow">16 — App</div>
+                <div class="section-title">Animations & Transitions</div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Page transition</div>
+                        <div style="font-size:11px;color:var(--n500);margin-top:2px;">Slide up (bottom sheet style)
+                        </div>
+                    </div>
+                    <div class="anim-spec">280ms ease-out-cubic</div>
+                </div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Card tap feedback</div>
+                        <div style="font-size:11px;color:var(--n500);margin-top:2px;">Scale down khi nhấn</div>
+                    </div>
+                    <div class="anim-spec">scale(0.97) · 120ms</div>
+                </div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Button press</div>
+                    </div>
+                    <div class="anim-spec">scale(0.96) opacity(0.9) · 100ms</div>
+                </div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Heart toggle ♡</div>
+                        <div style="font-size:11px;color:var(--n500);margin-top:2px;">Spring bounce khi save/unsave
+                        </div>
+                    </div>
+                    <div class="anim-spec">stiffness 400 · damping 15</div>
+                </div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Image loading skeleton</div>
+                    </div>
+                    <div class="anim-spec">shimmer #EAE4D8 → #F5F0E8</div>
+                </div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Toast appear</div>
+                    </div>
+                    <div class="anim-spec">slide up + fade · 200ms</div>
+                </div>
+                <div class="anim-item">
+                    <div>
+                        <div class="anim-name">Bottom sheet open</div>
+                    </div>
+                    <div class="anim-spec">slide up · 320ms ease-out-expo</div>
+                </div>
+            </div>
+
+            <!-- PACKAGES -->
+            <div class="section" id="packages">
+                <div class="section-eyebrow">17 — App</div>
+                <div class="section-title">Flutter Packages</div>
+                <div class="pkg-cat">Core</div>
+                <div class="pkg-grid">
+                    <div class="pkg-item">
+                        <div class="pkg-name">flutter_riverpod</div>
+                        <div class="pkg-version">^2.4.0</div>
+                        <div class="pkg-desc">State management</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">go_router</div>
+                        <div class="pkg-version">^12.0.0</div>
+                        <div class="pkg-desc">Navigation + deep linking</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">dio</div>
+                        <div class="pkg-version">^5.3.0</div>
+                        <div class="pkg-desc">HTTP client</div>
+                    </div>
+                </div>
+                <div class="pkg-cat">UI</div>
+                <div class="pkg-grid">
+                    <div class="pkg-item">
+                        <div class="pkg-name">google_fonts</div>
+                        <div class="pkg-version">^6.1.0</div>
+                        <div class="pkg-desc">Noto Serif JP + Inter + DM Mono</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">lucide_flutter</div>
+                        <div class="pkg-version">^0.0.5</div>
+                        <div class="pkg-desc">Icons stroke 1.5px (Nhật style)</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">cached_network_image</div>
+                        <div class="pkg-version">^3.3.0</div>
+                        <div class="pkg-desc">Ảnh + shimmer loading</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">shimmer</div>
+                        <div class="pkg-version">^3.0.0</div>
+                        <div class="pkg-desc">Loading skeleton</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">flutter_animate</div>
+                        <div class="pkg-version">^4.3.0</div>
+                        <div class="pkg-desc">Animations đẹp, dễ dùng</div>
+                    </div>
+                </div>
+                <div class="pkg-cat">Storage & Auth</div>
+                <div class="pkg-grid">
+                    <div class="pkg-item">
+                        <div class="pkg-name">flutter_secure_storage</div>
+                        <div class="pkg-version">^9.0.0</div>
+                        <div class="pkg-desc">Lưu JWT token an toàn</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">shared_preferences</div>
+                        <div class="pkg-version">^2.2.0</div>
+                        <div class="pkg-desc">Settings nhẹ</div>
+                    </div>
+                </div>
+                <div class="pkg-cat">Utilities</div>
+                <div class="pkg-grid">
+                    <div class="pkg-item">
+                        <div class="pkg-name">intl</div>
+                        <div class="pkg-version">^0.18.0</div>
+                        <div class="pkg-desc">Format ngày, tiền VND</div>
+                    </div>
+                    <div class="pkg-item">
+                        <div class="pkg-name">google_maps_flutter</div>
+                        <div class="pkg-version">^2.5.0</div>
+                        <div class="pkg-desc">Map view (optional)</div>
+                    </div>
+                </div>
+
+                <div class="component-demo" style="margin-top:24px;">
+                    <div class="component-title">VND Currency Format (Dart)</div>
+                    <div
+                        style="font-family:'DM Mono',monospace; font-size:12px; color:var(--n700); background:var(--n50); padding:16px; border-radius:8px; line-height:1.8;">
+                        <span style="color:var(--n500);">// Format: ₫1.800.000 hoặc ₫1.8M (compact)</span><br>
+                        <span style="color:var(--info);">String</span> formatVND(<span
+                            style="color:var(--info);">int</span> amount) {<br>
+                        &nbsp;&nbsp;<span style="color:var(--accent);">if</span> (amount >= 1000000) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--info);">double</span> m = amount / 1000000;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">return</span> <span
+                            style="color:var(--success);">'₫${m.toStringAsFixed(m % 1 == 0 ? 0 : 1)}M'</span>;<br>
+                        &nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;<span style="color:var(--accent);">return</span> <span
+                            style="color:var(--success);">'₫${NumberFormat("#,###",
+                            "vi_VN").format(amount)}'</span>;<br>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="section" id="checklist">
+                <div class="section-eyebrow">18 — App</div>
+                <div class="section-title">Startup Checklist</div>
+                <div class="checklist">
+                    <div class="check-section-title">Must Have — MVP</div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Auth: Login, Register, Logout, token refresh<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Home: Featured + Nearby hotels<div class="check-tag tag-must">
+                            Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Search + Filter (giá, loại, rating)<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Hotel Detail: gallery, tiện ích, review<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Room Selection: list phòng + giá<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Booking Checkout: form + thanh toán<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Confirmation: mã đặt + QR check-in<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>My Bookings: danh sách + hủy<div class="check-tag tag-must">
+                            Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Profile: xem + sửa thông tin<div class="check-tag tag-must">
+                            Must</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box done"></div>Error states + Loading skeletons<div
+                            class="check-tag tag-must">Must</div>
+                    </div>
+
+                    <div class="check-section-title">Should Have — v1.1</div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Wishlist / Yêu thích<div class="check-tag tag-should">v1.1</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Đánh giá & Review sau khi ở<div class="check-tag tag-should">v1.1
+                        </div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Push notification (nhắc check-in)<div class="check-tag tag-should">
+                            v1.1</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Map view — xem khách sạn trên bản đồ<div
+                            class="check-tag tag-should">v1.1</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Onboarding 3 slides (lần đầu)<div class="check-tag tag-should">v1.1
+                        </div>
+                    </div>
+
+                    <div class="check-section-title">Nice to Have — v2.0</div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Thanh toán online: VNPay, MoMo, Zalo<div
+                            class="check-tag tag-nice">v2.0</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Mã giảm giá / Voucher<div class="check-tag tag-nice">v2.0</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Loyalty points<div class="check-tag tag-nice">v2.0</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Dark mode<div class="check-tag tag-nice">v2.0</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Multi-language EN/VI<div class="check-tag tag-nice">v2.0</div>
+                    </div>
+                    <div class="check-item">
+                        <div class="check-box"></div>Chatbot hỗ trợ<div class="check-tag tag-nice">v2.0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height:1px; background:var(--n200); margin-bottom:32px;"></div>
+            <div style="font-size:11px; color:var(--n400); padding-bottom:48px;">StayZ Design System v1.0 ·
+                Japanese-inspired · Flutter/Dart · Vietnamese Content</div>
+
+        </main>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.section[id]').forEach(s => observer.observe(s));
+    </script>
+
+</body>
+
+</html>

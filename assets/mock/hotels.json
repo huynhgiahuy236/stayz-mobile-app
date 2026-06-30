@@ -1,0 +1,125 @@
+[
+  {
+    "id": "64f400000000000000000001",
+    "cityId": "64f100000000000000000001",
+    "name": "StayZ Ocean Pearl",
+    "description": "Beachfront hotel near My Khe Beach with ocean-view rooms and family-friendly facilities.",
+    "address": "120 Vo Nguyen Giap, Son Tra",
+    "latitude": 16.0678,
+    "longitude": 108.2465,
+    "starRating": 5,
+    "checkInTime": "14:00",
+    "checkOutTime": "12:00",
+    "amenityIds": [
+      "64f200000000000000000001",
+      "64f200000000000000000002",
+      "64f200000000000000000003",
+      "64f200000000000000000004",
+      "64f200000000000000000005"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+      "https://images.unsplash.com/photo-1582719508461-905c673771fd"
+    ],
+    "status": "active",
+    "createdAt": "2026-02-10T03:00:00Z",
+    "updatedAt": "2026-06-20T06:00:00Z"
+  },
+  {
+    "id": "64f400000000000000000002",
+    "cityId": "64f100000000000000000001",
+    "name": "Han River Boutique",
+    "description": "Compact boutique stay close to the Dragon Bridge, designed for short city trips.",
+    "address": "45 Bach Dang, Hai Chau",
+    "latitude": 16.0671,
+    "longitude": 108.2231,
+    "starRating": 4,
+    "checkInTime": "14:00",
+    "checkOutTime": "11:30",
+    "amenityIds": [
+      "64f200000000000000000001",
+      "64f200000000000000000004",
+      "64f200000000000000000006"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",
+      "https://images.unsplash.com/photo-1590490360182-c33d57733427"
+    ],
+    "status": "active",
+    "createdAt": "2026-02-12T04:30:00Z",
+    "updatedAt": "2026-06-19T05:50:00Z"
+  },
+  {
+    "id": "64f400000000000000000003",
+    "cityId": "64f100000000000000000002",
+    "name": "Saigon Central Suites",
+    "description": "Business-focused hotel in District 1 with large suites and fast access to downtown offices.",
+    "address": "18 Le Thanh Ton, District 1",
+    "latitude": 10.7807,
+    "longitude": 106.7044,
+    "starRating": 4,
+    "checkInTime": "14:00",
+    "checkOutTime": "12:00",
+    "amenityIds": [
+      "64f200000000000000000001",
+      "64f200000000000000000004",
+      "64f200000000000000000005",
+      "64f200000000000000000006"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1564501049412-61c2a3083791",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+    ],
+    "status": "active",
+    "createdAt": "2026-02-15T07:00:00Z",
+    "updatedAt": "2026-06-18T11:45:00Z"
+  },
+  {
+    "id": "64f400000000000000000004",
+    "cityId": "64f100000000000000000002",
+    "name": "Thao Dien Garden Hotel",
+    "description": "Quiet riverside hotel with green outdoor spaces for longer leisure stays.",
+    "address": "9 Nguyen Van Huong, Thu Duc",
+    "latitude": 10.8079,
+    "longitude": 106.7334,
+    "starRating": 3,
+    "checkInTime": "13:30",
+    "checkOutTime": "11:00",
+    "amenityIds": [
+      "64f200000000000000000001",
+      "64f200000000000000000002",
+      "64f200000000000000000006"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d"
+    ],
+    "status": "active",
+    "createdAt": "2026-02-18T06:15:00Z",
+    "updatedAt": "2026-06-17T02:30:00Z"
+  },
+  {
+    "id": "64f400000000000000000005",
+    "cityId": "64f100000000000000000003",
+    "name": "Old Quarter Heritage Stay",
+    "description": "Restored heritage property within walking distance of Hoan Kiem Lake.",
+    "address": "32 Hang Bac, Hoan Kiem",
+    "latitude": 21.0341,
+    "longitude": 105.8522,
+    "starRating": 4,
+    "checkInTime": "14:00",
+    "checkOutTime": "12:00",
+    "amenityIds": [
+      "64f200000000000000000001",
+      "64f200000000000000000003",
+      "64f200000000000000000004"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4",
+      "https://images.unsplash.com/photo-1611892440504-42a792e24d32"
+    ],
+    "status": "active",
+    "createdAt": "2026-02-20T08:25:00Z",
+    "updatedAt": "2026-06-16T03:10:00Z"
+  }
+]

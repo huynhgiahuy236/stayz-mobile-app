@@ -1,0 +1,260 @@
+[
+  {
+    "id": "64f500000000000000000001",
+    "hotelId": "64f400000000000000000001",
+    "name": "Deluxe Ocean King",
+    "description": "King room with direct ocean view and private balcony.",
+    "roomType": "deluxe",
+    "capacityAdults": 2,
+    "capacityChildren": 1,
+    "bedType": "king",
+    "sizeSqm": 36,
+    "pricePerNight": 1850000,
+    "currency": "VND",
+    "totalUnits": 12,
+    "availableUnits": 5,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000008",
+      "64f200000000000000000009"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1590490359683-658d3d23f972"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-01T01:00:00Z",
+    "updatedAt": "2026-06-24T04:00:00Z"
+  },
+  {
+    "id": "64f500000000000000000002",
+    "hotelId": "64f400000000000000000001",
+    "name": "Family Ocean Suite",
+    "description": "Two-bedroom suite for families staying near the beach.",
+    "roomType": "suite",
+    "capacityAdults": 4,
+    "capacityChildren": 2,
+    "bedType": "kingAndTwin",
+    "sizeSqm": 68,
+    "pricePerNight": 3200000,
+    "currency": "VND",
+    "totalUnits": 6,
+    "availableUnits": 2,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000008",
+      "64f200000000000000000009",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1566665797739-1674de7a421a"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-01T01:10:00Z",
+    "updatedAt": "2026-06-24T04:05:00Z"
+  },
+  {
+    "id": "64f500000000000000000003",
+    "hotelId": "64f400000000000000000002",
+    "name": "Boutique Queen",
+    "description": "Efficient queen room for couples and short city stays.",
+    "roomType": "standard",
+    "capacityAdults": 2,
+    "capacityChildren": 0,
+    "bedType": "queen",
+    "sizeSqm": 24,
+    "pricePerNight": 980000,
+    "currency": "VND",
+    "totalUnits": 18,
+    "availableUnits": 7,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1618773928121-c32242e63f39"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-02T02:00:00Z",
+    "updatedAt": "2026-06-24T04:10:00Z"
+  },
+  {
+    "id": "64f500000000000000000004",
+    "hotelId": "64f400000000000000000002",
+    "name": "River View Twin",
+    "description": "Twin room facing the Han River for friends or work trips.",
+    "roomType": "superior",
+    "capacityAdults": 2,
+    "capacityChildren": 1,
+    "bedType": "twin",
+    "sizeSqm": 30,
+    "pricePerNight": 1350000,
+    "currency": "VND",
+    "totalUnits": 10,
+    "availableUnits": 4,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000008",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1598928636135-d146006ff4be"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-02T02:10:00Z",
+    "updatedAt": "2026-06-24T04:15:00Z"
+  },
+  {
+    "id": "64f500000000000000000005",
+    "hotelId": "64f400000000000000000003",
+    "name": "Business King Suite",
+    "description": "Large suite with workspace for business travelers.",
+    "roomType": "suite",
+    "capacityAdults": 2,
+    "capacityChildren": 1,
+    "bedType": "king",
+    "sizeSqm": 52,
+    "pricePerNight": 2450000,
+    "currency": "VND",
+    "totalUnits": 14,
+    "availableUnits": 6,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000009",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-03T03:00:00Z",
+    "updatedAt": "2026-06-24T04:20:00Z"
+  },
+  {
+    "id": "64f500000000000000000006",
+    "hotelId": "64f400000000000000000003",
+    "name": "Executive Twin",
+    "description": "Twin room with city view and desk setup.",
+    "roomType": "executive",
+    "capacityAdults": 2,
+    "capacityChildren": 0,
+    "bedType": "twin",
+    "sizeSqm": 34,
+    "pricePerNight": 1780000,
+    "currency": "VND",
+    "totalUnits": 16,
+    "availableUnits": 8,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1595576508898-0ad5c879a061"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-03T03:10:00Z",
+    "updatedAt": "2026-06-24T04:25:00Z"
+  },
+  {
+    "id": "64f500000000000000000007",
+    "hotelId": "64f400000000000000000004",
+    "name": "Garden Queen",
+    "description": "Queen room looking over the garden courtyard.",
+    "roomType": "standard",
+    "capacityAdults": 2,
+    "capacityChildren": 1,
+    "bedType": "queen",
+    "sizeSqm": 28,
+    "pricePerNight": 1250000,
+    "currency": "VND",
+    "totalUnits": 12,
+    "availableUnits": 3,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000008"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1578683010236-d716f9a3f461"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-04T04:00:00Z",
+    "updatedAt": "2026-06-24T04:30:00Z"
+  },
+  {
+    "id": "64f500000000000000000008",
+    "hotelId": "64f400000000000000000004",
+    "name": "Riverside Studio",
+    "description": "Studio room for longer stays with workspace and balcony.",
+    "roomType": "studio",
+    "capacityAdults": 2,
+    "capacityChildren": 0,
+    "bedType": "queen",
+    "sizeSqm": 42,
+    "pricePerNight": 1680000,
+    "currency": "VND",
+    "totalUnits": 8,
+    "availableUnits": 1,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000008",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1560448075-bb485b067938"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-04T04:10:00Z",
+    "updatedAt": "2026-06-24T04:35:00Z"
+  },
+  {
+    "id": "64f500000000000000000009",
+    "hotelId": "64f400000000000000000005",
+    "name": "Heritage Double",
+    "description": "Double room with warm interior details in the Old Quarter.",
+    "roomType": "superior",
+    "capacityAdults": 2,
+    "capacityChildren": 1,
+    "bedType": "double",
+    "sizeSqm": 27,
+    "pricePerNight": 1420000,
+    "currency": "VND",
+    "totalUnits": 15,
+    "availableUnits": 6,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-05T05:00:00Z",
+    "updatedAt": "2026-06-24T04:40:00Z"
+  },
+  {
+    "id": "64f500000000000000000010",
+    "hotelId": "64f400000000000000000005",
+    "name": "Lake View Suite",
+    "description": "Suite with Hoan Kiem-facing balcony and separate lounge.",
+    "roomType": "suite",
+    "capacityAdults": 3,
+    "capacityChildren": 1,
+    "bedType": "kingAndSofa",
+    "sizeSqm": 58,
+    "pricePerNight": 2850000,
+    "currency": "VND",
+    "totalUnits": 5,
+    "availableUnits": 2,
+    "amenityIds": [
+      "64f200000000000000000007",
+      "64f200000000000000000008",
+      "64f200000000000000000009",
+      "64f200000000000000000010"
+    ],
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1591088398332-8a7791972843"
+    ],
+    "status": "available",
+    "createdAt": "2026-03-05T05:10:00Z",
+    "updatedAt": "2026-06-24T04:45:00Z"
+  }
+]

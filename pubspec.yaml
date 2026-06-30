@@ -61,6 +61,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+    - assets/mock/
     - assets/design-reference/screens/
     - assets/design-reference/layout-samples/
     - assets/design-reference/style-guide/

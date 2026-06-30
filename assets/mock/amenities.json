@@ -1,0 +1,72 @@
+[
+  {
+    "id": "64f200000000000000000001",
+    "name": "Free WiFi",
+    "category": "hotel",
+    "icon": "wifi",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000002",
+    "name": "Swimming Pool",
+    "category": "hotel",
+    "icon": "pool",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000003",
+    "name": "Airport Shuttle",
+    "category": "hotel",
+    "icon": "airportShuttle",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000004",
+    "name": "Breakfast",
+    "category": "hotel",
+    "icon": "restaurant",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000005",
+    "name": "Fitness Center",
+    "category": "hotel",
+    "icon": "fitnessCenter",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000006",
+    "name": "Parking",
+    "category": "hotel",
+    "icon": "localParking",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000007",
+    "name": "Air Conditioning",
+    "category": "room",
+    "icon": "acUnit",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000008",
+    "name": "Private Balcony",
+    "category": "room",
+    "icon": "balcony",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000009",
+    "name": "Bathtub",
+    "category": "room",
+    "icon": "bathtub",
+    "status": "active"
+  },
+  {
+    "id": "64f200000000000000000010",
+    "name": "Workspace",
+    "category": "room",
+    "icon": "desk",
+    "status": "active"
+  }
+]

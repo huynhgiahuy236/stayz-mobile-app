@@ -22,40 +22,40 @@ class ResetPasswordPage extends StatelessWidget {
               children: [
                 Center(
                   child: Container(
-                    width: 64 * responsive.scale,
+                    width: 48 * responsive.scale,
                     height: 4 * responsive.scale,
-                    margin: EdgeInsets.only(top: 48 * responsive.scale),
+                    margin: EdgeInsets.only(top: 28 * responsive.scale),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE0C7C7),
+                      color: AppTheme.neutral200.withValues(alpha: 0.7),
                       borderRadius: BorderRadius.circular(99),
                     ),
                   ),
                 ),
-                SizedBox(height: 58 * responsive.scale),
+                SizedBox(height: 32 * responsive.scale),
                 const AuthTitleBlock(
                   title: 'Bảo mật tài khoản',
                   subtitle:
                       'Vui lòng nhập mật khẩu hiện tại và mật khẩu mới để tiếp tục bảo vệ quyền riêng tư của bạn.',
                 ),
-                SizedBox(height: 52 * responsive.scale),
+                SizedBox(height: 32 * responsive.scale),
                 const AuthField(
                   label: 'MẬT KHẨU HIỆN TẠI',
                   hint: '••••••••',
                   obscure: true,
                 ),
-                SizedBox(height: 34 * responsive.scale),
+                SizedBox(height: 20 * responsive.scale),
                 const AuthField(
                   label: 'MẬT KHẨU MỚI',
                   hint: '••••••••',
                   obscure: true,
                 ),
-                SizedBox(height: 34 * responsive.scale),
+                SizedBox(height: 20 * responsive.scale),
                 const AuthField(
                   label: 'XÁC NHẬN MẬT KHẨU MỚI',
                   hint: '••••••••',
                   obscure: true,
                 ),
-                SizedBox(height: 52 * responsive.scale),
+                SizedBox(height: 32 * responsive.scale),
                 AuthPrimaryButton(
                   label: 'Cập nhật mật khẩu',
                   onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
@@ -63,16 +63,16 @@ class ResetPasswordPage extends StatelessWidget {
                     (route) => false,
                   ),
                 ),
-                SizedBox(height: 58 * responsive.scale),
-                const Divider(color: AppTheme.neutral200),
-                SizedBox(height: 24 * responsive.scale),
+                SizedBox(height: 32 * responsive.scale),
+                Divider(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+                SizedBox(height: 18 * responsive.scale),
                 Center(
                   child: Text(
                     'Nếu bạn quên mật khẩu, vui lòng liên hệ bộ phận\nhỗ trợ của StayZ để được khôi phục.',
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF5A3F3F),
-                      fontSize: 15 * responsive.scale,
+                      color: AppTheme.neutral500,
+                      fontSize: 14 * responsive.scale,
                       height: 1.4,
                     ),
                   ),

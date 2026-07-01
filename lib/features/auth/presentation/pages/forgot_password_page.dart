@@ -19,16 +19,16 @@ class ForgotPasswordPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               bottomPadding: 84,
               children: [
-                SizedBox(height: 130 * responsive.heightScale),
+                SizedBox(height: 42 * responsive.heightScale),
                 const _ResetIcon(),
-                SizedBox(height: 54 * responsive.scale),
+                SizedBox(height: 32 * responsive.scale),
                 const AuthTitleBlock(
                   title: 'Quên mật khẩu',
                   subtitle:
                       'Nhập email của bạn để nhận hướng dẫn khôi phục mật khẩu.',
                   centered: true,
                 ),
-                SizedBox(height: 48 * responsive.scale),
+                SizedBox(height: 32 * responsive.scale),
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: AuthField(
@@ -37,14 +37,14 @@ class ForgotPasswordPage extends StatelessWidget {
                     keyboardType: TextInputType.emailAddress,
                   ),
                 ),
-                SizedBox(height: 30 * responsive.scale),
+                SizedBox(height: 20 * responsive.scale),
                 AuthPrimaryButton(
                   label: 'Gửi mã',
                   onPressed: () => Navigator.of(context).pushNamed(
                     AppRoutes.otp,
                   ),
                 ),
-                SizedBox(height: 42 * responsive.scale),
+                SizedBox(height: 28 * responsive.scale),
                 TextButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.support_agent_outlined),
@@ -73,14 +73,34 @@ class _ResetIcon extends StatelessWidget {
       width: 96 * responsive.scale,
       height: 96 * responsive.scale,
       decoration: BoxDecoration(
-        color: const Color(0xFFFAF0EE),
+        color: AppTheme.accent.withValues(alpha: 0.06),
         shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(
+          color: AppTheme.accent.withValues(alpha: 0.15),
+          width: 1.5,
+        ),
       ),
-      child: Icon(
-        Icons.lock_reset,
-        color: AppTheme.accentDark,
-        size: 34 * responsive.scale,
+      child: Center(
+        child: Container(
+          width: 72 * responsive.scale,
+          height: 72 * responsive.scale,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.neutral800.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.lock_reset,
+            color: AppTheme.accent,
+            size: 32 * responsive.scale,
+          ),
+        ),
       ),
     );
   }

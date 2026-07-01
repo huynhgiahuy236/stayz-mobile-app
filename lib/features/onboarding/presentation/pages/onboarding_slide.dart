@@ -33,12 +33,15 @@ class OnboardingSlide extends StatelessWidget {
                 responsive: responsive,
                 showSkip: pageIndex < pageCount - 1,
               ),
-              _HeroImage(
-                data: data,
-                responsive: responsive,
-                horizontalPadding: horizontalPadding,
+              Expanded(
+                child: Center(
+                  child: _HeroImage(
+                    data: data,
+                    responsive: responsive,
+                    horizontalPadding: horizontalPadding,
+                  ),
+                ),
               ),
-              const Spacer(),
               _IntroContentSheet(
                 data: data,
                 pageIndex: pageIndex,
@@ -164,59 +167,37 @@ class _HeroImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heightRatio = switch (data.imageMode) {
-      OnboardingImageMode.card => 0.42,
-      OnboardingImageMode.fullBleed => 0.30,
-      OnboardingImageMode.framed => 0.29,
-    };
-    final absoluteMaxHeight = switch (data.imageMode) {
-      OnboardingImageMode.card => 350.0,
-      OnboardingImageMode.fullBleed => 396.0,
-      OnboardingImageMode.framed => 360.0,
-    };
-    final minHeight = data.imageMode == OnboardingImageMode.card ? 210.0 : 154.0;
-    final maxHeight = (responsive.height * heightRatio).clamp(
-      minHeight * responsive.heightScale,
-      absoluteMaxHeight * responsive.scale,
-    ).toDouble();
-    final padding = switch (data.imageMode) {
-      OnboardingImageMode.fullBleed => EdgeInsets.zero,
-      _ => EdgeInsets.symmetric(horizontal: horizontalPadding),
-    };
+    final cardHeight = (responsive.isCompact ? 200.0 : 250.0) * responsive.scale;
     final radius = data.imageMode == OnboardingImageMode.card ? 24.0 : 0.0;
 
     return Padding(
-      padding: padding,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
-        child: AspectRatio(
-          aspectRatio: data.imageAspectRatio,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radius),
-              border: data.imageMode == OnboardingImageMode.card
-                  ? Border.all(
-                      color: AppTheme.neutral200.withValues(alpha: 0.5),
-                      width: 1.5,
-                    )
-                  : null,
-              boxShadow: data.imageMode == OnboardingImageMode.card
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.neutral800.withValues(alpha: 0.08),
-                        blurRadius: 24,
-                        offset: const Offset(0, 12),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(radius),
-              child: Image.asset(
-                data.imageAsset,
-                fit: BoxFit.cover,
-              ),
-            ),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Container(
+        height: cardHeight,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius),
+          border: data.imageMode == OnboardingImageMode.card
+              ? Border.all(
+                  color: AppTheme.neutral200.withValues(alpha: 0.5),
+                  width: 1.5,
+                )
+              : null,
+          boxShadow: data.imageMode == OnboardingImageMode.card
+              ? [
+                  BoxShadow(
+                    color: AppTheme.neutral800.withValues(alpha: 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                  ),
+                ]
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Image.asset(
+            data.imageAsset,
+            fit: BoxFit.cover,
           ),
         ),
       ),
@@ -246,12 +227,11 @@ class _IntroContentSheet extends StatelessWidget {
     final titleSize = (pageIndex == pageCount - 1 ? 36.0 : 33.0) * responsive.scale;
     final descriptionSize = 16.0 * responsive.scale;
     final buttonHeight = (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
+    final sheetHeight = responsive.height * (responsive.isCompact ? 0.44 : 0.48);
 
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(
-        maxHeight: responsive.height * (responsive.isCompact ? 0.48 : 0.54),
-      ),
+      height: sheetHeight,
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
         (responsive.isCompact ? 22 : 30) * responsive.scale,

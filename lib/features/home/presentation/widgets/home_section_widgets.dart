@@ -77,7 +77,7 @@ class StayZBottomNav extends StatelessWidget {
             icon: Icons.confirmation_number_outlined,
             label: 'Đặt phòng',
             active: activeTab == HomeTab.bookings,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.hotelList),
+            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.myBookings),
           ),
           _NavItem(
             icon: Icons.person_outline,

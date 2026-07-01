@@ -7,6 +7,14 @@ import 'package:capstone_mobile/features/booking/presentation/pages/booking_conf
 import 'package:capstone_mobile/features/booking/presentation/pages/booking_schedule_page.dart';
 import 'package:capstone_mobile/features/booking/presentation/pages/payment_checkout_page.dart';
 import 'package:capstone_mobile/features/booking/presentation/pages/room_selection_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/cancel_booking_result_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_booking_detail_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_bookings_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/completed_booking_detail_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/completed_bookings_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/my_bookings_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/review_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/upcoming_booking_detail_page.dart';
 import 'package:capstone_mobile/features/detail/presentation/pages/hotel_info_form_page.dart';
 import 'package:capstone_mobile/features/detail/presentation/pages/room_detail_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart';
@@ -41,6 +49,14 @@ class AppRoutes {
   static const bookingSchedule = '/booking-schedule';
   static const paymentCheckout = '/payment-checkout';
   static const bookingConfirmation = '/booking-confirmation';
+  static const myBookings = '/my-bookings';
+  static const upcomingBookingDetail = '/upcoming-booking-detail';
+  static const completedBookings = '/completed-bookings';
+  static const completedBookingDetail = '/completed-booking-detail';
+  static const cancelledBookings = '/cancelled-bookings';
+  static const cancelledBookingDetail = '/cancelled-booking-detail';
+  static const cancelBookingResult = '/cancel-booking-result';
+  static const review = '/review';
 
   static Map<String, WidgetBuilder> get routes => {
         home: (_) => const HomePage(),
@@ -62,5 +78,13 @@ class AppRoutes {
         bookingSchedule: (_) => const BookingSchedulePage(),
         paymentCheckout: (_) => const PaymentCheckoutPage(),
         bookingConfirmation: (_) => const BookingConfirmationPage(),
+        myBookings: (_) => const MyBookingsPage(),
+        upcomingBookingDetail: (_) => const UpcomingBookingDetailPage(),
+        completedBookings: (_) => const CompletedBookingsPage(),
+        completedBookingDetail: (_) => const CompletedBookingDetailPage(),
+        cancelledBookings: (_) => const CancelledBookingsPage(),
+        cancelledBookingDetail: (_) => const CancelledBookingDetailPage(),
+        cancelBookingResult: (_) => const CancelBookingResultPage(),
+        review: (_) => const ReviewPage(),
       };
 }

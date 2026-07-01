@@ -3,10 +3,30 @@ import 'package:capstone_mobile/features/auth/presentation/pages/login_page.dart
 import 'package:capstone_mobile/features/auth/presentation/pages/otp_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:capstone_mobile/features/booking/presentation/pages/booking_confirmation_page.dart';
+import 'package:capstone_mobile/features/booking/presentation/pages/booking_schedule_page.dart';
+import 'package:capstone_mobile/features/booking/presentation/pages/payment_checkout_page.dart';
+import 'package:capstone_mobile/features/booking/presentation/pages/room_selection_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/cancel_booking_result_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_booking_detail_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_bookings_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/completed_booking_detail_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/completed_bookings_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/my_bookings_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/review_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/upcoming_booking_detail_page.dart';
+import 'package:capstone_mobile/features/detail/presentation/pages/hotel_info_form_page.dart';
+import 'package:capstone_mobile/features/detail/presentation/pages/room_detail_page.dart';
+import 'package:capstone_mobile/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/hotel_list_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_intro_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/add_payment_method_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/payment_methods_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/profile_form_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/settings_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/empty_search_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/filter_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/offline_error_page.dart';
@@ -29,6 +49,26 @@ class AppRoutes {
   static const filter = '/filter';
   static const emptySearch = '/empty-search';
   static const offlineError = '/offline-error';
+  static const roomDetail = '/room-detail';
+  static const hotelInfoForm = '/hotel-info-form';
+  static const roomSelection = '/room-selection';
+  static const bookingSchedule = '/booking-schedule';
+  static const paymentCheckout = '/payment-checkout';
+  static const bookingConfirmation = '/booking-confirmation';
+  static const myBookings = '/my-bookings';
+  static const upcomingBookingDetail = '/upcoming-booking-detail';
+  static const completedBookings = '/completed-bookings';
+  static const completedBookingDetail = '/completed-booking-detail';
+  static const cancelledBookings = '/cancelled-bookings';
+  static const cancelledBookingDetail = '/cancelled-booking-detail';
+  static const cancelBookingResult = '/cancel-booking-result';
+  static const review = '/review';
+  static const favorites = '/favorites';
+  static const settings = '/settings';
+  static const profileForm = '/profile-form';
+  static const editProfile = '/edit-profile';
+  static const paymentMethods = '/payment-methods';
+  static const addPaymentMethod = '/add-payment-method';
 
   static Map<String, WidgetBuilder> get routes => {
         home: (_) => const HomePage(),
@@ -44,5 +84,25 @@ class AppRoutes {
         filter: (_) => const FilterPage(),
         emptySearch: (_) => const EmptySearchPage(),
         offlineError: (_) => const OfflineErrorPage(),
+        roomDetail: (_) => const RoomDetailPage(),
+        hotelInfoForm: (_) => const HotelInfoFormPage(),
+        roomSelection: (_) => const RoomSelectionPage(),
+        bookingSchedule: (_) => const BookingSchedulePage(),
+        paymentCheckout: (_) => const PaymentCheckoutPage(),
+        bookingConfirmation: (_) => const BookingConfirmationPage(),
+        myBookings: (_) => const MyBookingsPage(),
+        upcomingBookingDetail: (_) => const UpcomingBookingDetailPage(),
+        completedBookings: (_) => const CompletedBookingsPage(),
+        completedBookingDetail: (_) => const CompletedBookingDetailPage(),
+        cancelledBookings: (_) => const CancelledBookingsPage(),
+        cancelledBookingDetail: (_) => const CancelledBookingDetailPage(),
+        cancelBookingResult: (_) => const CancelBookingResultPage(),
+        review: (_) => const ReviewPage(),
+        favorites: (_) => const FavoritesPage(),
+        settings: (_) => const SettingsPage(),
+        profileForm: (_) => const ProfileFormPage(),
+        editProfile: (_) => const EditProfilePage(),
+        paymentMethods: (_) => const PaymentMethodsPage(),
+        addPaymentMethod: (_) => const AddPaymentMethodPage(),
       };
 }

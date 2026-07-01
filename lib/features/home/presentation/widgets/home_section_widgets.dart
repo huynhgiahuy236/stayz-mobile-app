@@ -65,7 +65,7 @@ class StayZBottomNav extends StatelessWidget {
             icon: Icons.search,
             label: 'Tìm kiếm',
             active: activeTab == HomeTab.search,
-            onTap: () {},
+            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.search),
           ),
           _NavItem(
             icon: Icons.favorite_border,
@@ -233,7 +233,9 @@ class SearchBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
+      child: Container(
       height: 56 * responsive.scale,
       padding: EdgeInsets.symmetric(horizontal: 20 * responsive.widthScale),
       decoration: BoxDecoration(
@@ -255,6 +257,7 @@ class SearchBox extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

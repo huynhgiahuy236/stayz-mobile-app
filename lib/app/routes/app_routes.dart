@@ -17,6 +17,7 @@ import 'package:capstone_mobile/features/booking_management/presentation/pages/r
 import 'package:capstone_mobile/features/booking_management/presentation/pages/upcoming_booking_detail_page.dart';
 import 'package:capstone_mobile/features/detail/presentation/pages/hotel_info_form_page.dart';
 import 'package:capstone_mobile/features/detail/presentation/pages/room_detail_page.dart';
+import 'package:capstone_mobile/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/hotel_list_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
@@ -57,6 +58,7 @@ class AppRoutes {
   static const cancelledBookingDetail = '/cancelled-booking-detail';
   static const cancelBookingResult = '/cancel-booking-result';
   static const review = '/review';
+  static const favorites = '/favorites';
 
   static Map<String, WidgetBuilder> get routes => {
         home: (_) => const HomePage(),
@@ -86,5 +88,6 @@ class AppRoutes {
         cancelledBookingDetail: (_) => const CancelledBookingDetailPage(),
         cancelBookingResult: (_) => const CancelBookingResultPage(),
         review: (_) => const ReviewPage(),
+        favorites: (_) => const FavoritesPage(),
       };
 }

@@ -71,7 +71,7 @@ class StayZBottomNav extends StatelessWidget {
             icon: Icons.favorite_border,
             label: 'Yêu thích',
             active: activeTab == HomeTab.saved,
-            onTap: () {},
+            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.favorites),
           ),
           _NavItem(
             icon: Icons.confirmation_number_outlined,

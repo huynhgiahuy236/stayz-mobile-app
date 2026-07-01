@@ -10,11 +10,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:capstone_mobile/app/app.dart';
 
 void main() {
-  testWidgets('StayZ app renders home screen', (WidgetTester tester) async {
+  testWidgets('StayZ app renders onboarding screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const StayZApp());
 
-    expect(find.text('StayZ'), findsOneWidget);
-    expect(find.text('Find your next stay'), findsOneWidget);
+    expect(find.text('01 / 03'), findsOneWidget);
+    expect(find.text('Khám phá hàng nghìn\nkhách sạn'), findsOneWidget);
   });
 }

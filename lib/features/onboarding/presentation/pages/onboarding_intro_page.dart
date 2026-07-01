@@ -53,7 +53,7 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
 
   void _goNext() {
     if (_currentPage == _slides.length - 1) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
       return;
     }
 

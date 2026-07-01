@@ -14,26 +14,26 @@ class LoginPage extends StatelessWidget {
       child: AuthScrollBody(
         bottomPadding: 72,
         children: [
-          SizedBox(height: 42 * responsive.scale),
+          SizedBox(height: 32 * responsive.scale),
           const AuthLogo(large: true),
-          SizedBox(height: 58 * responsive.scale),
+          SizedBox(height: 36 * responsive.scale),
           const AuthTitleBlock(
             title: 'Chào mừng trở lại',
             subtitle: 'Đăng nhập để tiếp tục hành trình',
           ),
-          SizedBox(height: 48 * responsive.scale),
+          SizedBox(height: 32 * responsive.scale),
           const AuthField(
             label: 'EMAIL',
             hint: 'example@email.com',
             keyboardType: TextInputType.emailAddress,
           ),
-          SizedBox(height: 24 * responsive.scale),
+          SizedBox(height: 18 * responsive.scale),
           const AuthField(
             label: 'MẬT KHẨU',
             hint: '••••••••',
             obscure: true,
           ),
-          SizedBox(height: 18 * responsive.scale),
+          SizedBox(height: 10 * responsive.scale),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
@@ -50,18 +50,18 @@ class LoginPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 28 * responsive.scale),
+          SizedBox(height: 20 * responsive.scale),
           AuthPrimaryButton(
             label: 'Đăng nhập',
             onPressed: () => Navigator.of(context).pushReplacementNamed(
               AppRoutes.home,
             ),
           ),
-          SizedBox(height: 46 * responsive.scale),
+          SizedBox(height: 28 * responsive.scale),
           const AuthDivider(label: 'hoặc'),
-          SizedBox(height: 36 * responsive.scale),
+          SizedBox(height: 24 * responsive.scale),
           const _GoogleButton(),
-          SizedBox(height: 58 * responsive.scale),
+          SizedBox(height: 36 * responsive.scale),
           AuthInlineLink(
             text: 'Chưa có tài khoản?',
             actionText: 'Đăng ký',
@@ -97,15 +97,8 @@ class _GoogleButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'G',
-              style: textTheme.titleLarge?.copyWith(
-                color: const Color(0xFF4285F4),
-                fontSize: 22 * responsive.scale,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            SizedBox(width: 18 * responsive.widthScale),
+            GoogleLogo(size: 22 * responsive.scale),
+            SizedBox(width: 14 * responsive.widthScale),
             Text(
               'Tiếp tục với Google',
               style: textTheme.bodyLarge?.copyWith(

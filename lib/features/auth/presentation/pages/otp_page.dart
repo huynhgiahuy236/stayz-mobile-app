@@ -20,9 +20,9 @@ class OtpPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.fromLTRB(
                 responsive.horizontalPadding,
-                50 * responsive.scale,
+                32 * responsive.scale,
                 responsive.horizontalPadding,
-                72 * responsive.scale,
+                48 * responsive.scale,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +33,7 @@ class OtpPage extends StatelessWidget {
                         'Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi đến email của bạn.',
                     accentTitle: true,
                   ),
-                  SizedBox(height: 50 * responsive.scale),
+                  SizedBox(height: 32 * responsive.scale),
                   const _OtpFields(),
                   const Spacer(),
                   AuthPrimaryButton(
@@ -42,30 +42,30 @@ class OtpPage extends StatelessWidget {
                       AppRoutes.resetPassword,
                     ),
                   ),
-                  SizedBox(height: 38 * responsive.scale),
+                  SizedBox(height: 24 * responsive.scale),
                   Center(
                     child: Column(
                       children: [
                         Text(
                           'Không nhận được mã?',
                           style: textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFF5A3F3F),
-                            fontSize: 16 * responsive.scale,
+                            color: AppTheme.neutral500,
+                            fontSize: 15 * responsive.scale,
                           ),
                         ),
-                        SizedBox(height: 6 * responsive.scale),
+                        SizedBox(height: 4 * responsive.scale),
                         Text(
                           'Gửi lại sau 58s',
                           style: textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.neutral500,
-                            fontSize: 16 * responsive.scale,
+                            color: AppTheme.accent,
+                            fontSize: 15 * responsive.scale,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 56 * responsive.scale),
+                  SizedBox(height: 36 * responsive.scale),
                 ],
               ),
             ),
@@ -95,6 +95,11 @@ class _OtpFields extends StatelessWidget {
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             maxLength: 1,
+            style: TextStyle(
+              fontSize: 20 * responsive.scale,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.ink,
+            ),
             decoration: InputDecoration(
               counterText: '',
               filled: true,
@@ -102,11 +107,11 @@ class _OtpFields extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: Color(0xFFDDBDBD)),
+                borderSide: const BorderSide(color: AppTheme.neutral200),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppTheme.accent),
+                borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
               ),
             ),
           ),

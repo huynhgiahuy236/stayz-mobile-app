@@ -46,18 +46,30 @@ class AuthScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.cream,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(child: child),
-            if (bottomIndicator)
-              const Positioned(
-                left: 0,
-                right: 0,
-                bottom: 18,
-                child: AuthHomeIndicator(),
-              ),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.center,
+            radius: 1.2,
+            colors: [
+              Color(0xFFFAF6F0),
+              AppTheme.cream,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Positioned.fill(child: child),
+              if (bottomIndicator)
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 18,
+                  child: AuthHomeIndicator(),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -160,9 +172,22 @@ class AuthTopBar extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back),
-              color: AppTheme.accentDark,
-              iconSize: 30 * responsive.scale,
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.8),
+                  border: Border.all(
+                    color: AppTheme.neutral200.withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppTheme.accentDark,
+                  size: 20 * responsive.scale,
+                ),
+              ),
               padding: EdgeInsets.zero,
               constraints: BoxConstraints.tightFor(
                 width: 44 * responsive.scale,
@@ -245,7 +270,7 @@ class AuthTitleBlock extends StatelessWidget {
   }
 }
 
-class AuthField extends StatelessWidget {
+class AuthField extends StatefulWidget {
   const AuthField({
     required this.label,
     required this.hint,
@@ -262,6 +287,19 @@ class AuthField extends StatelessWidget {
   final TextInputType? keyboardType;
 
   @override
+  State<AuthField> createState() => _AuthFieldState();
+}
+
+class _AuthFieldState extends State<AuthField> {
+  late bool _obscureText;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscure;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final responsive = AuthResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
@@ -270,51 +308,54 @@ class AuthField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          widget.label,
           style: textTheme.bodyMedium?.copyWith(
-            color: const Color(0xFF5A3F3F),
-            fontSize: 14 * responsive.scale,
+            color: AppTheme.neutral500,
+            fontSize: 13 * responsive.scale,
             fontWeight: FontWeight.w600,
-            letterSpacing: 3,
+            letterSpacing: 2,
           ),
         ),
         SizedBox(height: 10 * responsive.scale),
         SizedBox(
           height: 56 * responsive.scale,
           child: TextField(
-            obscureText: obscure,
-            keyboardType: keyboardType,
+            obscureText: _obscureText,
+            keyboardType: widget.keyboardType,
             style: textTheme.bodyLarge?.copyWith(
               color: AppTheme.ink,
-              fontSize: 17 * responsive.scale,
+              fontSize: 16 * responsive.scale,
             ),
             decoration: InputDecoration(
-              hintText: hint,
+              hintText: widget.hint,
               hintStyle: textTheme.bodyLarge?.copyWith(
-                color: const Color(0xFFD8BDBD),
-                fontSize: 17 * responsive.scale,
+                color: AppTheme.neutral500.withValues(alpha: 0.4),
+                fontSize: 16 * responsive.scale,
               ),
-              prefixIcon: prefix == null
+              prefixIcon: widget.prefix == null
                   ? null
                   : Padding(
                       padding: EdgeInsets.only(left: 18 * responsive.scale),
-                      child: prefix,
+                      child: widget.prefix,
                     ),
-              prefixIconConstraints: prefix == null
+              prefixIconConstraints: widget.prefix == null
                   ? null
                   : BoxConstraints(
                       minWidth: 74 * responsive.scale,
                       minHeight: 0,
                     ),
-              suffixIcon: obscure
-                  ? Icon(
-                      Icons.visibility_outlined,
-                      color: const Color(0xFF5A3F3F),
-                      size: 25 * responsive.scale,
+              suffixIcon: widget.obscure
+                  ? IconButton(
+                      onPressed: () => setState(() => _obscureText = !_obscureText),
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        color: AppTheme.neutral500,
+                        size: 22 * responsive.scale,
+                      ),
                     )
                   : null,
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Colors.white.withValues(alpha: 0.9),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 18 * responsive.scale,
               ),
@@ -324,7 +365,7 @@ class AuthField extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppTheme.accent),
+                borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
               ),
             ),
           ),
@@ -467,3 +508,132 @@ class AuthHomeIndicator extends StatelessWidget {
     );
   }
 }
+
+class AuthCheckbox extends StatefulWidget {
+  const AuthCheckbox({
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  State<AuthCheckbox> createState() => _AuthCheckboxState();
+}
+
+class _AuthCheckboxState extends State<AuthCheckbox> {
+  @override
+  Widget build(BuildContext context) {
+    final responsive = AuthResponsive.of(context);
+
+    return GestureDetector(
+      onTap: () => widget.onChanged(!widget.value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        width: 22 * responsive.scale,
+        height: 22 * responsive.scale,
+        decoration: BoxDecoration(
+          color: widget.value ? AppTheme.accent : Colors.white.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: widget.value ? AppTheme.accent : AppTheme.neutral200,
+            width: 1.5,
+          ),
+        ),
+        child: widget.value
+            ? Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 15 * responsive.scale,
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+class GoogleLogo extends StatelessWidget {
+  const GoogleLogo({required this.size, super.key});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: const _GoogleLogoPainter(),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  const _GoogleLogoPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final double r = w / 2;
+    final center = Offset(w / 2, h / 2);
+
+    final red = Paint()
+      ..color = const Color(0xFFEA4335)
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    final yellow = Paint()
+      ..color = const Color(0xFFFBBC05)
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    final green = Paint()
+      ..color = const Color(0xFF34A853)
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    final blue = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    final double rOuter = r;
+    final double rInner = r * 0.55;
+    final rectOuter = Rect.fromCircle(center: center, radius: rOuter);
+    final rectInner = Rect.fromCircle(center: center, radius: rInner);
+
+    final pathRed = Path();
+    pathRed.moveTo(center.dx, center.dy);
+    pathRed.arcTo(rectOuter, -1.92, -1.57, false);
+    pathRed.close();
+
+    final pathYellow = Path();
+    pathYellow.moveTo(center.dx, center.dy);
+    pathYellow.arcTo(rectOuter, -3.49, -1.57, false);
+    pathYellow.close();
+
+    final pathGreen = Path();
+    pathGreen.moveTo(center.dx, center.dy);
+    pathGreen.arcTo(rectOuter, 0.78, 1.96, false);
+    pathGreen.close();
+
+    final pathBlue = Path();
+    pathBlue.moveTo(center.dx, center.dy);
+    pathBlue.arcTo(rectOuter, -0.78, 1.56, false);
+    pathBlue.close();
+
+    final pathInner = Path()..addOval(rectInner);
+
+    canvas.drawPath(Path.combine(PathOperation.difference, pathRed, pathInner), red);
+    canvas.drawPath(Path.combine(PathOperation.difference, pathYellow, pathInner), yellow);
+    canvas.drawPath(Path.combine(PathOperation.difference, pathGreen, pathInner), green);
+
+    final barRect = Rect.fromLTRB(center.dx, center.dy - w / 10, center.dx + rOuter, center.dy + w / 10);
+    final pathBlueWithBar = Path.combine(PathOperation.union, pathBlue, Path()..addRect(barRect));
+    final pathBlueFinal = Path.combine(PathOperation.difference, pathBlueWithBar, pathInner);
+
+    canvas.drawPath(pathBlueFinal, blue);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+

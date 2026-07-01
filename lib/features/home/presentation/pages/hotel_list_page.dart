@@ -11,7 +11,7 @@ class HotelListPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF1EE),
+      backgroundColor: AppTheme.cream,
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
       body: SafeArea(
         bottom: false,
@@ -30,16 +30,32 @@ class HotelListPage extends StatelessWidget {
                     child: Text(
                       'Chuyến đi của tôi',
                       style: textTheme.headlineMedium?.copyWith(
+                        fontFamily: 'Noto Serif JP',
                         color: AppTheme.accentDark,
-                        fontSize: 32 * responsive.scale,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 30 * responsive.scale,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ),
-                  CircleAvatar(
-                    radius: 22 * responsive.scale,
-                    backgroundColor: const Color(0xFFD8C5B7),
-                    child: const Icon(Icons.person, color: AppTheme.accentDark),
+                  Container(
+                    width: 42 * responsive.scale,
+                    height: 42 * responsive.scale,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.accent.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: AppTheme.neutral200.withValues(alpha: 0.8),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.person_outline_rounded,
+                        color: AppTheme.accentDark,
+                        size: 22 * responsive.scale,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -106,7 +122,7 @@ class _BookingTab extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: active ? AppTheme.accentDark : const Color(0xFF5A3F3F),
+            color: active ? AppTheme.accentDark : AppTheme.neutral500,
             fontSize: 16 * responsive.scale,
             fontWeight: active ? FontWeight.w700 : FontWeight.w500,
           ),

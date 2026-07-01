@@ -1,3 +1,4 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:flutter/material.dart';
@@ -266,7 +267,7 @@ class DetailBottomBookingBar extends StatelessWidget {
               width: 150 * responsive.widthScale,
               height: 58 * responsive.scale,
               child: FilledButton(
-                onPressed: () {},
+                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppTheme.accentDark,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),

@@ -4,6 +4,8 @@ import 'package:capstone_mobile/features/auth/presentation/pages/otp_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart';
+import 'package:capstone_mobile/features/home/presentation/pages/hotel_list_page.dart';
+import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_intro_page.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +19,8 @@ class AppRoutes {
   static const forgotPassword = '/forgot-password';
   static const otp = '/otp';
   static const resetPassword = '/reset-password';
+  static const hotelList = '/hotel-list';
+  static const notifications = '/notifications';
 
   static Map<String, WidgetBuilder> get routes => {
         home: (_) => const HomePage(),
@@ -26,5 +30,7 @@ class AppRoutes {
         forgotPassword: (_) => const ForgotPasswordPage(),
         otp: (_) => const OtpPage(),
         resetPassword: (_) => const ResetPasswordPage(),
+        hotelList: (_) => const HotelListPage(),
+        notifications: (_) => const NotificationsPage(),
       };
 }

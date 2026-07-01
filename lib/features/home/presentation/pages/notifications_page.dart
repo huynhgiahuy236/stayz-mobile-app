@@ -1,5 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatelessWidget {
@@ -35,7 +37,7 @@ class NotificationsPage extends StatelessWidget {
                   SizedBox(width: 8 * responsive.widthScale),
                   Expanded(
                     child: Text(
-                      'Thông báo',
+                      'Thong bao',
                       style: textTheme.headlineMedium?.copyWith(
                         color: AppTheme.accentDark,
                         fontSize: 33 * responsive.scale,
@@ -43,11 +45,7 @@ class NotificationsPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.done_all,
-                    color: AppTheme.accentDark,
-                    size: 27 * responsive.scale,
-                  ),
+                  Icon(Icons.done_all, color: AppTheme.accentDark, size: 27 * responsive.scale),
                 ],
               ),
             ),
@@ -59,65 +57,52 @@ class NotificationsPage extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
                 children: const [
-                  FilterPill(label: 'Tất cả', active: true),
+                  FilterPill(label: 'Tat ca', active: true),
                   SizedBox(width: 14),
-                  FilterPill(label: 'Ưu đãi'),
+                  FilterPill(label: 'Uu dai'),
                   SizedBox(width: 14),
-                  FilterPill(label: 'Chuyến đi'),
+                  FilterPill(label: 'Chuyen di'),
                   SizedBox(width: 14),
-                  FilterPill(label: 'Cập nhật'),
+                  FilterPill(label: 'Cap nhat'),
                 ],
               ),
             ),
             SizedBox(height: 34 * responsive.scale),
             Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  responsive.horizontalPadding,
-                  0,
-                  responsive.horizontalPadding,
-                  24 * responsive.scale,
-                ),
-                children: [
-                  const NotificationCard(
-                    icon: Icons.event_available_outlined,
-                    iconColor: AppTheme.accent,
-                    title: 'Đặt phòng thành công',
-                    body:
-                        'Yêu cầu đặt phòng tại Silk Path Grand Sapa của bạn đã được xác nhận. Chúc bạn một chuyến đi vui vẻ!',
-                    time: '2 giờ trước',
-                    unread: true,
-                  ),
-                  SizedBox(height: 18 * responsive.scale),
-                  const NotificationCard(
-                    icon: Icons.local_offer_outlined,
-                    iconColor: Color(0xFFC08A18),
-                    title: 'Ưu đãi độc quyền cho bạn',
-                    body:
-                        'Giảm ngay 20% cho các kỳ nghỉ dưỡng tại Hội An trong tháng tới. Khám phá ngay!',
-                    time: '5 giờ trước',
-                    unread: true,
-                  ),
-                  SizedBox(height: 18 * responsive.scale),
-                  const NotificationCard(
-                    icon: Icons.payments_outlined,
-                    iconColor: Color(0xFF3B9F6B),
-                    title: 'Thanh toán hoàn tất',
-                    body:
-                        'Giao dịch #STZ-2024 của bạn đã được xử lý thành công. Cảm ơn bạn đã tin dùng StayZ.',
-                    time: 'Hôm qua',
-                  ),
-                  SizedBox(height: 18 * responsive.scale),
-                  const NotificationCard(
-                    icon: Icons.rate_review_outlined,
-                    iconColor: Color(0xFF8B7A73),
-                    title: 'Chia sẻ cảm nhận của bạn',
-                    body:
-                        'Bạn thấy kỳ nghỉ tại Maison Vy như thế nào? Hãy dành 1 phút để đánh giá nhé.',
-                    time: '2 ngày trước',
-                  ),
-                ],
+              child: FutureBuilder<List<StayzNotification>>(
+                future: MockStayzRepository.instance.getNotifications(),
+                builder: (context, snapshot) {
+                  final notifications = snapshot.data ?? const <StayzNotification>[];
+
+                  if (notifications.isEmpty && snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                  }
+
+                  return ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      responsive.horizontalPadding,
+                      0,
+                      responsive.horizontalPadding,
+                      24 * responsive.scale,
+                    ),
+                    itemCount: notifications.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 18 * responsive.scale),
+                    itemBuilder: (context, index) {
+                      final notification = notifications[index];
+                      final iconData = _notificationIcon(notification.type);
+
+                      return NotificationCard(
+                        icon: iconData.$1,
+                        iconColor: iconData.$2,
+                        title: notification.title,
+                        body: notification.message,
+                        time: _notificationTime(notification.createdAt),
+                        unread: notification.status == 'unread',
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -125,4 +110,21 @@ class NotificationsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+(IconData, Color) _notificationIcon(String type) {
+  return switch (type) {
+    'bookingConfirmed' => (Icons.event_available_outlined, AppTheme.accent),
+    'paymentPending' => (Icons.payments_outlined, const Color(0xFFC08A18)),
+    'refundCompleted' => (Icons.payments_outlined, const Color(0xFF3B9F6B)),
+    'reviewReminder' => (Icons.rate_review_outlined, const Color(0xFF8B7A73)),
+    _ => (Icons.notifications_none_outlined, AppTheme.neutral500),
+  };
+}
+
+String _notificationTime(DateTime createdAt) {
+  final age = DateTime.now().difference(createdAt);
+  if (age.inDays > 0) return '${age.inDays} ngay truoc';
+  if (age.inHours > 0) return '${age.inHours} gio truoc';
+  return 'Vua xong';
 }

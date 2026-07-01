@@ -1,6 +1,9 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/favorites/presentation/widgets/favorites_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class FavoritesPage extends StatelessWidget {
@@ -53,55 +56,39 @@ class FavoritesPage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: GridView.count(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  responsive.horizontalPadding,
-                  42 * responsive.scale,
-                  responsive.horizontalPadding,
-                  28 * responsive.scale,
-                ),
-                crossAxisCount: 2,
-                crossAxisSpacing: 22 * responsive.widthScale,
-                mainAxisSpacing: 22 * responsive.scale,
-                childAspectRatio: 0.43,
-                children: const [
-                  FavoriteHotelCard(
-                    name: 'The Mist Retreat',
-                    location: 'Da Lat',
-                    price: 'd1.2M',
-                    rating: '4.8',
-                    colors: [Color(0xFF4A311F), Color(0xFFD6C291)],
-                  ),
-                  FavoriteHotelCard(
-                    name: 'Lantern House',
-                    location: 'Hoi An',
-                    price: 'd1.8M',
-                    rating: '4.9',
-                    colors: [Color(0xFF285D45), Color(0xFFE58A1A)],
-                  ),
-                  FavoriteHotelCard(
-                    name: 'Silk Path',
-                    location: 'Sa Pa',
-                    price: 'd2.5M',
-                    rating: '4.7',
-                    colors: [Color(0xFF302217), Color(0xFF728A5B)],
-                  ),
-                  FavoriteHotelCard(
-                    name: 'Urban Zen',
-                    location: 'TP. HCM',
-                    price: 'd1.5M',
-                    rating: '4.8',
-                    colors: [Color(0xFF4E473D), Color(0xFFE5C9A0)],
-                  ),
-                  FavoriteHotelCard(
-                    name: 'Ocean Whisper',
-                    location: 'Nha Trang',
-                    price: 'd3.2M',
-                    rating: '5.0',
-                    colors: [Color(0xFF96F0F7), Color(0xFF007CA0)],
-                  ),
-                ],
+              child: FutureBuilder<List<HotelSummary>>(
+                future: MockStayzRepository.instance.getFavoriteHotelSummaries(),
+                builder: (context, snapshot) {
+                  final hotels = snapshot.data ?? const <HotelSummary>[];
+
+                  if (hotels.isEmpty && snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                  }
+
+                  return GridView.count(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      responsive.horizontalPadding,
+                      42 * responsive.scale,
+                      responsive.horizontalPadding,
+                      28 * responsive.scale,
+                    ),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 22 * responsive.widthScale,
+                    mainAxisSpacing: 22 * responsive.scale,
+                    childAspectRatio: 0.43,
+                    children: [
+                      for (var i = 0; i < hotels.length; i++)
+                        FavoriteHotelCard(
+                          name: hotels[i].hotel.name,
+                          location: hotels[i].city.name,
+                          price: StayzFormatters.compactVnd(hotels[i].lowestPrice),
+                          rating: hotels[i].rating.toStringAsFixed(1),
+                          colors: _favoriteColors[i % _favoriteColors.length],
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -110,3 +97,11 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 }
+
+const _favoriteColors = [
+  [Color(0xFF4A311F), Color(0xFFD6C291)],
+  [Color(0xFF285D45), Color(0xFFE58A1A)],
+  [Color(0xFF302217), Color(0xFF728A5B)],
+  [Color(0xFF4E473D), Color(0xFFE5C9A0)],
+  [Color(0xFF96F0F7), Color(0xFF007CA0)],
+];

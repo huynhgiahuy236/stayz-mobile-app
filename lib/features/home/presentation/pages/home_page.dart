@@ -1,5 +1,8 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -29,7 +32,7 @@ class HomePage extends StatelessWidget {
               const StayZLogoRow(),
               SizedBox(height: 34 * responsive.scale),
               Text(
-                'CHÀO BUỔI SÁNG',
+                'CHAO BUOI SANG',
                 style: TextStyle(
                   color: const Color(0xFF5A3F3F),
                   fontSize: 11 * responsive.scale,
@@ -46,15 +49,12 @@ class HomePage extends StatelessWidget {
                     height: 1.18,
                   ),
                   children: const [
-                    TextSpan(text: 'Bạn muốn nghỉ ngơi ở '),
+                    TextSpan(text: 'Ban muon nghi ngoi o '),
                     TextSpan(
-                      text: 'đâu',
-                      style: TextStyle(
-                        color: AppTheme.accent,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      text: 'dau',
+                      style: TextStyle(color: AppTheme.accent, fontStyle: FontStyle.italic),
                     ),
-                    TextSpan(text: '\nhôm nay?'),
+                    TextSpan(text: '\nhom nay?'),
                   ],
                 ),
               ),
@@ -66,67 +66,68 @@ class HomePage extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: const [
-                    FilterPill(label: 'Tất cả', active: true),
+                    FilterPill(label: 'Tat ca', active: true),
                     SizedBox(width: 14),
-                    FilterPill(label: 'Gần đây'),
+                    FilterPill(label: 'Gan day'),
                     SizedBox(width: 14),
-                    FilterPill(label: 'Cao cấp'),
+                    FilterPill(label: 'Cao cap'),
                   ],
                 ),
               ),
               SizedBox(height: 46 * responsive.scale),
-              const SectionLabel(title: 'Nổi bật', action: 'Xem tất cả'),
+              const SectionLabel(title: 'Noi bat', action: 'Xem tat ca'),
               SizedBox(height: 20 * responsive.scale),
               SizedBox(
                 height: 294 * responsive.scale,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: const [
-                    HotelCard(
-                      name: 'The Mist Retreat',
-                      location: 'Đà Lạt',
-                      price: '₫1.2M / đêm',
-                      colors: [Color(0xFF405F59), Color(0xFF0F1917)],
-                    ),
-                    SizedBox(width: 18),
-                    HotelCard(
-                      name: 'Lantern House',
-                      location: 'Hội An',
-                      price: '₫890K / đêm',
-                      colors: [Color(0xFFC98232), Color(0xFF4C1B14)],
-                    ),
-                  ],
+                child: FutureBuilder<List<HotelSummary>>(
+                  future: MockStayzRepository.instance.getHotelSummaries(),
+                  builder: (context, snapshot) {
+                    final hotels = (snapshot.data ?? const <HotelSummary>[]).take(3).toList();
+
+                    if (hotels.isEmpty && snapshot.connectionState != ConnectionState.done) {
+                      return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                    }
+
+                    return ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: hotels.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 18),
+                      itemBuilder: (context, index) {
+                        final summary = hotels[index];
+                        return HotelCard(
+                          name: summary.hotel.name,
+                          location: summary.city.name,
+                          price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / dem',
+                          colors: _homeHotelColors[index % _homeHotelColors.length],
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
               SizedBox(height: 48 * responsive.scale),
-              const SectionLabel(title: 'Gần bạn'),
+              const SectionLabel(title: 'Gan ban'),
               SizedBox(height: 20 * responsive.scale),
-              Wrap(
-                spacing: 18 * responsive.widthScale,
-                runSpacing: 18 * responsive.scale,
-                children: const [
-                  HotelCard(
-                    compact: true,
-                    name: 'Urban Zen Hotel',
-                    location: 'Quận 1, TP. HCM',
-                    price: '₫1.5M',
-                    colors: [Color(0xFF8D7159), Color(0xFF19110C)],
-                  ),
-                  HotelCard(
-                    compact: true,
-                    name: 'The Silk Path',
-                    location: 'Thảo Điền, Q2',
-                    price: '₫2.1M',
-                    colors: [Color(0xFFC9A36B), Color(0xFF362116)],
-                  ),
-                  HotelCard(
-                    compact: true,
-                    name: 'Minimal Loft',
-                    location: 'Bình Thạnh',
-                    price: '₫950K',
-                    colors: [Color(0xFF5D7D8F), Color(0xFF151E24)],
-                  ),
-                ],
+              FutureBuilder<List<HotelSummary>>(
+                future: MockStayzRepository.instance.getHotelSummaries(),
+                builder: (context, snapshot) {
+                  final hotels = (snapshot.data ?? const <HotelSummary>[]).skip(2).take(3).toList();
+
+                  return Wrap(
+                    spacing: 18 * responsive.widthScale,
+                    runSpacing: 18 * responsive.scale,
+                    children: [
+                      for (var i = 0; i < hotels.length; i++)
+                        HotelCard(
+                          compact: true,
+                          name: hotels[i].hotel.name,
+                          location: hotels[i].city.name,
+                          price: StayzFormatters.compactVnd(hotels[i].lowestPrice),
+                          colors: _homeHotelColors[(i + 2) % _homeHotelColors.length],
+                        ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -135,3 +136,11 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+const _homeHotelColors = [
+  [Color(0xFF405F59), Color(0xFF0F1917)],
+  [Color(0xFFC98232), Color(0xFF4C1B14)],
+  [Color(0xFF8D7159), Color(0xFF19110C)],
+  [Color(0xFFC9A36B), Color(0xFF362116)],
+  [Color(0xFF5D7D8F), Color(0xFF151E24)],
+];

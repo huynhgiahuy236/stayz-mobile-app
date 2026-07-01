@@ -2,6 +2,9 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class RoomSelectionPage extends StatelessWidget {
@@ -34,42 +37,50 @@ class RoomSelectionPage extends StatelessWidget {
                 children: [
                   const _StaySummaryCard(),
                   SizedBox(height: 42 * responsive.scale),
-                  Text(
-                    '3 LOAI PHONG',
-                    style: TextStyle(
-                      color: AppTheme.neutral500,
-                      fontSize: 12 * responsive.scale,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  SizedBox(height: 18 * responsive.scale),
-                  RoomOptionCard(
-                    name: 'Phong Deluxe Garden View',
-                    price: 'd1.800.000',
-                    badge: 'Con 3 phong',
-                    badgeColor: const Color(0xFF007044),
-                    colors: const [Color(0xFF28341C), Color(0xFFB7D27A)],
-                    onBook: () => Navigator.of(context).pushNamed(AppRoutes.bookingSchedule),
-                  ),
-                  SizedBox(height: 20 * responsive.scale),
-                  RoomOptionCard(
-                    name: 'Phong Superior City View',
-                    price: 'd2.200.000',
-                    badge: 'Sap het',
-                    note: 'Con 1 phong',
-                    badgeColor: const Color(0xFFC06B00),
-                    colors: const [Color(0xFF3D2514), Color(0xFFF0B36D)],
-                    onBook: () => Navigator.of(context).pushNamed(AppRoutes.bookingSchedule),
-                  ),
-                  SizedBox(height: 20 * responsive.scale),
-                  RoomOptionCard(
-                    name: 'Suite Executive',
-                    price: 'd3.500.000',
-                    badge: 'Con 2 phong',
-                    badgeColor: const Color(0xFF007044),
-                    colors: const [Color(0xFF4B4C42), Color(0xFFD9D1C2)],
-                    onBook: () => Navigator.of(context).pushNamed(AppRoutes.bookingSchedule),
+                  FutureBuilder<List<HotelSummary>>(
+                    future: MockStayzRepository.instance.getHotelSummaries(),
+                    builder: (context, hotelSnapshot) {
+                      final hotelId = hotelSnapshot.data?.firstOrNull?.hotel.id;
+
+                      if (hotelId == null) {
+                        return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                      }
+
+                      return FutureBuilder<List<Room>>(
+                        future: MockStayzRepository.instance.getRoomsByHotelId(hotelId),
+                        builder: (context, roomSnapshot) {
+                          final rooms = roomSnapshot.data ?? const <Room>[];
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${rooms.length} LOAI PHONG',
+                                style: TextStyle(
+                                  color: AppTheme.neutral500,
+                                  fontSize: 12 * responsive.scale,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                              SizedBox(height: 18 * responsive.scale),
+                              for (var i = 0; i < rooms.length; i++) ...[
+                                RoomOptionCard(
+                                  name: rooms[i].name,
+                                  price: StayzFormatters.fullVnd(rooms[i].pricePerNight),
+                                  badge: rooms[i].availableUnits <= 2 ? 'Sap het' : 'Con ${rooms[i].availableUnits} phong',
+                                  note: rooms[i].availableUnits <= 2 ? 'Con ${rooms[i].availableUnits} phong' : null,
+                                  badgeColor: rooms[i].availableUnits <= 2 ? const Color(0xFFC06B00) : const Color(0xFF007044),
+                                  colors: _roomColors[i % _roomColors.length],
+                                  onBook: () => Navigator.of(context).pushNamed(AppRoutes.bookingSchedule),
+                                ),
+                                if (i != rooms.length - 1) SizedBox(height: 20 * responsive.scale),
+                              ],
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -80,6 +91,12 @@ class RoomSelectionPage extends StatelessWidget {
     );
   }
 }
+
+const _roomColors = [
+  [Color(0xFF28341C), Color(0xFFB7D27A)],
+  [Color(0xFF3D2514), Color(0xFFF0B36D)],
+  [Color(0xFF4B4C42), Color(0xFFD9D1C2)],
+];
 
 class _StaySummaryCard extends StatelessWidget {
   const _StaySummaryCard();

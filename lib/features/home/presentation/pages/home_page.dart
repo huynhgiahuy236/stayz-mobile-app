@@ -103,6 +103,7 @@ class HomePage extends StatelessWidget {
                           name: summary.hotel.name,
                           location: summary.city.name,
                           price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / đêm',
+                          imageUrl: summary.hotel.imageUrls.firstOrNull,
                           colors: _homeHotelColors[index % _homeHotelColors.length],
                         );
                       },
@@ -127,6 +128,7 @@ class HomePage extends StatelessWidget {
                           name: hotels[i].hotel.name,
                           location: hotels[i].city.name,
                           price: '${StayzFormatters.compactVnd(hotels[i].lowestPrice)} / đêm',
+                          imageUrl: hotels[i].hotel.imageUrls.firstOrNull,
                           colors: _homeHotelColors[(i + 2) % _homeHotelColors.length],
                         ),
                         if (i < hotels.length - 1)

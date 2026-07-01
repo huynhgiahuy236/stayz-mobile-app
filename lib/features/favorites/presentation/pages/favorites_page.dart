@@ -28,29 +28,53 @@ class FavoritesPage extends StatelessWidget {
                 20 * responsive.scale,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFFBF7F4),
+                color: AppTheme.cream,
                 border: Border(
                   bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.55)),
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.menu, color: AppTheme.accentDark, size: 28 * responsive.scale),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.menu_rounded, color: AppTheme.accentDark, size: 26 * responsive.scale),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.all(8 * responsive.scale),
+                      side: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+                    ),
+                  ),
                   Expanded(
                     child: Text(
-                      'Yeu thich',
+                      'Yêu thích',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppTheme.ink,
-                        fontSize: 22 * responsive.scale,
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Noto Serif JP',
+                        color: AppTheme.accentDark,
+                        fontSize: 26 * responsive.scale,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ),
-                  CircleAvatar(
-                    radius: 20 * responsive.scale,
-                    backgroundColor: const Color(0xFFD8C5B7),
-                    child: Icon(Icons.person, color: AppTheme.accentDark, size: 22 * responsive.scale),
+                  Container(
+                    width: 42 * responsive.scale,
+                    height: 42 * responsive.scale,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.accent.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: AppTheme.neutral200.withValues(alpha: 0.8),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.person_outline_rounded,
+                        color: AppTheme.accentDark,
+                        size: 22 * responsive.scale,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -65,28 +89,24 @@ class FavoritesPage extends StatelessWidget {
                     return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
                   }
 
-                  return GridView.count(
+                  return ListView.separated(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      42 * responsive.scale,
-                      responsive.horizontalPadding,
-                      28 * responsive.scale,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: responsive.horizontalPadding,
+                      vertical: 24 * responsive.scale,
                     ),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 22 * responsive.widthScale,
-                    mainAxisSpacing: 22 * responsive.scale,
-                    childAspectRatio: 0.43,
-                    children: [
-                      for (var i = 0; i < hotels.length; i++)
-                        FavoriteHotelCard(
-                          name: hotels[i].hotel.name,
-                          location: hotels[i].city.name,
-                          price: StayzFormatters.compactVnd(hotels[i].lowestPrice),
-                          rating: hotels[i].rating.toStringAsFixed(1),
-                          colors: _favoriteColors[i % _favoriteColors.length],
-                        ),
-                    ],
+                    itemCount: hotels.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 20 * responsive.scale),
+                    itemBuilder: (context, index) {
+                      return FavoriteHotelCard(
+                        name: hotels[index].hotel.name,
+                        location: hotels[index].city.name,
+                        price: StayzFormatters.compactVnd(hotels[index].lowestPrice),
+                        rating: hotels[index].rating.toStringAsFixed(1),
+                        imageUrl: hotels[index].hotel.imageUrls.firstOrNull,
+                        colors: _favoriteColors[index % _favoriteColors.length],
+                      );
+                    },
                   );
                 },
               ),

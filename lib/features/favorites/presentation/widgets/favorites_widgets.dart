@@ -10,6 +10,7 @@ class FavoriteHotelCard extends StatelessWidget {
     required this.price,
     required this.rating,
     required this.colors,
+    this.imageUrl,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class FavoriteHotelCard extends StatelessWidget {
   final String price;
   final String rating;
   final List<Color> colors;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +27,16 @@ class FavoriteHotelCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFAF7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.neutral200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.neutral800.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -43,25 +52,49 @@ class FavoriteHotelCard extends StatelessWidget {
                   12 * responsive.widthScale,
                   0,
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(9),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: colors,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: LuxuryArchitecturalPainter(colors: colors),
+                        ),
+                      ),
+                      if (imageUrl != null)
+                        Positioned.fill(
+                          child: Image.network(
+                            imageUrl!,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const SizedBox.shrink();
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
               Positioned(
                 right: 22 * responsive.widthScale,
                 top: 24 * responsive.scale,
-                child: CircleAvatar(
-                  radius: 20 * responsive.scale,
-                  backgroundColor: Colors.white.withValues(alpha: 0.92),
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: AppTheme.accent,
-                    size: 23 * responsive.scale,
+                child: Container(
+                  width: 32 * responsive.scale,
+                  height: 32 * responsive.scale,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.favorite,
+                      color: AppTheme.accent,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
@@ -86,18 +119,18 @@ class FavoriteHotelCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: AppTheme.ink,
-                          fontSize: 19 * responsive.scale,
+                          fontSize: 16 * responsive.scale,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                    Icon(Icons.star, color: const Color(0xFFF0A31A), size: 16 * responsive.scale),
+                    Icon(Icons.star_rounded, color: Colors.amber[700], size: 16 * responsive.scale),
                     SizedBox(width: 4 * responsive.widthScale),
                     Text(
                       rating,
                       style: TextStyle(
                         color: AppTheme.ink,
-                        fontSize: 14 * responsive.scale,
+                        fontSize: 13 * responsive.scale,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -113,7 +146,7 @@ class FavoriteHotelCard extends StatelessWidget {
                         location,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale),
+                        style: TextStyle(color: AppTheme.neutral500, fontSize: 13 * responsive.scale),
                       ),
                     ),
                   ],
@@ -126,16 +159,15 @@ class FavoriteHotelCard extends StatelessWidget {
                         text: price,
                         style: TextStyle(
                           color: AppTheme.accent,
-                          fontSize: 17 * responsive.scale,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1,
+                          fontSize: 16 * responsive.scale,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       TextSpan(
-                        text: ' / dem',
+                        text: ' / đêm',
                         style: TextStyle(
                           color: AppTheme.neutral500,
-                          fontSize: 13 * responsive.scale,
+                          fontSize: 12 * responsive.scale,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

@@ -367,6 +367,7 @@ class HotelCard extends StatelessWidget {
     required this.colors,
     this.compact = false,
     this.fullWidth = false,
+    this.imageUrl,
     super.key,
   });
 
@@ -376,6 +377,7 @@ class HotelCard extends StatelessWidget {
   final List<Color> colors;
   final bool compact;
   final bool fullWidth;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -413,6 +415,20 @@ class HotelCard extends StatelessWidget {
                       painter: LuxuryArchitecturalPainter(colors: colors),
                     ),
                   ),
+                  if (imageUrl != null)
+                    Positioned.fill(
+                      child: Image.network(
+                        imageUrl!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const SizedBox.shrink();
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ),
                   Positioned(
                     right: 12 * responsive.scale,
                     top: 12 * responsive.scale,

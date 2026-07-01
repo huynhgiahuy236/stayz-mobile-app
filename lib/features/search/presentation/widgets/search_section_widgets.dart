@@ -102,6 +102,7 @@ class SearchHotelCard extends StatelessWidget {
     required this.colors,
     this.badge,
     this.favorite = false,
+    this.imageUrl,
     super.key,
   });
 
@@ -112,6 +113,7 @@ class SearchHotelCard extends StatelessWidget {
   final List<Color> colors;
   final String? badge;
   final bool favorite;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -120,8 +122,15 @@ class SearchHotelCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.neutral800.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -129,15 +138,28 @@ class SearchHotelCard extends StatelessWidget {
         children: [
           Container(
             height: 190 * responsive.scale,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: colors,
-              ),
-            ),
+            width: double.infinity,
             child: Stack(
               children: [
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: LuxuryArchitecturalPainter(colors: colors),
+                  ),
+                ),
+                if (imageUrl != null)
+                  Positioned.fill(
+                    child: Image.network(
+                      imageUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const SizedBox.shrink();
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
                 Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -145,8 +167,8 @@ class SearchHotelCard extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.05),
-                          Colors.black.withValues(alpha: 0.18),
+                          Colors.black.withValues(alpha: 0.02),
+                          Colors.black.withValues(alpha: 0.15),
                         ],
                       ),
                     ),
@@ -159,7 +181,7 @@ class SearchHotelCard extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12 * responsive.widthScale,
-                        vertical: 8 * responsive.scale,
+                        vertical: 6 * responsive.scale,
                       ),
                       decoration: BoxDecoration(
                         color: AppTheme.accent,

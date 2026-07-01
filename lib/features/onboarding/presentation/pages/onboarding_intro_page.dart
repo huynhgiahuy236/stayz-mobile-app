@@ -66,10 +66,10 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: PageView.builder(
         controller: _controller,
-        physics: const BouncingScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: _slides.length,
         onPageChanged: (page) => setState(() => _currentPage = page),
         itemBuilder: (context, index) {

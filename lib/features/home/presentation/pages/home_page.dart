@@ -32,9 +32,9 @@ class HomePage extends StatelessWidget {
               const StayZLogoRow(),
               SizedBox(height: 34 * responsive.scale),
               Text(
-                'CHAO BUOI SANG',
+                'CHÀO BUỔI SÁNG',
                 style: TextStyle(
-                  color: const Color(0xFF5A3F3F),
+                  color: AppTheme.neutral500,
                   fontSize: 11 * responsive.scale,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 2,
@@ -44,17 +44,22 @@ class HomePage extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   style: textTheme.headlineMedium?.copyWith(
+                    fontFamily: 'Noto Serif JP',
                     color: AppTheme.ink,
                     fontSize: 26 * responsive.scale,
                     height: 1.18,
                   ),
                   children: const [
-                    TextSpan(text: 'Ban muon nghi ngoi o '),
+                    TextSpan(text: 'Bạn muốn nghỉ ngơi ở '),
                     TextSpan(
-                      text: 'dau',
-                      style: TextStyle(color: AppTheme.accent, fontStyle: FontStyle.italic),
+                      text: 'đâu',
+                      style: TextStyle(
+                        fontFamily: 'Noto Serif JP',
+                        color: AppTheme.accent, 
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
-                    TextSpan(text: '\nhom nay?'),
+                    TextSpan(text: '\nhôm nay?'),
                   ],
                 ),
               ),
@@ -66,16 +71,16 @@ class HomePage extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: const [
-                    FilterPill(label: 'Tat ca', active: true),
+                    FilterPill(label: 'Tất cả', active: true),
                     SizedBox(width: 14),
-                    FilterPill(label: 'Gan day'),
+                    FilterPill(label: 'Gần đây'),
                     SizedBox(width: 14),
-                    FilterPill(label: 'Cao cap'),
+                    FilterPill(label: 'Cao cấp'),
                   ],
                 ),
               ),
               SizedBox(height: 46 * responsive.scale),
-              const SectionLabel(title: 'Noi bat', action: 'Xem tat ca'),
+              const SectionLabel(title: 'Nổi bật', action: 'Xem tất cả'),
               SizedBox(height: 20 * responsive.scale),
               SizedBox(
                 height: 294 * responsive.scale,
@@ -97,7 +102,7 @@ class HomePage extends StatelessWidget {
                         return HotelCard(
                           name: summary.hotel.name,
                           location: summary.city.name,
-                          price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / dem',
+                          price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / đêm',
                           colors: _homeHotelColors[index % _homeHotelColors.length],
                         );
                       },
@@ -106,25 +111,27 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 48 * responsive.scale),
-              const SectionLabel(title: 'Gan ban'),
+              const SectionLabel(title: 'Gần bạn'),
               SizedBox(height: 20 * responsive.scale),
               FutureBuilder<List<HotelSummary>>(
                 future: MockStayzRepository.instance.getHotelSummaries(),
                 builder: (context, snapshot) {
                   final hotels = (snapshot.data ?? const <HotelSummary>[]).skip(2).take(3).toList();
 
-                  return Wrap(
-                    spacing: 18 * responsive.widthScale,
-                    runSpacing: 18 * responsive.scale,
+                  return Column(
                     children: [
-                      for (var i = 0; i < hotels.length; i++)
+                      for (var i = 0; i < hotels.length; i++) ...[
                         HotelCard(
-                          compact: true,
+                          compact: false,
+                          fullWidth: true,
                           name: hotels[i].hotel.name,
                           location: hotels[i].city.name,
-                          price: StayzFormatters.compactVnd(hotels[i].lowestPrice),
+                          price: '${StayzFormatters.compactVnd(hotels[i].lowestPrice)} / đêm',
                           colors: _homeHotelColors[(i + 2) % _homeHotelColors.length],
                         ),
+                        if (i < hotels.length - 1)
+                          SizedBox(height: 20 * responsive.scale),
+                      ],
                     ],
                   );
                 },

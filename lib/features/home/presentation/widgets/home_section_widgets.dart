@@ -151,33 +151,57 @@ class StayZLogoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final textTheme = Theme.of(context).textTheme;
 
     return Row(
       children: [
         RichText(
           text: TextSpan(
-            style: textTheme.headlineMedium?.copyWith(
-              color: AppTheme.ink,
-              fontSize: 27 * responsive.scale,
-              fontWeight: FontWeight.w500,
+            style: TextStyle(
+              fontFamily: 'Noto Serif JP',
+              fontSize: 28 * responsive.scale,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.5,
             ),
             children: const [
-              TextSpan(text: 'Stay'),
-              TextSpan(text: 'Z', style: TextStyle(color: AppTheme.accent)),
+              TextSpan(text: 'Stay', style: TextStyle(color: AppTheme.ink)),
+              TextSpan(text: 'Z', style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w900)),
             ],
           ),
         ),
         const Spacer(),
+        IconButton(
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.notifications),
+          icon: Icon(
+            Icons.notifications_none_rounded,
+            color: AppTheme.accentDark,
+            size: 26 * responsive.scale,
+          ),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.all(8 * responsive.scale),
+            side: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+          ),
+        ),
+        SizedBox(width: 10 * responsive.widthScale),
         GestureDetector(
           onTap: () => Navigator.of(context).pushNamed(AppRoutes.notifications),
-          child: CircleAvatar(
-            radius: 20 * responsive.scale,
-            backgroundColor: const Color(0xFFD8C5B7),
-            child: Icon(
-              Icons.person,
-              color: AppTheme.accentDark,
-              size: 22 * responsive.scale,
+          child: Container(
+            width: 42 * responsive.scale,
+            height: 42 * responsive.scale,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.accent.withValues(alpha: 0.08),
+              border: Border.all(
+                color: AppTheme.neutral200.withValues(alpha: 0.8),
+                width: 1.5,
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.person_outline_rounded,
+                color: AppTheme.accentDark,
+                size: 22 * responsive.scale,
+              ),
             ),
           ),
         ),
@@ -205,20 +229,23 @@ class SectionLabel extends StatelessWidget {
         Text(
           title.toUpperCase(),
           style: TextStyle(
-            color: const Color(0xFF5A3F3F),
-            fontSize: 11 * responsive.scale,
-            fontWeight: FontWeight.w700,
+            color: AppTheme.neutral500,
+            fontSize: 12 * responsive.scale,
+            fontWeight: FontWeight.w800,
             letterSpacing: 2,
           ),
         ),
         const Spacer(),
         if (action != null)
-          Text(
-            action!,
-            style: TextStyle(
-              color: AppTheme.accent,
-              fontSize: 12 * responsive.scale,
-              fontWeight: FontWeight.w700,
+          GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+            child: Text(
+              action!,
+              style: TextStyle(
+                color: AppTheme.accent,
+                fontSize: 13 * responsive.scale,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
       ],
@@ -236,28 +263,49 @@ class SearchBox extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
       child: Container(
-      height: 56 * responsive.scale,
-      padding: EdgeInsets.symmetric(horizontal: 20 * responsive.widthScale),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.search, size: 24 * responsive.scale, color: AppTheme.ink),
-          SizedBox(width: 14 * responsive.widthScale),
-          Expanded(
-            child: Text(
-              'Điểm đến, tên khách sạn...',
-              style: TextStyle(
-                color: const Color(0xFFA69E92),
-                fontSize: 15 * responsive.scale,
+        height: 56 * responsive.scale,
+        padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.neutral800.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.neutral500),
+            SizedBox(width: 12 * responsive.widthScale),
+            Expanded(
+              child: Text(
+                'Điểm đến, tên khách sạn...',
+                style: TextStyle(
+                  color: AppTheme.neutral500.withValues(alpha: 0.7),
+                  fontSize: 15 * responsive.scale,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+            Container(
+              width: 36 * responsive.scale,
+              height: 36 * responsive.scale,
+              decoration: BoxDecoration(
+                color: AppTheme.accent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.tune_rounded,
+                size: 18 * responsive.scale,
+                color: AppTheme.accent,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -278,22 +326,32 @@ class FilterPill extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Container(
-      height: 46 * responsive.scale,
-      padding: EdgeInsets.symmetric(horizontal: 24 * responsive.widthScale),
+      height: 44 * responsive.scale,
+      padding: EdgeInsets.symmetric(horizontal: 22 * responsive.widthScale),
       decoration: BoxDecoration(
-        color: active ? AppTheme.ink : Colors.transparent,
-        borderRadius: BorderRadius.circular(999),
+        color: active ? AppTheme.accent : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: active
+            ? [
+                BoxShadow(
+                  color: AppTheme.accent.withValues(alpha: 0.2),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : null,
         border: Border.all(
-          color: active ? AppTheme.ink : AppTheme.neutral200,
+          color: active ? AppTheme.accent : AppTheme.neutral200.withValues(alpha: 0.6),
+          width: 1.2,
         ),
       ),
       child: Center(
         child: Text(
           label,
           style: TextStyle(
-            color: active ? AppTheme.cream : AppTheme.ink,
+            color: active ? Colors.white : AppTheme.neutral500,
             fontSize: 14 * responsive.scale,
-            fontWeight: FontWeight.w500,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w600,
           ),
         ),
       ),
@@ -308,6 +366,7 @@ class HotelCard extends StatelessWidget {
     required this.price,
     required this.colors,
     this.compact = false,
+    this.fullWidth = false,
     super.key,
   });
 
@@ -316,108 +375,165 @@ class HotelCard extends StatelessWidget {
   final String price;
   final List<Color> colors;
   final bool compact;
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final width = compact ? 150 * responsive.widthScale : 222 * responsive.widthScale;
+    final width = fullWidth
+        ? null
+        : (compact ? 164 * responsive.widthScale : 240 * responsive.widthScale);
 
     return Container(
       width: width,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.neutral800.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: (compact ? 136 : 132) * responsive.scale,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: colors,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  right: 14,
-                  top: 14,
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.white,
-                    size: 26 * responsive.scale,
-                  ),
-                ),
-                Positioned(
-                  left: 14,
-                  top: 14,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(999),
+            height: (compact ? 120 : 150) * responsive.scale,
+            width: double.infinity,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: LuxuryArchitecturalPainter(colors: colors),
                     ),
-                    child: Text(
-                      'NỔI BẬT',
-                      style: TextStyle(
-                        color: AppTheme.ink,
-                        fontSize: 9 * responsive.scale,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1,
+                  ),
+                  Positioned(
+                    right: 12 * responsive.scale,
+                    top: 12 * responsive.scale,
+                    child: Container(
+                      width: 32 * responsive.scale,
+                      height: 32 * responsive.scale,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.favorite_border_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    left: 12 * responsive.scale,
+                    top: 12 * responsive.scale,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber[700],
+                            size: 12,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '4.9',
+                            style: TextStyle(
+                              color: AppTheme.ink,
+                              fontSize: 10 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(14 * responsive.scale),
+            padding: EdgeInsets.all(12 * responsive.scale),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  location.toUpperCase(),
-                  style: TextStyle(
-                    color: AppTheme.neutral500,
-                    fontSize: 10 * responsive.scale,
-                    letterSpacing: 1.2,
-                  ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined, 
+                      size: 12 * responsive.scale, 
+                      color: AppTheme.neutral500,
+                    ),
+                    SizedBox(width: 4 * responsive.widthScale),
+                    Expanded(
+                      child: Text(
+                        location.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.neutral500,
+                          fontSize: 10 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 6 * responsive.scale),
                 Text(
                   name,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppTheme.ink,
-                    fontSize: (compact ? 16 : 15) * responsive.scale,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 10 * responsive.scale),
-                Text(
-                  price,
-                  style: TextStyle(
-                    color: AppTheme.accent,
-                    fontSize: 14 * responsive.scale,
+                    fontSize: 16 * responsive.scale,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 12 * responsive.scale),
+                SizedBox(height: 10 * responsive.scale),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: _SmallActionButton(label: compact ? 'Chi tiết' : 'Xem chi tiết'),
+                      child: Text(
+                        price,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.accent,
+                          fontSize: 14 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 8 * responsive.widthScale),
-                    Expanded(
-                      child: _SmallActionButton(label: 'Đặt ngay', filled: true),
+                    Container(
+                      width: 28 * responsive.scale,
+                      height: 28 * responsive.scale,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.ink,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -425,42 +541,6 @@ class HotelCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SmallActionButton extends StatelessWidget {
-  const _SmallActionButton({
-    required this.label,
-    this.filled = false,
-  });
-
-  final String label;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-
-    return Container(
-      height: 34 * responsive.scale,
-      decoration: BoxDecoration(
-        color: filled ? AppTheme.accent : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.accent),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: filled ? Colors.white : AppTheme.accent,
-            fontSize: 11 * responsive.scale,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
       ),
     );
   }
@@ -489,36 +569,85 @@ class BookingPreviewCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.neutral800.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
           Container(
-            height: 172 * responsive.scale,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              gradient: LinearGradient(colors: colors),
+            height: 110 * responsive.scale,
+            width: double.infinity,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: LuxuryArchitecturalPainter(colors: colors),
+                    ),
+                  ),
+                  Positioned(
+                    left: 18 * responsive.scale,
+                    top: 18 * responsive.scale,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14 * responsive.widthScale,
+                        vertical: 6 * responsive.scale,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Sắp tới',
+                        style: TextStyle(
+                          color: AppTheme.accent,
+                          fontSize: 13 * responsive.scale,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            alignment: Alignment.topLeft,
-            padding: EdgeInsets.all(18 * responsive.scale),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20 * responsive.widthScale,
-                vertical: 10 * responsive.scale,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAF0EE),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                'Sắp tới',
-                style: TextStyle(
-                  color: AppTheme.accent,
-                  fontSize: 16 * responsive.scale,
+          ),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              const TicketDashedDivider(),
+              Positioned(
+                left: -8,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: AppTheme.cream,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
+                  ),
                 ),
               ),
-            ),
+              Positioned(
+                right: -8,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: AppTheme.cream,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
+                  ),
+                ),
+              ),
+            ],
           ),
           Padding(
             padding: EdgeInsets.all(18 * responsive.scale),
@@ -529,21 +658,22 @@ class BookingPreviewCard extends StatelessWidget {
                   name,
                   style: TextStyle(
                     color: AppTheme.ink,
-                    fontSize: 22 * responsive.scale,
+                    fontSize: 20 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 10 * responsive.scale),
+                SizedBox(height: 8 * responsive.scale),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, color: Color(0xFF5A3F3F)),
+                    const Icon(Icons.location_on_outlined, color: AppTheme.neutral500, size: 16),
                     SizedBox(width: 6 * responsive.widthScale),
                     Expanded(
                       child: Text(
                         location,
                         style: TextStyle(
-                          color: const Color(0xFF5A3F3F),
-                          fontSize: 16 * responsive.scale,
+                          color: AppTheme.neutral500,
+                          fontSize: 14 * responsive.scale,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -588,18 +718,19 @@ class _BookingMeta extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: const Color(0xFF5A3F3F),
-            fontSize: 13 * responsive.scale,
-            letterSpacing: 2,
+            color: AppTheme.neutral500,
+            fontSize: 11 * responsive.scale,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
           ),
         ),
         SizedBox(height: 4 * responsive.scale),
         Text(
           value,
           style: TextStyle(
-            color: alignRight ? AppTheme.accentDark : AppTheme.ink,
-            fontSize: (alignRight ? 20 : 16) * responsive.scale,
-            fontWeight: alignRight ? FontWeight.w800 : FontWeight.w500,
+            color: alignRight ? AppTheme.accent : AppTheme.ink,
+            fontSize: (alignRight ? 18 : 14) * responsive.scale,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -630,21 +761,37 @@ class NotificationCard extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Container(
-      padding: EdgeInsets.all(18 * responsive.scale),
+      padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.neutral800.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+        border: Border.all(
+          color: unread 
+              ? AppTheme.accent.withValues(alpha: 0.3) 
+              : AppTheme.neutral200.withValues(alpha: 0.5),
+          width: unread ? 1.5 : 1.0,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 28 * responsive.scale,
-            backgroundColor: iconColor.withValues(alpha: 0.24),
-            child: Icon(icon, color: iconColor, size: 26 * responsive.scale),
+          Container(
+            width: 44 * responsive.scale,
+            height: 44 * responsive.scale,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 22 * responsive.scale),
           ),
-          SizedBox(width: 18 * responsive.widthScale),
+          SizedBox(width: 14 * responsive.widthScale),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -657,17 +804,17 @@ class NotificationCard extends StatelessWidget {
                         title,
                         style: TextStyle(
                           color: AppTheme.ink,
-                          fontSize: 20 * responsive.scale,
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
+                          fontSize: 16 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                          height: 1.25,
                         ),
                       ),
                     ),
                     if (unread)
                       Container(
-                        width: 9,
-                        height: 9,
-                        margin: const EdgeInsets.only(top: 8),
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.only(top: 4, left: 8),
                         decoration: const BoxDecoration(
                           color: AppTheme.accent,
                           shape: BoxShape.circle,
@@ -675,28 +822,120 @@ class NotificationCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                SizedBox(height: 8 * responsive.scale),
+                SizedBox(height: 6 * responsive.scale),
                 Text(
                   body,
                   style: TextStyle(
-                    color: const Color(0xFF5A3F3F),
-                    fontSize: 15 * responsive.scale,
-                    height: 1.45,
+                    color: AppTheme.neutral500,
+                    fontSize: 14 * responsive.scale,
+                    height: 1.4,
                   ),
                 ),
-                SizedBox(height: 6 * responsive.scale),
+                SizedBox(height: 8 * responsive.scale),
                 Text(
                   time,
                   style: TextStyle(
-                    color: AppTheme.neutral500,
-                    fontSize: 13 * responsive.scale,
-                    fontWeight: FontWeight.w700,
+                    color: AppTheme.neutral500.withValues(alpha: 0.7),
+                    fontSize: 12 * responsive.scale,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class LuxuryArchitecturalPainter extends CustomPainter {
+  const LuxuryArchitecturalPainter({required this.colors});
+  final List<Color> colors;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final bgPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: colors.length >= 2 
+            ? colors 
+            : [const Color(0xFF405F59), const Color(0xFF0F1917)],
+      ).createShader(rect);
+    canvas.drawRect(rect, bgPaint);
+
+    final sunCenter = Offset(size.width * 0.7, size.height * 0.45);
+    final sunRadius = size.height * 0.22;
+    final sunPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.15);
+    canvas.drawCircle(sunCenter, sunRadius, sunPaint);
+
+    final pathWave = Path();
+    pathWave.moveTo(0, size.height);
+    pathWave.quadraticBezierTo(
+      size.width * 0.35, 
+      size.height * 0.72, 
+      size.width * 0.7, 
+      size.height * 0.88,
+    );
+    pathWave.quadraticBezierTo(
+      size.width * 0.85, 
+      size.height * 0.94, 
+      size.width, 
+      size.height * 0.8,
+    );
+    pathWave.lineTo(size.width, size.height);
+    pathWave.lineTo(0, size.height);
+    pathWave.close();
+
+    final wavePaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.08);
+    canvas.drawPath(pathWave, wavePaint);
+
+    final archWidth = size.width * 0.38;
+    final archHeight = size.height * 0.65;
+    final archLeft = size.width * 0.12;
+    final archTop = size.height - archHeight;
+
+    final archPath = Path();
+    archPath.moveTo(archLeft, size.height);
+    archPath.lineTo(archLeft, archTop + archWidth / 2);
+    archPath.arcTo(
+      Rect.fromLTWH(archLeft, archTop, archWidth, archWidth),
+      3.1415,
+      3.1415,
+      false,
+    );
+    archPath.lineTo(archLeft + archWidth, size.height);
+    archPath.close();
+
+    final archPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.12);
+    canvas.drawPath(archPath, archPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant LuxuryArchitecturalPainter oldDelegate) => 
+      oldDelegate.colors != colors;
+}
+
+class TicketDashedDivider extends StatelessWidget {
+  const TicketDashedDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(
+        15,
+        (index) => Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            height: 1.5,
+            color: AppTheme.neutral200.withValues(alpha: 0.8),
+          ),
+        ),
       ),
     );
   }

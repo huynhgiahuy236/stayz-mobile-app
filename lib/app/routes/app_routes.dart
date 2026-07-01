@@ -3,6 +3,8 @@ import 'package:capstone_mobile/features/auth/presentation/pages/login_page.dart
 import 'package:capstone_mobile/features/auth/presentation/pages/otp_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:capstone_mobile/features/detail/presentation/pages/hotel_info_form_page.dart';
+import 'package:capstone_mobile/features/detail/presentation/pages/room_detail_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/hotel_list_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
@@ -29,6 +31,8 @@ class AppRoutes {
   static const filter = '/filter';
   static const emptySearch = '/empty-search';
   static const offlineError = '/offline-error';
+  static const roomDetail = '/room-detail';
+  static const hotelInfoForm = '/hotel-info-form';
 
   static Map<String, WidgetBuilder> get routes => {
         home: (_) => const HomePage(),
@@ -44,5 +48,7 @@ class AppRoutes {
         filter: (_) => const FilterPage(),
         emptySearch: (_) => const EmptySearchPage(),
         offlineError: (_) => const OfflineErrorPage(),
+        roomDetail: (_) => const RoomDetailPage(),
+        hotelInfoForm: (_) => const HotelInfoFormPage(),
       };
 }

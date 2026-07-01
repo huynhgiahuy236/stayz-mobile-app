@@ -1,3 +1,4 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
 import 'package:flutter/material.dart';
@@ -21,32 +22,23 @@ class OnboardingSlide extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final responsive = _ResponsiveSpec.from(constraints);
-        final topSpacing = data.showHeader ? 34.0 * responsive.scale : 36.0 * responsive.scale;
         final horizontalPadding = 30.0 * responsive.widthScale;
 
         return Stack(
           children: [
-            if (data.imageMode == OnboardingImageMode.card)
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: const _IntroBackgroundPainter(),
-                ),
+            Positioned.fill(
+              child: CustomPaint(
+                painter: const _IntroBackgroundPainter(),
               ),
+            ),
             SafeArea(
               bottom: false,
               child: Column(
                 children: [
-                  if (data.showHeader)
-                    _OnboardingHeader(
-                      responsive: responsive,
-                    )
-                  else
-                    SizedBox(height: topSpacing),
-                  if (data.logoAlignment != null)
-                    _TopLogo(
-                      alignment: data.logoAlignment!,
-                      responsive: responsive,
-                    ),
+                  _OnboardingHeader(
+                    responsive: responsive,
+                    showSkip: pageIndex < pageCount - 1,
+                  ),
                   _HeroImage(
                     data: data,
                     responsive: responsive,
@@ -107,80 +99,45 @@ class _ResponsiveSpec {
 class _OnboardingHeader extends StatelessWidget {
   const _OnboardingHeader({
     required this.responsive,
+    required this.showSkip,
   });
 
   final _ResponsiveSpec responsive;
+  final bool showSkip;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return Padding(
       padding: EdgeInsets.fromLTRB(
         28 * responsive.widthScale,
         18 * responsive.scale,
         28 * responsive.widthScale,
-        (responsive.isCompact ? 18 : 34) * responsive.scale,
+        (responsive.isCompact ? 12 : 24) * responsive.scale,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          RichText(
-            text: TextSpan(
-              style: textTheme.headlineMedium?.copyWith(
-                color: AppTheme.accentDark,
-                fontSize: 31 * responsive.scale,
-                fontWeight: FontWeight.w500,
-              ),
-              children: const [
-                TextSpan(text: 'Stay'),
-                TextSpan(
-                  text: 'Z',
-                  style: TextStyle(color: AppTheme.accent),
+          Image.asset(
+            'assets/images/stayz_logo.png',
+            height: 38 * responsive.scale,
+            fit: BoxFit.contain,
+          ),
+          if (showSkip)
+            GestureDetector(
+              onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
+                child: Text(
+                  'Bỏ qua',
+                  style: TextStyle(
+                    color: const Color(0xFF475569),
+                    fontSize: 16 * responsive.scale,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _TopLogo extends StatelessWidget {
-  const _TopLogo({
-    required this.alignment,
-    required this.responsive,
-  });
-
-  final Alignment alignment;
-  final _ResponsiveSpec responsive;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          30 * responsive.widthScale,
-          (responsive.isCompact ? 6 : 16) * responsive.scale,
-          30 * responsive.widthScale,
-          8 * responsive.scale,
-        ),
-        child: RichText(
-          text: TextSpan(
-            style: textTheme.headlineMedium?.copyWith(
-              color: AppTheme.accent.withValues(alpha: 0.36),
-              fontSize: (responsive.isCompact ? 28 : 34) * responsive.scale,
-              fontWeight: FontWeight.w500,
-            ),
-            children: const [
-              TextSpan(text: 'Stay'),
-              TextSpan(text: 'Z'),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -232,7 +189,7 @@ class _HeroImage extends StatelessWidget {
               boxShadow: data.imageMode == OnboardingImageMode.card
                   ? [
                       BoxShadow(
-                        color: AppTheme.ink.withValues(alpha: 0.2),
+                        color: const Color(0xFF0F172A).withValues(alpha: 0.2),
                         blurRadius: 32,
                         offset: const Offset(0, 22),
                       ),
@@ -302,7 +259,7 @@ class _IntroContentSheet extends StatelessWidget {
                 Text(
                   data.step,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFFA69E92),
+                    color: const Color(0xFF94A3B8),
                     fontSize: 14 * responsive.scale,
                     letterSpacing: 4,
                   ),
@@ -321,6 +278,7 @@ class _IntroContentSheet extends StatelessWidget {
             Text(
               data.title,
               style: textTheme.displayLarge?.copyWith(
+                color: const Color(0xFF0F172A),
                 fontSize: titleSize,
                 height: 1.14,
                 fontWeight: FontWeight.w400,
@@ -330,7 +288,7 @@ class _IntroContentSheet extends StatelessWidget {
             Text(
               data.description,
               style: textTheme.bodyLarge?.copyWith(
-                color: const Color(0xFF5A3F3F),
+                color: const Color(0xFF475569),
                 fontSize: descriptionSize,
                 height: 1.45,
               ),
@@ -354,8 +312,8 @@ class _IntroContentSheet extends StatelessWidget {
               child: FilledButton(
                 onPressed: onNext,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.accent,
-                  foregroundColor: AppTheme.cream,
+                  backgroundColor: const Color(0xFF991B1B),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -368,7 +326,7 @@ class _IntroContentSheet extends StatelessWidget {
                           Text(
                             data.primaryLabel,
                             style: textTheme.labelLarge?.copyWith(
-                              color: AppTheme.cream,
+                              color: Colors.white,
                               fontSize: 18 * responsive.scale,
                             ),
                           ),
@@ -379,7 +337,7 @@ class _IntroContentSheet extends StatelessWidget {
                     : Text(
                         data.primaryLabel,
                         style: textTheme.labelLarge?.copyWith(
-                          color: AppTheme.cream,
+                          color: Colors.white,
                           fontSize: 18 * responsive.scale,
                         ),
                       ),
@@ -391,7 +349,7 @@ class _IntroContentSheet extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.accentDark,
+                      color: const Color(0xFF475569),
                       fontSize: 14 * responsive.scale,
                       fontWeight: FontWeight.w600,
                     ),
@@ -400,6 +358,7 @@ class _IntroContentSheet extends StatelessWidget {
                       TextSpan(
                         text: 'Đăng nhập',
                         style: TextStyle(
+                          color: Color(0xFF991B1B),
                           decoration: TextDecoration.underline,
                           decorationThickness: 1.5,
                         ),
@@ -441,7 +400,7 @@ class _PageIndicator extends StatelessWidget {
             right: index == pageCount - 1 ? 0.0 : 12 * scale,
           ),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.accent : AppTheme.neutral200,
+            color: isActive ? const Color(0xFF991B1B) : const Color(0xFFE2E8F0),
             borderRadius: BorderRadius.circular(99),
           ),
         );
@@ -455,13 +414,13 @@ class _IntroBackgroundPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFFE7DDCA);
+    final paint = Paint()..color = const Color(0xFFF1F5F9);
     final top = size.height * 0.45;
     final stripeWidth = size.width * 0.23;
 
     for (var i = 0; i < 3; i++) {
       final left = size.width * 0.15 + (stripeWidth * i);
-      paint.color = i == 1 ? const Color(0xFFD8CEBA) : const Color(0xFFE4DAC8);
+      paint.color = i == 1 ? const Color(0xFFE2E8F0) : const Color(0xFFF1F5F9);
       canvas.drawRect(Rect.fromLTWH(left, top, stripeWidth, 180), paint);
     }
   }

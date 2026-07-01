@@ -30,8 +30,7 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
       description: 'Lọc theo giá, vị trí, tiện nghi. Đặt phòng trong vài giây.',
       imageAsset: 'assets/images/onboarding_search_hero.png',
       imageAspectRatio: 706 / 731,
-      imageMode: OnboardingImageMode.fullBleed,
-      logoAlignment: Alignment.topRight,
+      imageMode: OnboardingImageMode.card,
     ),
     OnboardingSlideData(
       step: '03 / 03',
@@ -40,8 +39,7 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
           'Đánh giá thực từ khách hàng. Không bất ngờ khi check-in.',
       imageAsset: 'assets/images/onboarding_stay_hero.png',
       imageAspectRatio: 648 / 580,
-      imageMode: OnboardingImageMode.framed,
-      showHeader: true,
+      imageMode: OnboardingImageMode.card,
       primaryLabel: 'Bắt đầu',
       showLoginPrompt: true,
     ),
@@ -68,9 +66,10 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       body: PageView.builder(
         controller: _controller,
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemCount: _slides.length,
         onPageChanged: (page) => setState(() => _currentPage = page),
         itemBuilder: (context, index) {

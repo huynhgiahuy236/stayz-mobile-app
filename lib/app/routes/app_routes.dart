@@ -22,6 +22,11 @@ import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart'
 import 'package:capstone_mobile/features/home/presentation/pages/hotel_list_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_intro_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/add_payment_method_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/payment_methods_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/profile_form_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/settings_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/empty_search_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/filter_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/offline_error_page.dart';
@@ -59,6 +64,11 @@ class AppRoutes {
   static const cancelBookingResult = '/cancel-booking-result';
   static const review = '/review';
   static const favorites = '/favorites';
+  static const settings = '/settings';
+  static const profileForm = '/profile-form';
+  static const editProfile = '/edit-profile';
+  static const paymentMethods = '/payment-methods';
+  static const addPaymentMethod = '/add-payment-method';
 
   static Map<String, WidgetBuilder> get routes => {
         home: (_) => const HomePage(),
@@ -89,5 +99,10 @@ class AppRoutes {
         cancelBookingResult: (_) => const CancelBookingResultPage(),
         review: (_) => const ReviewPage(),
         favorites: (_) => const FavoritesPage(),
+        settings: (_) => const SettingsPage(),
+        profileForm: (_) => const ProfileFormPage(),
+        editProfile: (_) => const EditProfilePage(),
+        paymentMethods: (_) => const PaymentMethodsPage(),
+        addPaymentMethod: (_) => const AddPaymentMethodPage(),
       };
 }

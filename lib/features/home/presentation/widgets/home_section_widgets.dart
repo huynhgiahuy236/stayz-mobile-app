@@ -83,7 +83,7 @@ class StayZBottomNav extends StatelessWidget {
             icon: Icons.person_outline,
             label: 'Tôi',
             active: activeTab == HomeTab.profile,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.notifications),
+            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.settings),
           ),
         ],
       ),

@@ -119,21 +119,19 @@ class SearchHotelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neutral800.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.line),
+            boxShadow: AppTheme.softShadow,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -253,7 +251,7 @@ class SearchHotelCard extends StatelessWidget {
                     SizedBox(width: 6 * responsive.widthScale),
                     Expanded(
                       child: Text(
-                        '($reviewCount danh gia)',
+                        '($reviewCount đánh giá)',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -301,7 +299,7 @@ class SearchHotelCard extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text: '/dem',
+                              text: ' / đêm',
                               style: TextStyle(
                                 color: AppTheme.neutral800,
                                 fontSize: 12 * responsive.scale,
@@ -311,12 +309,20 @@ class SearchHotelCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
-                      'Xem phong',
-                      style: TextStyle(
-                        color: AppTheme.accent,
-                        fontSize: 14 * responsive.scale,
-                        fontWeight: FontWeight.w700,
+                    SizedBox(
+                      width: 108 * responsive.widthScale,
+                      height: 42 * responsive.scale,
+                      child: FilledButton(
+                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
+                      style: FilledButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Xem phòng'),
+                        ),
                       ),
                     ),
                   ],
@@ -325,6 +331,8 @@ class SearchHotelCard extends StatelessWidget {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }

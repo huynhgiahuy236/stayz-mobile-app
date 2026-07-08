@@ -1,0 +1,16 @@
+const express = require("express");
+const paymentController = require("../controllers/payment.controller");
+const protect = require("../middlewares/protect.middleware");
+
+const paymentRouter = express.Router();
+
+// Webhook endpoint: Cần gọi công khai không có JWT, PayOS sẽ POST đến đây
+paymentRouter.post("/webhook", paymentController.handleWebhook);
+
+// Các endpoint khách hàng cần đăng nhập để thao tác
+paymentRouter.use(protect);
+paymentRouter.post("/create/:bookingId", paymentController.createPayment);
+paymentRouter.get("/booking/:bookingId", paymentController.getPaymentDetails);
+paymentRouter.post("/cancel/:bookingId", paymentController.cancelPayment);
+
+module.exports = paymentRouter;

@@ -15,13 +15,20 @@ class MyBookingsPage extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF7F4),
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            const BookingManageHeader(title: 'Dat phong cua toi'),
+            StayZScreenHeader(
+              title: 'Chuyến đi của tôi',
+              subtitle: 'Lịch đặt',
+              trailing: IconButton.filledTonal(
+                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
+                icon: const Icon(Icons.add_rounded),
+                style: IconButton.styleFrom(backgroundColor: AppTheme.primarySoft, foregroundColor: AppTheme.primary),
+              ),
+            ),
             const BookingManageTabs(
               activeTab: BookingManageTab.upcoming,
               upcomingRoute: AppRoutes.myBookings,
@@ -37,24 +44,32 @@ class MyBookingsPage extends StatelessWidget {
                       .toList();
 
                   if (bookings.isEmpty && snapshot.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
                   }
 
                   return ListView.separated(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.all(responsive.horizontalPadding),
-                    itemCount: bookings.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 28 * responsive.scale),
+                    padding: EdgeInsets.fromLTRB(
+                      responsive.horizontalPadding,
+                      18 * responsive.scale,
+                      responsive.horizontalPadding,
+                      24 * responsive.scale,
+                    ),
+                    itemCount: bookings.length + 1,
+                    separatorBuilder: (_, __) => SizedBox(height: 16 * responsive.scale),
                     itemBuilder: (context, index) {
-                      final summary = bookings[index];
+                      if (index == 0) {
+                        return _TripSummaryCard(count: bookings.length);
+                      }
 
+                      final summary = bookings[index - 1];
                       return UpcomingBookingCard(
                         name: summary.hotel.name,
                         location: '${summary.city.name}, ${summary.city.region}',
                         code: 'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
                         checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
                         checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
-                        colors: _bookingColors[index % _bookingColors.length],
+                        colors: _bookingColors[(index - 1) % _bookingColors.length],
                         onDetail: () => Navigator.of(context).pushNamed(AppRoutes.upcomingBookingDetail),
                         onCancel: () => Navigator.of(context).pushNamed(AppRoutes.cancelBookingResult),
                       );
@@ -70,8 +85,51 @@ class MyBookingsPage extends StatelessWidget {
   }
 }
 
+class _TripSummaryCard extends StatelessWidget {
+  const _TripSummaryCard({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Container(
+      padding: EdgeInsets.all(18 * responsive.scale),
+      decoration: BoxDecoration(
+        color: AppTheme.ink,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 54 * responsive.scale,
+            height: 54 * responsive.scale,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(Icons.calendar_month_rounded, color: Colors.white),
+          ),
+          SizedBox(width: 14 * responsive.widthScale),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('$count lịch đặt sắp tới', style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
+                SizedBox(height: 5 * responsive.scale),
+                Text('Xem chi tiết, đổi kế hoạch hoặc hủy đặt phòng khi cần.', style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, height: 1.35)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 const _bookingColors = [
-  [Color(0xFF355348), Color(0xFFE0E8DA)],
-  [Color(0xFF4C2014), Color(0xFFE79A30)],
-  [Color(0xFF80512E), Color(0xFF32170B)],
+  [Color(0xFFEAF7FF), Color(0xFF1D8BD1)],
+  [Color(0xFFDDEEFF), Color(0xFF0A4E83)],
+  [Color(0xFFF8FCFF), Color(0xFF3A95D8)],
 ];

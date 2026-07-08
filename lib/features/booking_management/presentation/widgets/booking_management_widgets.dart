@@ -97,28 +97,34 @@ class BookingManageTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.75))),
-      ),
-      child: Row(
-        children: [
-          _BookingTab(
-            label: 'Sap toi',
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+      child: Container(
+        padding: EdgeInsets.all(4 * responsive.scale),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppTheme.line),
+        ),
+        child: Row(
+          children: [
+            _BookingTab(
+            label: 'Sắp tới',
             active: activeTab == BookingManageTab.upcoming,
             routeName: upcomingRoute,
           ),
           _BookingTab(
-            label: 'Da hoan thanh',
+            label: 'Hoàn tất',
             active: activeTab == BookingManageTab.completed,
             routeName: completedRoute,
           ),
           _BookingTab(
-            label: 'Da huy',
+            label: 'Đã hủy',
             active: activeTab == BookingManageTab.cancelled,
             routeName: cancelledRoute,
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -142,24 +148,22 @@ class _BookingTab extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: active ? null : () => Navigator.of(context).pushReplacementNamed(routeName),
-        child: Container(
-          height: 72 * responsive.scale,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          height: 44 * responsive.scale,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: active ? AppTheme.accentDark : Colors.transparent,
-                width: 3,
-              ),
-            ),
+            color: active ? AppTheme.ink : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: active ? AppTheme.accentDark : AppTheme.neutral500,
-              fontSize: 16 * responsive.scale,
+              color: active ? Colors.white : AppTheme.muted,
+              fontSize: 13 * responsive.scale,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -231,18 +235,12 @@ class UpcomingBookingCard extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Container(
-      padding: EdgeInsets.all(18 * responsive.scale),
+      padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.neutral200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.line),
+        boxShadow: AppTheme.softShadow,
       ),
       child: Column(
         children: [
@@ -252,9 +250,10 @@ class UpcomingBookingCard extends StatelessWidget {
                 width: 88 * responsive.scale,
                 height: 88 * responsive.scale,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(18),
                   gradient: LinearGradient(colors: colors),
                 ),
+                child: const Icon(Icons.hotel_rounded, color: Colors.white),
               ),
               SizedBox(width: 20 * responsive.widthScale),
               Expanded(
@@ -279,27 +278,27 @@ class UpcomingBookingCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const BookingStatusPill(label: 'Sap toi', color: Color(0xFFFFE0DE)),
+              const BookingStatusPill(label: 'Sắp tới', color: AppTheme.primarySoft),
             ],
           ),
-          Divider(height: 34 * responsive.scale, color: const Color(0xFFD9B8B8)),
+          Divider(height: 30 * responsive.scale, color: AppTheme.line),
           Row(
             children: [
-              Expanded(child: _MetaBlock(label: 'Nhan phong', value: checkIn)),
-              Expanded(child: _MetaBlock(label: 'Tra phong', value: checkOut)),
+              Expanded(child: _MetaBlock(label: 'Nhận phòng', value: checkIn)),
+              Expanded(child: _MetaBlock(label: 'Trả phòng', value: checkOut)),
             ],
           ),
-          Divider(height: 34 * responsive.scale, color: const Color(0xFFD9B8B8)),
+          Divider(height: 30 * responsive.scale, color: AppTheme.line),
           Align(
             alignment: Alignment.centerLeft,
-            child: _MetaBlock(label: 'Ma dat phong', value: code, large: true),
+            child: _MetaBlock(label: 'Mã đặt phòng', value: code, large: true),
           ),
-          SizedBox(height: 28 * responsive.scale),
+          SizedBox(height: 20 * responsive.scale),
           Row(
             children: [
-              Expanded(child: BookingSoftButton(label: 'Xem chi tiet', onTap: onDetail)),
-              SizedBox(width: 18 * responsive.widthScale),
-              Expanded(child: BookingOutlineButton(label: 'Huy dat phong', onTap: onCancel)),
+              Expanded(child: BookingSoftButton(label: 'Chi tiết', onTap: onDetail)),
+              SizedBox(width: 10 * responsive.widthScale),
+              Expanded(child: BookingOutlineButton(label: 'Hủy lịch', onTap: onCancel)),
             ],
           ),
         ],
@@ -329,7 +328,7 @@ class _MetaBlock extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: const Color(0xFF5A3F3F),
+            color: AppTheme.muted,
             fontSize: 12 * responsive.scale,
             fontWeight: FontWeight.w800,
             letterSpacing: 2,

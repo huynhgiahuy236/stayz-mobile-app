@@ -25,226 +25,137 @@ class FavoriteHotelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neutral800.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.line),
+            boxShadow: AppTheme.softShadow,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 152 * responsive.scale,
-                margin: EdgeInsets.fromLTRB(
-                  12 * responsive.widthScale,
-                  12 * responsive.scale,
-                  12 * responsive.widthScale,
-                  0,
-                ),
+              Padding(
+                padding: EdgeInsets.all(12 * responsive.scale),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: LuxuryArchitecturalPainter(colors: colors),
-                        ),
-                      ),
-                      if (imageUrl != null)
-                        Positioned.fill(
-                          child: Image.network(
+                  child: SizedBox(
+                    height: 154 * responsive.scale,
+                    width: double.infinity,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors)),
+                        if (imageUrl != null)
+                          Image.network(
                             imageUrl!,
                             fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const SizedBox.shrink();
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return const SizedBox.shrink();
-                            },
+                            loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
+                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          ),
+                        Positioned(
+                          top: 12 * responsive.scale,
+                          right: 12 * responsive.scale,
+                          child: CircleAvatar(
+                            radius: 18 * responsive.scale,
+                            backgroundColor: Colors.white.withValues(alpha: 0.92),
+                            child: Icon(Icons.favorite_rounded, color: AppTheme.primary, size: 19 * responsive.scale),
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              Positioned(
-                right: 22 * responsive.widthScale,
-                top: 24 * responsive.scale,
-                child: Container(
-                  width: 32 * responsive.scale,
-                  height: 32 * responsive.scale,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.favorite,
-                      color: AppTheme.accent,
-                      size: 18,
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16 * responsive.widthScale,
+                  4 * responsive.scale,
+                  16 * responsive.widthScale,
+                  16 * responsive.scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppTheme.ink,
+                              fontSize: 17 * responsive.scale,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.star_rounded, color: AppTheme.gold, size: 17 * responsive.scale),
+                        SizedBox(width: 4 * responsive.widthScale),
+                        Text(rating, style: TextStyle(color: AppTheme.ink, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w800)),
+                      ],
                     ),
-                  ),
+                    SizedBox(height: 8 * responsive.scale),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_outlined, color: AppTheme.muted, size: 16 * responsive.scale),
+                        SizedBox(width: 5 * responsive.widthScale),
+                        Expanded(
+                          child: Text(
+                            location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12 * responsive.scale),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: price,
+                            style: TextStyle(color: AppTheme.primary, fontSize: 17 * responsive.scale, fontWeight: FontWeight.w900),
+                          ),
+                          TextSpan(
+                            text: ' / đêm',
+                            style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 14 * responsive.scale),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+                            child: const Text('Chi tiết'),
+                          ),
+                        ),
+                        SizedBox(width: 10 * responsive.widthScale),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
+                            child: const Text('Đặt ngay'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              14 * responsive.widthScale,
-              12 * responsive.scale,
-              14 * responsive.widthScale,
-              12 * responsive.scale,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppTheme.ink,
-                          fontSize: 16 * responsive.scale,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Icon(Icons.star_rounded, color: Colors.amber[700], size: 16 * responsive.scale),
-                    SizedBox(width: 4 * responsive.widthScale),
-                    Text(
-                      rating,
-                      style: TextStyle(
-                        color: AppTheme.ink,
-                        fontSize: 13 * responsive.scale,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8 * responsive.scale),
-                Row(
-                  children: [
-                    Icon(Icons.location_on_outlined, color: AppTheme.neutral500, size: 16 * responsive.scale),
-                    SizedBox(width: 4 * responsive.widthScale),
-                    Expanded(
-                      child: Text(
-                        location,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: AppTheme.neutral500, fontSize: 13 * responsive.scale),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10 * responsive.scale),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: price,
-                        style: TextStyle(
-                          color: AppTheme.accent,
-                          fontSize: 16 * responsive.scale,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' / đêm',
-                        style: TextStyle(
-                          color: AppTheme.neutral500,
-                          fontSize: 12 * responsive.scale,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10 * responsive.scale),
-                _FavoriteActionButton(
-                  label: 'Xem chi tiet',
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
-                ),
-                SizedBox(height: 6 * responsive.scale),
-                _FavoriteActionButton(
-                  label: 'Dat ngay',
-                  filled: true,
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-}
-
-class _FavoriteActionButton extends StatelessWidget {
-  const _FavoriteActionButton({
-    required this.label,
-    required this.onTap,
-    this.filled = false,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-
-    return SizedBox(
-      width: double.infinity,
-      height: 26 * responsive.scale,
-      child: filled
-          ? FilledButton(
-              onPressed: onTap,
-              style: FilledButton.styleFrom(
-                padding: EdgeInsets.zero,
-                backgroundColor: AppTheme.accent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-              ),
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13 * responsive.scale,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            )
-          : OutlinedButton(
-              onPressed: onTap,
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.zero,
-                side: const BorderSide(color: AppTheme.accent),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-              ),
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: AppTheme.accent,
-                  fontSize: 13 * responsive.scale,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
     );
   }
 }

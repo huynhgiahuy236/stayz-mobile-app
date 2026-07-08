@@ -12,15 +12,16 @@ class HomeResponsive {
 
   factory HomeResponsive.of(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final width = size.width.clamp(360.0, 430.0).toDouble();
-    final widthScale = (width / 390).clamp(0.92, 1.10).toDouble();
-    final heightScale = (size.height / 844).clamp(0.72, 1.0).toDouble();
+    final width = size.width.clamp(360.0, 560.0).toDouble();
+    final widthScale = (width / 390).clamp(0.92, 1.16).toDouble();
+    final heightScale = (size.height / 844).clamp(0.78, 1.05).toDouble();
+    final maxContentPadding = size.width >= 720 ? (size.width - 640) / 2 : 0.0;
 
     return HomeResponsive._(
       widthScale: widthScale,
       heightScale: heightScale,
       scale: widthScale < heightScale ? widthScale : heightScale,
-      horizontalPadding: 28 * widthScale,
+      horizontalPadding: maxContentPadding > 0 ? maxContentPadding : 20 * widthScale,
     );
   }
 
@@ -44,48 +45,70 @@ class StayZBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      height: 78 * responsive.scale,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.7)),
+    return SafeArea(
+      top: false,
+      minimum: EdgeInsets.only(bottom: 8 * responsive.scale),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          10 * responsive.widthScale,
+          6 * responsive.scale,
+          10 * responsive.widthScale,
+          0,
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavItem(
-            icon: Icons.explore_outlined,
-            label: 'Trang chủ',
-            active: activeTab == HomeTab.home,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
+        child: SizedBox(
+          height: 66 * responsive.scale,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppTheme.line),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.ink.withValues(alpha: 0.08),
+                  blurRadius: 18,
+                  offset: const Offset(0, -6),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4 * responsive.widthScale, vertical: 4 * responsive.scale),
+              child: Row(
+                children: [
+                  _NavItem(
+                    icon: Icons.home_rounded,
+                    label: 'Trang chủ',
+                    active: activeTab == HomeTab.home,
+                    routeName: AppRoutes.home,
+                  ),
+                  _NavItem(
+                    icon: Icons.travel_explore_rounded,
+                    label: 'Tìm kiếm',
+                    active: activeTab == HomeTab.search,
+                    routeName: AppRoutes.search,
+                  ),
+                  _NavItem(
+                    icon: Icons.favorite_rounded,
+                    label: 'Đã lưu',
+                    active: activeTab == HomeTab.saved,
+                    routeName: AppRoutes.favorites,
+                  ),
+                  _NavItem(
+                    icon: Icons.calendar_month_rounded,
+                    label: 'Lịch đặt',
+                    active: activeTab == HomeTab.bookings,
+                    routeName: AppRoutes.myBookings,
+                  ),
+                  _NavItem(
+                    icon: Icons.person_rounded,
+                    label: 'Tôi',
+                    active: activeTab == HomeTab.profile,
+                    routeName: AppRoutes.settings,
+                  ),
+                ],
+              ),
+            ),
           ),
-          _NavItem(
-            icon: Icons.search,
-            label: 'Tìm kiếm',
-            active: activeTab == HomeTab.search,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.search),
-          ),
-          _NavItem(
-            icon: Icons.favorite_border,
-            label: 'Yêu thích',
-            active: activeTab == HomeTab.saved,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.favorites),
-          ),
-          _NavItem(
-            icon: Icons.confirmation_number_outlined,
-            label: 'Đặt phòng',
-            active: activeTab == HomeTab.bookings,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.myBookings),
-          ),
-          _NavItem(
-            icon: Icons.person_outline,
-            label: 'Tôi',
-            active: activeTab == HomeTab.profile,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.settings),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -96,49 +119,60 @@ class _NavItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.active,
-    required this.onTap,
+    required this.routeName,
   });
 
   final IconData icon;
   final String label;
   final bool active;
-  final VoidCallback onTap;
+  final String routeName;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final color = active ? AppTheme.accent : const Color(0xFF9B9187);
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    final content = AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      height: 56 * responsive.scale,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 2 * responsive.widthScale, vertical: 5 * responsive.scale),
+      decoration: BoxDecoration(
+        color: active ? AppTheme.primarySoft : Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: active ? AppTheme.primary : AppTheme.muted, size: 22 * responsive.scale),
+          SizedBox(height: 3 * responsive.scale),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: active ? AppTheme.primary : AppTheme.muted,
+                  fontSize: 10.5 * responsive.scale,
+                  fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: SizedBox(
-        width: 64 * responsive.widthScale,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 25 * responsive.scale),
-            SizedBox(height: 4 * responsive.scale),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 11 * responsive.scale,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: 3 * responsive.scale),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(
-                color: active ? AppTheme.accent : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
+    return Expanded(
+      child: Semantics(
+        selected: active,
+        button: true,
+        label: label,
+        child: InkWell(
+          onTap: active || currentRoute == routeName ? null : () => Navigator.of(context).pushReplacementNamed(routeName),
+          borderRadius: BorderRadius.circular(18),
+          child: Center(child: content),
         ),
       ),
     );
@@ -154,58 +188,106 @@ class StayZLogoRow extends StatelessWidget {
 
     return Row(
       children: [
+        Container(
+          width: 46 * responsive.scale,
+          height: 46 * responsive.scale,
+          decoration: BoxDecoration(
+            color: AppTheme.primary,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(Icons.hotel_class_rounded, color: Colors.white),
+        ),
+        SizedBox(width: 12 * responsive.widthScale),
         RichText(
           text: TextSpan(
             style: TextStyle(
               fontFamily: 'Noto Serif JP',
-              fontSize: 28 * responsive.scale,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.5,
+              fontSize: 27 * responsive.scale,
+              fontWeight: FontWeight.w800,
             ),
             children: const [
               TextSpan(text: 'Stay', style: TextStyle(color: AppTheme.ink)),
-              TextSpan(text: 'Z', style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w900)),
+              TextSpan(text: 'Z', style: TextStyle(color: AppTheme.primary)),
             ],
           ),
         ),
         const Spacer(),
-        IconButton(
-          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.notifications),
-          icon: Icon(
-            Icons.notifications_none_rounded,
-            color: AppTheme.accentDark,
-            size: 26 * responsive.scale,
-          ),
-          style: IconButton.styleFrom(
-            backgroundColor: Colors.white,
-            padding: EdgeInsets.all(8 * responsive.scale),
-            side: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
-          ),
+        _RoundIconButton(
+          icon: Icons.notifications_none_rounded,
+          onTap: () => Navigator.of(context).pushNamed(AppRoutes.notifications),
         ),
         SizedBox(width: 10 * responsive.widthScale),
-        GestureDetector(
-          onTap: () => Navigator.of(context).pushNamed(AppRoutes.notifications),
-          child: Container(
-            width: 42 * responsive.scale,
-            height: 42 * responsive.scale,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.accent.withValues(alpha: 0.08),
-              border: Border.all(
-                color: AppTheme.neutral200.withValues(alpha: 0.8),
-                width: 1.5,
-              ),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.person_outline_rounded,
-                color: AppTheme.accentDark,
-                size: 22 * responsive.scale,
-              ),
-            ),
-          ),
+        _RoundIconButton(
+          icon: Icons.person_outline_rounded,
+          onTap: () => Navigator.of(context).pushNamed(AppRoutes.settings),
         ),
       ],
+    );
+  }
+}
+
+class StayZScreenHeader extends StatelessWidget {
+  const StayZScreenHeader({
+    required this.title,
+    this.subtitle,
+    this.leading,
+    this.trailing,
+    super.key,
+  });
+
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        responsive.horizontalPadding,
+        16 * responsive.scale,
+        responsive.horizontalPadding,
+        18 * responsive.scale,
+      ),
+      child: Row(
+        children: [
+          leading ?? const SizedBox.shrink(),
+          if (leading != null) SizedBox(width: 12 * responsive.widthScale),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (subtitle != null) ...[
+                  Text(
+                    subtitle!.toUpperCase(),
+                    style: TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 11 * responsive.scale,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.6,
+                    ),
+                  ),
+                  SizedBox(height: 4 * responsive.scale),
+                ],
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 28 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                    height: 1.05,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+        ],
+      ),
     );
   }
 }
@@ -214,11 +296,13 @@ class SectionLabel extends StatelessWidget {
   const SectionLabel({
     required this.title,
     this.action,
+    this.onAction,
     super.key,
   });
 
   final String title;
   final String? action;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -227,26 +311,18 @@ class SectionLabel extends StatelessWidget {
     return Row(
       children: [
         Text(
-          title.toUpperCase(),
+          title,
           style: TextStyle(
-            color: AppTheme.neutral500,
-            fontSize: 12 * responsive.scale,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 2,
+            color: AppTheme.ink,
+            fontSize: 19 * responsive.scale,
+            fontWeight: FontWeight.w900,
           ),
         ),
         const Spacer(),
         if (action != null)
-          GestureDetector(
-            onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
-            child: Text(
-              action!,
-              style: TextStyle(
-                color: AppTheme.accent,
-                fontSize: 13 * responsive.scale,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          TextButton(
+            onPressed: onAction ?? () => Navigator.of(context).pushNamed(AppRoutes.search),
+            child: Text(action!),
           ),
       ],
     );
@@ -260,51 +336,47 @@ class SearchBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
-      child: Container(
-        height: 56 * responsive.scale,
-        padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.neutral800.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
-          border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.6)),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.neutral500),
-            SizedBox(width: 12 * responsive.widthScale),
-            Expanded(
-              child: Text(
-                'Điểm đến, tên khách sạn...',
-                style: TextStyle(
-                  color: AppTheme.neutral500.withValues(alpha: 0.7),
-                  fontSize: 15 * responsive.scale,
-                  fontWeight: FontWeight.w500,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          constraints: BoxConstraints(minHeight: 60 * responsive.scale),
+          padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale, vertical: 10 * responsive.scale),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.line),
+            boxShadow: AppTheme.softShadow,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.primary),
+              SizedBox(width: 12 * responsive.widthScale),
+              Expanded(
+                child: Text(
+                  'Bạn muốn đi đâu?',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 15 * responsive.scale,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-            Container(
-              width: 36 * responsive.scale,
-              height: 36 * responsive.scale,
-              decoration: BoxDecoration(
-                color: AppTheme.accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+              Container(
+                width: 40 * responsive.scale,
+                height: 40 * responsive.scale,
+                decoration: BoxDecoration(
+                  color: AppTheme.ink,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.tune_rounded, color: Colors.white, size: 19 * responsive.scale),
               ),
-              child: Icon(
-                Icons.tune_rounded,
-                size: 18 * responsive.scale,
-                color: AppTheme.accent,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -315,45 +387,43 @@ class FilterPill extends StatelessWidget {
   const FilterPill({
     required this.label,
     this.active = false,
+    this.icon,
     super.key,
   });
 
   final String label;
   final bool active;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      height: 44 * responsive.scale,
-      padding: EdgeInsets.symmetric(horizontal: 22 * responsive.widthScale),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      height: 42 * responsive.scale,
+      padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
       decoration: BoxDecoration(
-        color: active ? AppTheme.accent : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: active
-            ? [
-                BoxShadow(
-                  color: AppTheme.accent.withValues(alpha: 0.2),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : null,
-        border: Border.all(
-          color: active ? AppTheme.accent : AppTheme.neutral200.withValues(alpha: 0.6),
-          width: 1.2,
-        ),
+        color: active ? AppTheme.ink : Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: active ? AppTheme.ink : AppTheme.line),
       ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-            color: active ? Colors.white : AppTheme.neutral500,
-            fontSize: 14 * responsive.scale,
-            fontWeight: active ? FontWeight.w700 : FontWeight.w600,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 17 * responsive.scale, color: active ? Colors.white : AppTheme.primary),
+            SizedBox(width: 7 * responsive.widthScale),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: active ? Colors.white : AppTheme.ink,
+              fontSize: 13 * responsive.scale,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -368,6 +438,7 @@ class HotelCard extends StatelessWidget {
     this.compact = false,
     this.fullWidth = false,
     this.imageUrl,
+    this.onTap,
     super.key,
   });
 
@@ -378,185 +449,130 @@ class HotelCard extends StatelessWidget {
   final bool compact;
   final bool fullWidth;
   final String? imageUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final width = fullWidth
-        ? null
-        : (compact ? 164 * responsive.widthScale : 240 * responsive.widthScale);
+    final width = fullWidth ? null : (compact ? 174 * responsive.widthScale : 254 * responsive.widthScale);
 
-    return Container(
+    return SizedBox(
       width: width,
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neutral800.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: (compact ? 120 : 150) * responsive.scale,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: LuxuryArchitecturalPainter(colors: colors),
-                    ),
-                  ),
-                  if (imageUrl != null)
-                    Positioned.fill(
-                      child: Image.network(
-                        imageUrl!,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const SizedBox.shrink();
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    ),
-                  Positioned(
-                    right: 12 * responsive.scale,
-                    top: 12 * responsive.scale,
-                    child: Container(
-                      width: 32 * responsive.scale,
-                      height: 32 * responsive.scale,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.favorite_border_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 12 * responsive.scale,
-                    top: 12 * responsive.scale,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber[700],
-                            size: 12,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+          borderRadius: BorderRadius.circular(18),
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppTheme.line),
+              boxShadow: AppTheme.softShadow,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: (compact ? 118 : 148) * responsive.scale,
+                  width: double.infinity,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors)),
+                        if (imageUrl != null)
+                          Image.network(
+                            imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                            loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '4.9',
-                            style: TextStyle(
-                              color: AppTheme.ink,
-                              fontSize: 10 * responsive.scale,
-                              fontWeight: FontWeight.w800,
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.38)],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 12 * responsive.scale,
+                          left: 12 * responsive.scale,
+                          child: _RatingBadge(value: '4.9'),
+                        ),
+                        Positioned(
+                          top: 10 * responsive.scale,
+                          right: 10 * responsive.scale,
+                          child: _GlassIcon(icon: Icons.favorite_border_rounded),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(14 * responsive.scale),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_outlined, size: 14 * responsive.scale, color: AppTheme.primary),
+                          SizedBox(width: 5 * responsive.widthScale),
+                          Expanded(
+                            child: Text(
+                              location,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AppTheme.muted,
+                                fontSize: 11 * responsive.scale,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(12 * responsive.scale),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined, 
-                      size: 12 * responsive.scale, 
-                      color: AppTheme.neutral500,
-                    ),
-                    SizedBox(width: 4 * responsive.widthScale),
-                    Expanded(
-                      child: Text(
-                        location.toUpperCase(),
-                        maxLines: 1,
+                      SizedBox(height: 8 * responsive.scale),
+                      Text(
+                        name,
+                        maxLines: fullWidth ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.neutral500,
-                          fontSize: 10 * responsive.scale,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2,
+                          color: AppTheme.ink,
+                          fontSize: 16 * responsive.scale,
+                          height: 1.2,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 6 * responsive.scale),
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppTheme.ink,
-                    fontSize: 16 * responsive.scale,
-                    fontWeight: FontWeight.w700,
+                      SizedBox(height: 12 * responsive.scale),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              price,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AppTheme.primary,
+                                fontSize: 14 * responsive.scale,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_rounded, color: AppTheme.ink, size: 20 * responsive.scale),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: 10 * responsive.scale),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        price,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppTheme.accent,
-                          fontSize: 14 * responsive.scale,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 28 * responsive.scale,
-                      height: 28 * responsive.scale,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.ink,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -582,174 +598,47 @@ class BookingPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neutral800.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            height: 110 * responsive.scale,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: LuxuryArchitecturalPainter(colors: colors),
-                    ),
-                  ),
-                  Positioned(
-                    left: 18 * responsive.scale,
-                    top: 18 * responsive.scale,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14 * responsive.widthScale,
-                        vertical: 6 * responsive.scale,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Sắp tới',
-                        style: TextStyle(
-                          color: AppTheme.accent,
-                          fontSize: 13 * responsive.scale,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Stack(
-            alignment: Alignment.center,
+    return Material(
+      color: AppTheme.ink,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+        borderRadius: BorderRadius.circular(22),
+        child: Padding(
+          padding: EdgeInsets.all(16 * responsive.scale),
+          child: Row(
             children: [
-              const TicketDashedDivider(),
-              Positioned(
-                left: -8,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: AppTheme.cream,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
-                  ),
+              Container(
+                width: 84 * responsive.scale,
+                height: 84 * responsive.scale,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  gradient: LinearGradient(colors: colors),
                 ),
+                child: const Icon(Icons.confirmation_number_rounded, color: Colors.white),
               ),
-              Positioned(
-                right: -8,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: AppTheme.cream,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
-                  ),
+              SizedBox(width: 16 * responsive.widthScale),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
+                    SizedBox(height: 6 * responsive.scale),
+                    Text(location, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale)),
+                    SizedBox(height: 12 * responsive.scale),
+                    Row(
+                      children: [
+                        Expanded(child: _DarkMeta(label: 'Ngày', value: date)),
+                        _DarkMeta(label: 'Tổng', value: total, alignEnd: true),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.all(18 * responsive.scale),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    color: AppTheme.ink,
-                    fontSize: 20 * responsive.scale,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 8 * responsive.scale),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, color: AppTheme.neutral500, size: 16),
-                    SizedBox(width: 6 * responsive.widthScale),
-                    Expanded(
-                      child: Text(
-                        location,
-                        style: TextStyle(
-                          color: AppTheme.neutral500,
-                          fontSize: 14 * responsive.scale,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(height: 28),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _BookingMeta(label: 'THỜI GIAN', value: date),
-                    ),
-                    _BookingMeta(label: 'TỔNG CỘNG', value: total, alignRight: true),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-}
-
-class _BookingMeta extends StatelessWidget {
-  const _BookingMeta({
-    required this.label,
-    required this.value,
-    this.alignRight = false,
-  });
-
-  final String label;
-  final String value;
-  final bool alignRight;
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-
-    return Column(
-      crossAxisAlignment: alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: AppTheme.neutral500,
-            fontSize: 11 * responsive.scale,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-          ),
-        ),
-        SizedBox(height: 4 * responsive.scale),
-        Text(
-          value,
-          style: TextStyle(
-            color: alignRight ? AppTheme.accent : AppTheme.ink,
-            fontSize: (alignRight ? 18 : 14) * responsive.scale,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -780,30 +669,19 @@ class NotificationCard extends StatelessWidget {
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neutral800.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-        border: Border.all(
-          color: unread 
-              ? AppTheme.accent.withValues(alpha: 0.3) 
-              : AppTheme.neutral200.withValues(alpha: 0.5),
-          width: unread ? 1.5 : 1.0,
-        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: unread ? AppTheme.primary.withValues(alpha: 0.35) : AppTheme.line),
+        boxShadow: unread ? AppTheme.softShadow : null,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44 * responsive.scale,
-            height: 44 * responsive.scale,
+            width: 46 * responsive.scale,
+            height: 46 * responsive.scale,
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(icon, color: iconColor, size: 22 * responsive.scale),
           ),
@@ -813,49 +691,18 @@ class NotificationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          color: AppTheme.ink,
-                          fontSize: 16 * responsive.scale,
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
-                        ),
-                      ),
+                      child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppTheme.ink, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w900)),
                     ),
                     if (unread)
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: const EdgeInsets.only(top: 4, left: 8),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.accent,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+                      Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle)),
                   ],
                 ),
                 SizedBox(height: 6 * responsive.scale),
-                Text(
-                  body,
-                  style: TextStyle(
-                    color: AppTheme.neutral500,
-                    fontSize: 14 * responsive.scale,
-                    height: 1.4,
-                  ),
-                ),
+                Text(body, style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.35)),
                 SizedBox(height: 8 * responsive.scale),
-                Text(
-                  time,
-                  style: TextStyle(
-                    color: AppTheme.neutral500.withValues(alpha: 0.7),
-                    fontSize: 12 * responsive.scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(time, style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -874,67 +721,35 @@ class LuxuryArchitecturalPainter extends CustomPainter {
     final rect = Offset.zero & size;
     final bgPaint = Paint()
       ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: colors.length >= 2 
-            ? colors 
-            : [const Color(0xFF405F59), const Color(0xFF0F1917)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: colors.length >= 2 ? colors : [AppTheme.primary, AppTheme.ink],
       ).createShader(rect);
     canvas.drawRect(rect, bgPaint);
 
-    final sunCenter = Offset(size.width * 0.7, size.height * 0.45);
-    final sunRadius = size.height * 0.22;
-    final sunPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.15);
-    canvas.drawCircle(sunCenter, sunRadius, sunPaint);
+    final glowPaint = Paint()..color = Colors.white.withValues(alpha: 0.16);
+    canvas.drawCircle(Offset(size.width * 0.78, size.height * 0.28), size.shortestSide * 0.24, glowPaint);
 
-    final pathWave = Path();
-    pathWave.moveTo(0, size.height);
-    pathWave.quadraticBezierTo(
-      size.width * 0.35, 
-      size.height * 0.72, 
-      size.width * 0.7, 
-      size.height * 0.88,
-    );
-    pathWave.quadraticBezierTo(
-      size.width * 0.85, 
-      size.height * 0.94, 
-      size.width, 
-      size.height * 0.8,
-    );
-    pathWave.lineTo(size.width, size.height);
-    pathWave.lineTo(0, size.height);
-    pathWave.close();
+    final wave = Path()
+      ..moveTo(0, size.height * 0.78)
+      ..quadraticBezierTo(size.width * 0.34, size.height * 0.58, size.width * 0.68, size.height * 0.80)
+      ..quadraticBezierTo(size.width * 0.86, size.height * 0.92, size.width, size.height * 0.70)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(wave, Paint()..color = Colors.white.withValues(alpha: 0.12));
 
-    final wavePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.08);
-    canvas.drawPath(pathWave, wavePaint);
-
-    final archWidth = size.width * 0.38;
-    final archHeight = size.height * 0.65;
-    final archLeft = size.width * 0.12;
-    final archTop = size.height - archHeight;
-
-    final archPath = Path();
-    archPath.moveTo(archLeft, size.height);
-    archPath.lineTo(archLeft, archTop + archWidth / 2);
-    archPath.arcTo(
-      Rect.fromLTWH(archLeft, archTop, archWidth, archWidth),
-      3.1415,
-      3.1415,
-      false,
-    );
-    archPath.lineTo(archLeft + archWidth, size.height);
-    archPath.close();
-
-    final archPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.12);
-    canvas.drawPath(archPath, archPaint);
+    final arch = Path()
+      ..moveTo(size.width * 0.14, size.height)
+      ..lineTo(size.width * 0.14, size.height * 0.52)
+      ..quadraticBezierTo(size.width * 0.28, size.height * 0.22, size.width * 0.42, size.height * 0.52)
+      ..lineTo(size.width * 0.42, size.height)
+      ..close();
+    canvas.drawPath(arch, Paint()..color = Colors.white.withValues(alpha: 0.13));
   }
 
   @override
-  bool shouldRepaint(covariant LuxuryArchitecturalPainter oldDelegate) => 
-      oldDelegate.colors != colors;
+  bool shouldRepaint(covariant LuxuryArchitecturalPainter oldDelegate) => oldDelegate.colors != colors;
 }
 
 class TicketDashedDivider extends StatelessWidget {
@@ -944,15 +759,113 @@ class TicketDashedDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: List.generate(
-        15,
-        (index) => Expanded(
+        18,
+        (_) => Expanded(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            height: 1.5,
-            color: AppTheme.neutral200.withValues(alpha: 0.8),
+            margin: const EdgeInsets.symmetric(horizontal: 3),
+            height: 1,
+            color: AppTheme.line,
           ),
         ),
       ),
+    );
+  }
+}
+
+class _RoundIconButton extends StatelessWidget {
+  const _RoundIconButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Material(
+      color: Colors.white,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          width: 44 * responsive.scale,
+          height: 44 * responsive.scale,
+          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.line)),
+          child: Icon(icon, color: AppTheme.ink, size: 22 * responsive.scale),
+        ),
+      ),
+    );
+  }
+}
+
+class _RatingBadge extends StatelessWidget {
+  const _RatingBadge({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8 * responsive.widthScale, vertical: 5 * responsive.scale),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.star_rounded, color: AppTheme.gold, size: 14 * responsive.scale),
+          SizedBox(width: 3 * responsive.widthScale),
+          Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w900)),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlassIcon extends StatelessWidget {
+  const _GlassIcon({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Container(
+      width: 36 * responsive.scale,
+      height: 36 * responsive.scale,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.25),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.38)),
+      ),
+      child: Icon(icon, color: Colors.white, size: 19 * responsive.scale),
+    );
+  }
+}
+
+class _DarkMeta extends StatelessWidget {
+  const _DarkMeta({required this.label, required this.value, this.alignEnd = false});
+
+  final String label;
+  final String value;
+  final bool alignEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Column(
+      crossAxisAlignment: alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: TextStyle(color: Colors.white54, fontSize: 10 * responsive.scale, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+        SizedBox(height: 4 * responsive.scale),
+        Text(value, style: TextStyle(color: Colors.white, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w900)),
+      ],
     );
   }
 }

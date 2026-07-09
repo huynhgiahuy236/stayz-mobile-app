@@ -1,10 +1,60 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.dart';
+import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage('Please enter email and password.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await AuthService.instance.login(email: email, password: password);
+      if (!mounted) return;
+      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+    } catch (error) {
+      if (mounted) _showMessage(_messageFromError(error));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _messageFromError(Object error) {
+    final text = error.toString();
+    if (text.startsWith('HttpException: ')) {
+      return text.replaceFirst('HttpException: ', '').split(', uri =').first;
+    }
+    return text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,30 +68,32 @@ class LoginPage extends StatelessWidget {
           const AuthLogo(large: true),
           SizedBox(height: 36 * responsive.scale),
           const AuthTitleBlock(
-            title: 'Chào mừng trở lại',
-            subtitle: 'Đăng nhập để tiếp tục hành trình',
+            title: 'Welcome back',
+            subtitle: 'Sign in to continue your StayZ journey.',
           ),
           SizedBox(height: 32 * responsive.scale),
-          const AuthField(
+          AuthField(
             label: 'EMAIL',
             hint: 'example@email.com',
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            controller: _emailController,
           ),
           SizedBox(height: 18 * responsive.scale),
-          const AuthField(
-            label: 'MẬT KHẨU',
-            hint: '••••••••',
+          AuthField(
+            label: 'PASSWORD',
+            hint: 'Password',
             obscure: true,
+            textInputAction: TextInputAction.done,
+            controller: _passwordController,
           ),
           SizedBox(height: 10 * responsive.scale),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () => Navigator.of(context).pushNamed(
-                AppRoutes.forgotPassword,
-              ),
+              onPressed: _isLoading ? null : () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
               child: Text(
-                'Quên mật khẩu?',
+                'Forgot password?',
                 style: TextStyle(
                   color: AppTheme.accent,
                   fontSize: 14 * responsive.scale,
@@ -52,20 +104,18 @@ class LoginPage extends StatelessWidget {
           ),
           SizedBox(height: 20 * responsive.scale),
           AuthPrimaryButton(
-            label: 'Đăng nhập',
-            onPressed: () => Navigator.of(context).pushReplacementNamed(
-              AppRoutes.home,
-            ),
+            label: _isLoading ? 'Signing in...' : 'Sign in',
+            onPressed: _isLoading ? () {} : _login,
           ),
           SizedBox(height: 28 * responsive.scale),
-          const AuthDivider(label: 'hoặc'),
+          const AuthDivider(label: 'or'),
           SizedBox(height: 24 * responsive.scale),
           const _GoogleButton(),
           SizedBox(height: 36 * responsive.scale),
           AuthInlineLink(
-            text: 'Chưa có tài khoản?',
-            actionText: 'Đăng ký',
-            onTap: () => Navigator.of(context).pushNamed(AppRoutes.register),
+            text: 'No account yet?',
+            actionText: 'Register',
+            onTap: _isLoading ? () {} : () => Navigator.of(context).pushNamed(AppRoutes.register),
           ),
         ],
       ),
@@ -85,7 +135,7 @@ class _GoogleButton extends StatelessWidget {
       height: 56 * responsive.scale,
       width: double.infinity,
       child: OutlinedButton(
-        onPressed: () {},
+        onPressed: null,
         style: OutlinedButton.styleFrom(
           foregroundColor: AppTheme.ink,
           side: const BorderSide(color: AppTheme.neutral200),
@@ -100,9 +150,9 @@ class _GoogleButton extends StatelessWidget {
             GoogleLogo(size: 22 * responsive.scale),
             SizedBox(width: 14 * responsive.widthScale),
             Text(
-              'Tiếp tục với Google',
+              'Google sign-in not configured',
               style: textTheme.bodyLarge?.copyWith(
-                color: AppTheme.ink,
+                color: AppTheme.neutral500,
                 fontSize: 16 * responsive.scale,
                 fontWeight: FontWeight.w600,
               ),

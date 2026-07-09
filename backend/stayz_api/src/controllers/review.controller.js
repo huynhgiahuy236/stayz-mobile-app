@@ -17,7 +17,7 @@ const reviewController = {
     }
   },
   create: async (req, res, next) => {
-    const newReview = req.body;
+    const newReview = { ...req.body, user_id: req.user?.userId };
     try {
       const data = await reviewService.create(newReview);
       const response = responseSuccess(data, "Tạo review thành công", 200);

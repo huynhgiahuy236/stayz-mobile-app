@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class CompletedBookingsPage extends StatelessWidget {
             ),
             Expanded(
               child: FutureBuilder<List<BookingSummary>>(
-                future: MockStayzRepository.instance.getBookingSummaries(),
+                future: ApiStayzRepository.instance.getBookingSummaries(),
                 builder: (context, snapshot) {
                   final bookings = (snapshot.data ?? const <BookingSummary>[])
                       .where((summary) => summary.booking.status == 'completed')
@@ -84,14 +85,20 @@ class CompletedBookingsPage extends StatelessWidget {
                       return Padding(
                         padding: EdgeInsets.only(bottom: 24 * responsive.scale),
                         child: InkWell(
-                          onTap: () => Navigator.of(context).pushNamed(AppRoutes.completedBookingDetail),
+                          onTap: () => Navigator.of(context).pushNamed(
+                            AppRoutes.completedBookingDetail,
+                            arguments: BookingSummaryArgs(summary: summary),
+                          ),
                           borderRadius: BorderRadius.circular(16),
                           child: HistoryBookingCard(
                             name: summary.hotel.name,
                             date: '${StayzFormatters.shortDate(summary.booking.checkInDate)} - ${StayzFormatters.shortDate(summary.booking.checkOutDate)}',
                             price: StayzFormatters.compactVnd(summary.booking.totalAmount),
                             colors: _completedColors[index % _completedColors.length],
-                            onPrimary: () => Navigator.of(context).pushNamed(AppRoutes.review),
+                            onPrimary: () => Navigator.of(context).pushNamed(
+                              AppRoutes.review,
+                              arguments: BookingSummaryArgs(summary: summary),
+                            ),
                           ),
                         ),
                       );

@@ -6,8 +6,79 @@ import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Set<String> _favoriteIds = const <String>{};
+  bool _loadedFavorites = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    try {
+      final ids = await ApiStayzRepository.instance.getFavoriteHotelIds();
+      if (mounted) {
+        setState(() {
+          _favoriteIds = ids;
+          _loadedFavorites = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadedFavorites = true);
+    }
+  }
+
+  Future<void> _toggleFavorite(HotelSummary summary) async {
+    final hotelId = summary.hotel.id;
+    final wasFavorite = _favoriteIds.contains(hotelId);
+    setState(() {
+      final next = {..._favoriteIds};
+      wasFavorite ? next.remove(hotelId) : next.add(hotelId);
+      _favoriteIds = next;
+    });
+
+    try {
+      if (wasFavorite) {
+        await ApiStayzRepository.instance.removeFavorite(hotelId);
+      } else {
+        await ApiStayzRepository.instance.addFavorite(hotelId);
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(wasFavorite ? 'Da bo khoi yeu thich.' : 'Da them vao yeu thich.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        final rollback = {..._favoriteIds};
+        wasFavorite ? rollback.add(hotelId) : rollback.remove(hotelId);
+        _favoriteIds = rollback;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui long dang nhap de cap nhat yeu thich.')),
+      );
+    }
+  }
+
+  Future<void> _openFilters(BuildContext context) async {
+    final result = await Navigator.of(context).pushNamed(AppRoutes.filter, arguments: const SearchFilters());
+    if (result is SearchFilters && context.mounted) {
+      Navigator.of(context).pushNamed(AppRoutes.search, arguments: result);
+    }
+  }
+
+  void _openSearchWith(BuildContext context, SearchFilters filters) {
+    Navigator.of(context).pushNamed(AppRoutes.search, arguments: filters);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +89,7 @@ class HomePage extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: FutureBuilder<List<HotelSummary>>(
-          future: MockStayzRepository.instance.getHotelSummaries(),
+          future: ApiStayzRepository.instance.getHotelSummaries(),
           builder: (context, snapshot) {
             final hotels = snapshot.data ?? const <HotelSummary>[];
 
@@ -58,7 +129,10 @@ class HomePage extends StatelessWidget {
                       responsive.horizontalPadding,
                       0,
                     ),
-                    child: const SearchBox(),
+                    child: SearchBox(
+                      onTap: () => _openSearchWith(context, const SearchFilters()),
+                      onFilterTap: () => _openFilters(context),
+                    ),
                   ),
                 ),
                 SliverToBoxAdapter(
@@ -115,12 +189,18 @@ class HomePage extends StatelessWidget {
                             separatorBuilder: (_, __) => const SizedBox(width: 14),
                             itemBuilder: (context, index) {
                               final summary = hotels[index];
-                              return HotelCard(
+                          return HotelCard(
                                 name: summary.hotel.name,
                                 location: summary.city.name,
                                 price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / đêm',
                                 imageUrl: summary.hotel.imageUrls.firstOrNull,
+                                isFavorite: _loadedFavorites && _favoriteIds.contains(summary.hotel.id),
+                                onFavoriteTap: () => _toggleFavorite(summary),
                                 colors: _homeHotelColors[index % _homeHotelColors.length],
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  AppRoutes.roomDetail,
+                                  arguments: summary,
+                                ),
                               );
                             },
                           ),
@@ -182,7 +262,13 @@ class HomePage extends StatelessWidget {
                           location: '${summary.city.name}, ${summary.city.region}',
                           price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / đêm',
                           imageUrl: summary.hotel.imageUrls.firstOrNull,
+                          isFavorite: _loadedFavorites && _favoriteIds.contains(summary.hotel.id),
+                          onFavoriteTap: () => _toggleFavorite(summary),
                           colors: _homeHotelColors[(index + 2) % _homeHotelColors.length],
+                          onTap: () => Navigator.of(context).pushNamed(
+                            AppRoutes.roomDetail,
+                            arguments: summary,
+                          ),
                         ),
                       );
                     },

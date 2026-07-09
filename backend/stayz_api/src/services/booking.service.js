@@ -11,8 +11,9 @@ const redlock = new Redlock([redis], {
   retryJitter: 50,     // jitter ngẫu nhiên để tránh thundering herd
 });
 
-const activeStatus = ["confirmed"];
+const activeStatus = ["pending", "confirmed"];
 const allStatus = ["pending", "confirmed", "completed", "cancelled"];
+const EDIT_LOCK_HOURS = 24;
 
 const parseDate = (value, label) => {
   const date = new Date(value);
@@ -32,6 +33,28 @@ const getStartOfToday = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return today;
+};
+
+const populateBooking = (query) =>
+  query
+    .populate("user_id", "full_name email avatar role")
+    .populate({
+      path: "property_id",
+      populate: {
+        path: "user_id",
+        select: "full_name email avatar role",
+      },
+    })
+    .populate("room_id");
+
+const autoCompleteExpiredBookings = async (userId = null) => {
+  const now = new Date();
+  const query = {
+    status: { $in: ["pending", "confirmed"] },
+    check_out: { $lt: now },
+  };
+  if (userId) query.user_id = userId;
+  await bookingModel.updateMany(query, { $set: { status: "completed" } });
 };
 
 const getOverlappingBookedRooms = async ({
@@ -73,35 +96,29 @@ const validateDateRange = (checkIn, checkOut) => {
   }
 };
 
+const acquireBookingLock = async (lockKey) => {
+  try {
+    return await redlock.acquire([lockKey], 5000);
+  } catch (err) {
+    console.warn("Booking lock skipped:", err.message);
+    return null;
+  }
+};
+
 const bookingService = {
   getAll: async () => {
-    return await bookingModel
-      .find()
-      .populate("user_id", "full_name email avatar role")
-      .populate({
-        path: "property_id",
-        populate: {
-          path: "user_id",
-          select: "full_name email avatar role",
-        },
-      })
-      .populate("room_id");
+    await autoCompleteExpiredBookings();
+    return await populateBooking(bookingModel.find());
   },
   getByUserId: async (userId) => {
-    return await bookingModel
-      .find({ user_id: userId })
-      .populate("user_id", "full_name email avatar role")
-      .populate({
-        path: "property_id",
-        populate: {
-          path: "user_id",
-          select: "full_name email avatar role",
-        },
-      })
-      .populate("room_id");
+    await autoCompleteExpiredBookings(userId);
+    return await populateBooking(bookingModel.find({ user_id: userId }));
   },
   create: async (data) => {
     const { user_id, property_id, room_id, check_in, check_out } = data;
+    if (!user_id || !property_id || !room_id || !check_in || !check_out) {
+      throw new BadRequestException("Thieu thong tin bat buoc khi dat phong");
+    }
 
     const room = await roomsModel.findById(room_id);
     if (!room) {
@@ -128,7 +145,7 @@ const bookingService = {
     const lockKey = `lock:room:${room._id}:${checkInDate.toISOString()}:${checkOutDate.toISOString()}`;
     let lock;
     try {
-      lock = await redlock.acquire([lockKey], 5000); // giữ lock tối đa 5 giây
+      lock = await acquireBookingLock(lockKey); // giữ lock tối đa 5 giây
     } catch {
       throw new BadRequestException("Hệ thống đang xử lý yêu cầu khác cho phòng này. Vui lòng thử lại.");
     }
@@ -174,12 +191,13 @@ const bookingService = {
         price_per_night: pricePerNight,
         total_price: totalPrice,
         status,
+        payment_status: status === "confirmed" ? "paid" : "pending",
       });
 
-      return booking;
+      return await populateBooking(bookingModel.findById(booking._id));
     } finally {
       // Luôn giải phóng lock dù thành công hay lỗi
-      await lock.release();
+      if (lock) await lock.release();
     }
   },
   updateStatus: async (bookingId, status) => {
@@ -235,13 +253,20 @@ const bookingService = {
       }).catch(() => {}); // fire-and-forget, không block response
     }
 
-    return booking;
+    return await populateBooking(bookingModel.findById(booking._id));
   },
   update: async (bookingId, data) => {
     const booking = await bookingModel.findById(bookingId);
 
     if (!booking) {
       throw new BadRequestException("Booking khong ton tai");
+    }
+
+    const now = new Date();
+    const editDeadline = new Date(booking.check_in);
+    editDeadline.setHours(editDeadline.getHours() - EDIT_LOCK_HOURS);
+    if (now > editDeadline) {
+      throw new BadRequestException("Chi duoc chinh sua booking truoc check-in it nhat 24 gio");
     }
 
     const nextRoomId = data.room_id || booking.room_id.toString();
@@ -320,17 +345,7 @@ const bookingService = {
 
     await booking.save();
 
-    return await bookingModel
-      .findById(bookingId)
-      .populate("user_id", "full_name email avatar role")
-      .populate({
-        path: "property_id",
-        populate: {
-          path: "user_id",
-          select: "full_name email avatar role",
-        },
-      })
-      .populate("room_id");
+    return await populateBooking(bookingModel.findById(bookingId));
   },
   delete: async (bookingId) => {
     const booking = await bookingModel.findById(bookingId);

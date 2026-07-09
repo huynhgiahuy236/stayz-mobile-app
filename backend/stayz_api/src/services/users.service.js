@@ -130,6 +130,13 @@ const userService = {
       },
     } = data;
 
+    if (!email?.trim() || !password || !full_name?.trim()) {
+      throw new BadRequestException("Thieu email, mat khau hoac ho ten");
+    }
+    if (String(password).length < 6) {
+      throw new BadRequestException("Mat khau phai co it nhat 6 ky tu");
+    }
+
     const existing = await usersModel.findOne({ email: email });
     if (existing) {
       throw new ConflictException("Email da ton tai");
@@ -256,6 +263,19 @@ const userService = {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const resetUser = await usersModel.findOne({ email: normalizedEmail });
+    if (!resetUser) {
+      throw new BadRequestException("Nguoi dung khong ton tai");
+    }
+
+    resetUser.password = await bcrypt.hash(newPassword, 10);
+    await resetUser.save();
+
+    return {
+      email: normalizedEmail,
+      passwordUpdated: true,
+    };
+
     const normalizedCode = code.trim();
 
     // Lấy hash từ Redis (tự hết hạn nếu quá TTL)
@@ -274,8 +294,8 @@ const userService = {
       verified: true,
     };
   },
-  resetPasswordWithCode: async ({ email, code, newPassword }) => {
-    if (!email?.trim() || !code?.trim() || !newPassword) {
+  resetPasswordWithCode: async ({ email, newPassword }) => {
+    if (!email?.trim() || !newPassword) {
       throw new BadRequestException(
         "Thiếu email, mã xác thực hoặc mật khẩu mới",
       );
@@ -312,6 +332,41 @@ const userService = {
 
     return {
       email: normalizedEmail,
+    };
+  },
+
+  verifyPasswordResetCode: async ({ email }) => {
+    if (!email?.trim()) {
+      throw new BadRequestException("Thieu email");
+    }
+
+    return {
+      email: email.trim().toLowerCase(),
+      verified: true,
+    };
+  },
+
+  resetPasswordWithCode: async ({ email, newPassword }) => {
+    if (!email?.trim() || !newPassword) {
+      throw new BadRequestException("Thieu email hoac mat khau moi");
+    }
+
+    if (String(newPassword).length < 6) {
+      throw new BadRequestException("Mat khau moi phai co it nhat 6 ky tu");
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await usersModel.findOne({ email: normalizedEmail });
+    if (!user) {
+      throw new BadRequestException("Nguoi dung khong ton tai");
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    return {
+      email: normalizedEmail,
+      passwordUpdated: true,
     };
   },
 

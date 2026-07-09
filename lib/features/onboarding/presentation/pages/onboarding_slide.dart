@@ -1,7 +1,14 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
+import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
+Future<void> _finishOnboarding(BuildContext context) async {
+  await AuthService.instance.markOnboardingSeen();
+  if (!context.mounted) return;
+  Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+}
 
 class OnboardingSlide extends StatelessWidget {
   const OnboardingSlide({
@@ -200,7 +207,7 @@ class _FreshBlueSlide extends StatelessWidget {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+                                    _finishOnboarding(context);
                                   },
                               ),
                             ],
@@ -337,7 +344,7 @@ class _OnboardingHeader extends StatelessWidget {
           ),
           if (showSkip)
             GestureDetector(
-              onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.login),
+              onTap: () => _finishOnboarding(context),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
                 child: Text(
@@ -595,7 +602,7 @@ class _IntroContentSheet extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+                            _finishOnboarding(context);
                           },
                       ),
                     ],

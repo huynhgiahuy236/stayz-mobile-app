@@ -1,4 +1,6 @@
 const reviewsModel = require("../models/reviews.model");
+const bookingModel = require("../models/bookings.model");
+const { BadRequestException } = require("../helpers/error.helper");
 
 const reviewService = {
   getAll: async (propertyId) => {
@@ -12,11 +14,31 @@ const reviewService = {
       .populate("property_id", "title slug city user_id");
   },
   create: async (data) => {
-    const { user_id, property_id, rating, comment } = data;
+    const { user_id, property_id, booking_id, rating, comment } = data;
+    if (!user_id || !property_id || !booking_id) {
+      throw new BadRequestException("Thieu user, property hoac booking");
+    }
+
+    const booking = await bookingModel.findOne({
+      _id: booking_id,
+      user_id,
+      property_id,
+      status: "completed",
+    });
+    if (!booking) {
+      throw new BadRequestException("Chi co the danh gia booking da hoan tat cua ban");
+    }
+
+    const safeRating = Number(rating);
+    if (!Number.isFinite(safeRating) || safeRating < 1 || safeRating > 5) {
+      throw new BadRequestException("Rating phai tu 1 den 5 sao");
+    }
+
     const review = await reviewsModel.create({
       user_id: user_id,
       property_id: property_id,
-      rating: rating,
+      booking_id,
+      rating: safeRating,
       comment: comment,
     });
     return review;

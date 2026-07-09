@@ -66,7 +66,9 @@ class NotificationsPage extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đã đánh dấu tất cả thông báo là đã đọc.')),
+                    ),
                     icon: Icon(
                       Icons.done_all_rounded,
                       color: AppTheme.accentDark,
@@ -102,7 +104,7 @@ class NotificationsPage extends StatelessWidget {
             SizedBox(height: 34 * responsive.scale),
             Expanded(
               child: FutureBuilder<List<StayzNotification>>(
-                future: MockStayzRepository.instance.getNotifications(),
+                future: ApiStayzRepository.instance.getNotifications(),
                 builder: (context, snapshot) {
                   final notifications = snapshot.data ?? const <StayzNotification>[];
 

@@ -1,8 +1,6 @@
 const roomModel = require("../models/rooms.model");
 const redis = require("../config/redis.config");
 
-const CACHE_TTL = 300; // 5 phút
-
 const calculatePrice = (originalPrice, discountPercent) => {
   const safeOriginalPrice = Number(originalPrice) || 0;
   const safeDiscountPercent = Number(discountPercent) || 0;
@@ -11,25 +9,39 @@ const calculatePrice = (originalPrice, discountPercent) => {
   return Math.round(finalPrice);
 };
 
+const normalizeGallery = (galleryImages) => {
+  if (!Array.isArray(galleryImages)) return [];
+  return galleryImages
+    .map((item) => {
+      if (typeof item === "string") return { url: item, public_id: "" };
+      return {
+        url: item?.url || "",
+        public_id: item?.public_id || "",
+      };
+    })
+    .filter((item) => item.url);
+};
+
+const clearRoomCache = async (propertyId) => {
+  try {
+    await redis.del("rooms:all");
+    if (propertyId) await redis.del(`rooms:property:${propertyId}`);
+  } catch (err) {
+    console.warn("Room cache delete skipped:", err.message);
+  }
+};
+
 const roomService = {
   getAll: async () => {
-    const cacheKey = "rooms:all";
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-
-    const data = await roomModel.find().populate("property_id");
-    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(data));
-    return data;
+    return await roomModel.find({ is_active: { $ne: false } }).populate("property_id");
   },
 
   getByPropertyId: async (propertyId) => {
-    const cacheKey = `rooms:property:${propertyId}`;
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    return await roomModel.find({ property_id: propertyId, is_active: { $ne: false } }).populate("property_id");
+  },
 
-    const data = await roomModel.find({ property_id: propertyId });
-    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(data));
-    return data;
+  getById: async (id) => {
+    return await roomModel.findById(id).populate("property_id");
   },
 
   create: async (data) => {
@@ -47,6 +59,9 @@ const roomService = {
       view,
       badges,
       amenities,
+      main_image_url,
+      gallery_images,
+      is_active,
     } = data;
 
     const finalPrice = calculatePrice(original_price, discount_percent);
@@ -66,11 +81,12 @@ const roomService = {
       view,
       badges,
       amenities,
+      main_image_url: main_image_url || "",
+      gallery_images: normalizeGallery(gallery_images),
+      is_active: is_active !== false,
     });
 
-    // Invalidate cache
-    await redis.del("rooms:all");
-    if (property_id) await redis.del(`rooms:property:${property_id}`);
+    await clearRoomCache(property_id);
 
     return room;
   },
@@ -78,24 +94,32 @@ const roomService = {
   update: async (id, data) => {
     const nextData = { ...data };
 
-    const originalPrice = Number(nextData.original_price) || 0;
-    const discountPercent = Number(nextData.discount_percent) || 0;
+    if (nextData.price_per_night != null && nextData.price == null) {
+      nextData.price = Number(nextData.price_per_night) || 0;
+    } else if (nextData.original_price != null || nextData.discount_percent != null) {
+      const originalPrice = Number(nextData.original_price) || 0;
+      const discountPercent = Number(nextData.discount_percent) || 0;
+      nextData.price = calculatePrice(originalPrice, discountPercent);
+      nextData.original_price = originalPrice;
+      nextData.discount_percent = discountPercent;
+    }
 
-    nextData.price = calculatePrice(originalPrice, discountPercent);
-    nextData.original_price = originalPrice;
-    nextData.discount_percent = discountPercent;
-    nextData.capacity = Number(nextData.capacity) || 1;
-    nextData.quantity = Number(nextData.quantity) || 1;
-    nextData.area = Number(nextData.area) || 0;
+    if (nextData.available_rooms != null && nextData.quantity == null) {
+      nextData.quantity = nextData.available_rooms;
+    }
+    if (nextData.gallery_images != null) {
+      nextData.gallery_images = normalizeGallery(nextData.gallery_images);
+    }
+    if (nextData.capacity != null) nextData.capacity = Number(nextData.capacity) || 1;
+    if (nextData.quantity != null) nextData.quantity = Number(nextData.quantity) || 1;
+    if (nextData.area != null) nextData.area = Number(nextData.area) || 0;
 
     const room = await roomModel.findByIdAndUpdate(id, nextData, {
       new: true,
       runValidators: true,
     });
 
-    // Invalidate cache
-    await redis.del("rooms:all");
-    if (room?.property_id) await redis.del(`rooms:property:${room.property_id}`);
+    await clearRoomCache(room?.property_id);
 
     return room;
   },
@@ -104,9 +128,7 @@ const roomService = {
     const room = await roomModel.findById(id);
     const result = await roomModel.findByIdAndDelete(id);
 
-    // Invalidate cache
-    await redis.del("rooms:all");
-    if (room?.property_id) await redis.del(`rooms:property:${room.property_id}`);
+    await clearRoomCache(room?.property_id);
 
     return result;
   },

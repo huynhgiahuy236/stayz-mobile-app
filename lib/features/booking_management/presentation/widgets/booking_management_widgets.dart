@@ -64,13 +64,13 @@ class BookingManageHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.accentDark,
-                      fontSize: 27 * responsive.scale,
+                    fontSize: 24 * responsive.scale,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
           ),
           SizedBox(
-            width: 44 * responsive.scale,
+            width: 72 * responsive.widthScale,
             child: trailing ?? Icon(Icons.more_vert, color: AppTheme.accentDark, size: 28 * responsive.scale),
           ),
         ],

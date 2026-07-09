@@ -2,6 +2,9 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
+import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -26,7 +29,7 @@ class SettingsPage extends StatelessWidget {
           children: [
             const StayZLogoRow(),
             SizedBox(height: 22 * responsive.scale),
-            _ProfileHero(responsive: responsive),
+            _ProfileHeroReal(responsive: responsive),
             SizedBox(height: 18 * responsive.scale),
             Row(
               children: const [
@@ -48,7 +51,11 @@ class SettingsPage extends StatelessWidget {
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.profileForm),
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
-                const ProfileMenuTile(icon: Icons.lock_outline_rounded, label: 'Đổi mật khẩu'),
+                ProfileMenuTile(
+                  icon: Icons.lock_outline_rounded,
+                  label: 'Đổi mật khẩu',
+                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.resetPassword),
+                ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(
                   icon: Icons.credit_card_rounded,
@@ -65,24 +72,116 @@ class SettingsPage extends StatelessWidget {
                 ProfileMenuTile(
                   icon: Icons.notifications_none_rounded,
                   label: 'Thông báo',
-                  trailing: Switch(value: true, onChanged: (_) {}, activeColor: Colors.white, activeTrackColor: AppTheme.primary),
+                  trailing: Switch(value: true, onChanged: null, activeColor: Colors.white, activeTrackColor: AppTheme.primary),
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 const ProfileMenuTile(icon: Icons.language_rounded, label: 'Ngôn ngữ', trailing: Text('Tiếng Việt')),
                 const Divider(height: 1, indent: 72, endIndent: 20),
-                const ProfileMenuTile(icon: Icons.help_outline_rounded, label: 'Trung tâm hỗ trợ'),
+                ProfileMenuTile(
+                  icon: Icons.help_outline_rounded,
+                  label: 'Trung tâm hỗ trợ',
+                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
+                ),
               ],
             ),
             SizedBox(height: 18 * responsive.scale),
-            const ProfileMenuCard(
+            ProfileMenuCard(
               children: [
-                ProfileMenuTile(icon: Icons.logout_rounded, label: 'Đăng xuất', danger: true),
+                ProfileMenuTile(
+                  icon: Icons.logout_rounded,
+                  label: 'Đăng xuất',
+                  danger: true,
+                  onTap: () async {
+                    final navigator = Navigator.of(context);
+                    await AuthService.instance.logout();
+                    navigator.pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                  },
+                ),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _ProfileHeroReal extends StatelessWidget {
+  const _ProfileHeroReal({required this.responsive});
+
+  final HomeResponsive responsive;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<StayzUser?>(
+      future: ApiStayzRepository.instance.getProfile(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        final displayName = user?.fullName.isNotEmpty == true ? user!.fullName : 'StayZ Guest';
+        final email = user?.email.isNotEmpty == true ? user!.email : 'guest@stayz.vn';
+        final initials = _initials(displayName);
+
+        return Container(
+          padding: EdgeInsets.all(18 * responsive.scale),
+          decoration: BoxDecoration(
+            color: AppTheme.ink,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 38 * responsive.scale,
+                    backgroundColor: AppTheme.primary,
+                    child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 22 * responsive.scale, fontWeight: FontWeight.w900)),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: CircleAvatar(
+                      radius: 13 * responsive.scale,
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.edit_rounded, color: AppTheme.primary, size: 15 * responsive.scale),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 16 * responsive.widthScale),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 21 * responsive.scale, fontWeight: FontWeight.w900)),
+                    SizedBox(height: 5 * responsive.scale),
+                    Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w600)),
+                    SizedBox(height: 12 * responsive.scale),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.editProfile),
+                      icon: const Icon(Icons.tune_rounded, size: 18),
+                      label: const Text('Chinh ho so'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: BorderSide(color: Colors.white.withValues(alpha: 0.32)),
+                        minimumSize: Size(0, 42 * responsive.scale),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    if (parts.isEmpty) return 'SZ';
+    final first = parts.first[0];
+    final second = parts.length > 1 ? parts.last[0] : '';
+    return (first + second).toUpperCase();
   }
 }
 

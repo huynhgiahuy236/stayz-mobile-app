@@ -42,8 +42,13 @@ mongoose.connection.on("connected", () => {
   console.log("MongoDB connected");
 });
 
-app.use("/images", express.static("src/images"));
-app.use("/api/images", express.static("src/images"));
+const imageStaticOptions = {
+  maxAge: "7d",
+  immutable: true,
+};
+
+app.use("/images", express.static("src/images", imageStaticOptions));
+app.use("/api/images", express.static("src/images", imageStaticOptions));
 app.use("/", rootRouter);
 app.use("/api", rootRouter);
 app.use(handleError);

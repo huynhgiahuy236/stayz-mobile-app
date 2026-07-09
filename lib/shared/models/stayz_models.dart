@@ -98,6 +98,8 @@ class Hotel {
     required this.name,
     required this.description,
     required this.address,
+    required this.latitude,
+    required this.longitude,
     required this.starRating,
     required this.checkInTime,
     required this.checkOutTime,
@@ -113,6 +115,8 @@ class Hotel {
       name: json['name'] as String,
       description: json['description'] as String,
       address: json['address'] as String,
+      latitude: _double(json['latitude']),
+      longitude: _double(json['longitude']),
       starRating: json['starRating'] as int,
       checkInTime: json['checkInTime'] as String,
       checkOutTime: json['checkOutTime'] as String,
@@ -127,6 +131,8 @@ class Hotel {
   final String name;
   final String description;
   final String address;
+  final double latitude;
+  final double longitude;
   final int starRating;
   final String checkInTime;
   final String checkOutTime;
@@ -134,6 +140,8 @@ class Hotel {
   final List<String> imageUrls;
   final String status;
 }
+
+double _double(dynamic value) => value is num ? value.toDouble() : double.tryParse(value?.toString() ?? '') ?? 0;
 
 class Room {
   const Room({
@@ -259,6 +267,38 @@ class Booking {
   final String paymentStatus;
   final String? specialRequest;
   final DateTime createdAt;
+
+  Booking copyWith({
+    String? id,
+    String? userId,
+    String? roomId,
+    DateTime? checkInDate,
+    DateTime? checkOutDate,
+    BookingGuests? guests,
+    int? nights,
+    num? totalAmount,
+    String? currency,
+    String? status,
+    String? paymentStatus,
+    String? specialRequest,
+    DateTime? createdAt,
+  }) {
+    return Booking(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      roomId: roomId ?? this.roomId,
+      checkInDate: checkInDate ?? this.checkInDate,
+      checkOutDate: checkOutDate ?? this.checkOutDate,
+      guests: guests ?? this.guests,
+      nights: nights ?? this.nights,
+      totalAmount: totalAmount ?? this.totalAmount,
+      currency: currency ?? this.currency,
+      status: status ?? this.status,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      specialRequest: specialRequest ?? this.specialRequest,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }
 
 class Favorite {

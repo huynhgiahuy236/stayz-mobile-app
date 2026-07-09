@@ -95,7 +95,9 @@ const propertiesService = {
 
     // Lọc theo tiện ích (chỉ lấy property có TẤT CẢ tiện ích được yêu cầu)
     if (amenities && amenities.length > 0) {
-      const amenityList = Array.isArray(amenities) ? amenities : [amenities];
+      const amenityList = Array.isArray(amenities)
+        ? amenities
+        : String(amenities).split(",").map((item) => item.trim()).filter(Boolean);
       amenityList.forEach((amenity) => {
         query[`amenities.${amenity}`] = true;
       });

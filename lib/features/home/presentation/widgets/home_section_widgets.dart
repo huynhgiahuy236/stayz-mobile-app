@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class HomeResponsive {
@@ -330,7 +331,14 @@ class SectionLabel extends StatelessWidget {
 }
 
 class SearchBox extends StatelessWidget {
-  const SearchBox({super.key});
+  const SearchBox({
+    this.onTap,
+    this.onFilterTap,
+    super.key,
+  });
+
+  final VoidCallback? onTap;
+  final VoidCallback? onFilterTap;
 
   @override
   Widget build(BuildContext context) {
@@ -340,7 +348,7 @@ class SearchBox extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
+        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.search),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           constraints: BoxConstraints(minHeight: 60 * responsive.scale),
@@ -366,14 +374,17 @@ class SearchBox extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                width: 40 * responsive.scale,
-                height: 40 * responsive.scale,
-                decoration: BoxDecoration(
-                  color: AppTheme.ink,
-                  borderRadius: BorderRadius.circular(14),
+              GestureDetector(
+                onTap: onFilterTap,
+                child: Container(
+                  width: 40 * responsive.scale,
+                  height: 40 * responsive.scale,
+                  decoration: BoxDecoration(
+                    color: AppTheme.ink,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(Icons.tune_rounded, color: Colors.white, size: 19 * responsive.scale),
                 ),
-                child: Icon(Icons.tune_rounded, color: Colors.white, size: 19 * responsive.scale),
               ),
             ],
           ),
@@ -439,6 +450,8 @@ class HotelCard extends StatelessWidget {
     this.fullWidth = false,
     this.imageUrl,
     this.onTap,
+    this.onFavoriteTap,
+    this.isFavorite = false,
     super.key,
   });
 
@@ -450,11 +463,14 @@ class HotelCard extends StatelessWidget {
   final bool fullWidth;
   final String? imageUrl;
   final VoidCallback? onTap;
+  final VoidCallback? onFavoriteTap;
+  final bool isFavorite;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final width = fullWidth ? null : (compact ? 174 * responsive.widthScale : 254 * responsive.widthScale);
+    final imageHeight = (compact ? 118 : 148) * responsive.scale;
 
     return SizedBox(
       width: width,
@@ -475,7 +491,7 @@ class HotelCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  height: (compact ? 118 : 148) * responsive.scale,
+                  height: imageHeight,
                   width: double.infinity,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
@@ -484,11 +500,10 @@ class HotelCard extends StatelessWidget {
                       children: [
                         CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors)),
                         if (imageUrl != null)
-                          Image.network(
-                            imageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                            loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
+                          StayZNetworkImage(
+                            imageUrl: imageUrl!,
+                            width: width ?? MediaQuery.sizeOf(context).width,
+                            height: imageHeight,
                           ),
                         DecoratedBox(
                           decoration: BoxDecoration(
@@ -507,7 +522,14 @@ class HotelCard extends StatelessWidget {
                         Positioned(
                           top: 10 * responsive.scale,
                           right: 10 * responsive.scale,
-                          child: _GlassIcon(icon: Icons.favorite_border_rounded),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: onFavoriteTap,
+                            child: _GlassIcon(
+                              icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              active: isFavorite,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -827,9 +849,10 @@ class _RatingBadge extends StatelessWidget {
 }
 
 class _GlassIcon extends StatelessWidget {
-  const _GlassIcon({required this.icon});
+  const _GlassIcon({required this.icon, this.active = false});
 
   final IconData icon;
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -843,7 +866,7 @@ class _GlassIcon extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white.withValues(alpha: 0.38)),
       ),
-      child: Icon(icon, color: Colors.white, size: 19 * responsive.scale),
+      child: Icon(icon, color: active ? AppTheme.primary : Colors.white, size: 19 * responsive.scale),
     );
   }
 }

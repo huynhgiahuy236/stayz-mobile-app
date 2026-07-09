@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class SearchHeader extends StatelessWidget {
@@ -103,6 +104,9 @@ class SearchHotelCard extends StatelessWidget {
     this.badge,
     this.favorite = false,
     this.imageUrl,
+    this.onTap,
+    this.onRoomsTap,
+    this.onFavoriteTap,
     super.key,
   });
 
@@ -114,16 +118,21 @@ class SearchHotelCard extends StatelessWidget {
   final String? badge;
   final bool favorite;
   final String? imageUrl;
+  final VoidCallback? onTap;
+  final VoidCallback? onRoomsTap;
+  final VoidCallback? onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final imageHeight = 190 * responsive.scale;
+    final imageWidth = MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2;
 
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
         borderRadius: BorderRadius.circular(20),
         child: Ink(
           decoration: BoxDecoration(
@@ -134,8 +143,8 @@ class SearchHotelCard extends StatelessWidget {
           child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 190 * responsive.scale,
+          SizedBox(
+            height: imageHeight,
             width: double.infinity,
             child: Stack(
               children: [
@@ -146,16 +155,10 @@ class SearchHotelCard extends StatelessWidget {
                 ),
                 if (imageUrl != null)
                   Positioned.fill(
-                    child: Image.network(
-                      imageUrl!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const SizedBox.shrink();
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return const SizedBox.shrink();
-                      },
+                    child: StayZNetworkImage(
+                      imageUrl: imageUrl!,
+                      width: imageWidth,
+                      height: imageHeight,
                     ),
                   ),
                 Positioned.fill(
@@ -199,13 +202,17 @@ class SearchHotelCard extends StatelessWidget {
                 Positioned(
                   top: 14 * responsive.scale,
                   right: 14 * responsive.widthScale,
-                  child: CircleAvatar(
-                    radius: 18 * responsive.scale,
-                    backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    child: Icon(
-                      favorite ? Icons.favorite : Icons.favorite_border,
-                      color: AppTheme.accent,
-                      size: 21 * responsive.scale,
+                  child: InkWell(
+                    onTap: onFavoriteTap,
+                    customBorder: const CircleBorder(),
+                    child: CircleAvatar(
+                      radius: 18 * responsive.scale,
+                      backgroundColor: Colors.white.withValues(alpha: 0.9),
+                      child: Icon(
+                        favorite ? Icons.favorite : Icons.favorite_border,
+                        color: AppTheme.accent,
+                        size: 21 * responsive.scale,
+                      ),
                     ),
                   ),
                 ),
@@ -313,7 +320,7 @@ class SearchHotelCard extends StatelessWidget {
                       width: 108 * responsive.widthScale,
                       height: 42 * responsive.scale,
                       child: FilledButton(
-                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
+                      onPressed: onRoomsTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
                       style: FilledButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,

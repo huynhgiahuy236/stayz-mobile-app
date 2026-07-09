@@ -3,8 +3,36 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.dart';
 import 'package:flutter/material.dart';
 
-class ForgotPasswordPage extends StatelessWidget {
+class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
+
+  @override
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _continueToReset() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email.')),
+      );
+      return;
+    }
+
+    Navigator.of(context).pushNamed(
+      AppRoutes.resetPassword,
+      arguments: email,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,32 +51,31 @@ class ForgotPasswordPage extends StatelessWidget {
                 const _ResetIcon(),
                 SizedBox(height: 32 * responsive.scale),
                 const AuthTitleBlock(
-                  title: 'Quên mật khẩu',
-                  subtitle:
-                      'Nhập email của bạn để nhận hướng dẫn khôi phục mật khẩu.',
+                  title: 'Reset password',
+                  subtitle: 'Enter your account email to set a new password.',
                   centered: true,
                 ),
                 SizedBox(height: 32 * responsive.scale),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: AuthField(
                     label: 'EMAIL',
                     hint: 'example@email.com',
                     keyboardType: TextInputType.emailAddress,
+                    controller: _emailController,
+                    textInputAction: TextInputAction.done,
                   ),
                 ),
                 SizedBox(height: 20 * responsive.scale),
                 AuthPrimaryButton(
-                  label: 'Gửi mã',
-                  onPressed: () => Navigator.of(context).pushNamed(
-                    AppRoutes.otp,
-                  ),
+                  label: 'Continue',
+                  onPressed: _continueToReset,
                 ),
                 SizedBox(height: 28 * responsive.scale),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
                   icon: const Icon(Icons.support_agent_outlined),
-                  label: const Text('Liên hệ hỗ trợ'),
+                  label: const Text('Contact support'),
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.accent,
                   ),

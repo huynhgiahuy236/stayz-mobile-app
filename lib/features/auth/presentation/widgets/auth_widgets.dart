@@ -277,6 +277,8 @@ class AuthField extends StatefulWidget {
     this.obscure = false,
     this.prefix,
     this.keyboardType,
+    this.controller,
+    this.textInputAction,
     super.key,
   });
 
@@ -285,6 +287,8 @@ class AuthField extends StatefulWidget {
   final bool obscure;
   final Widget? prefix;
   final TextInputType? keyboardType;
+  final TextEditingController? controller;
+  final TextInputAction? textInputAction;
 
   @override
   State<AuthField> createState() => _AuthFieldState();
@@ -320,8 +324,10 @@ class _AuthFieldState extends State<AuthField> {
         SizedBox(
           height: 56 * responsive.scale,
           child: TextField(
+            controller: widget.controller,
             obscureText: _obscureText,
             keyboardType: widget.keyboardType,
+            textInputAction: widget.textInputAction,
             style: textTheme.bodyLarge?.copyWith(
               color: AppTheme.ink,
               fontSize: 16 * responsive.scale,

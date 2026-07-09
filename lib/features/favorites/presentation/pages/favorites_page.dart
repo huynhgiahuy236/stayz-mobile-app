@@ -3,12 +3,44 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/favorites/presentation/widgets/favorites_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
+
+  @override
+  State<FavoritesPage> createState() => _FavoritesPageState();
+}
+
+class _FavoritesPageState extends State<FavoritesPage> {
+  late Future<List<HotelSummary>> _favoritesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _favoritesFuture = ApiStayzRepository.instance.getFavoriteHotelSummaries();
+  }
+
+  Future<void> _removeFavorite(HotelSummary summary) async {
+    try {
+      await ApiStayzRepository.instance.removeFavorite(summary.hotel.id);
+      if (!mounted) return;
+      setState(() {
+        _favoritesFuture = ApiStayzRepository.instance.getFavoriteHotelSummaries();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Da bo khoi yeu thich.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui long dang nhap de cap nhat yeu thich.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +72,7 @@ class FavoritesPage extends StatelessWidget {
             ),
             Expanded(
               child: FutureBuilder<List<HotelSummary>>(
-                future: MockStayzRepository.instance.getFavoriteHotelSummaries(),
+                future: _favoritesFuture,
                 builder: (context, snapshot) {
                   final hotels = snapshot.data ?? const <HotelSummary>[];
 
@@ -63,13 +95,23 @@ class FavoritesPage extends StatelessWidget {
                     itemCount: hotels.length,
                     separatorBuilder: (_, __) => SizedBox(height: 16 * responsive.scale),
                     itemBuilder: (context, index) {
+                      final summary = hotels[index];
                       return FavoriteHotelCard(
-                        name: hotels[index].hotel.name,
-                        location: '${hotels[index].city.name}, ${hotels[index].city.region}',
-                        price: StayzFormatters.compactVnd(hotels[index].lowestPrice),
-                        rating: hotels[index].rating.toStringAsFixed(1),
-                        imageUrl: hotels[index].hotel.imageUrls.firstOrNull,
+                        name: summary.hotel.name,
+                        location: '${summary.city.name}, ${summary.city.region}',
+                        price: StayzFormatters.compactVnd(summary.lowestPrice),
+                        rating: summary.rating.toStringAsFixed(1),
+                        imageUrl: summary.hotel.imageUrls.firstOrNull,
                         colors: _favoriteColors[index % _favoriteColors.length],
+                        onTap: () => Navigator.of(context).pushNamed(
+                          AppRoutes.roomDetail,
+                          arguments: summary,
+                        ),
+                        onBook: () => Navigator.of(context).pushNamed(
+                          AppRoutes.roomSelection,
+                          arguments: RoomSelectionArgs(hotel: summary),
+                        ),
+                        onFavoriteTap: () => _removeFavorite(summary),
                       );
                     },
                   );

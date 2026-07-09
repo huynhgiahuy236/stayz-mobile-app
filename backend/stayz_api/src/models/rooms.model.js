@@ -60,6 +60,28 @@ const roomSchema = new mongoose.Schema(
       min: 0,
     },
 
+    main_image_url: {
+      type: String,
+      default: "",
+    },
+
+    main_image_public_id: {
+      type: String,
+      default: "",
+    },
+
+    gallery_images: [
+      {
+        url: { type: String, default: "" },
+        public_id: { type: String, default: "" },
+      },
+    ],
+
+    is_active: {
+      type: Boolean,
+      default: true,
+    },
+
     bed_info: {
       type: String,
       required: true,
@@ -105,7 +127,15 @@ const roomSchema = new mongoose.Schema(
       toilet_paper: { type: Boolean, default: false },
     },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );
+
+roomSchema.virtual("price_per_night").get(function () {
+  return this.price;
+});
+
+roomSchema.virtual("available_rooms").get(function () {
+  return this.quantity;
+});
 
 module.exports = mongoose.model("Room", roomSchema);

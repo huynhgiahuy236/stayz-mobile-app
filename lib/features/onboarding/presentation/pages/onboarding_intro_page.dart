@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
+import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingIntroPage extends StatefulWidget {
@@ -90,9 +91,16 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
     super.dispose();
   }
 
+  Future<void> _finishOnboarding() async {
+    final navigator = Navigator.of(context);
+    await AuthService.instance.markOnboardingSeen();
+    if (!mounted) return;
+    navigator.pushReplacementNamed(AppRoutes.login);
+  }
+
   void _goNext() {
     if (_currentPage == _slides.length - 1) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+      _finishOnboarding();
       return;
     }
 

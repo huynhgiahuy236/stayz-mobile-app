@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class MyBookingsPage extends StatelessWidget {
             ),
             Expanded(
               child: FutureBuilder<List<BookingSummary>>(
-                future: MockStayzRepository.instance.getBookingSummaries(),
+                future: ApiStayzRepository.instance.getBookingSummaries(),
                 builder: (context, snapshot) {
                   final bookings = (snapshot.data ?? const <BookingSummary>[])
                       .where((summary) => summary.booking.status == 'pending' || summary.booking.status == 'confirmed')
@@ -70,8 +71,14 @@ class MyBookingsPage extends StatelessWidget {
                         checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
                         checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
                         colors: _bookingColors[(index - 1) % _bookingColors.length],
-                        onDetail: () => Navigator.of(context).pushNamed(AppRoutes.upcomingBookingDetail),
-                        onCancel: () => Navigator.of(context).pushNamed(AppRoutes.cancelBookingResult),
+                        onDetail: () => Navigator.of(context).pushNamed(
+                          AppRoutes.upcomingBookingDetail,
+                          arguments: BookingSummaryArgs(summary: summary),
+                        ),
+                        onCancel: () => Navigator.of(context).pushNamed(
+                          AppRoutes.cancelBookingResult,
+                          arguments: BookingSummaryArgs(summary: summary),
+                        ),
                       );
                     },
                   );

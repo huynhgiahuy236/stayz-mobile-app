@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class FavoriteHotelCard extends StatelessWidget {
@@ -11,6 +12,9 @@ class FavoriteHotelCard extends StatelessWidget {
     required this.rating,
     required this.colors,
     this.imageUrl,
+    this.onTap,
+    this.onBook,
+    this.onFavoriteTap,
     super.key,
   });
 
@@ -20,16 +24,21 @@ class FavoriteHotelCard extends StatelessWidget {
   final String rating;
   final List<Color> colors;
   final String? imageUrl;
+  final VoidCallback? onTap;
+  final VoidCallback? onBook;
+  final VoidCallback? onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final imageHeight = 154 * responsive.scale;
+    final imageWidth = MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2 - 24 * responsive.scale;
 
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
         borderRadius: BorderRadius.circular(20),
         child: Ink(
           decoration: BoxDecoration(
@@ -45,26 +54,29 @@ class FavoriteHotelCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: SizedBox(
-                    height: 154 * responsive.scale,
+                    height: imageHeight,
                     width: double.infinity,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
                         CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors)),
                         if (imageUrl != null)
-                          Image.network(
-                            imageUrl!,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          StayZNetworkImage(
+                            imageUrl: imageUrl!,
+                            width: imageWidth,
+                            height: imageHeight,
                           ),
                         Positioned(
                           top: 12 * responsive.scale,
                           right: 12 * responsive.scale,
-                          child: CircleAvatar(
-                            radius: 18 * responsive.scale,
-                            backgroundColor: Colors.white.withValues(alpha: 0.92),
-                            child: Icon(Icons.favorite_rounded, color: AppTheme.primary, size: 19 * responsive.scale),
+                          child: InkWell(
+                            onTap: onFavoriteTap,
+                            customBorder: const CircleBorder(),
+                            child: CircleAvatar(
+                              radius: 18 * responsive.scale,
+                              backgroundColor: Colors.white.withValues(alpha: 0.92),
+                              child: Icon(Icons.favorite_rounded, color: AppTheme.primary, size: 19 * responsive.scale),
+                            ),
                           ),
                         ),
                       ],
@@ -136,14 +148,14 @@ class FavoriteHotelCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+                            onPressed: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
                             child: const Text('Chi tiết'),
                           ),
                         ),
                         SizedBox(width: 10 * responsive.widthScale),
                         Expanded(
                           child: FilledButton(
-                            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
+                            onPressed: onBook ?? () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
                             child: const Text('Đặt ngay'),
                           ),
                         ),

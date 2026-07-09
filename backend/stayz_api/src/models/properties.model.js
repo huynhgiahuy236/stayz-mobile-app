@@ -22,7 +22,7 @@ const propertySchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["hotel"],
+      enum: ["hotel", "resort", "villa", "hostel", "apartment", "business"],
       default: "hotel",
     },
     base_price: Number,

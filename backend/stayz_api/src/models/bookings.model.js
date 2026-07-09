@@ -64,8 +64,30 @@ const bookingSchema = new mongoose.Schema(
       enum: ["pending", "confirmed", "completed", "cancelled"],
       default: "pending",
     },
+
+    payment_status: {
+      type: String,
+      enum: ["pending", "paid", "failed", "refunded"],
+      default: "pending",
+    },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );
+
+bookingSchema.virtual("check_in_date").get(function () {
+  return this.check_in;
+});
+
+bookingSchema.virtual("check_out_date").get(function () {
+  return this.check_out;
+});
+
+bookingSchema.virtual("guest_count").get(function () {
+  return this.guests;
+});
+
+bookingSchema.virtual("room_quantity").get(function () {
+  return this.rooms_count;
+});
 
 module.exports = mongoose.model("Booking", bookingSchema);

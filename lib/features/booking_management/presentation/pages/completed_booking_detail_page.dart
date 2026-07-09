@@ -2,6 +2,8 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:flutter/material.dart';
 
 class CompletedBookingDetailPage extends StatelessWidget {
@@ -11,6 +13,8 @@ class CompletedBookingDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
+    final summary = args?.summary;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF7F4),
@@ -49,7 +53,9 @@ class CompletedBookingDetailPage extends StatelessWidget {
                       gradient: const LinearGradient(colors: [Color(0xFFD79B26), Color(0xFF3B2514)]),
                     ),
                     child: Text(
-                      'Lantern House, Hoi An\nKhu pho co, Hoi An, Quang Nam',
+                      summary == null
+                          ? 'Lantern House, Hoi An\nKhu pho co, Hoi An, Quang Nam'
+                          : '${summary.hotel.name}\n${summary.city.name}, ${summary.city.region}',
                       style: textTheme.headlineMedium?.copyWith(
                         color: Colors.white,
                         fontSize: 27 * responsive.scale,
@@ -61,32 +67,53 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   BookingDetailPanel(
                     title: 'Thong tin luu tru',
                     children: [
-                      const DetailLine(label: 'Nhan phong', value: '28 Th04, 2024\nTu 14:00'),
-                      const DetailLine(label: 'Tra phong', value: '29 Th04, 2024\nTruoc 12:00'),
+                      DetailLine(
+                        label: 'Nhận phòng',
+                        value: summary == null ? '28 Th04, 2024\nTu 14:00' : StayzFormatters.shortDate(summary.booking.checkInDate),
+                      ),
+                      DetailLine(
+                        label: 'Trả phòng',
+                        value: summary == null ? '29 Th04, 2024\nTruoc 12:00' : StayzFormatters.shortDate(summary.booking.checkOutDate),
+                      ),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
                     title: 'Chi tiet phong',
-                    children: const [
-                      DetailLine(label: 'Phong Deluxe Double', value: '1 dem, 2 khach'),
+                    children: [
+                      DetailLine(
+                        label: summary?.room.name ?? 'Phong Deluxe Double',
+                        value: summary == null
+                            ? '1 dem, 2 khach'
+                            : '${summary.booking.nights} đêm, ${summary.booking.guests.adults + summary.booking.guests.children} khách',
+                      ),
                     ],
                   ),
                   SizedBox(height: 42 * responsive.scale),
                   BookingDetailPanel(
                     title: 'Chi tiet thanh toan',
-                    children: const [
-                      DetailLine(label: 'Gia phong (1 dem)', value: 'd1.600.000'),
-                      DetailLine(label: 'Phi dich vu & Thue', value: 'd200.000'),
-                      Divider(),
-                      DetailLine(label: 'Tong cong', value: 'd1.800.000', total: true),
+                    children: [
+                      DetailLine(
+                        label: summary == null ? 'Gia phong (1 dem)' : 'Giá phòng (${summary.booking.nights} đêm)',
+                        value: summary == null ? '₫1.600.000' : StayzFormatters.fullVnd(summary.booking.totalAmount),
+                      ),
+                      const DetailLine(label: 'Phi dich vu & Thue', value: 'Đã bao gồm'),
+                      const Divider(),
+                      DetailLine(
+                        label: 'Tổng cộng',
+                        value: summary == null ? '₫1.800.000' : StayzFormatters.fullVnd(summary.booking.totalAmount),
+                        total: true,
+                      ),
                     ],
                   ),
                   SizedBox(height: 34 * responsive.scale),
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: FilledButton(
-                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.review),
+                      onPressed: () => Navigator.of(context).pushNamed(
+                        AppRoutes.review,
+                        arguments: args,
+                      ),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppTheme.accent,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -98,7 +125,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.of(context).maybePop(),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.neutral200),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

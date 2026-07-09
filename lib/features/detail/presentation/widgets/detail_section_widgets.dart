@@ -1,6 +1,9 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:flutter/material.dart';
 
 class DetailCircleButton extends StatelessWidget {
@@ -121,6 +124,7 @@ class ReviewCard extends StatelessWidget {
     required this.name,
     required this.date,
     required this.body,
+    this.rating = 0,
     required this.colors,
     super.key,
   });
@@ -128,6 +132,7 @@ class ReviewCard extends StatelessWidget {
   final String name;
   final String date;
   final String body;
+  final int rating;
   final List<Color> colors;
 
   @override
@@ -177,7 +182,7 @@ class ReviewCard extends StatelessWidget {
                 children: List.generate(
                   5,
                   (index) => Icon(
-                    Icons.star_border,
+                    index < rating ? Icons.star : Icons.star_border,
                     color: const Color(0xFF8E5F1B),
                     size: 13 * responsive.scale,
                   ),
@@ -202,7 +207,9 @@ class ReviewCard extends StatelessWidget {
 }
 
 class DetailBottomBookingBar extends StatelessWidget {
-  const DetailBottomBookingBar({super.key});
+  const DetailBottomBookingBar({this.summary, super.key});
+
+  final HotelSummary? summary;
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +240,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: 'd1.800.000',
+                          text: summary == null ? '₫1.800.000' : StayzFormatters.fullVnd(summary!.lowestPrice),
                           style: TextStyle(
                             color: AppTheme.accent,
                             fontSize: 18 * responsive.scale,
@@ -267,7 +274,10 @@ class DetailBottomBookingBar extends StatelessWidget {
               width: 150 * responsive.widthScale,
               height: 58 * responsive.scale,
               child: FilledButton(
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
+                onPressed: () => Navigator.of(context).pushNamed(
+                  AppRoutes.roomSelection,
+                  arguments: summary == null ? null : RoomSelectionArgs(hotel: summary!),
+                ),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppTheme.accentDark,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),

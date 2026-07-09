@@ -1,8 +1,14 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
+import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
+Future<void> _finishOnboarding(BuildContext context) async {
+  await AuthService.instance.markOnboardingSeen();
+  if (!context.mounted) return;
+  Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+}
 
 class OnboardingSlide extends StatelessWidget {
   const OnboardingSlide({
@@ -25,34 +31,235 @@ class OnboardingSlide extends StatelessWidget {
         final responsive = _ResponsiveSpec.from(constraints);
         final horizontalPadding = 30.0 * responsive.widthScale;
 
-        return SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              _OnboardingHeader(
-                responsive: responsive,
-                showSkip: pageIndex < pageCount - 1,
-              ),
-              Expanded(
-                child: Center(
-                  child: _HeroImage(
-                    data: data,
-                    responsive: responsive,
-                    horizontalPadding: horizontalPadding,
-                  ),
-                ),
-              ),
-              _IntroContentSheet(
-                data: data,
-                pageIndex: pageIndex,
-                pageCount: pageCount,
-                responsive: responsive,
-                onNext: onNext,
-              ),
-            ],
-          ),
+        return _FreshBlueSlide(
+          data: data,
+          pageIndex: pageIndex,
+          pageCount: pageCount,
+          responsive: responsive,
+          horizontalPadding: horizontalPadding,
+          onNext: onNext,
         );
       },
+    );
+  }
+}
+
+class _FreshBlueSlide extends StatelessWidget {
+  const _FreshBlueSlide({
+    required this.data,
+    required this.pageIndex,
+    required this.pageCount,
+    required this.responsive,
+    required this.horizontalPadding,
+    required this.onNext,
+  });
+
+  final OnboardingSlideData data;
+  final int pageIndex;
+  final int pageCount;
+  final _ResponsiveSpec responsive;
+  final double horizontalPadding;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final heroHeight = (responsive.isCompact ? 330.0 : 390.0) * responsive.scale;
+    final buttonHeight = (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
+
+    return ColoredBox(
+      color: data.palette.background,
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _OnboardingHeader(
+              responsive: responsive,
+              showSkip: pageIndex < pageCount - 1,
+              palette: data.palette,
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                4 * responsive.scale,
+                horizontalPadding,
+                0,
+              ),
+              child: SizedBox(
+                height: heroHeight,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(34),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              data.palette.sheet,
+                              data.palette.inactive,
+                            ],
+                          ),
+                          border: Border.all(
+                            color: data.palette.border,
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: data.palette.primaryDark.withValues(alpha: 0.14),
+                              blurRadius: 32,
+                              offset: const Offset(0, 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      top: 18 * responsive.scale,
+                      left: 18 * responsive.widthScale,
+                      right: 18 * responsive.widthScale,
+                      bottom: 18 * responsive.scale,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: _OnboardingImage(source: data.imageAsset),
+                      ),
+                    ),
+                    Positioned(
+                      left: 24 * responsive.widthScale,
+                      bottom: 24 * responsive.scale,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16 * responsive.widthScale,
+                          vertical: 9 * responsive.scale,
+                        ),
+                        decoration: BoxDecoration(
+                          color: data.palette.sheet.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(99),
+                          border: Border.all(
+                            color: data.palette.border,
+                          ),
+                        ),
+                        child: Text(
+                          data.step,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: data.palette.primaryDark,
+                            fontSize: 13 * responsive.scale,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2.4,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  24 * responsive.scale,
+                  horizontalPadding,
+                  24 * responsive.scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.title,
+                      style: textTheme.displayLarge?.copyWith(
+                        color: data.palette.ink,
+                        fontSize: 35 * responsive.scale,
+                        height: 1.12,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    SizedBox(height: 12 * responsive.scale),
+                    Text(
+                      data.description,
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: data.palette.muted,
+                        fontSize: 16 * responsive.scale,
+                        height: 1.45,
+                      ),
+                    ),
+                    SizedBox(height: 16 * responsive.scale),
+                    if (data.showLoginPrompt)
+                      Center(
+                        child: RichText(
+                          text: TextSpan(
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: data.palette.muted,
+                              fontSize: 14 * responsive.scale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Đã có tài khoản? '),
+                              TextSpan(
+                                text: 'Đăng nhập',
+                                style: TextStyle(
+                                  color: data.palette.primary,
+                                  decoration: TextDecoration.underline,
+                                  decorationThickness: 1.5,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    _finishOnboarding(context);
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        _PageIndicator(
+                          pageIndex: pageIndex,
+                          pageCount: pageCount,
+                          scale: responsive.scale,
+                          palette: data.palette,
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: (data.showLoginPrompt ? 162 : 134) * responsive.widthScale,
+                          height: buttonHeight,
+                          child: FilledButton(
+                            onPressed: onNext,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: data.palette.primaryDark,
+                              foregroundColor: data.palette.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            child: data.showLoginPrompt
+                                ? Text(
+                                    data.primaryLabel,
+                                    style: textTheme.labelLarge?.copyWith(
+                                      color: data.palette.onPrimary,
+                                      fontSize: 17 * responsive.scale,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.arrow_forward,
+                                    size: 24 * responsive.scale,
+                                    color: data.palette.onPrimary,
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -95,10 +302,12 @@ class _OnboardingHeader extends StatelessWidget {
   const _OnboardingHeader({
     required this.responsive,
     required this.showSkip,
+    required this.palette,
   });
 
   final _ResponsiveSpec responsive;
   final bool showSkip;
+  final OnboardingPalette palette;
 
   @override
   Widget build(BuildContext context) {
@@ -116,17 +325,17 @@ class _OnboardingHeader extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: textTheme.headlineMedium?.copyWith(
-                color: AppTheme.ink,
+                color: palette.ink,
                 fontSize: 26 * responsive.scale,
                 fontWeight: FontWeight.w400,
                 height: 1,
               ),
-              children: const [
-                TextSpan(text: 'Stay'),
+              children: [
+                const TextSpan(text: 'Stay'),
                 TextSpan(
                   text: 'Z',
                   style: TextStyle(
-                    color: AppTheme.accent,
+                    color: palette.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -135,13 +344,13 @@ class _OnboardingHeader extends StatelessWidget {
           ),
           if (showSkip)
             GestureDetector(
-              onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.login),
+              onTap: () => _finishOnboarding(context),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
                 child: Text(
                   'Bỏ qua',
                   style: TextStyle(
-                    color: AppTheme.neutral500,
+                    color: palette.primaryDark,
                     fontSize: 16 * responsive.scale,
                     fontWeight: FontWeight.w600,
                   ),
@@ -179,14 +388,14 @@ class _HeroImage extends StatelessWidget {
           borderRadius: BorderRadius.circular(radius),
           border: data.imageMode == OnboardingImageMode.card
               ? Border.all(
-                  color: AppTheme.neutral200.withValues(alpha: 0.5),
+                  color: data.palette.border.withValues(alpha: 0.7),
                   width: 1.5,
                 )
               : null,
           boxShadow: data.imageMode == OnboardingImageMode.card
               ? [
                   BoxShadow(
-                    color: AppTheme.neutral800.withValues(alpha: 0.08),
+                    color: data.palette.primaryDark.withValues(alpha: 0.10),
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),
@@ -195,12 +404,34 @@ class _HeroImage extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(radius),
-          child: Image.asset(
-            data.imageAsset,
-            fit: BoxFit.cover,
-          ),
+          child: _OnboardingImage(source: data.imageAsset),
         ),
       ),
+    );
+  }
+}
+
+class _OnboardingImage extends StatelessWidget {
+  const _OnboardingImage({required this.source});
+
+  final String source;
+
+  @override
+  Widget build(BuildContext context) {
+    if (source.startsWith('http')) {
+      return Image.network(
+        source,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
+
+    return Image.asset(
+      source,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
     );
   }
 }
@@ -239,11 +470,11 @@ class _IntroContentSheet extends StatelessWidget {
         (responsive.isCompact ? 18 : 26) * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: data.palette.sheet,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         border: Border(
           top: BorderSide(
-            color: AppTheme.neutral200.withValues(alpha: 0.6),
+            color: data.palette.border.withValues(alpha: 0.8),
             width: 1.5,
           ),
         ),
@@ -259,7 +490,7 @@ class _IntroContentSheet extends StatelessWidget {
                 Text(
                   data.step,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.neutral500.withValues(alpha: 0.8),
+                    color: data.palette.muted.withValues(alpha: 0.85),
                     fontSize: 14 * responsive.scale,
                     letterSpacing: 4,
                     fontWeight: FontWeight.w600,
@@ -271,6 +502,7 @@ class _IntroContentSheet extends StatelessWidget {
                     pageIndex: pageIndex,
                     pageCount: pageCount,
                     scale: responsive.scale,
+                    palette: data.palette,
                   ),
                 ],
               ],
@@ -279,7 +511,7 @@ class _IntroContentSheet extends StatelessWidget {
             Text(
               data.title,
               style: textTheme.displayLarge?.copyWith(
-                color: AppTheme.ink,
+                color: data.palette.ink,
                 fontSize: titleSize,
                 height: 1.14,
                 fontWeight: FontWeight.w400,
@@ -289,7 +521,7 @@ class _IntroContentSheet extends StatelessWidget {
             Text(
               data.description,
               style: textTheme.bodyLarge?.copyWith(
-                color: AppTheme.neutral500,
+                color: data.palette.muted,
                 fontSize: descriptionSize,
                 height: 1.45,
               ),
@@ -305,6 +537,7 @@ class _IntroContentSheet extends StatelessWidget {
                 pageIndex: pageIndex,
                 pageCount: pageCount,
                 scale: responsive.scale,
+                palette: data.palette,
               ),
             SizedBox(height: (responsive.isCompact ? 18 : 26) * responsive.scale),
             SizedBox(
@@ -313,8 +546,8 @@ class _IntroContentSheet extends StatelessWidget {
               child: FilledButton(
                 onPressed: onNext,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.accent,
-                  foregroundColor: AppTheme.cream,
+                  backgroundColor: data.palette.primaryDark,
+                  foregroundColor: data.palette.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -327,18 +560,22 @@ class _IntroContentSheet extends StatelessWidget {
                           Text(
                             data.primaryLabel,
                             style: textTheme.labelLarge?.copyWith(
-                              color: AppTheme.cream,
+                              color: data.palette.onPrimary,
                               fontSize: 18 * responsive.scale,
                             ),
                           ),
                           SizedBox(width: 12 * responsive.scale),
-                          Icon(Icons.arrow_forward, size: 22 * responsive.scale, color: AppTheme.cream),
+                          Icon(
+                            Icons.arrow_forward,
+                            size: 22 * responsive.scale,
+                            color: data.palette.onPrimary,
+                          ),
                         ],
                       )
                     : Text(
                         data.primaryLabel,
                         style: textTheme.labelLarge?.copyWith(
-                          color: AppTheme.cream,
+                          color: data.palette.onPrimary,
                           fontSize: 18 * responsive.scale,
                         ),
                       ),
@@ -350,7 +587,7 @@ class _IntroContentSheet extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.neutral500,
+                      color: data.palette.muted,
                       fontSize: 14 * responsive.scale,
                       fontWeight: FontWeight.w600,
                     ),
@@ -358,14 +595,14 @@ class _IntroContentSheet extends StatelessWidget {
                       const TextSpan(text: 'Đã có tài khoản? '),
                       TextSpan(
                         text: 'Đăng nhập',
-                        style: const TextStyle(
-                          color: AppTheme.accent,
+                        style: TextStyle(
+                          color: data.palette.primary,
                           decoration: TextDecoration.underline,
                           decorationThickness: 1.5,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+                            _finishOnboarding(context);
                           },
                       ),
                     ],
@@ -385,11 +622,13 @@ class _PageIndicator extends StatelessWidget {
     required this.pageIndex,
     required this.pageCount,
     required this.scale,
+    required this.palette,
   });
 
   final int pageIndex;
   final int pageCount;
   final double scale;
+  final OnboardingPalette palette;
 
   @override
   Widget build(BuildContext context) {
@@ -405,7 +644,7 @@ class _PageIndicator extends StatelessWidget {
             right: index == pageCount - 1 ? 0.0 : 8 * scale,
           ),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.accent : AppTheme.neutral200,
+            color: isActive ? palette.primary : palette.inactive,
             borderRadius: BorderRadius.circular(99),
           ),
         );

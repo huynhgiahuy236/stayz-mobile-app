@@ -20,7 +20,13 @@ class AddPaymentMethodPage extends StatelessWidget {
           responsive.horizontalPadding,
           24 * responsive.scale,
         ),
-        child: SafeArea(top: false, child: const ProfilePrimaryButton(label: 'Luu phuong thuc')),
+        child: SafeArea(
+          top: false,
+          child: ProfilePrimaryButton(
+            label: 'Lưu phương thức',
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
+        ),
       ),
       body: SafeArea(
         bottom: false,

@@ -19,7 +19,13 @@ class ProfileFormPage extends StatelessWidget {
           responsive.horizontalPadding,
           24 * responsive.scale,
         ),
-        child: SafeArea(top: false, child: const ProfilePrimaryButton(label: 'Luu thay doi')),
+        child: SafeArea(
+          top: false,
+          child: ProfilePrimaryButton(
+            label: 'Lưu thay đổi',
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
+        ),
       ),
       body: SafeArea(
         bottom: false,

@@ -1,3 +1,4 @@
+import 'package:capstone_mobile/features/auth/presentation/pages/auth_gate_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/otp_page.dart';
@@ -6,7 +7,7 @@ import 'package:capstone_mobile/features/auth/presentation/pages/reset_password_
 import 'package:capstone_mobile/features/booking/presentation/pages/booking_confirmation_page.dart';
 import 'package:capstone_mobile/features/booking/presentation/pages/booking_schedule_page.dart';
 import 'package:capstone_mobile/features/booking/presentation/pages/payment_checkout_page.dart';
-import 'package:capstone_mobile/features/booking/presentation/pages/room_selection_page.dart';
+import 'package:capstone_mobile/features/booking/presentation/pages/room_selection_real_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/cancel_booking_result_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_booking_detail_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_bookings_page.dart';
@@ -37,6 +38,7 @@ class AppRoutes {
   const AppRoutes._();
 
   static const home = '/';
+  static const authGate = '/auth-gate';
   static const onboarding = '/onboarding';
   static const login = '/login';
   static const register = '/register';
@@ -71,6 +73,7 @@ class AppRoutes {
   static const addPaymentMethod = '/add-payment-method';
 
   static Map<String, WidgetBuilder> get routes => {
+        authGate: (_) => const AuthGatePage(),
         home: (_) => const HomePage(),
         onboarding: (_) => const OnboardingIntroPage(),
         login: (_) => const LoginPage(),
@@ -86,7 +89,7 @@ class AppRoutes {
         offlineError: (_) => const OfflineErrorPage(),
         roomDetail: (_) => const RoomDetailPage(),
         hotelInfoForm: (_) => const HotelInfoFormPage(),
-        roomSelection: (_) => const RoomSelectionPage(),
+        roomSelection: (_) => const RealRoomSelectionPage(),
         bookingSchedule: (_) => const BookingSchedulePage(),
         paymentCheckout: (_) => const PaymentCheckoutPage(),
         bookingConfirmation: (_) => const BookingConfirmationPage(),

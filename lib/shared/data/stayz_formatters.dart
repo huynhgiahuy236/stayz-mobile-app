@@ -4,14 +4,14 @@ class StayzFormatters {
   static String compactVnd(num value) {
     if (value >= 1000000) {
       final millions = value / 1000000;
-      return 'd${millions.toStringAsFixed(millions % 1 == 0 ? 0 : 1)}M';
+      return '₫${millions.toStringAsFixed(millions % 1 == 0 ? 0 : 1)}M';
     }
 
     if (value >= 1000) {
-      return 'd${(value / 1000).round()}K';
+      return '₫${(value / 1000).round()}K';
     }
 
-    return 'd$value';
+    return '₫$value';
   }
 
   static String fullVnd(num value) {
@@ -26,7 +26,7 @@ class StayzFormatters {
       }
     }
 
-    return 'd$buffer';
+    return '₫$buffer';
   }
 
   static String shortDate(DateTime value) {

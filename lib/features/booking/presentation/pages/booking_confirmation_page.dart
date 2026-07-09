@@ -2,6 +2,9 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:flutter/material.dart';
 
 class BookingConfirmationPage extends StatelessWidget {
@@ -11,6 +14,9 @@ class BookingConfirmationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final draft = args is BookingDraft ? args : null;
+    final summary = args is BookingSummaryArgs ? args.summary : null;
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
@@ -77,7 +83,7 @@ class BookingConfirmationPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 58 * responsive.scale),
-                  const _ConfirmedTicket(),
+                  _ConfirmedTicket(draft: draft, summary: summary),
                   SizedBox(height: 52 * responsive.scale),
                   Center(
                     child: Container(
@@ -117,7 +123,20 @@ class BookingConfirmationPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 70 * responsive.scale),
-                  const BookingPrimaryButton(label: 'Xem chi tiet booking'),
+                  BookingPrimaryButton(
+                    label: 'Xem chi tiết booking',
+                    onTap: () {
+                      if (summary == null) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.myBookings, (route) => false);
+                        return;
+                      }
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.upcomingBookingDetail,
+                        (route) => false,
+                        arguments: BookingSummaryArgs(summary: summary),
+                      );
+                    },
+                  ),
                   SizedBox(height: 22 * responsive.scale),
                   SizedBox(
                     height: 58 * responsive.scale,
@@ -148,11 +167,34 @@ class BookingConfirmationPage extends StatelessWidget {
 }
 
 class _ConfirmedTicket extends StatelessWidget {
-  const _ConfirmedTicket();
+  const _ConfirmedTicket({required this.draft, required this.summary});
+
+  final BookingDraft? draft;
+  final BookingSummary? summary;
+
+  String get _bookingCode {
+    final id = summary?.booking.id;
+    if (id == null || id.isEmpty) return 'SZ';
+    final suffix = id.length > 5 ? id.substring(id.length - 5) : id;
+    return 'SZ-$suffix';
+  }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final hotelName = summary == null
+        ? (draft == null ? 'Khong co du lieu dat phong' : '${draft!.hotel.hotel.name}, ${draft!.hotel.city.name}')
+        : '${summary!.hotel.name}, ${summary!.city.name}';
+    final address = summary?.hotel.address ?? draft?.hotel.hotel.address ?? '';
+    final checkIn = summary == null
+        ? (draft == null ? '' : '${draft!.hotel.hotel.checkInTime}, ${StayzFormatters.shortDate(draft!.checkInDate)}')
+        : '${summary!.hotel.checkInTime}, ${StayzFormatters.shortDate(summary!.booking.checkInDate)}';
+    final checkOut = summary == null
+        ? (draft == null ? '' : '${draft!.hotel.hotel.checkOutTime}, ${StayzFormatters.shortDate(draft!.checkOutDate)}')
+        : '${summary!.hotel.checkOutTime}, ${StayzFormatters.shortDate(summary!.booking.checkOutDate)}';
+    final total = summary == null
+        ? (draft == null ? '' : StayzFormatters.fullVnd(draft!.totalAmount))
+        : StayzFormatters.fullVnd(summary!.booking.totalAmount);
 
     return Container(
       padding: EdgeInsets.all(24 * responsive.scale),
@@ -185,14 +227,14 @@ class _ConfirmedTicket extends StatelessWidget {
                 ),
               ),
               Text(
-                'STZ-2024-9988',
+                _bookingCode,
                 style: TextStyle(color: AppTheme.ink, fontSize: 17 * responsive.scale, fontWeight: FontWeight.w800),
               ),
             ],
           ),
           Divider(height: 34 * responsive.scale, color: const Color(0xFFD9B8B8)),
           Text(
-            'The Mist Retreat, Da Lat',
+            hotelName,
             style: TextStyle(
               color: AppTheme.accentDark,
               fontSize: 22 * responsive.scale,
@@ -206,7 +248,7 @@ class _ConfirmedTicket extends StatelessWidget {
               SizedBox(width: 8 * responsive.widthScale),
               Expanded(
                 child: Text(
-                  'Phuong 10, Thanh pho Da Lat',
+                  address,
                   style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale),
                 ),
               ),
@@ -214,13 +256,28 @@ class _ConfirmedTicket extends StatelessWidget {
           ),
           SizedBox(height: 26 * responsive.scale),
           Row(
-            children: const [
-              Expanded(child: _TicketMeta(label: 'CHECK-IN', value: '14:00, 11 Th10 2024')),
-              Expanded(child: _TicketMeta(label: 'CHECK-OUT', value: '12:00, 14 Th10 2024', alignRight: true)),
+            children: [
+              Expanded(
+                child: _TicketMeta(
+                  label: 'CHECK-IN',
+                  value: checkIn,
+                ),
+              ),
+              Expanded(
+                child: _TicketMeta(
+                  label: 'CHECK-OUT',
+                  value: checkOut,
+                  alignRight: true,
+                ),
+              ),
             ],
           ),
           Divider(height: 38 * responsive.scale, color: const Color(0xFFD9B8B8)),
-          const PriceLine(label: 'Tong cong', value: 'd3.200.000', total: true),
+          PriceLine(
+            label: 'Tổng cộng',
+            value: total,
+            total: true,
+          ),
         ],
       ),
     );

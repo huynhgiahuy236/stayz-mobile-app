@@ -1,14 +1,75 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
-class ReviewPage extends StatelessWidget {
+class ReviewPage extends StatefulWidget {
   const ReviewPage({super.key});
+
+  @override
+  State<ReviewPage> createState() => _ReviewPageState();
+}
+
+class _ReviewPageState extends State<ReviewPage> {
+  final TextEditingController _commentController = TextEditingController();
+  int _rating = 0;
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit(BookingSummaryArgs? args) async {
+    final summary = args?.summary;
+    if (summary == null) return;
+    if (summary.booking.status != 'completed') {
+      _showMessage('Chi co the danh gia booking da hoan thanh.');
+      return;
+    }
+    if (_rating < 1) {
+      _showMessage('Vui long chon so sao.');
+      return;
+    }
+    final comment = _commentController.text.trim();
+    if (comment.isEmpty) {
+      _showMessage('Vui long nhap noi dung danh gia.');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      await ApiStayzRepository.instance.submitReview(
+        propertyId: summary.hotel.id,
+        bookingId: summary.booking.id,
+        rating: _rating,
+        comment: comment,
+      );
+      if (!mounted) return;
+      _showMessage('Da gui danh gia.');
+      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.completedBookings, (route) => false);
+    } catch (error) {
+      if (!mounted) return;
+      _showMessage(error.toString());
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
+    final summary = args?.summary;
+    final canReview = summary?.booking.status == 'completed';
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF7F4),
@@ -46,14 +107,23 @@ class ReviewPage extends StatelessWidget {
                         SizedBox(width: 22 * responsive.widthScale),
                         Expanded(
                           child: Text(
-                            'Amanoi Resort Ninh Thuan\nVinh Hy, Ninh Hai, Ninh Thuan, Viet Nam',
+                            summary == null
+                                ? 'Khong co booking de danh gia'
+                                : '${summary.hotel.name}\n${summary.city.name}, ${summary.city.region}',
                             style: TextStyle(color: AppTheme.ink, fontSize: 21 * responsive.scale, height: 1.45),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 72 * responsive.scale),
+                  SizedBox(height: 46 * responsive.scale),
+                  if (!canReview)
+                    _InfoBox(
+                      message: summary == null
+                          ? 'Hay mo man danh gia tu mot booking da hoan thanh.'
+                          : 'Booking nay chua hoan thanh nen chua the danh gia.',
+                    ),
+                  SizedBox(height: canReview ? 0 : 28 * responsive.scale),
                   Text(
                     'TRAI NGHIEM CUA BAN THE NAO?',
                     style: TextStyle(
@@ -67,10 +137,17 @@ class ReviewPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(
                       5,
-                      (_) => Icon(Icons.star_border, color: const Color(0xFFD9B8B8), size: 42 * responsive.scale),
+                      (index) => IconButton(
+                        onPressed: canReview ? () => setState(() => _rating = index + 1) : null,
+                        icon: Icon(
+                          index < _rating ? Icons.star : Icons.star_border,
+                          color: index < _rating ? const Color(0xFFFFB020) : const Color(0xFFD9B8B8),
+                          size: 42 * responsive.scale,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 82 * responsive.scale),
+                  SizedBox(height: 58 * responsive.scale),
                   Text(
                     'VIET NHAN XET CUA BAN',
                     style: TextStyle(
@@ -80,56 +157,42 @@ class ReviewPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 18 * responsive.scale),
-                  Container(
-                    height: 190 * responsive.scale,
-                    padding: EdgeInsets.all(20 * responsive.scale),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.neutral200),
-                    ),
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      'Chia se cam nhan cua ban ve ky nghi nay...',
-                      style: TextStyle(color: const Color(0xFFD9B8B8), fontSize: 20 * responsive.scale, height: 1.45),
+                  TextField(
+                    controller: _commentController,
+                    enabled: canReview && !_isSubmitting,
+                    maxLines: 6,
+                    decoration: InputDecoration(
+                      hintText: 'Chia se cam nhan cua ban ve ky nghi nay...',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppTheme.neutral200),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppTheme.neutral200),
+                      ),
                     ),
                   ),
                   SizedBox(height: 54 * responsive.scale),
-                  Text(
-                    'THEM HINH ANH',
-                    style: TextStyle(
-                      color: const Color(0xFF5A3F3F),
-                      fontSize: 18 * responsive.scale,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  SizedBox(height: 22 * responsive.scale),
-                  Row(
-                    children: [
-                      const _PhotoSlot(icon: true),
-                      SizedBox(width: 16 * responsive.widthScale),
-                      const _PhotoSlot(),
-                      SizedBox(width: 16 * responsive.widthScale),
-                      const _PhotoSlot(),
-                      SizedBox(width: 16 * responsive.widthScale),
-                      const _PhotoSlot(),
-                    ],
-                  ),
-                  SizedBox(height: 66 * responsive.scale),
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: FilledButton(
-                      onPressed: () {},
+                      onPressed: canReview && !_isSubmitting ? () => _submit(args) : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: AppTheme.accent,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text('Gui danh gia', style: TextStyle(color: Colors.white, fontSize: 20 * responsive.scale)),
+                      child: Text(
+                        _isSubmitting ? 'Dang gui...' : 'Gui danh gia',
+                        style: TextStyle(color: Colors.white, fontSize: 20 * responsive.scale),
+                      ),
                     ),
                   ),
                   SizedBox(height: 28 * responsive.scale),
                   Text(
-                    'Danh gia cua ban giup cong dong StayZ tot hon moi ngay.',
+                    'Danh gia chi duoc luu khi booking da hoan thanh.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTheme.neutral500,
@@ -148,27 +211,25 @@ class ReviewPage extends StatelessWidget {
   }
 }
 
-class _PhotoSlot extends StatelessWidget {
-  const _PhotoSlot({this.icon = false});
+class _InfoBox extends StatelessWidget {
+  const _InfoBox({required this.message});
 
-  final bool icon;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Expanded(
-      child: Container(
-        height: 76 * responsive.scale,
-        decoration: BoxDecoration(
-          color: AppTheme.cream,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: const Color(0xFFE7D8D2),
-            style: BorderStyle.solid,
-          ),
-        ),
-        child: icon ? Icon(Icons.add_a_photo_outlined, color: const Color(0xFF5A3F3F), size: 28 * responsive.scale) : null,
+    return Container(
+      padding: EdgeInsets.all(16 * responsive.scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4E5),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFFFC46B)),
+      ),
+      child: Text(
+        message,
+        style: TextStyle(color: const Color(0xFF6B4B00), fontSize: 15 * responsive.scale, height: 1.4),
       ),
     );
   }

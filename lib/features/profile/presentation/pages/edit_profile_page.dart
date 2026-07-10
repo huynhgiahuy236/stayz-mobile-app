@@ -15,7 +15,7 @@ class EditProfilePage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const ProfileHeader(title: 'Thong tin ca nhan'),
+            const ProfileHeader(title: 'Thông tin cá nhân'),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -40,28 +40,28 @@ class EditProfilePage extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 22 * responsive.scale),
-                        const ProfileSectionLabel(label: 'Anh dai dien'),
+                        const ProfileSectionLabel(label: 'Ảnh đại diện'),
                       ],
                     ),
                   ),
                   SizedBox(height: 54 * responsive.scale),
-                  const ProfileInputField(label: 'Ho va ten', value: 'Nguyen Minh Anh'),
+                  const ProfileInputField(label: 'Họ và tên', value: 'Nguyễn Minh Anh'),
                   SizedBox(height: 30 * responsive.scale),
                   const ProfileInputField(
                     label: 'Email',
                     value: 'minhanh.nguyen@example',
-                    error: 'Dia chi email khong hop le. Vui long kiem tra lai.',
+                    error: 'Địa chỉ email không hợp lệ. Vui lòng kiểm tra lại.',
                   ),
                   SizedBox(height: 30 * responsive.scale),
-                  const ProfileInputField(label: 'So dien thoai', value: '090 123 4567'),
+                  const ProfileInputField(label: 'Số điện thoại', value: '090 123 4567'),
                   SizedBox(height: 30 * responsive.scale),
                   ProfileInputField(
-                    label: 'Ngay sinh',
+                    label: 'Ngày sinh',
                     value: '05/15/1995',
                     trailing: Icon(Icons.calendar_today_outlined, color: const Color(0xFF5A3F3F), size: 22 * responsive.scale),
                   ),
                   SizedBox(height: 30 * responsive.scale),
-                  const ProfileSectionLabel(label: 'Gioi tinh'),
+                  const ProfileSectionLabel(label: 'Giới tính'),
                   SizedBox(height: 12 * responsive.scale),
                   Container(
                     height: 54 * responsive.scale,
@@ -74,15 +74,15 @@ class EditProfilePage extends StatelessWidget {
                     child: Row(
                       children: const [
                         _GenderSegment(label: 'Nam', active: true),
-                        _GenderSegment(label: 'Nu'),
-                        _GenderSegment(label: 'Khac'),
+                        _GenderSegment(label: 'Nữ'),
+                        _GenderSegment(label: 'Khác'),
                       ],
                     ),
                   ),
                   SizedBox(height: 40 * responsive.scale),
                   const ProfileInputField(
-                    label: 'Dia chi thuong tru',
-                    value: '123 Duong Le Loi, Quan 1, TP. Ho Chi Minh',
+                    label: 'Địa chỉ thường trú',
+                    value: '123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh',
                     large: true,
                   ),
                   SizedBox(height: 70 * responsive.scale),

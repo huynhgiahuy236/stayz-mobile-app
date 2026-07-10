@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/widgets/cancel_booking_dialog.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
@@ -36,9 +37,9 @@ class UpcomingBookingDetailPage extends StatelessWidget {
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Chi tiet dat phong',
+              title: 'Chi tiết đặt phòng',
               fallbackRoute: AppRoutes.myBookings,
-              trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
+              
             ),
             Expanded(
               child: ListView(
@@ -67,7 +68,7 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                         top: 18 * responsive.scale,
                         left: 18 * responsive.widthScale,
                         child: const BookingStatusPill(
-                          label: 'Sap den',
+                          label: 'Sắp đến',
                           color: Color(0xFF9BF0BF),
                           textColor: Color(0xFF055C3A),
                         ),
@@ -100,40 +101,40 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   ),
                   SizedBox(height: 34 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Thong tin dat phong',
+                    title: 'Thông tin đặt phòng',
                     children: [
-                      DetailLine(label: 'Ma dat phong', value: _bookingCode(summary.booking.id)),
+                      DetailLine(label: 'Mã đặt phòng', value: _bookingCode(summary.booking.id)),
                       const Divider(),
-                      DetailLine(label: 'Khach san', value: summary.hotel.name),
-                      DetailLine(label: 'Loai phong', value: summary.room.name),
+                      DetailLine(label: 'Khách sạn', value: summary.hotel.name),
+                      DetailLine(label: 'Loại phòng', value: summary.room.name),
                       const Divider(),
                       DetailLine(label: 'Check-in', value: StayzFormatters.shortDate(summary.booking.checkInDate)),
                       DetailLine(label: 'Check-out', value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
-                      DetailLine(label: 'So dem', value: '${summary.booking.nights} dem'),
+                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights} đêm'),
                       const Divider(),
                       DetailLine(
-                        label: 'So khach',
-                        value: '${summary.booking.guests.adults} nguoi lon, ${summary.booking.guests.children} tre em',
+                        label: 'Số khách',
+                        value: '${summary.booking.guests.adults} người lớn, ${summary.booking.guests.children} trẻ em',
                       ),
-                      DetailLine(label: 'Trang thai', value: summary.booking.status),
+                      DetailLine(label: 'Trạng thái', value: summary.booking.status),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiet thanh toan',
+                    title: 'Chi tiết thanh toán',
                     children: [
-                      DetailLine(label: 'Gia moi dem', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
-                      DetailLine(label: 'So dem', value: '${summary.booking.nights}'),
-                      const DetailLine(label: 'Thue va phi', value: 'Da bao gom'),
+                      DetailLine(label: 'Giá mỗi đêm', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights}'),
+                      const DetailLine(label: 'Thuế và phí', value: 'Đã bao gồm'),
                       const Divider(),
                       DetailLine(
-                        label: 'Tong thanh toan',
+                        label: 'Tổng thanh toán',
                         value: StayzFormatters.fullVnd(summary.booking.totalAmount),
                         total: true,
                       ),
                       const Divider(),
                       Text(
-                        'Trang thai thanh toan: ${summary.booking.paymentStatus}',
+                        'Trạng thái thanh toán: ${summary.booking.paymentStatus}',
                         style: TextStyle(color: const Color(0xFF6B5348), fontSize: 14 * responsive.scale, height: 1.4),
                       ),
                     ],
@@ -141,7 +142,7 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   if (summary.booking.specialRequest != null && summary.booking.specialRequest!.trim().isNotEmpty) ...[
                     SizedBox(height: 20 * responsive.scale),
                     BookingDetailPanel(
-                      title: 'Ghi chu',
+                      title: 'Ghi chú',
                       children: [
                         Text(
                           summary.booking.specialRequest!,
@@ -154,20 +155,24 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pushNamed(
-                        AppRoutes.cancelBookingResult,
-                        arguments: args,
-                      ),
+                      onPressed: () async {
+                        final confirmed = await confirmCancelBooking(context, summary);
+                        if (!confirmed || !context.mounted) return;
+                        await Navigator.of(context).pushNamed(
+                          AppRoutes.cancelBookingResult,
+                          arguments: args,
+                        );
+                      },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.accentDark),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text('Huy dat phong', style: TextStyle(color: AppTheme.accentDark, fontSize: 18 * responsive.scale)),
+                      child: Text('Hủy đặt phòng', style: TextStyle(color: AppTheme.accentDark, fontSize: 18 * responsive.scale)),
                     ),
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   Text(
-                    'Chinh sach huy duoc ap dung theo dieu kien cua khach san.',
+                    'Chính sách hủy được áp dụng theo điều kiện của khách sạn.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale, height: 1.4),
                   ),

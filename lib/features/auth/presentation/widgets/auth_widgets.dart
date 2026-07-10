@@ -189,10 +189,9 @@ class AuthTopBar extends StatelessWidget {
                 ),
               ),
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints.tightFor(
-                width: 44 * responsive.scale,
-                height: 44 * responsive.scale,
-              ),
+              tooltip: 'Quay lại',
+              // 48dp la nguong toi thieu tren Android; 44dp truoc day chua dat.
+              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
             ),
             if (title != null) ...[
               SizedBox(width: 18 * responsive.widthScale),
@@ -385,11 +384,17 @@ class AuthPrimaryButton extends StatelessWidget {
   const AuthPrimaryButton({
     required this.label,
     required this.onPressed,
+    this.loading = false,
     super.key,
   });
 
   final String label;
-  final VoidCallback onPressed;
+
+  /// `null` = vo hieu hoa that su. Truoc day cac man truyen `() {}` khi dang tai,
+  /// nen nut van sang mau day du va van bam duoc nhung khong lam gi ca.
+  final VoidCallback? onPressed;
+
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -398,24 +403,44 @@ class AuthPrimaryButton extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: 58 * responsive.scale,
+      height: 56 * responsive.scale,
       child: FilledButton(
-        onPressed: onPressed,
+        onPressed: loading ? null : onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.accent,
           foregroundColor: AppTheme.cream,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          disabledBackgroundColor: AppTheme.accent.withValues(alpha: 0.42),
+          disabledForegroundColor: Colors.white70,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
-        child: Text(
-          label,
-          style: textTheme.labelLarge?.copyWith(
-            color: AppTheme.cream,
-            fontSize: 18 * responsive.scale,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        child: loading
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  ),
+                  SizedBox(width: 12 * responsive.scale),
+                  Text(
+                    label,
+                    style: textTheme.labelLarge?.copyWith(
+                      color: Colors.white,
+                      fontSize: 17 * responsive.scale,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              )
+            : Text(
+                label,
+                style: textTheme.labelLarge?.copyWith(
+                  color: AppTheme.cream,
+                  fontSize: 17 * responsive.scale,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/notifications/notifications_controller.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -77,31 +79,31 @@ class StayZBottomNav extends StatelessWidget {
                 children: [
                   _NavItem(
                     icon: Icons.home_rounded,
-                    label: 'Trang chủ',
+                    label: tr('Trang chủ', 'Home'),
                     active: activeTab == HomeTab.home,
                     routeName: AppRoutes.home,
                   ),
                   _NavItem(
                     icon: Icons.travel_explore_rounded,
-                    label: 'Tìm kiếm',
+                    label: tr('Tìm kiếm', 'Search'),
                     active: activeTab == HomeTab.search,
                     routeName: AppRoutes.search,
                   ),
                   _NavItem(
                     icon: Icons.favorite_rounded,
-                    label: 'Đã lưu',
+                    label: tr('Đã lưu', 'Saved'),
                     active: activeTab == HomeTab.saved,
                     routeName: AppRoutes.favorites,
                   ),
                   _NavItem(
                     icon: Icons.calendar_month_rounded,
-                    label: 'Lịch đặt',
+                    label: tr('Lịch đặt', 'Trips'),
                     active: activeTab == HomeTab.bookings,
                     routeName: AppRoutes.myBookings,
                   ),
                   _NavItem(
                     icon: Icons.person_rounded,
-                    label: 'Tôi',
+                    label: tr('Tôi', 'Me'),
                     active: activeTab == HomeTab.profile,
                     routeName: AppRoutes.settings,
                   ),
@@ -213,10 +215,7 @@ class StayZLogoRow extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        _RoundIconButton(
-          icon: Icons.notifications_none_rounded,
-          onTap: () => Navigator.of(context).pushNamed(AppRoutes.notifications),
-        ),
+        const _NotificationBell(),
         SizedBox(width: 10 * responsive.widthScale),
         _RoundIconButton(
           icon: Icons.person_outline_rounded,
@@ -364,7 +363,7 @@ class SearchBox extends StatelessWidget {
               SizedBox(width: 12 * responsive.widthScale),
               Expanded(
                 child: Text(
-                  'Bạn muốn đi đâu?',
+                  tr('Bạn muốn đi đâu?', 'Where to?'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -399,6 +398,7 @@ class FilterPill extends StatelessWidget {
     required this.label,
     this.active = false,
     this.icon,
+    this.onTap,
     super.key,
   });
 
@@ -406,35 +406,50 @@ class FilterPill extends StatelessWidget {
   final bool active;
   final IconData? icon;
 
+  /// Thieu callback nay thi chip chi la trang tri: truoc day bam khong co gi xay ra.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      height: 42 * responsive.scale,
-      padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
-      decoration: BoxDecoration(
-        color: active ? AppTheme.ink : Colors.white,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: active ? AppTheme.ink : AppTheme.line),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 17 * responsive.scale, color: active ? Colors.white : AppTheme.primary),
-            SizedBox(width: 7 * responsive.widthScale),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              color: active ? Colors.white : AppTheme.ink,
-              fontSize: 13 * responsive.scale,
-              fontWeight: FontWeight.w800,
+    return Semantics(
+      button: onTap != null,
+      selected: active,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            constraints: BoxConstraints(minHeight: 42 * responsive.scale),
+            padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
+            decoration: BoxDecoration(
+              color: active ? AppTheme.ink : Colors.white,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: active ? AppTheme.ink : AppTheme.line),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 17 * responsive.scale, color: active ? Colors.white : AppTheme.primary),
+                  SizedBox(width: 7 * responsive.widthScale),
+                ],
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: active ? Colors.white : AppTheme.ink,
+                    fontSize: 13 * responsive.scale,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -446,12 +461,14 @@ class HotelCard extends StatelessWidget {
     required this.location,
     required this.price,
     required this.colors,
+    required this.onTap,
     this.compact = false,
     this.fullWidth = false,
     this.imageUrl,
-    this.onTap,
     this.onFavoriteTap,
     this.isFavorite = false,
+    this.rating,
+    this.reviewCount = 0,
     super.key,
   });
 
@@ -462,15 +479,21 @@ class HotelCard extends StatelessWidget {
   final bool compact;
   final bool fullWidth;
   final String? imageUrl;
-  final VoidCallback? onTap;
+
+  /// Bat buoc: truoc day mac dinh `onTap` mo `/room-detail` KHONG kem tham so,
+  /// khien man chi tiet hien du lieu rong.
+  final VoidCallback onTap;
   final VoidCallback? onFavoriteTap;
   final bool isFavorite;
+
+  /// Diem danh gia that. `null` = chua co danh gia nao, khong hien huy hieu.
+  final double? rating;
+  final int reviewCount;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final width = fullWidth ? null : (compact ? 174 * responsive.widthScale : 254 * responsive.widthScale);
-    final imageHeight = (compact ? 118 : 148) * responsive.scale;
 
     return SizedBox(
       width: width,
@@ -478,7 +501,7 @@ class HotelCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
-          onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+          onTap: onTap,
           borderRadius: BorderRadius.circular(18),
           child: Ink(
             decoration: BoxDecoration(
@@ -490,9 +513,10 @@ class HotelCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  height: imageHeight,
-                  width: double.infinity,
+                AspectRatio(
+                  // Chieu cao suy tu chieu rong the theo ti le chung, nen anh
+                  // luon can doi du the ngang hay rong het man hinh.
+                  aspectRatio: AppTheme.cardImageAspectRatio,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                     child: Stack(
@@ -503,7 +527,7 @@ class HotelCard extends StatelessWidget {
                           StayZNetworkImage(
                             imageUrl: imageUrl!,
                             width: width ?? MediaQuery.sizeOf(context).width,
-                            height: imageHeight,
+                            height: (width ?? MediaQuery.sizeOf(context).width) / AppTheme.cardImageAspectRatio,
                           ),
                         DecoratedBox(
                           decoration: BoxDecoration(
@@ -514,20 +538,33 @@ class HotelCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (rating != null && reviewCount > 0)
+                          Positioned(
+                            top: 12 * responsive.scale,
+                            left: 12 * responsive.scale,
+                            child: _RatingBadge(value: rating!.toStringAsFixed(1), reviewCount: reviewCount),
+                          ),
                         Positioned(
-                          top: 12 * responsive.scale,
-                          left: 12 * responsive.scale,
-                          child: _RatingBadge(value: '4.9'),
-                        ),
-                        Positioned(
-                          top: 10 * responsive.scale,
-                          right: 10 * responsive.scale,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: onFavoriteTap,
-                            child: _GlassIcon(
-                              icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              active: isFavorite,
+                          top: 4 * responsive.scale,
+                          right: 4 * responsive.scale,
+                          child: Semantics(
+                            button: true,
+                            label: isFavorite ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích',
+                            child: InkResponse(
+                              onTap: onFavoriteTap,
+                              radius: 24,
+                              // Vung cham 48dp theo chuan Android, trong khi
+                              // huy hieu ben trong van giu 36dp cho gon mat.
+                              child: SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: Center(
+                                  child: _GlassIcon(
+                                    icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                    active: isFavorite,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -607,6 +644,8 @@ class BookingPreviewCard extends StatelessWidget {
     required this.date,
     required this.total,
     required this.colors,
+    this.imageUrl,
+    this.onTap,
     super.key,
   });
 
@@ -615,29 +654,37 @@ class BookingPreviewCard extends StatelessWidget {
   final String date;
   final String total;
   final List<Color> colors;
+  final String? imageUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final thumbSize = 84 * responsive.scale;
 
     return Material(
       color: AppTheme.ink,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
-        borderRadius: BorderRadius.circular(22),
+        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: EdgeInsets.all(16 * responsive.scale),
           child: Row(
             children: [
-              Container(
-                width: 84 * responsive.scale,
-                height: 84 * responsive.scale,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: LinearGradient(colors: colors),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: SizedBox(
+                  width: thumbSize,
+                  height: thumbSize,
+                  // Anh khach san that; khong co thi ve gradient + icon.
+                  child: (imageUrl != null && imageUrl!.isNotEmpty)
+                      ? StayZNetworkImage(imageUrl: imageUrl!, width: thumbSize, height: thumbSize)
+                      : DecoratedBox(
+                          decoration: BoxDecoration(gradient: LinearGradient(colors: colors)),
+                          child: const Icon(Icons.confirmation_number_rounded, color: Colors.white),
+                        ),
                 ),
-                child: const Icon(Icons.confirmation_number_rounded, color: Colors.white),
               ),
               SizedBox(width: 16 * responsive.widthScale),
               Expanded(
@@ -794,6 +841,46 @@ class TicketDashedDivider extends StatelessWidget {
   }
 }
 
+/// Chuong thong bao co badge dem so chua doc. Lang nghe NotificationsController
+/// nen badge tu cap nhat khi co booking moi hoac khi danh dau da doc.
+class _NotificationBell extends StatefulWidget {
+  const _NotificationBell();
+
+  @override
+  State<_NotificationBell> createState() => _NotificationBellState();
+}
+
+class _NotificationBellState extends State<_NotificationBell> {
+  @override
+  void initState() {
+    super.initState();
+    // Cap nhat so chua doc moi lan header xuat hien.
+    WidgetsBinding.instance.addPostFrameCallback((_) => NotificationsController.instance.refresh());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: NotificationsController.instance,
+      builder: (context, _) {
+        final unread = NotificationsController.instance.unread;
+        return Badge(
+          isLabelVisible: unread > 0,
+          label: Text(unread > 9 ? '9+' : '$unread'),
+          backgroundColor: AppTheme.danger,
+          child: _RoundIconButton(
+            icon: unread > 0 ? Icons.notifications_rounded : Icons.notifications_none_rounded,
+            onTap: () async {
+              await Navigator.of(context).pushNamed(AppRoutes.notifications);
+              await NotificationsController.instance.refresh();
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _RoundIconButton extends StatelessWidget {
   const _RoundIconButton({required this.icon, required this.onTap});
 
@@ -822,27 +909,36 @@ class _RoundIconButton extends StatelessWidget {
 }
 
 class _RatingBadge extends StatelessWidget {
-  const _RatingBadge({required this.value});
+  const _RatingBadge({required this.value, required this.reviewCount});
 
   final String value;
+  final int reviewCount;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8 * responsive.widthScale, vertical: 5 * responsive.scale),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.star_rounded, color: AppTheme.gold, size: 14 * responsive.scale),
-          SizedBox(width: 3 * responsive.widthScale),
-          Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w900)),
-        ],
+    return Semantics(
+      label: 'Đánh giá $value trên 5, $reviewCount lượt',
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8 * responsive.widthScale, vertical: 5 * responsive.scale),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star_rounded, color: AppTheme.gold, size: 14 * responsive.scale),
+            SizedBox(width: 3 * responsive.widthScale),
+            Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w900)),
+            SizedBox(width: 3 * responsive.widthScale),
+            Text(
+              '($reviewCount)',
+              style: TextStyle(color: AppTheme.muted, fontSize: 10 * responsive.scale, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
       ),
     );
   }

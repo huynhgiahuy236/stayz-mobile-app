@@ -47,7 +47,7 @@ class AddPaymentMethodPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      'Them phuong thuc moi',
+                      'Thêm phương thức mới',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.headlineMedium?.copyWith(
@@ -65,13 +65,13 @@ class AddPaymentMethodPage extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.all(responsive.horizontalPadding),
                 children: [
-                  const ProfileSectionLabel(label: 'Chon loai thanh toan'),
+                  const ProfileSectionLabel(label: 'Chọn loại thanh toán'),
                   SizedBox(height: 20 * responsive.scale),
-                  const _PaymentTypeTile(icon: Icons.credit_card, title: 'The Tin dung/Ghi no', subtitle: 'Visa, Mastercard, JCB'),
+                  const _PaymentTypeTile(icon: Icons.credit_card, title: 'Thẻ Tín dụng/Ghi nợ', subtitle: 'Visa, Mastercard, JCB'),
                   SizedBox(height: 52 * responsive.scale),
-                  const _PaymentTypeTile(icon: Icons.account_balance_wallet_outlined, title: 'Vi dien tu', subtitle: 'MoMo, ZaloPay, ShopeePay'),
+                  const _PaymentTypeTile(icon: Icons.account_balance_wallet_outlined, title: 'Ví điện tử', subtitle: 'MoMo, ZaloPay, ShopeePay'),
                   SizedBox(height: 20 * responsive.scale),
-                  const _PaymentTypeTile(icon: Icons.account_balance, title: 'Chuyen khoan ngan hang', subtitle: 'Internet Banking / QR Code'),
+                  const _PaymentTypeTile(icon: Icons.account_balance, title: 'Chuyển khoản ngân hàng', subtitle: 'Internet Banking / QR Code'),
                   SizedBox(height: 34 * responsive.scale),
                   Container(
                     height: 190 * responsive.scale,

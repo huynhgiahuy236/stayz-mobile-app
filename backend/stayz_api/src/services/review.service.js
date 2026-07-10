@@ -29,6 +29,12 @@ const reviewService = {
       throw new BadRequestException("Chi co the danh gia booking da hoan tat cua ban");
     }
 
+    // Chan danh gia trung: moi don chi duoc danh gia mot lan.
+    const existing = await reviewsModel.findOne({ booking_id, user_id });
+    if (existing) {
+      throw new BadRequestException("Ban da danh gia don nay roi");
+    }
+
     const safeRating = Number(rating);
     if (!Number.isFinite(safeRating) || safeRating < 1 || safeRating > 5) {
       throw new BadRequestException("Rating phai tu 1 den 5 sao");

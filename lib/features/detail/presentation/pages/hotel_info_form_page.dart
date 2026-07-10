@@ -40,7 +40,7 @@ class HotelInfoFormPage extends StatelessWidget {
                   SizedBox(width: 8 * responsive.widthScale),
                   Expanded(
                     child: Text(
-                      'Trung tam ho tro',
+                      'Trung tâm hỗ trợ',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.headlineMedium?.copyWith(
@@ -78,7 +78,7 @@ class HotelInfoFormPage extends StatelessWidget {
                         SizedBox(width: 16 * responsive.widthScale),
                         Expanded(
                           child: Text(
-                            'Tim kiem giai phap...',
+                            'Tìm kiếm giải pháp...',
                             style: TextStyle(
                               color: AppTheme.ink,
                               fontSize: 18 * responsive.scale,
@@ -89,24 +89,24 @@ class HotelInfoFormPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 54 * responsive.scale),
-                  const DetailSectionTitle(title: 'Cau hoi thuong gap'),
+                  const DetailSectionTitle(title: 'Câu hỏi thường gặp'),
                   SizedBox(height: 24 * responsive.scale),
                   const _FaqTile(
-                    title: 'Lam the nao de huy phong?',
-                    body: 'Ban co the huy phong trong muc "Dat phong" va xem dieu kien huy truoc khi xac nhan.',
+                    title: 'Làm thế nào để hủy phòng?',
+                    body: 'Bạn có thể hủy phòng trong mục "Đặt phòng" và xem điều kiện hủy trước khi xác nhận.',
                   ),
                   SizedBox(height: 12 * responsive.scale),
                   const _FaqTile(
-                    title: 'Chinh sach hoan tien',
-                    body: 'Tien se duoc hoan tra vao phuong thuc thanh toan ban da su dung.',
+                    title: 'Chính sách hoàn tiền',
+                    body: 'Tiền sẽ được hoàn trả vào phương thức thanh toán bạn đã sử dụng.',
                   ),
                   SizedBox(height: 12 * responsive.scale),
                   const _FaqTile(
-                    title: 'Thay doi thoi gian luu tru',
-                    body: 'De thay doi thoi gian, vui long lien he khach san hoac bo phan ho tro.',
+                    title: 'Thay đổi thời gian lưu trú',
+                    body: 'Để thay đổi thời gian, vui lòng liên hệ khách sạn hoặc bộ phận hỗ trợ.',
                   ),
                   SizedBox(height: 56 * responsive.scale),
-                  const DetailSectionTitle(title: 'Lien he voi chung toi'),
+                  const DetailSectionTitle(title: 'Liên hệ với chúng tôi'),
                   SizedBox(height: 24 * responsive.scale),
                   Row(
                     children: [
@@ -122,7 +122,7 @@ class HotelInfoFormPage extends StatelessWidget {
                       const Expanded(
                         child: SupportActionCard(
                           icon: Icons.chat_bubble_outline,
-                          title: 'TRUC\nTUYEN',
+                          title: 'TRỰC\nTUYẾN',
                           value: 'Chat ngay',
                           color: Color(0xFFFFC76B),
                         ),
@@ -145,7 +145,7 @@ class HotelInfoFormPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Gui phan hoi cho chung toi',
+                                'Gửi phản hồi cho chúng tôi',
                                 style: TextStyle(
                                   color: AppTheme.accentDark,
                                   fontSize: 17 * responsive.scale,
@@ -154,7 +154,7 @@ class HotelInfoFormPage extends StatelessWidget {
                               ),
                               SizedBox(height: 14 * responsive.scale),
                               Text(
-                                'Y kien cua ban giup chung toi cai thien dich vu tot hon moi ngay.',
+                                'Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn mỗi ngày.',
                                 style: TextStyle(
                                   color: const Color(0xFF6B5348),
                                   fontSize: 18 * responsive.scale,
@@ -175,7 +175,7 @@ class HotelInfoFormPage extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    'VIET PHAN HOI',
+                                    'VIẾT PHẢN HỒI',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16 * responsive.scale,
@@ -197,10 +197,10 @@ class HotelInfoFormPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 56 * responsive.scale),
-                  const DetailSectionTitle(title: 'Phap ly'),
+                  const DetailSectionTitle(title: 'Pháp lý'),
                   SizedBox(height: 26 * responsive.scale),
-                  const _LegalTile(label: 'Dieu khoan su dung'),
-                  const _LegalTile(label: 'Chinh sach bao mat'),
+                  const _LegalTile(label: 'Điều khoản sử dụng'),
+                  const _LegalTile(label: 'Chính sách bảo mật'),
                   SizedBox(height: 54 * responsive.scale),
                   Icon(
                     Icons.local_florist_outlined,

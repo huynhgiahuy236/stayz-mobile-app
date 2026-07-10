@@ -1,11 +1,13 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/widgets/cancel_booking_dialog.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class MyBookingsPage extends StatelessWidget {
@@ -21,15 +23,7 @@ class MyBookingsPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            StayZScreenHeader(
-              title: 'Chuyến đi của tôi',
-              subtitle: 'Lịch đặt',
-              trailing: IconButton.filledTonal(
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
-                icon: const Icon(Icons.add_rounded),
-                style: IconButton.styleFrom(backgroundColor: AppTheme.primarySoft, foregroundColor: AppTheme.primary),
-              ),
-            ),
+            const BookingsScreenHeader(),
             const BookingManageTabs(
               activeTab: BookingManageTab.upcoming,
               upcomingRoute: AppRoutes.myBookings,
@@ -74,15 +68,21 @@ class MyBookingsPage extends StatelessWidget {
                         code: 'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
                         checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
                         checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
+                        imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
                         colors: _bookingColors[(index - 1) % _bookingColors.length],
                         onDetail: () => Navigator.of(context).pushNamed(
                           AppRoutes.upcomingBookingDetail,
                           arguments: BookingSummaryArgs(summary: summary),
                         ),
-                        onCancel: () => Navigator.of(context).pushNamed(
-                          AppRoutes.cancelBookingResult,
-                          arguments: BookingSummaryArgs(summary: summary),
-                        ),
+                        // Hoi lai truoc, roi moi dieu huong sang man thuc thi huy.
+                        onCancel: () async {
+                          final confirmed = await confirmCancelBooking(context, summary);
+                          if (!confirmed || !context.mounted) return;
+                          await Navigator.of(context).pushNamed(
+                            AppRoutes.cancelBookingResult,
+                            arguments: BookingSummaryArgs(summary: summary),
+                          );
+                        },
                       );
                     },
                   );
@@ -127,9 +127,9 @@ class _TripSummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$count lịch đặt sắp tới', style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
+                Text(tr('$count lịch đặt sắp tới', '$count upcoming bookings'), style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
                 SizedBox(height: 5 * responsive.scale),
-                Text('Xem chi tiết, đổi kế hoạch hoặc hủy đặt phòng khi cần.', style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, height: 1.35)),
+                Text(tr('Xem chi tiết, đổi kế hoạch hoặc hủy đặt phòng khi cần.', 'View details, change plans, or cancel your booking when needed.'), style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, height: 1.35)),
               ],
             ),
           ),
@@ -149,7 +149,7 @@ class _UpcomingEmptyState extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
         child: Text(
-          'Chưa có đặt phòng sắp tới',
+          tr('Chưa có đặt phòng sắp tới', 'No upcoming bookings'),
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppTheme.ink,

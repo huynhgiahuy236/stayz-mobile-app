@@ -1,7 +1,10 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/payment_policy.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_alert.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
@@ -26,14 +29,18 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
     if (_started) return;
     _started = true;
     final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
-    _cancelBooking(args?.summary);
+    // `_cancelBooking` goi setState ngay dau; hoan lai sau khi khung dung xong
+    // de tranh "setState() called during build".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _cancelBooking(args?.summary);
+    });
   }
 
   Future<void> _cancelBooking(BookingSummary? summary) async {
     if (summary == null) {
       setState(() {
         _isCancelling = false;
-        _errorMessage = 'Thieu thong tin booking can huy.';
+        _errorMessage = 'Thiếu thông tin đặt phòng cần hủy.';
       });
       return;
     }
@@ -44,22 +51,41 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
       _summary = summary;
     });
 
+    // Tinh hoan tien theo ma tran (cung ham voi hop thoai xac nhan).
+    final plan = PaymentPolicy.fromSlug(summary.booking.paymentPlan);
+    final paid = summary.booking.amountPaid ?? 0;
+    final now = DateTime.now();
+    final rate = PaymentPolicy.refundRatePercent(plan, summary.booking.checkInDate, now);
+    final refund = paid > 0 ? PaymentPolicy.refundAmount(plan, paid, summary.booking.checkInDate, now) : 0;
+
     try {
-      final updated = await ApiStayzRepository.instance.updateBookingStatus(summary.booking.id, 'cancelled');
+      final updated = await ApiStayzRepository.instance.updateBookingStatus(
+        summary.booking.id,
+        'cancelled',
+        refundAmount: refund,
+        refundRate: rate,
+      );
       await ApiStayzRepository.instance.getBookingSummaries();
       if (!mounted) return;
       setState(() {
-        _summary = updated ?? summary.copyWithStatus('cancelled');
+        _summary = updated ?? summary.copyWithStatus('cancelled', refundAmount: refund, refundRate: rate);
         _isCancelling = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã hủy đặt phòng')),
+      // Alert tuc thoi cho khach biet ket qua (khac voi thong bao luu lai trong danh sach).
+      StayzAlert.show(
+        context,
+        type: StayzAlertType.success,
+        title: 'Đã hủy đặt phòng',
+        message: refund > 0
+            ? 'Hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) về phương thức thanh toán ban đầu.'
+            : 'Không có khoản hoàn theo chính sách hủy.',
       );
-    } catch (error) {
+    } on ApiException catch (error) {
       if (!mounted) return;
       setState(() {
         _isCancelling = false;
-        _errorMessage = error.toString();
+        // Truoc day in nguyen exception (kem URL va body) ra man hinh.
+        _errorMessage = error.message;
       });
     }
   }
@@ -133,10 +159,10 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   SizedBox(height: 44 * responsive.scale),
                   Text(
                     hasError
-                        ? 'Khong the huy dat phong'
+                        ? 'Không thể hủy đặt phòng'
                         : _isCancelling
-                            ? 'Dang huy dat phong'
-                            : 'Da huy dat phong',
+                            ? 'Đang hủy đặt phòng'
+                            : 'Đã hủy đặt phòng',
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.accent,
@@ -150,8 +176,8 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     hasError
                         ? _errorMessage!
                         : summary == null
-                            ? 'Booking dang duoc cap nhat trong he thong.'
-                            : 'Booking ${summary.hotel.name} da chuyen sang trang thai huy. Hoan tien du kien: ${StayzFormatters.fullVnd(summary.booking.totalAmount)}.',
+                            ? 'Đơn đang được cập nhật trong hệ thống.'
+                            : 'Đơn tại ${summary.hotel.name} đã chuyển sang trạng thái đã hủy.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale, height: 1.45),
                   ),
@@ -166,17 +192,34 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     child: Column(
                       children: [
                         _ResultLine(
-                          label: 'TRANG THAI',
-                          value: _isCancelling ? 'Dang xu ly' : summary?.booking.normalizedStatus ?? 'cancelled',
+                          label: 'TRẠNG THÁI',
+                          value: _isCancelling
+                              ? 'Đang xử lý'
+                              : StayzTaxonomy.bookingStatusLabel(summary?.booking.normalizedStatus ?? 'cancelled'),
                         ),
                         const Divider(),
-                        _ResultLine(label: 'MA DAT PHONG', value: _bookingCode(summary)),
+                        if (!_isCancelling && summary != null && (summary.booking.refundAmount ?? 0) > 0) ...[
+                          _ResultLine(
+                            label: 'HOÀN TIỀN (${summary.booking.refundRate?.round() ?? 0}%)',
+                            value: StayzFormatters.fullVnd(summary.booking.refundAmount ?? 0),
+                          ),
+                          const Divider(),
+                        ],
+                        _ResultLine(label: 'MÃ ĐẶT PHÒNG', value: _bookingCode(summary)),
                       ],
                     ),
                   ),
+                  if (!_isCancelling && !hasError) ...[
+                    SizedBox(height: 16 * responsive.scale),
+                    Text(
+                      PaymentPolicy.refundDisclaimer,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale, height: 1.5),
+                    ),
+                  ],
                   SizedBox(height: 38 * responsive.scale),
                   _ResultButton(
-                    label: 'Xem booking da huy',
+                    label: 'Xem đơn đã hủy',
                     filled: true,
                     onTap: _isCancelling || hasError
                         ? null
@@ -187,7 +230,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   _ResultButton(
-                    label: hasError ? 'Thu lai' : 'Tim phong khac',
+                    label: hasError ? 'Thử lại' : 'Tìm phòng khác',
                     onTap: hasError
                         ? () => _cancelBooking(_summary)
                         : () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.search, (route) => false),
@@ -273,9 +316,15 @@ class _ResultButton extends StatelessWidget {
 }
 
 extension on BookingSummary {
-  BookingSummary copyWithStatus(String status) {
+  /// Ban sao local khi backend khong tra ve (mo phong): doi status + luu hoan tien.
+  BookingSummary copyWithStatus(String status, {num? refundAmount, num? refundRate}) {
     return BookingSummary(
-      booking: booking.copyWith(status: status, paymentStatus: 'refunded'),
+      booking: booking.copyWith(
+        status: status,
+        paymentStatus: (refundAmount ?? 0) > 0 ? 'refunded' : null,
+        refundAmount: refundAmount,
+        refundRate: refundRate,
+      ),
       room: room,
       hotel: hotel,
       city: city,

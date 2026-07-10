@@ -1,38 +1,125 @@
 const { BadRequestException } = require("../helpers/error.helper");
 const propertiesModel = require("../models/properties.model");
+const roomsModel = require("../models/rooms.model");
+const reviewsModel = require("../models/reviews.model");
 const cloudinary = require("../config/cloudinary.config");
 const streamifier = require("streamifier");
 const redis = require("../config/redis.config");
+const { buildSearchIndex, scoreMatch } = require("../helpers/search.helper");
 
 const CACHE_TTL = 300; // 5 phút
 
+// Doi tien to khi hinh dang du lieu tra ve thay doi, de cache cu tu het han.
+const CACHE_VERSION = "v2";
+const cacheKeyFor = (suffix) => `properties:${CACHE_VERSION}:${suffix}`;
+
+// Cac thanh pho co bien: dung cho bo loc "Bien" o man hinh chinh.
+const BEACH_CITIES = ["da-nang", "vung-tau"];
+
+// Moi thay doi property deu lam sai lech ca danh sach lan bo loc,
+// nen xoa het cac cache lien quan thay vi doan xem cai nao con dung.
+const invalidateCache = async (property) => {
+  const keys = [cacheKeyFor("all"), cacheKeyFor("featured")];
+  if (property?.city) {
+    keys.push(cacheKeyFor(`city:${property.city}`));
+    if (property.slug) keys.push(cacheKeyFor(`slug:${property.slug}:${property.city}`));
+  }
+  await Promise.all(keys.map((key) => redis.del(key)));
+};
+
+/**
+ * Gan them du lieu thuc te ma client can nhung khong nam trong property:
+ * diem danh gia trung binh that, so luot danh gia, gia phong thap nhat,
+ * suc chua lon nhat va so phong con hoat dong.
+ *
+ * Truoc day client phai tai toan bo /room/getAll roi tu join, va rating
+ * la hang so 4.7. Gop vao day de sua ca hai van de cung luc.
+ */
+const enrichProperties = async (properties) => {
+  if (!properties.length) return [];
+
+  const ids = properties.map((property) => property._id);
+
+  const [roomStats, reviewStats] = await Promise.all([
+    roomsModel.aggregate([
+      { $match: { property_id: { $in: ids }, is_active: { $ne: false } } },
+      {
+        $group: {
+          _id: "$property_id",
+          min_price: { $min: "$price" },
+          max_price: { $max: "$price" },
+          max_capacity: { $max: "$capacity" },
+          available_rooms: { $sum: "$quantity" },
+          room_count: { $sum: 1 },
+          room_types: { $addToSet: "$room_type" },
+        },
+      },
+    ]),
+    reviewsModel.aggregate([
+      { $match: { property_id: { $in: ids } } },
+      {
+        $group: {
+          _id: "$property_id",
+          rating: { $avg: "$rating" },
+          review_count: { $sum: 1 },
+        },
+      },
+    ]),
+  ]);
+
+  const roomsById = new Map(roomStats.map((row) => [String(row._id), row]));
+  const reviewsById = new Map(reviewStats.map((row) => [String(row._id), row]));
+
+  return properties.map((property) => {
+    const plain = typeof property.toObject === "function" ? property.toObject() : { ...property };
+    const rooms = roomsById.get(String(property._id));
+    const reviews = reviewsById.get(String(property._id));
+
+    return {
+      ...plain,
+      // null khi chua co phong/danh gia: client phai hien thi "chua co",
+      // tuyet doi khong duoc bia mot con so mac dinh.
+      min_price: rooms?.min_price ?? null,
+      max_price: rooms?.max_price ?? null,
+      max_capacity: rooms?.max_capacity ?? null,
+      available_rooms: rooms?.available_rooms ?? 0,
+      room_count: rooms?.room_count ?? 0,
+      room_types: rooms?.room_types ?? [],
+      rating: reviews ? Number(reviews.rating.toFixed(1)) : null,
+      review_count: reviews?.review_count ?? 0,
+    };
+  });
+};
+
 const propertiesService = {
   getAll: async () => {
-    const cacheKey = "properties:all";
+    const cacheKey = cacheKeyFor("all");
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    const data = await propertiesModel
+    const rows = await propertiesModel
       .find()
       .populate("user_id", "full_name email avatar role");
+    const data = await enrichProperties(rows);
 
     await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(data));
     return data;
   },
   getFeatured: async () => {
-    const cacheKey = "properties:featured";
+    const cacheKey = cacheKeyFor("featured");
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    const data = await propertiesModel
+    const rows = await propertiesModel
       .find({ is_preferred: true })
       .populate("user_id", "full_name email avatar role");
+    const data = await enrichProperties(rows);
 
     await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(data));
     return data;
   },
   getBySlug: async (slug, city) => {
-    const cacheKey = `properties:slug:${slug}:${city}`;
+    const cacheKey = cacheKeyFor(`slug:${slug}:${city}`);
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
@@ -44,7 +131,7 @@ const propertiesService = {
     return data;
   },
   getCity: async (city) => {
-    const cacheKey = `properties:city:${city}`;
+    const cacheKey = cacheKeyFor(`city:${city}`);
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
@@ -56,45 +143,51 @@ const propertiesService = {
     return data;
   },
   /**
-   * Tìm kiếm nâng cao với bộ lọc đa tiêu chí
-   * @param {object} filters - { keyword, city, type, minPrice, maxPrice, amenities[], isPreferred, page, limit }
+   * Tìm kiếm nâng cao với bộ lọc đa tiêu chí.
+   *
+   * @param {object} filters
+   *  keyword     - không dấu, sai chính tả nhẹ vẫn khớp
+   *  city        - một slug thành phố
+   *  nearBeach   - true: chỉ lấy thành phố có biển (Đà Nẵng, Vũng Tàu)
+   *  type        - hotel | resort | villa | hostel | apartment | business
+   *  roomType    - standard_room | deluxe_room | suite
+   *  minPrice/maxPrice - so sánh với GIÁ PHÒNG THẤP NHẤT (đúng con số hiển thị
+   *                trên thẻ khách sạn), không phải base_price như trước
+   *  guests      - số khách tối thiểu một phòng phải chứa được
+   *  amenities[] - property phải có ĐỦ các tiện ích này
+   *  isPreferred - chỉ khách sạn nổi bật
    */
   search: async (filters = {}) => {
     const {
       keyword,
       city,
+      nearBeach,
       type,
+      roomType,
       minPrice,
       maxPrice,
-      amenities,    // mảng tên tiện ích: ["free_wifi", "outdoor_pool", ...]
+      guests,
+      amenities,
       isPreferred,
       page = 1,
-      limit = 10,
+      limit = 50,
     } = filters;
 
+    const asBool = (value) => value === true || value === "true";
+    const asNumber = (value) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    // Phần lọc chạy được ở tầng Mongo.
     const query = {};
-
-    // Tìm kiếm theo từ khóa trong title và address
-    if (keyword?.trim()) {
-      const regex = new RegExp(keyword.trim(), "i");
-      query.$or = [{ title: regex }, { address: regex }];
-    }
-
-    // Lọc theo thành phố
     if (city) query.city = city;
+    else if (asBool(nearBeach)) query.city = { $in: BEACH_CITIES };
 
-    // Lọc theo loại hình (hotel, resort,...)
     if (type) query.type = type;
+    if (asBool(isPreferred)) query.is_preferred = true;
 
-    // Lọc theo khoảng giá (base_price)
-    if (minPrice || maxPrice) {
-      query.base_price = {};
-      if (minPrice) query.base_price.$gte = Number(minPrice);
-      if (maxPrice) query.base_price.$lte = Number(maxPrice);
-    }
-
-    // Lọc theo tiện ích (chỉ lấy property có TẤT CẢ tiện ích được yêu cầu)
-    if (amenities && amenities.length > 0) {
+    if (amenities) {
       const amenityList = Array.isArray(amenities)
         ? amenities
         : String(amenities).split(",").map((item) => item.trim()).filter(Boolean);
@@ -103,30 +196,56 @@ const propertiesService = {
       });
     }
 
-    // Lọc property nổi bật
-    if (isPreferred === "true" || isPreferred === true) {
-      query.is_preferred = true;
+    const rows = await propertiesModel
+      .find(query)
+      .populate("user_id", "full_name email avatar role");
+
+    let results = await enrichProperties(rows);
+
+    // Lọc theo giá/sức chứa/loại phòng: cần dữ liệu phòng nên chạy sau khi enrich.
+    const min = asNumber(minPrice);
+    const max = asNumber(maxPrice);
+    const minGuests = asNumber(guests);
+
+    if (min != null) results = results.filter((item) => item.min_price != null && item.min_price >= min);
+    if (max != null) results = results.filter((item) => item.min_price != null && item.min_price <= max);
+    if (minGuests != null) results = results.filter((item) => (item.max_capacity ?? 0) >= minGuests);
+    if (roomType) results = results.filter((item) => item.room_types.includes(roomType));
+
+    // Từ khoá: chấm điểm mờ, bỏ những bản ghi không khớp.
+    const trimmedKeyword = String(keyword || "").trim();
+    if (trimmedKeyword) {
+      results = results
+        .map((item) => ({
+          item,
+          score: scoreMatch(trimmedKeyword, item.search_index || buildSearchIndex(item)),
+        }))
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          if (a.item.is_preferred !== b.item.is_preferred) return a.item.is_preferred ? -1 : 1;
+          return (a.item.min_price ?? 0) - (b.item.min_price ?? 0);
+        })
+        .map((entry) => entry.item);
+    } else {
+      results.sort((a, b) => {
+        if (a.is_preferred !== b.is_preferred) return a.is_preferred ? -1 : 1;
+        return (a.min_price ?? 0) - (b.min_price ?? 0);
+      });
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
-
-    const [data, total] = await Promise.all([
-      propertiesModel
-        .find(query)
-        .populate("user_id", "full_name email avatar role")
-        .sort({ is_preferred: -1, createdAt: -1 }) // nổi bật lên đầu
-        .skip(skip)
-        .limit(Number(limit)),
-      propertiesModel.countDocuments(query),
-    ]);
+    const total = results.length;
+    const pageNumber = Math.max(1, Number(page) || 1);
+    const pageSize = Math.max(1, Number(limit) || 50);
+    const skip = (pageNumber - 1) * pageSize;
 
     return {
-      data,
+      data: results.slice(skip, skip + pageSize),
       pagination: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit)),
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.max(1, Math.ceil(total / pageSize)),
       },
     };
   },
@@ -162,6 +281,7 @@ const propertiesService = {
       base_price: base_price,
       description: description,
       amenities: amenities,
+      search_index: buildSearchIndex({ title, address, city, type, description }),
       main_image_url: main_image_url,
       main_image_public_id: main_image_public_id,
       gallery_images: gallery_images,
@@ -171,21 +291,33 @@ const propertiesService = {
     });
 
     // Xóa cache sau khi tạo mới
-    await redis.del("properties:all");
-    if (city) await redis.del(`properties:city:${city}`);
+    await invalidateCache(properties);
 
     return properties;
   },
   update: async (id, data) => {
-    const properties = await propertiesModel.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    });
+    const existing = await propertiesModel.findById(id);
+    if (!existing) throw new BadRequestException("Khong tim thay property");
+
+    // Bat ky truong nao trong search_index thay doi thi phai dung lai chuoi tim kiem,
+    // neu khong khach san se bien mat khoi ket qua tim theo ten moi.
+    const merged = {
+      title: data.title ?? existing.title,
+      address: data.address ?? existing.address,
+      city: data.city ?? existing.city,
+      type: data.type ?? existing.type,
+      description: data.description ?? existing.description,
+    };
+
+    const properties = await propertiesModel.findByIdAndUpdate(
+      id,
+      { ...data, search_index: buildSearchIndex(merged) },
+      { new: true, runValidators: true },
+    );
 
     // Xóa toàn bộ cache liên quan
-    await redis.del("properties:all");
-    if (properties?.city) await redis.del(`properties:city:${properties.city}`);
-    if (properties?.slug) await redis.del(`properties:slug:${properties.slug}:${properties.city}`);
+    await invalidateCache(properties);
+    await invalidateCache(existing);
 
     return properties;
   },
@@ -194,9 +326,9 @@ const propertiesService = {
     const result = await propertiesModel.findByIdAndDelete(id);
 
     // Xóa cache sau khi xóa
-    await redis.del("properties:all");
-    if (properties?.city) await redis.del(`properties:city:${properties.city}`);
-    if (properties?.slug) await redis.del(`properties:slug:${properties.slug}:${properties.city}`);
+    await invalidateCache(properties);
+    
+    
 
     return result;
   },
@@ -215,9 +347,9 @@ const propertiesService = {
     await properties.save();
 
     // Invalidate cache
-    await redis.del("properties:all");
-    await redis.del(`properties:city:${properties.city}`);
-    await redis.del(`properties:slug:${properties.slug}:${properties.city}`);
+    await invalidateCache(properties);
+    
+    
 
     return properties;
   },
@@ -252,9 +384,9 @@ const propertiesService = {
     await properties.save();
 
     // Invalidate cache
-    await redis.del("properties:all");
-    await redis.del(`properties:city:${properties.city}`);
-    await redis.del(`properties:slug:${properties.slug}:${properties.city}`);
+    await invalidateCache(properties);
+    
+    
 
     return properties;
   },
@@ -295,9 +427,9 @@ const propertiesService = {
     await properties.save();
 
     // Invalidate cache
-    await redis.del("properties:all");
-    await redis.del(`properties:city:${properties.city}`);
-    await redis.del(`properties:slug:${properties.slug}:${properties.city}`);
+    await invalidateCache(properties);
+    
+    
 
     return properties;
   },

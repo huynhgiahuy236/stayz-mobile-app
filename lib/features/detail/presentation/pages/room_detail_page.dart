@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/chat/ai_chat_sheet.dart';
 import 'package:capstone_mobile/features/detail/presentation/widgets/detail_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
@@ -194,6 +195,25 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                         color: AppTheme.accentDark,
                         fontSize: 13 * responsive.scale,
                         fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 18 * responsive.scale),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48 * responsive.scale,
+                      child: FilledButton.icon(
+                        onPressed: summary == null
+                            ? null
+                            : () => showAiChatSheet(
+                                  context,
+                                  aiContext: AiChatContext.forHotel(summary),
+                                ),
+                        icon: const Icon(Icons.auto_awesome_rounded),
+                        label: const Text('Hoi AI ve khach san nay'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTheme.accentDark,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
                       ),
                     ),
                     SizedBox(height: 48 * responsive.scale),

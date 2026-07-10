@@ -75,7 +75,9 @@ class ApiService {
         throw HttpException(message ?? 'POST $uri failed: ${response.statusCode}', uri: uri);
       }
 
-      if (decoded is Map<String, dynamic>) return decoded['metaData'];
+      if (decoded is Map<String, dynamic>) {
+        return decoded.containsKey('metaData') ? decoded['metaData'] : decoded;
+      }
       return decoded;
     } finally {
       client.close(force: true);

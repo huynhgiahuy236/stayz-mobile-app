@@ -67,7 +67,7 @@ abstract class StayzRepository {
   Future<Set<String>> getFavoriteHotelIds();
   Future<void> addFavorite(String hotelId);
   Future<void> removeFavorite(String hotelId);
-  Future<List<Room>> getRoomsByHotelId(String hotelId);
+  Future<List<Room>> getRoomsByHotelId(String hotelId, {DateTime? checkInDate, DateTime? checkOutDate});
   Future<List<BookingSummary>> getBookingSummaries({String? userId});
   Future<BookingSummary?> createBooking(BookingDraft draft);
   Future<BookingSummary?> updateBookingStatus(String bookingId, String status);
@@ -218,8 +218,15 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   @override
-  Future<List<Room>> getRoomsByHotelId(String hotelId) async {
-    final rows = await _list('/room/$hotelId');
+  Future<List<Room>> getRoomsByHotelId(String hotelId, {DateTime? checkInDate, DateTime? checkOutDate}) async {
+    final uri = Uri(
+      path: '/room/$hotelId',
+      queryParameters: {
+        if (checkInDate != null) 'checkIn': checkInDate.toIso8601String(),
+        if (checkOutDate != null) 'checkOut': checkOutDate.toIso8601String(),
+      },
+    );
+    final rows = await _list(uri.toString());
     return rows.map(_roomFromApi).toList(growable: false);
   }
 
@@ -415,8 +422,8 @@ class ApiStayzRepository implements StayzRepository {
       nights: _int(json['nights'], fallback: 1),
       totalAmount: _num(json['total_price']),
       currency: 'VND',
-      status: _string(json['status'], fallback: 'pending'),
-      paymentStatus: _string(json['payment_status'], fallback: _string(json['status'], fallback: 'pending') == 'confirmed' ? 'paid' : 'pending'),
+      status: Booking.normalizeStatus(_string(json['status'], fallback: 'pending')),
+      paymentStatus: _string(json['payment_status'], fallback: Booking.normalizeStatus(_string(json['status'], fallback: 'pending')) == 'confirmed' ? 'paid' : 'pending'),
       specialRequest: null,
       createdAt: _date(json['createdAt']),
     );

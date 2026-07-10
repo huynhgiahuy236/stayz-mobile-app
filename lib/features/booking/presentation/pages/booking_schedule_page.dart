@@ -4,6 +4,7 @@ import 'package:capstone_mobile/features/booking/presentation/widgets/booking_se
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BookingSchedulePage extends StatefulWidget {
@@ -23,7 +24,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
     _draft = ModalRoute.of(context)?.settings.arguments as BookingDraft?;
   }
 
-  int get _maxGuests => ((_draft?.room.capacityAdults ?? 1) + (_draft?.room.capacityChildren ?? 0)) * (_draft?.roomCount ?? 1);
+  int get _maxGuests => _draft?.maxGuests ?? 1;
   int get _guestCount => (_draft?.adults ?? 0) + (_draft?.children ?? 0);
 
   Future<void> _pickDate({required bool checkIn}) async {
@@ -60,15 +61,15 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
   void _continue() {
     final draft = _draft;
     if (draft == null) {
-      _showMessage('Please select a room first.');
+      _showMessage('Vui long chon phong truoc.');
       return;
     }
-    if (!draft.checkOutDate.isAfter(draft.checkInDate)) {
-      _showMessage('Check-out date must be after check-in date.');
+    if (!draft.hasValidDates) {
+      _showMessage('Ngay check-out phai sau ngay check-in.');
       return;
     }
     if (_guestCount > _maxGuests) {
-      _showMessage('Guests exceed room capacity.');
+      _showMessage('So khach vuot qua suc chua phong.');
       return;
     }
     Navigator.of(context).pushNamed(AppRoutes.paymentCheckout, arguments: draft);
@@ -96,7 +97,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
         child: SafeArea(
           top: false,
           child: BookingPrimaryButton(
-            label: 'Continue to payment',
+            label: 'Tiep tuc thanh toan',
             icon: Icons.arrow_forward,
             onTap: _continue,
           ),
@@ -113,17 +114,39 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
             28 * responsive.scale,
           ),
           children: [
-            BookingTopBar(title: 'Booking details'),
-            SizedBox(height: 20 * responsive.scale),
-            _InfoCard(
-              title: draft?.hotel.hotel.name ?? 'Select stay',
-              subtitle: draft?.room.name ?? 'Select room',
+            BookingTopBar(
+              title: 'Chi tiet dat phong',
+              onBack: () {
+                final navigator = Navigator.of(context);
+                if (navigator.canPop()) {
+                  navigator.pop();
+                } else if (draft != null) {
+                  navigator.pushReplacementNamed(
+                    AppRoutes.roomSelection,
+                    arguments: RoomSelectionArgs(
+                      hotel: draft.hotel,
+                      checkInDate: draft.checkInDate,
+                      checkOutDate: draft.checkOutDate,
+                      adults: draft.adults,
+                      children: draft.children,
+                      roomCount: draft.roomCount,
+                    ),
+                  );
+                } else {
+                  navigator.pushReplacementNamed(AppRoutes.search);
+                }
+              },
             ),
+            SizedBox(height: 20 * responsive.scale),
+            if (draft == null)
+              const _StateCard(message: 'Vui long chon phong truoc.')
+            else
+              _BookingRoomHero(draft: draft),
             SizedBox(height: 18 * responsive.scale),
             if (draft?.datesLocked == true)
               _InfoCard(
                 title: '${StayzFormatters.shortDate(draft!.checkInDate)} - ${StayzFormatters.shortDate(draft.checkOutDate)}',
-                subtitle: '${draft.nights} nights selected from previous step',
+                subtitle: '${draft.nights} dem da chon tu buoc truoc',
               )
             else
               Row(
@@ -131,7 +154,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                   Expanded(
                     child: _DateButton(
                       label: 'Check-in',
-                      value: draft == null ? 'Required' : StayzFormatters.shortDate(draft.checkInDate),
+                      value: draft == null ? 'Bat buoc' : StayzFormatters.shortDate(draft.checkInDate),
                       onTap: () => _pickDate(checkIn: true),
                     ),
                   ),
@@ -139,7 +162,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                   Expanded(
                     child: _DateButton(
                       label: 'Check-out',
-                      value: draft == null ? 'Required' : StayzFormatters.shortDate(draft.checkOutDate),
+                      value: draft == null ? 'Bat buoc' : StayzFormatters.shortDate(draft.checkOutDate),
                       onTap: () => _pickDate(checkIn: false),
                     ),
                   ),
@@ -161,8 +184,10 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
             ),
             SizedBox(height: 18 * responsive.scale),
             _InfoCard(
-              title: draft == null ? 'Total' : StayzFormatters.fullVnd(draft.totalAmount),
-              subtitle: draft == null ? 'Select dates and guests' : '${draft.nights} nights, $_guestCount guests, ${draft.roomCount} rooms',
+              title: draft == null ? 'Tong tien' : StayzFormatters.fullVnd(draft.totalAmount),
+              subtitle: draft == null
+                  ? 'Chon ngay va so khach'
+                  : '${draft.nights} dem, $_guestCount khach, ${draft.roomCount} phong',
             ),
           ],
         ),
@@ -195,6 +220,115 @@ class _InfoCard extends StatelessWidget {
           Text(subtitle, style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale)),
         ],
       ),
+    );
+  }
+}
+
+class _BookingRoomHero extends StatelessWidget {
+  const _BookingRoomHero({required this.draft});
+
+  final BookingDraft draft;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    final imageUrl = draft.room.imageUrls.firstOrNull ?? draft.hotel.hotel.imageUrls.firstOrNull;
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (imageUrl == null || imageUrl.isEmpty)
+            Container(
+              height: 180 * responsive.scale,
+              color: AppTheme.neutral200,
+              child: const Center(child: Icon(Icons.hotel_outlined, color: AppTheme.neutral500)),
+            )
+          else
+            StayZNetworkImage(
+              imageUrl: imageUrl,
+              width: double.infinity,
+              height: 180 * responsive.scale,
+            ),
+          Padding(
+            padding: EdgeInsets.all(16 * responsive.scale),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  draft.hotel.hotel.name,
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 19 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                SizedBox(height: 6 * responsive.scale),
+                Text(
+                  draft.room.name,
+                  style: TextStyle(color: AppTheme.accentDark, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w800),
+                ),
+                SizedBox(height: 8 * responsive.scale),
+                Text(
+                  draft.hotel.hotel.address,
+                  style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.4),
+                ),
+                Divider(height: 26 * responsive.scale),
+                _DetailMiniLine(label: 'Gia moi dem', value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
+                _DetailMiniLine(label: 'Trang thai phong', value: draft.room.availableUnits > 0 ? 'Con ${draft.room.availableUnits} phong' : 'Het phong'),
+                _DetailMiniLine(label: 'Suc chua', value: '${draft.room.capacityAdults + draft.room.capacityChildren} khach/phong'),
+                _DetailMiniLine(label: 'So dem', value: '${draft.nights} dem'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailMiniLine extends StatelessWidget {
+  const _DetailMiniLine({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale))),
+          Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w800)),
+        ],
+      ),
+    );
+  }
+}
+
+class _StateCard extends StatelessWidget {
+  const _StateCard({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    return Container(
+      padding: EdgeInsets.all(18 * responsive.scale),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.line),
+      ),
+      child: Text(message, textAlign: TextAlign.center),
     );
   }
 }
@@ -258,7 +392,7 @@ class _GuestStepper extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'Guests (max $maxGuests)',
+              'So khach (toi da $maxGuests)',
               style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900),
             ),
           ),
@@ -298,7 +432,7 @@ class _RoomCountStepper extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'Rooms (available $maxRooms)',
+              'So phong (con $maxRooms)',
               style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900),
             ),
           ),

@@ -4,7 +4,7 @@ const roomService = require("../services/room.service");
 const roomController = {
   getAll: async (req, res, next) => {
     try {
-      const data = await roomService.getAll();
+      const data = await roomService.getAll(req.query);
       const response = responseSuccess(data, "Lấy room thành công", 200);
       res.status(response.code).json(response);
     } catch (err) {
@@ -14,7 +14,7 @@ const roomController = {
   getByPropertyId: async (req, res, next) => {
     const propertyId = req.params.propertyId;
     try {
-      const data = await roomService.getByPropertyId(propertyId);
+      const data = await roomService.getByPropertyId(propertyId, req.query);
       const response = responseSuccess(data, "Lấy room thành công", 200);
       res.status(response.code).json(response);
     } catch (err) {

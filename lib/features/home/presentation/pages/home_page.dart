@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/chat/ai_chat_sheet.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
@@ -86,6 +87,13 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.home),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showAiChatSheet(context),
+        backgroundColor: AppTheme.accentDark,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.auto_awesome_rounded),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
         bottom: false,
         child: FutureBuilder<List<HotelSummary>>(

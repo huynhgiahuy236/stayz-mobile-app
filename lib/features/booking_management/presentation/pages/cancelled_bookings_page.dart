@@ -18,21 +18,17 @@ class CancelledBookingsPage extends StatefulWidget {
 
 class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
   Future<List<BookingSummary>>? _bookingsFuture;
-  BookingSummary? _immediateSummary;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_bookingsFuture != null) return;
-    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
-    _immediateSummary = args?.summary;
     _bookingsFuture = ApiStayzRepository.instance.getBookingSummaries();
   }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final initialBookings = _initialCancelledBookings();
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
@@ -51,9 +47,8 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
             Expanded(
               child: FutureBuilder<List<BookingSummary>>(
                 future: _bookingsFuture,
-                initialData: initialBookings.isEmpty ? null : initialBookings,
                 builder: (context, snapshot) {
-                  final bookings = _cancelledBookings(snapshot.data ?? initialBookings);
+                  final bookings = _cancelledBookings(snapshot.data ?? const <BookingSummary>[]);
 
                   if (snapshot.hasError && bookings.isEmpty) {
                     return _CancelledEmptyState(
@@ -94,44 +89,8 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
     );
   }
 
-  List<BookingSummary> _initialCancelledBookings() {
-    final byId = <String, BookingSummary>{};
-    for (final summary in ApiStayzRepository.cachedBookingSummaries) {
-      if (summary.booking.status == 'cancelled') {
-        byId[summary.booking.id] = summary;
-      }
-    }
-
-    final immediate = _immediateSummary;
-    if (immediate != null) {
-      byId[immediate.booking.id] = _asCancelled(immediate);
-    }
-
-    return byId.values.toList(growable: false);
-  }
-
   List<BookingSummary> _cancelledBookings(List<BookingSummary> source) {
-    final byId = <String, BookingSummary>{
-      for (final summary in _initialCancelledBookings()) summary.booking.id: summary,
-    };
-
-    for (final summary in source) {
-      if (summary.booking.status == 'cancelled') {
-        byId[summary.booking.id] = summary;
-      }
-    }
-
-    return byId.values.toList(growable: false);
-  }
-
-  BookingSummary _asCancelled(BookingSummary summary) {
-    if (summary.booking.status == 'cancelled') return summary;
-    return BookingSummary(
-      booking: summary.booking.copyWith(status: 'cancelled', paymentStatus: 'refunded'),
-      room: summary.room,
-      hotel: summary.hotel,
-      city: summary.city,
-    );
+    return source.where((summary) => summary.booking.isCancelled).toList(growable: false);
   }
 }
 
@@ -183,7 +142,7 @@ class _CancelledEmptyState extends StatelessWidget {
             ),
             SizedBox(height: 24 * responsive.scale),
             Text(
-              'Chua co booking da huy',
+              'Chưa có đặt phòng đã hủy',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.ink,
@@ -251,13 +210,18 @@ class _CancelledBookingCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: imageUrl == null || imageUrl.isEmpty
-                        ? CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors))
-                        : StayZNetworkImage(
-                            imageUrl: imageUrl,
-                            width: double.infinity,
-                            height: 120 * responsive.scale,
-                          ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (imageUrl == null || imageUrl.isEmpty) {
+                          return CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors));
+                        }
+                        return StayZNetworkImage(
+                          imageUrl: imageUrl,
+                          width: constraints.maxWidth,
+                          height: 120 * responsive.scale,
+                        );
+                      },
+                    ),
                   ),
                   Positioned(
                     top: 14 * responsive.scale,
@@ -327,6 +291,7 @@ class _CancelledBookingCard extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
+                        width: 134 * responsive.widthScale,
                         height: 42 * responsive.scale,
                         child: FilledButton(
                           onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),

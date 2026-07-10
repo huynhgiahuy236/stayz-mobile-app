@@ -1,5 +1,8 @@
 const roomModel = require("../models/rooms.model");
+const bookingModel = require("../models/bookings.model");
 const redis = require("../config/redis.config");
+
+const activeBookingStatus = ["pending", "confirmed"];
 
 const calculatePrice = (originalPrice, discountPercent) => {
   const safeOriginalPrice = Number(originalPrice) || 0;
@@ -31,13 +34,52 @@ const clearRoomCache = async (propertyId) => {
   }
 };
 
+const parseDateRange = ({ checkIn, checkOut, checkInDate, checkOutDate } = {}) => {
+  const rawCheckIn = checkIn || checkInDate;
+  const rawCheckOut = checkOut || checkOutDate;
+  if (!rawCheckIn || !rawCheckOut) return null;
+  const start = new Date(rawCheckIn);
+  const end = new Date(rawCheckOut);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) return null;
+  return { start, end };
+};
+
+const attachAvailability = async (rooms, filters = {}) => {
+  const range = parseDateRange(filters);
+  if (!range) return rooms;
+
+  return await Promise.all(
+    rooms.map(async (room) => {
+      const bookedRooms = await bookingModel
+        .find({
+          room_id: room._id,
+          status: { $in: activeBookingStatus },
+          check_in: { $lt: range.end },
+          check_out: { $gt: range.start },
+        })
+        .select("rooms_count");
+
+      const bookedCount = bookedRooms.reduce(
+        (sum, booking) => sum + (Number(booking.rooms_count) || 0),
+        0,
+      );
+      const availableRooms = Math.max(0, (Number(room.quantity) || 0) - bookedCount);
+      const data = room.toObject({ virtuals: true });
+      data.available_rooms = availableRooms;
+      return data;
+    }),
+  );
+};
+
 const roomService = {
-  getAll: async () => {
-    return await roomModel.find({ is_active: { $ne: false } }).populate("property_id");
+  getAll: async (filters = {}) => {
+    const rooms = await roomModel.find({ is_active: { $ne: false } }).populate("property_id");
+    return await attachAvailability(rooms, filters);
   },
 
-  getByPropertyId: async (propertyId) => {
-    return await roomModel.find({ property_id: propertyId, is_active: { $ne: false } }).populate("property_id");
+  getByPropertyId: async (propertyId, filters = {}) => {
+    const rooms = await roomModel.find({ property_id: propertyId, is_active: { $ne: false } }).populate("property_id");
+    return await attachAvailability(rooms, filters);
   },
 
   getById: async (id) => {

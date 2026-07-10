@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
@@ -34,9 +35,10 @@ class CancelledBookingDetailPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const BookingManageHeader(
+            BookingTopBar(
               title: 'Chi tiet dat phong',
-              trailing: Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
+              fallbackRoute: AppRoutes.cancelledBookings,
+              trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
             ),
             Expanded(
               child: ListView(

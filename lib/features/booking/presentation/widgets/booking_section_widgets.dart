@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class BookingTopBar extends StatelessWidget {
@@ -134,7 +135,6 @@ class RoomOptionCard extends StatelessWidget {
     this.imageUrl,
     this.roomMeta = const <String>[],
     this.amenityLabels = const <String>[],
-    this.onAskAi,
     this.note,
     super.key,
   });
@@ -149,7 +149,6 @@ class RoomOptionCard extends StatelessWidget {
   final String? imageUrl;
   final List<String> roomMeta;
   final List<String> amenityLabels;
-  final VoidCallback? onAskAi;
   final String? note;
 
   @override
@@ -254,7 +253,7 @@ class RoomOptionCard extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text: ' /dem',
+                              text: tr(' / đêm', ' / night'),
                               style: TextStyle(
                                 color: AppTheme.neutral800,
                                 fontSize: 11 * responsive.scale,
@@ -264,23 +263,6 @@ class RoomOptionCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (onAskAi != null) ...[
-                      SizedBox(width: 10 * responsive.widthScale),
-                      SizedBox(
-                        width: 48 * responsive.scale,
-                        height: 52 * responsive.scale,
-                        child: OutlinedButton(
-                          onPressed: onAskAi,
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            foregroundColor: AppTheme.accentDark,
-                            side: const BorderSide(color: AppTheme.line),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-                          ),
-                          child: const Icon(Icons.auto_awesome_rounded),
-                        ),
-                      ),
-                    ],
                     SizedBox(
                       width: 126 * responsive.widthScale,
                       height: 52 * responsive.scale,
@@ -288,10 +270,10 @@ class RoomOptionCard extends StatelessWidget {
                         onPressed: canBook ? onBook : null,
                         style: FilledButton.styleFrom(
                           backgroundColor: AppTheme.accent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
-                          canBook ? 'Dat ngay' : 'Het phong',
+                          canBook ? tr('Đặt ngay', 'Book now') : tr('Hết phòng', 'Sold out'),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15 * responsive.scale,

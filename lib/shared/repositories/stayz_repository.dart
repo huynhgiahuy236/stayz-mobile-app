@@ -1,43 +1,92 @@
-import 'package:capstone_mobile/services/api_service.dart';
+import 'package:capstone_mobile/services/api_service.dart' show ApiService, ApiException;
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/booking_cache.dart';
+
+export 'package:capstone_mobile/services/api_service.dart' show ApiException;
 
 class SearchFilters {
   const SearchFilters({
     this.keyword = '',
     this.city,
     this.type,
+    this.roomType,
+    this.minPrice,
     this.maxPrice,
+    this.guests,
     this.amenities = const <String>[],
     this.isPreferred = false,
+    this.nearBeach = false,
   });
 
   final String keyword;
   final String? city;
   final String? type;
+  final String? roomType;
+
+  /// So sanh voi gia phong thap nhat - dung con so hien thi tren the khach san.
+  final num? minPrice;
   final num? maxPrice;
+
+  final int? guests;
   final List<String> amenities;
   final bool isPreferred;
+
+  /// Chi lay khach san o thanh pho co bien (Da Nang, Vung Tau).
+  final bool nearBeach;
+
+  bool get isEmpty =>
+      keyword.trim().isEmpty &&
+      city == null &&
+      type == null &&
+      roomType == null &&
+      minPrice == null &&
+      maxPrice == null &&
+      guests == null &&
+      amenities.isEmpty &&
+      !isPreferred &&
+      !nearBeach;
+
+  /// So tieu chi dang bat, dung de hien badge tren nut loc.
+  int get activeCount =>
+      (city != null ? 1 : 0) +
+      (type != null ? 1 : 0) +
+      (roomType != null ? 1 : 0) +
+      (minPrice != null || maxPrice != null ? 1 : 0) +
+      (guests != null ? 1 : 0) +
+      amenities.length +
+      (isPreferred ? 1 : 0) +
+      (nearBeach ? 1 : 0);
 
   SearchFilters copyWith({
     String? keyword,
     String? city,
     String? type,
+    String? roomType,
+    num? minPrice,
     num? maxPrice,
+    int? guests,
     List<String>? amenities,
     bool? isPreferred,
+    bool? nearBeach,
     bool clearCity = false,
     bool clearType = false,
-    bool clearMaxPrice = false,
+    bool clearRoomType = false,
+    bool clearPrice = false,
+    bool clearGuests = false,
   }) {
     return SearchFilters(
       keyword: keyword ?? this.keyword,
       city: clearCity ? null : city ?? this.city,
       type: clearType ? null : type ?? this.type,
-      maxPrice: clearMaxPrice ? null : maxPrice ?? this.maxPrice,
+      roomType: clearRoomType ? null : roomType ?? this.roomType,
+      minPrice: clearPrice ? null : minPrice ?? this.minPrice,
+      maxPrice: clearPrice ? null : maxPrice ?? this.maxPrice,
+      guests: clearGuests ? null : guests ?? this.guests,
       amenities: amenities ?? this.amenities,
       isPreferred: isPreferred ?? this.isPreferred,
+      nearBeach: nearBeach ?? this.nearBeach,
     );
   }
 
@@ -46,8 +95,14 @@ class SearchFilters {
       if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
       if (city != null && city!.isNotEmpty) 'city': city!,
       if (type != null && type!.isNotEmpty) 'type': type!,
+      if (roomType != null && roomType!.isNotEmpty) 'roomType': roomType!,
+      // Chi gui khi nguoi dung that su dat gioi han. Truoc day man Filter
+      // luon gui maxPrice=5.000.000 ke ca khi khong ai cham vao thanh truot.
+      if (minPrice != null) 'minPrice': minPrice!.round().toString(),
       if (maxPrice != null) 'maxPrice': maxPrice!.round().toString(),
+      if (guests != null) 'guests': guests!.toString(),
       if (isPreferred) 'isPreferred': 'true',
+      if (nearBeach) 'nearBeach': 'true',
       if (amenities.isNotEmpty) 'amenities': amenities.join(','),
       'limit': '50',
     };
@@ -70,7 +125,7 @@ abstract class StayzRepository {
   Future<List<Room>> getRoomsByHotelId(String hotelId, {DateTime? checkInDate, DateTime? checkOutDate});
   Future<List<BookingSummary>> getBookingSummaries({String? userId});
   Future<BookingSummary?> createBooking(BookingDraft draft);
-  Future<BookingSummary?> updateBookingStatus(String bookingId, String status);
+  Future<BookingSummary?> updateBookingStatus(String bookingId, String status, {num? refundAmount, num? refundRate});
   Future<List<Payment>> getPayments();
   Future<Payment?> getPaymentByBookingId(String bookingId);
   Future<List<Review>> getReviews();
@@ -88,10 +143,11 @@ class ApiStayzRepository implements StayzRepository {
   const ApiStayzRepository({this.api = const ApiService()});
 
   static const ApiStayzRepository instance = ApiStayzRepository();
-  static final Map<String, BookingSummary> _bookingOverrides = <String, BookingSummary>{};
 
-  static List<BookingSummary> get cachedBookingSummaries =>
-      _bookingOverrides.values.toList(growable: false);
+  static List<BookingSummary> get cachedBookingSummaries => BookingCache.all;
+
+  /// Xoa cache dung chung. `AuthService.logout()` goi truc tiep `BookingCache.clear()`.
+  static void clearCache() => BookingCache.clear();
 
   final ApiService api;
 
@@ -147,60 +203,64 @@ class ApiStayzRepository implements StayzRepository {
 
   @override
   Future<List<HotelSummary>> getHotelSummaries() async {
-    final hotels = await getHotels();
-    final rooms = await getRooms();
-
-    return _summariesFromHotels(hotels, rooms);
+    final rows = await _list('/properties/getAll');
+    return _summariesFromApi(rows);
   }
 
   @override
   Future<List<HotelSummary>> searchHotelSummaries(SearchFilters filters) async {
     final uri = Uri(path: '/properties/search', queryParameters: filters.toQuery());
     final rows = await _list(uri.toString());
-    final hotels = rows.map(_hotelFromApi).toList(growable: false);
-    final rooms = await getRooms();
-
-    return _summariesFromHotels(hotels, rooms);
+    return _summariesFromApi(rows);
   }
 
-  List<HotelSummary> _summariesFromHotels(List<Hotel> hotels, List<Room> rooms) {
-    return hotels.map((hotel) {
-      final hotelRooms = rooms.where((room) => room.hotelId == hotel.id).toList();
-      final prices = hotelRooms.map((room) => room.pricePerNight).toList()..sort();
-      final availableRooms = hotelRooms.fold<int>(0, (sum, room) => sum + room.availableUnits);
+  /// Backend da tinh san rating that, gia phong thap nhat va so phong trong
+  /// cho tung khach san. Truoc day client phai tai toan bo `/room/getAll`
+  /// roi tu join, va rating la hang so 4.7.
+  List<HotelSummary> _summariesFromApi(List<Map<String, dynamic>> rows) {
+    return rows.map((json) {
+      final hotel = _hotelFromApi(json);
+      final ratingValue = json['rating'];
+      final roomTypes = json['room_types'];
 
       return HotelSummary(
         hotel: hotel,
         city: _cityFromSlug(hotel.cityId),
-        lowestPrice: prices.isEmpty ? 0 : prices.first,
-        availableRooms: availableRooms,
-        rating: 4.7,
+        lowestPrice: _num(json['min_price']),
+        availableRooms: _int(json['available_rooms']),
+        rating: ratingValue is num ? ratingValue.toDouble() : null,
+        reviewCount: _int(json['review_count']),
+        maxCapacity: json['max_capacity'] == null ? null : _int(json['max_capacity']),
+        roomTypes: roomTypes is List ? roomTypes.map((e) => e.toString()).toList(growable: false) : const <String>[],
       );
     }).toList(growable: false);
   }
 
   @override
   Future<List<HotelSummary>> getFavoriteHotelSummaries({String? userId}) async {
-    final token = await AuthService.instance.accessToken();
-    if (token == null) return const <HotelSummary>[];
+    final favoriteIds = await getFavoriteHotelIds();
+    if (favoriteIds.isEmpty) return const <HotelSummary>[];
 
-    final data = await api.get('/favorites', bearerToken: token);
-    if (data is! List) return const <HotelSummary>[];
-
-    final hotels = data
-        .whereType<Map<String, dynamic>>()
-        .map((row) => row['property_id'])
-        .whereType<Map<String, dynamic>>()
-        .map(_hotelFromApi)
-        .toList(growable: false);
-    final rooms = await getRooms();
-    return _summariesFromHotels(hotels, rooms);
+    // Lay tu danh sach da enrich thay vi dung property long trong favorites,
+    // de the yeu thich cung co rating va gia that nhu moi noi khac.
+    final summaries = await getHotelSummaries();
+    return summaries.where((summary) => favoriteIds.contains(summary.hotel.id)).toList(growable: false);
   }
 
   @override
   Future<Set<String>> getFavoriteHotelIds() async {
-    final favorites = await getFavoriteHotelSummaries();
-    return favorites.map((summary) => summary.hotel.id).toSet();
+    final token = await AuthService.instance.accessToken();
+    if (token == null) return <String>{};
+
+    final data = await api.get('/favorites', bearerToken: token);
+    if (data is! List) return <String>{};
+
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map((row) => row['property_id'])
+        .map((property) => property is Map<String, dynamic> ? _id(property) : _string(property))
+        .where((id) => id.isNotEmpty)
+        .toSet();
   }
 
   @override
@@ -230,22 +290,40 @@ class ApiStayzRepository implements StayzRepository {
     return rows.map(_roomFromApi).toList(growable: false);
   }
 
+  /// Nhom route `/booking` da duoc bao ve bang JWT, moi loi goi deu phai kem token.
+  Future<String> _requireToken() async {
+    final token = await AuthService.instance.accessToken();
+    if (token == null || token.isEmpty) {
+      throw const ApiException('Vui lòng đăng nhập để tiếp tục.', statusCode: 401);
+    }
+    return token;
+  }
+
   @override
   Future<List<BookingSummary>> getBookingSummaries({String? userId}) async {
+    final token = await _requireToken();
     final currentUserId = userId ?? await AuthService.instance.userId();
-    final rows = await _list(currentUserId == null ? '/booking/getAll' : '/booking/user/$currentUserId');
+    if (currentUserId == null) {
+      throw const ApiException('Vui lòng đăng nhập để xem đặt phòng.', statusCode: 401);
+    }
+
+    final data = await api.get('/booking/user/$currentUserId', bearerToken: token);
+    final rows = data is List
+        ? data.whereType<Map<String, dynamic>>().toList(growable: false)
+        : const <Map<String, dynamic>>[];
     final summaries = rows.map(_bookingSummaryFromApi).whereType<BookingSummary>().toList(growable: true);
     return _mergeBookingOverrides(summaries, userId: currentUserId);
   }
 
   @override
   Future<BookingSummary?> createBooking(BookingDraft draft) async {
-    final userId = await AuthService.instance.userId();
-    if (userId == null) throw StateError('Not authenticated');
+    final token = await _requireToken();
+
+    // `user_id` khong con duoc gui len: backend lay tu token.
     final data = await api.post(
       '/booking/create',
+      bearerToken: token,
       body: {
-        'user_id': userId,
         'property_id': draft.hotel.hotel.id,
         'room_id': draft.room.id,
         'check_in': draft.checkInDate.toIso8601String(),
@@ -253,35 +331,42 @@ class ApiStayzRepository implements StayzRepository {
         'guests': draft.adults + draft.children,
         'rooms_count': draft.roomCount,
         'status': 'confirmed',
+        // Thanh toan mo phong: phuong an + so tien da tra.
+        if (draft.paymentPlan != null) 'payment_plan': draft.paymentPlan,
+        if (draft.amountPaid != null) 'amount_paid': draft.amountPaid,
+        if (draft.remainingAtHotel != null) 'remaining_at_hotel': draft.remainingAtHotel,
       },
     );
     final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;
-    if (summary != null) _bookingOverrides[summary.booking.id] = summary;
+    if (summary != null) BookingCache.put(summary);
     return summary;
   }
 
   @override
-  Future<BookingSummary?> updateBookingStatus(String bookingId, String status) async {
-    final data = await api.patch('/booking/$bookingId/status', body: {'status': status});
+  Future<BookingSummary?> updateBookingStatus(
+    String bookingId,
+    String status, {
+    num? refundAmount,
+    num? refundRate,
+  }) async {
+    final token = await _requireToken();
+    final data = await api.patch(
+      '/booking/$bookingId/status',
+      bearerToken: token,
+      body: {
+        'status': status,
+        // Hoan tien mo phong: gui so tien + ti le de backend luu va tao thong bao.
+        if (refundAmount != null) 'refund_amount': refundAmount,
+        if (refundRate != null) 'refund_rate': refundRate,
+      },
+    );
     final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;
-    if (summary != null) _bookingOverrides[summary.booking.id] = summary;
+    if (summary != null) BookingCache.put(summary);
     return summary;
   }
 
-  List<BookingSummary> _mergeBookingOverrides(List<BookingSummary> summaries, {String? userId}) {
-    final byId = <String, BookingSummary>{
-      for (final summary in summaries) summary.booking.id: summary,
-    };
-
-    for (final summary in _bookingOverrides.values) {
-      if (userId != null && summary.booking.userId.isNotEmpty && summary.booking.userId != userId) {
-        continue;
-      }
-      byId[summary.booking.id] = summary;
-    }
-
-    return byId.values.toList(growable: false);
-  }
+  List<BookingSummary> _mergeBookingOverrides(List<BookingSummary> summaries, {String? userId}) =>
+      BookingCache.mergeInto(summaries, userId: userId);
 
   @override
   Future<List<Payment>> getPayments() async => const <Payment>[];
@@ -323,7 +408,54 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   @override
-  Future<List<StayzNotification>> getNotifications({String? userId}) async => const <StayzNotification>[];
+  Future<List<StayzNotification>> getNotifications({String? userId}) async {
+    // Backend van sinh thong bao that moi lan booking doi trang thai,
+    // nhung ham nay tung tra ve `const []` nen man Thong bao luon trang.
+    final token = await AuthService.instance.accessToken();
+    if (token == null) return const <StayzNotification>[];
+
+    final data = await api.get('/notifications', bearerToken: token);
+    // Endpoint tra ve metaData = { notifications: [...] }, khong phai list tran.
+    final list = data is List
+        ? data
+        : data is Map<String, dynamic> && data['notifications'] is List
+            ? data['notifications'] as List
+            : const <dynamic>[];
+    final rows = list.whereType<Map<String, dynamic>>().toList(growable: false);
+
+    return rows.map(_notificationFromApi).toList(growable: false);
+  }
+
+  Future<void> markAllNotificationsRead() async {
+    final token = await _requireToken();
+    await api.patch('/notifications/read-all', bearerToken: token);
+  }
+
+  Future<void> deleteNotification(String id) async {
+    final token = await _requireToken();
+    await api.delete('/notifications/$id', bearerToken: token);
+  }
+
+  /// Xoa nhieu thong bao. Backend chi co DELETE tung id nen goi song song.
+  Future<void> deleteNotifications(Iterable<String> ids) async {
+    final token = await _requireToken();
+    await Future.wait(ids.map((id) => api.delete('/notifications/$id', bearerToken: token)));
+  }
+
+  StayzNotification _notificationFromApi(Map<String, dynamic> json) {
+    final user = json['user_id'];
+    return StayzNotification(
+      id: _id(json),
+      userId: user is Map<String, dynamic> ? _id(user) : _string(user),
+      type: _string(json['type'], fallback: 'system'),
+      title: _string(json['title']),
+      message: _string(json['body']),
+      referenceType: _string(json['ref_type']),
+      referenceId: _string(json['ref_id']),
+      status: _bool(json['is_read']) ? 'read' : 'unread',
+      createdAt: _date(json['createdAt']),
+    );
+  }
 
   StayzUser _userFromApi(Map<String, dynamic> json) {
     final avatar = json['avatar'];
@@ -412,9 +544,16 @@ class ApiStayzRepository implements StayzRepository {
     final hotel = _hotelFromApi(hotelJson);
     final room = _roomFromApi({...roomJson, 'property_id': hotel.id});
     final guests = _int(json['guests'], fallback: 2);
+
+    // Backend populate `user_id` thanh object. `_string(Map)` se cho ra chuoi
+    // "{_id: ..., full_name: ...}" - khong bao gio bang id that, lam hong
+    // bo loc theo nguoi dung o `_mergeBookingOverrides`.
+    final userJson = json['user_id'];
+    final bookingUserId = userJson is Map<String, dynamic> ? _id(userJson) : _string(userJson);
+
     final booking = Booking(
       id: _id(json),
-      userId: _string(json['user_id']),
+      userId: bookingUserId,
       roomId: room.id,
       checkInDate: _date(json['check_in']),
       checkOutDate: _date(json['check_out']),
@@ -426,6 +565,11 @@ class ApiStayzRepository implements StayzRepository {
       paymentStatus: _string(json['payment_status'], fallback: Booking.normalizeStatus(_string(json['status'], fallback: 'pending')) == 'confirmed' ? 'paid' : 'pending'),
       specialRequest: null,
       createdAt: _date(json['createdAt']),
+      paymentPlan: _string(json['payment_plan']),
+      amountPaid: json['amount_paid'] == null ? null : _num(json['amount_paid']),
+      remainingAtHotel: json['remaining_at_hotel'] == null ? null : _num(json['remaining_at_hotel']),
+      refundAmount: json['refund_amount'] == null ? null : _num(json['refund_amount']),
+      refundRate: json['refund_rate'] == null ? null : _num(json['refund_rate']),
     );
 
     return BookingSummary(
@@ -442,6 +586,7 @@ class ApiStayzRepository implements StayzRepository {
     return Review(
       id: _id(json),
       userId: user is Map<String, dynamic> ? _id(user) : _string(user),
+      userName: user is Map<String, dynamic> ? _string(user['full_name']) : '',
       hotelId: property is Map<String, dynamic> ? _id(property) : _string(property),
       bookingId: _string(json['booking_id']),
       rating: _int(json['rating']),

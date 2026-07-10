@@ -20,7 +20,7 @@ Use only records returned by current StayZ APIs/repositories. Return at most fiv
 
 ## Grounding rules
 
-- Never use the Flutter adapter's current constant `HotelSummary.rating: 4.7` as a real review score without replacing it with source-backed review aggregation. File: `lib/shared/repositories/stayz_repository.dart`; method: `_summariesFromHotels`.
+- **Resolved 2026-07-10** — the constant `HotelSummary.rating: 4.7` is gone. The backend now aggregates real review scores and returns `rating` (`null` when a property has no reviews) plus `review_count`. Never display a rating when `rating` is `null`; show "chưa có đánh giá" instead.
 - Treat availability as unknown when exact dates are missing.
 - Display the returned/current price basis clearly (for example, per night). Recheck before booking review.
 - Do not claim distance unless coordinates and a confirmed distance calculation are available.

@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
@@ -61,15 +62,15 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
   void _continue() {
     final draft = _draft;
     if (draft == null) {
-      _showMessage('Vui long chon phong truoc.');
+      _showMessage(tr('Vui lòng chọn phòng trước.', 'Please select a room first.'));
       return;
     }
     if (!draft.hasValidDates) {
-      _showMessage('Ngay check-out phai sau ngay check-in.');
+      _showMessage(tr('Ngày check-out phải sau ngày check-in.', 'Check-out must be after check-in.'));
       return;
     }
     if (_guestCount > _maxGuests) {
-      _showMessage('So khach vuot qua suc chua phong.');
+      _showMessage(tr('Số khách vượt quá sức chứa phòng.', 'Number of guests exceeds room capacity.'));
       return;
     }
     Navigator.of(context).pushNamed(AppRoutes.paymentCheckout, arguments: draft);
@@ -97,7 +98,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
         child: SafeArea(
           top: false,
           child: BookingPrimaryButton(
-            label: 'Tiep tuc thanh toan',
+            label: tr('Tiếp tục thanh toán', 'Continue to payment'),
             icon: Icons.arrow_forward,
             onTap: _continue,
           ),
@@ -115,7 +116,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
           ),
           children: [
             BookingTopBar(
-              title: 'Chi tiet dat phong',
+              title: tr('Chi tiết đặt phòng', 'Booking details'),
               onBack: () {
                 final navigator = Navigator.of(context);
                 if (navigator.canPop()) {
@@ -139,14 +140,14 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
             ),
             SizedBox(height: 20 * responsive.scale),
             if (draft == null)
-              const _StateCard(message: 'Vui long chon phong truoc.')
+              _StateCard(message: tr('Vui lòng chọn phòng trước.', 'Please select a room first.'))
             else
               _BookingRoomHero(draft: draft),
             SizedBox(height: 18 * responsive.scale),
             if (draft?.datesLocked == true)
               _InfoCard(
                 title: '${StayzFormatters.shortDate(draft!.checkInDate)} - ${StayzFormatters.shortDate(draft.checkOutDate)}',
-                subtitle: '${draft.nights} dem da chon tu buoc truoc',
+                subtitle: tr('${draft.nights} đêm đã chọn từ bước trước', '${draft.nights} nights chosen in the previous step'),
               )
             else
               Row(
@@ -154,7 +155,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                   Expanded(
                     child: _DateButton(
                       label: 'Check-in',
-                      value: draft == null ? 'Bat buoc' : StayzFormatters.shortDate(draft.checkInDate),
+                      value: draft == null ? tr('Bắt buộc', 'Required') : StayzFormatters.shortDate(draft.checkInDate),
                       onTap: () => _pickDate(checkIn: true),
                     ),
                   ),
@@ -162,7 +163,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                   Expanded(
                     child: _DateButton(
                       label: 'Check-out',
-                      value: draft == null ? 'Bat buoc' : StayzFormatters.shortDate(draft.checkOutDate),
+                      value: draft == null ? tr('Bắt buộc', 'Required') : StayzFormatters.shortDate(draft.checkOutDate),
                       onTap: () => _pickDate(checkIn: false),
                     ),
                   ),
@@ -184,10 +185,10 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
             ),
             SizedBox(height: 18 * responsive.scale),
             _InfoCard(
-              title: draft == null ? 'Tong tien' : StayzFormatters.fullVnd(draft.totalAmount),
+              title: draft == null ? tr('Tổng tiền', 'Total') : StayzFormatters.fullVnd(draft.totalAmount),
               subtitle: draft == null
-                  ? 'Chon ngay va so khach'
-                  : '${draft.nights} dem, $_guestCount khach, ${draft.roomCount} phong',
+                  ? tr('Chọn ngày và số khách', 'Choose dates and guests')
+                  : tr('${draft.nights} đêm, $_guestCount khách, ${draft.roomCount} phòng', '${draft.nights} nights, $_guestCount guests, ${draft.roomCount} rooms'),
             ),
           ],
         ),
@@ -279,10 +280,10 @@ class _BookingRoomHero extends StatelessWidget {
                   style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.4),
                 ),
                 Divider(height: 26 * responsive.scale),
-                _DetailMiniLine(label: 'Gia moi dem', value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
-                _DetailMiniLine(label: 'Trang thai phong', value: draft.room.availableUnits > 0 ? 'Con ${draft.room.availableUnits} phong' : 'Het phong'),
-                _DetailMiniLine(label: 'Suc chua', value: '${draft.room.capacityAdults + draft.room.capacityChildren} khach/phong'),
-                _DetailMiniLine(label: 'So dem', value: '${draft.nights} dem'),
+                _DetailMiniLine(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
+                _DetailMiniLine(label: tr('Trạng thái phòng', 'Room status'), value: draft.room.availableUnits > 0 ? tr('Còn ${draft.room.availableUnits} phòng', '${draft.room.availableUnits} rooms left') : tr('Hết phòng', 'Sold out')),
+                _DetailMiniLine(label: tr('Sức chứa', 'Capacity'), value: tr('${draft.room.capacityAdults + draft.room.capacityChildren} khách/phòng', '${draft.room.capacityAdults + draft.room.capacityChildren} guests/room')),
+                _DetailMiniLine(label: tr('Số đêm', 'Nights'), value: tr('${draft.nights} đêm', '${draft.nights} nights')),
               ],
             ),
           ),
@@ -392,7 +393,7 @@ class _GuestStepper extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'So khach (toi da $maxGuests)',
+              tr('Số khách (tối đa $maxGuests)', 'Guests (max $maxGuests)'),
               style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900),
             ),
           ),
@@ -432,7 +433,7 @@ class _RoomCountStepper extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'So phong (con $maxRooms)',
+              tr('Số phòng (còn $maxRooms)', 'Rooms ($maxRooms left)'),
               style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900),
             ),
           ),

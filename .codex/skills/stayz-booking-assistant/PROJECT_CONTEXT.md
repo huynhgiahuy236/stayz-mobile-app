@@ -19,10 +19,15 @@ Snapshot: 2026-07-10. Reverify before implementation.
 
 ## Repository and services
 
-- **Source-confirmed** — `ApiStayzRepository` implements hotel search, room lookup by property and optional dates, booking creation/status update, favorites, and reviews. File: `lib/shared/repositories/stayz_repository.dart`.
+- **Source-confirmed** — `ApiStayzRepository` implements hotel search, room lookup by property and optional dates, booking creation/status update, favorites, reviews, and notifications. File: `lib/shared/repositories/stayz_repository.dart`.
 - **Source-confirmed** — Search calls `GET /properties/search`; room lookup calls `GET /room/:hotelId` with optional `checkIn/checkOut`; booking creation calls `POST /booking/create`.
-- **Source-confirmed** — `ApiService` supports GET, POST, DELETE and PATCH using `STAYZ_API_BASE_URL`. File: `lib/services/api_service.dart`.
-- **Source-confirmed** — `AuthService` supplies access token and user ID. File: `lib/services/auth_service.dart`.
+- **Source-confirmed** — `GET /properties/getAll` and `GET /properties/search` now return each property enriched with `rating` (real review average, `null` when no reviews), `review_count`, `min_price`, `max_price`, `max_capacity`, `available_rooms`, and `room_types`. The client no longer fetches `/room/getAll` to join prices, and `HotelSummary.rating` is nullable.
+- **Source-confirmed** — `GET /properties/search` accepts `keyword` (accent-insensitive, typo-tolerant via `src/helpers/search.helper.js`), `city`, `nearBeach`, `type`, `roomType`, `minPrice`/`maxPrice` (compared against the lowest **room** price, not `base_price`), `guests`, `amenities`, `isPreferred`.
+- **Source-confirmed** — All `/booking` routes require a Bearer token; `user_id` is derived from the token, ownership is enforced on status change/update/delete, and only `pending`/`confirmed` may be set at creation time.
+- **Source-confirmed** — Password reset requires a valid OTP: `POST /users/request-password-reset` → `POST /users/verify-reset-code` → `POST /users/reset-password` with `{email, code, newPassword}`.
+- **Source-confirmed** — `ApiService` supports GET, POST, DELETE and PATCH using `STAYZ_API_BASE_URL`, with an 8s connect / 20s request timeout, and throws `ApiException` carrying a user-facing Vietnamese message. File: `lib/services/api_service.dart`.
+- **Source-confirmed** — `AuthService` supplies access token and user ID, checks JWT expiry, and clears `BookingCache` on login/logout. File: `lib/services/auth_service.dart`.
+- **Source-confirmed** — Property images are hosted by the backend at `/images/properties/<slug>/<file>` (`server.js` serves `src/images` statically) and resolved by `ApiService.resolveAssetUrl`.
 
 ## Relevant screens and routes
 
@@ -32,7 +37,7 @@ Snapshot: 2026-07-10. Reverify before implementation.
 - **Source-confirmed** — Booking detail/schedule: `BookingSchedulePage`, route `/booking-schedule`. File: `lib/features/booking/presentation/pages/booking_schedule_page.dart`.
 - **Source-confirmed** — Payment review: `PaymentCheckoutPage`, route `/payment-checkout`. File: `lib/features/booking/presentation/pages/payment_checkout_page.dart`.
 - **Source-confirmed** — Completion: `BookingConfirmationPage`, route `/booking-confirmation`.
-- **Source-confirmed** — AI UI currently exists as `AiChatSheet` and posts to `/ai/chat` with optional context. File: `lib/features/chat/ai_chat_sheet.dart`.
+- **Source-confirmed** — AI UI exists as a modal sheet (`showAiChatSheet`/`_AiChatSheet`) that posts to `/ai/chat` with optional context, renders returned `suggestions` as grounded recommendation cards, and navigates to `/room-selection` with an editable `RoomSelectionArgs` prefill after revalidating the property ID against current repository data. File: `lib/features/chat/ai_chat_sheet.dart`. Entry points: home page, room detail, room selection.
 
 ## Backend and database fields
 
@@ -46,7 +51,7 @@ Snapshot: 2026-07-10. Reverify before implementation.
 
 - **Source-confirmed** — Protected backend endpoint `POST /ai/chat` exists. Files: `backend/stayz_api/src/routes/ai.router.js`, `rootRouter.router.js`, and `ai.controller.js`.
 - **Source-confirmed** — `.env.example` declares `OPENAI_API_KEY` and `OPENAI_MODEL`; configured runtime values are not verified.
-- **Potentially relevant** — `backend/stayz_api/src/services/ai.service.js` already queries real properties, rooms, reviews and overlapping bookings. Its exact output contract must be reviewed before extending navigation recommendations.
-- **Not confirmed** — Structured recommendation cards or a stable machine-readable booking-intent response contract from `/ai/chat`.
-- **Not confirmed** — Analytics, privacy retention policy, permanent conversation memory, deep-link contract, and automated end-to-end test coverage.
+- **Source-confirmed** — `backend/stayz_api/src/services/ai.service.js` queries real properties, rooms, reviews and overlapping bookings, and returns a structured JSON contract: `{ success, reply, conversationId, intent, suggestions }`. `reply` is natural language; `suggestions` is up to 3 grounded `{ property, room }` objects where `property` includes `id/title/city/address/base_price/amenities/rating (real review average or null)/review_count` and `room` includes `id/name/room_type/price_per_night/capacity/available_rooms (null when dates missing)/total_price/amenities/badges`.
+- **Source-confirmed** — Conversation persistence exists: `conversations.model.js` and `messages.model.js` store history, `conversationId` round-trips, and an assistant user (`ai-assistant@stayz.local`) is auto-created. A separate `/chat` router also exists (`chat.router.js`), distinct from `/ai`.
+- **Not confirmed** — Analytics, privacy retention policy, deep-link contract, and automated end-to-end test coverage.
 

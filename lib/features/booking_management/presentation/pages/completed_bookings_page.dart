@@ -6,6 +6,7 @@ import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class CompletedBookingsPage extends StatelessWidget {
@@ -23,7 +24,7 @@ class CompletedBookingsPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const BookingManageHeader(title: 'Đặt phòng của tôi', trailing: _BrandText()),
+            const BookingsScreenHeader(),
             const BookingManageTabs(
               activeTab: BookingManageTab.completed,
               upcomingRoute: AppRoutes.myBookings,
@@ -62,7 +63,7 @@ class CompletedBookingsPage extends StatelessWidget {
                             ),
                             SizedBox(height: 28 * responsive.scale),
                             Text(
-                              'Kỷ niệm của bạn',
+                              tr('Kỷ niệm của bạn', 'Your memories'),
                               textAlign: TextAlign.center,
                               style: textTheme.headlineMedium?.copyWith(
                                 fontFamily: 'Noto Serif JP',
@@ -73,7 +74,7 @@ class CompletedBookingsPage extends StatelessWidget {
                             ),
                             SizedBox(height: 16 * responsive.scale),
                             Text(
-                              'Mỗi chuyến đi là một câu chuyện. Hãy lưu lại cảm xúc của bạn tại các điểm dừng chân.',
+                              tr('Mỗi chuyến đi là một câu chuyện. Hãy lưu lại cảm xúc của bạn tại các điểm dừng chân.', 'Every trip is a story. Capture how you felt at each stop.'),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppTheme.neutral500,
@@ -98,7 +99,22 @@ class CompletedBookingsPage extends StatelessWidget {
                             name: summary.hotel.name,
                             date: '${StayzFormatters.shortDate(summary.booking.checkInDate)} - ${StayzFormatters.shortDate(summary.booking.checkOutDate)}',
                             price: StayzFormatters.compactVnd(summary.booking.totalAmount),
+                            imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
                             colors: _completedColors[index % _completedColors.length],
+                            // "Đặt lại": mở lại đúng khách sạn đã ở, kèm số khách cũ.
+                            onSecondary: () => Navigator.of(context).pushNamed(
+                              AppRoutes.roomSelection,
+                              arguments: RoomSelectionArgs(
+                                hotel: HotelSummary(
+                                  hotel: summary.hotel,
+                                  city: summary.city,
+                                  lowestPrice: summary.room.pricePerNight,
+                                  availableRooms: summary.room.availableUnits,
+                                ),
+                                adults: summary.booking.guests.adults,
+                                children: summary.booking.guests.children,
+                              ),
+                            ),
                             onPrimary: () => Navigator.of(context).pushNamed(
                               AppRoutes.review,
                               arguments: BookingSummaryArgs(summary: summary),
@@ -118,26 +134,6 @@ class CompletedBookingsPage extends StatelessWidget {
   }
 }
 
-class _BrandText extends StatelessWidget {
-  const _BrandText();
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-    final textTheme = Theme.of(context).textTheme;
-
-    return Text(
-      'StayZ',
-      style: textTheme.headlineMedium?.copyWith(
-        fontFamily: 'Noto Serif JP',
-        color: AppTheme.accentDark,
-        fontSize: 28 * responsive.scale,
-        fontWeight: FontWeight.w700,
-      ),
-    );
-  }
-}
-
 class _CompletedEmptyState extends StatelessWidget {
   const _CompletedEmptyState();
 
@@ -148,7 +144,7 @@ class _CompletedEmptyState extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
         child: Text(
-          'Chưa có đặt phòng hoàn tất',
+          tr('Chưa có đặt phòng hoàn tất', 'No completed bookings'),
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppTheme.ink,

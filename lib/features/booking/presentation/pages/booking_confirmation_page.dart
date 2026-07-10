@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:flutter/material.dart';
@@ -32,19 +33,26 @@ class BookingConfirmationPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.close, color: AppTheme.accentDark, size: 30 * responsive.scale),
+                  // Truoc day day la mot Icon tinh: trong nhu nut dong nhung bam khong duoc.
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+                    icon: const Icon(Icons.close),
+                    color: AppTheme.accentDark,
+                    tooltip: tr('Đóng và về trang chủ', 'Close and go home'),
+                    constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+                  ),
                   Expanded(
                     child: Text(
-                      'Booking Confirmed',
+                      tr('Đặt phòng thành công', 'Booking successful'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppTheme.ink,
-                        fontSize: 24 * responsive.scale,
+                        fontSize: 22 * responsive.scale,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
-                  SizedBox(width: 30 * responsive.scale),
+                  const SizedBox(width: 48),
                 ],
               ),
             ),
@@ -65,7 +73,7 @@ class BookingConfirmationPage extends StatelessWidget {
                   ),
                   SizedBox(height: 34 * responsive.scale),
                   Text(
-                    'Dat phong thanh cong!',
+                    tr('Đặt phòng thành công!', 'Booking successful!'),
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.ink,
@@ -75,7 +83,7 @@ class BookingConfirmationPage extends StatelessWidget {
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   Text(
-                    'Chuc ban co mot chuyen di tuyet voi.',
+                    tr('Chúc bạn có một chuyến đi tuyệt vời.', 'Wishing you a wonderful trip.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFF5A3F3F),
@@ -113,7 +121,7 @@ class BookingConfirmationPage extends StatelessWidget {
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   Text(
-                    'QUET MA DE CHECK-IN',
+                    tr('QUÉT MÃ ĐỂ CHECK-IN', 'SCAN CODE TO CHECK IN'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFF5A3F3F),
@@ -124,7 +132,7 @@ class BookingConfirmationPage extends StatelessWidget {
                   ),
                   SizedBox(height: 70 * responsive.scale),
                   BookingPrimaryButton(
-                    label: 'Xem chi tiết booking',
+                    label: tr('Xem chi tiết booking', 'View booking details'),
                     onTap: () {
                       if (summary == null) {
                         Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.myBookings, (route) => false);
@@ -147,7 +155,7 @@ class BookingConfirmationPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: Text(
-                        'Ve Trang chu',
+                        tr('Về Trang chủ', 'Go home'),
                         style: TextStyle(
                           color: AppTheme.accent,
                           fontSize: 20 * responsive.scale,
@@ -183,7 +191,7 @@ class _ConfirmedTicket extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final hotelName = summary == null
-        ? (draft == null ? 'Khong co du lieu dat phong' : '${draft!.hotel.hotel.name}, ${draft!.hotel.city.name}')
+        ? (draft == null ? tr('Không có dữ liệu đặt phòng', 'No booking data') : '${draft!.hotel.hotel.name}, ${draft!.hotel.city.name}')
         : '${summary!.hotel.name}, ${summary!.city.name}';
     final address = summary?.hotel.address ?? draft?.hotel.hotel.address ?? '';
     final checkIn = summary == null
@@ -217,7 +225,7 @@ class _ConfirmedTicket extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'MA DAT PHONG',
+                  tr('MÃ ĐẶT PHÒNG', 'BOOKING CODE'),
                   style: TextStyle(
                     color: const Color(0xFF5A3F3F),
                     fontSize: 16 * responsive.scale,
@@ -274,7 +282,7 @@ class _ConfirmedTicket extends StatelessWidget {
           ),
           Divider(height: 38 * responsive.scale, color: const Color(0xFFD9B8B8)),
           PriceLine(
-            label: 'Tổng cộng',
+            label: tr('Tổng cộng', 'Total'),
             value: total,
             total: true,
           ),

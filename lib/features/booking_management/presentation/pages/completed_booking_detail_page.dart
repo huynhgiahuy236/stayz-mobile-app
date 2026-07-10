@@ -36,7 +36,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Chi tiet dat phong',
+              title: 'Chi tiết đặt phòng',
               fallbackRoute: AppRoutes.completedBookings,
               trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
             ),
@@ -48,13 +48,13 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   Row(
                     children: [
                       const BookingStatusPill(
-                        label: 'Da hoan thanh',
+                        label: 'Đã hoàn thành',
                         color: AppTheme.ink,
                         textColor: Colors.white,
                       ),
                       const Spacer(),
                       Text(
-                        'MA: ${_bookingCode(summary.booking.id)}',
+                        'MÃ: ${_bookingCode(summary.booking.id)}',
                         style: TextStyle(color: AppTheme.ink, fontSize: 14 * responsive.scale, letterSpacing: 1.3),
                       ),
                     ],
@@ -96,35 +96,35 @@ class CompletedBookingDetailPage extends StatelessWidget {
                     ),
                   SizedBox(height: 36 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Thong tin luu tru',
+                    title: 'Thông tin lưu trú',
                     children: [
-                      DetailLine(label: 'Nhan phong', value: StayzFormatters.shortDate(summary.booking.checkInDate)),
-                      DetailLine(label: 'Tra phong', value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
-                      DetailLine(label: 'So dem', value: '${summary.booking.nights} dem'),
+                      DetailLine(label: 'Nhận phòng', value: StayzFormatters.shortDate(summary.booking.checkInDate)),
+                      DetailLine(label: 'Trả phòng', value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
+                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights} đêm'),
                       DetailLine(
-                        label: 'Khach luu tru',
-                        value: '${summary.booking.guests.adults + summary.booking.guests.children} khach',
+                        label: 'Khách lưu trú',
+                        value: '${summary.booking.guests.adults + summary.booking.guests.children} khách',
                       ),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiet phong',
+                    title: 'Chi tiết phòng',
                     children: [
-                      DetailLine(label: 'Khach san', value: summary.hotel.name),
-                      DetailLine(label: 'Loai phong', value: summary.room.name),
-                      DetailLine(label: 'Gia moi dem', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(label: 'Khách sạn', value: summary.hotel.name),
+                      DetailLine(label: 'Loại phòng', value: summary.room.name),
+                      DetailLine(label: 'Giá mỗi đêm', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiet thanh toan',
+                    title: 'Chi tiết thanh toán',
                     children: [
-                      DetailLine(label: 'Tien phong', value: StayzFormatters.fullVnd(summary.booking.totalAmount)),
-                      const DetailLine(label: 'Phi dich vu & Thue', value: 'Da bao gom'),
+                      DetailLine(label: 'Tiền phòng', value: StayzFormatters.fullVnd(summary.booking.totalAmount)),
+                      const DetailLine(label: 'Phí dịch vụ & Thuế', value: 'Đã bao gồm'),
                       const Divider(),
                       DetailLine(
-                        label: 'Tong cong',
+                        label: 'Tổng cộng',
                         value: StayzFormatters.fullVnd(summary.booking.totalAmount),
                         total: true,
                       ),
@@ -143,21 +143,9 @@ class CompletedBookingDetailPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: Text(
-                        'Danh gia dich vu',
+                        'Đánh giá dịch vụ',
                         style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 16 * responsive.scale),
-                  SizedBox(
-                    height: 58 * responsive.scale,
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppTheme.neutral200),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: Text('Tai hoa don dien tu', style: TextStyle(color: AppTheme.ink, fontSize: 17 * responsive.scale)),
                     ),
                   ),
                 ],

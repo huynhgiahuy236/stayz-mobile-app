@@ -28,16 +28,16 @@ class _ReviewPageState extends State<ReviewPage> {
     final summary = args?.summary;
     if (summary == null) return;
     if (!summary.booking.isCompleted) {
-      _showMessage('Chi co the danh gia booking da hoan thanh.');
+      _showMessage('Chỉ có thể đánh giá booking đã hoàn thành.');
       return;
     }
     if (_rating < 1) {
-      _showMessage('Vui long chon so sao.');
+      _showMessage('Vui lòng chọn số sao.');
       return;
     }
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      _showMessage('Vui long nhap noi dung danh gia.');
+      _showMessage('Vui lòng nhập nội dung đánh giá.');
       return;
     }
 
@@ -50,7 +50,7 @@ class _ReviewPageState extends State<ReviewPage> {
         comment: comment,
       );
       if (!mounted) return;
-      _showMessage('Da gui danh gia.');
+      _showMessage('Đã gửi đánh giá.');
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.completedBookings, (route) => false);
     } catch (error) {
       if (!mounted) return;
@@ -76,7 +76,7 @@ class _ReviewPageState extends State<ReviewPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const BookingManageHeader(title: 'Danh gia', trailing: SizedBox.shrink()),
+            const BookingManageHeader(title: 'Đánh giá', trailing: SizedBox.shrink()),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -108,7 +108,7 @@ class _ReviewPageState extends State<ReviewPage> {
                         Expanded(
                           child: Text(
                             summary == null
-                                ? 'Khong co booking de danh gia'
+                                ? 'Không có booking để đánh giá'
                                 : '${summary.hotel.name}\n${summary.city.name}, ${summary.city.region}',
                             style: TextStyle(color: AppTheme.ink, fontSize: 21 * responsive.scale, height: 1.45),
                           ),
@@ -120,12 +120,12 @@ class _ReviewPageState extends State<ReviewPage> {
                   if (!canReview)
                     _InfoBox(
                       message: summary == null
-                          ? 'Hay mo man danh gia tu mot booking da hoan thanh.'
-                          : 'Booking nay chua hoan thanh nen chua the danh gia.',
+                          ? 'Hãy mở màn đánh giá từ một booking đã hoàn thành.'
+                          : 'Booking này chưa hoàn thành nên chưa thể đánh giá.',
                     ),
                   SizedBox(height: canReview ? 0 : 28 * responsive.scale),
                   Text(
-                    'TRAI NGHIEM CUA BAN THE NAO?',
+                    'TRẢI NGHIỆM CỦA BẠN THẾ NÀO?',
                     style: TextStyle(
                       color: const Color(0xFF5A3F3F),
                       fontSize: 18 * responsive.scale,
@@ -149,7 +149,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   ),
                   SizedBox(height: 58 * responsive.scale),
                   Text(
-                    'VIET NHAN XET CUA BAN',
+                    'VIẾT NHẬN XÉT CỦA BẠN',
                     style: TextStyle(
                       color: const Color(0xFF5A3F3F),
                       fontSize: 18 * responsive.scale,
@@ -162,7 +162,7 @@ class _ReviewPageState extends State<ReviewPage> {
                     enabled: canReview && !_isSubmitting,
                     maxLines: 6,
                     decoration: InputDecoration(
-                      hintText: 'Chia se cam nhan cua ban ve ky nghi nay...',
+                      hintText: 'Chia sẻ cảm nhận của bạn về kỳ nghỉ này...',
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -185,14 +185,14 @@ class _ReviewPageState extends State<ReviewPage> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: Text(
-                        _isSubmitting ? 'Dang gui...' : 'Gui danh gia',
+                        _isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá',
                         style: TextStyle(color: Colors.white, fontSize: 20 * responsive.scale),
                       ),
                     ),
                   ),
                   SizedBox(height: 28 * responsive.scale),
                   Text(
-                    'Danh gia chi duoc luu khi booking da hoan thanh.',
+                    'Đánh giá chỉ được lưu khi booking đã hoàn thành.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTheme.neutral500,

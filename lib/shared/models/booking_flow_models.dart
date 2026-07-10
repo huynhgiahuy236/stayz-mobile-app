@@ -33,6 +33,9 @@ class BookingDraft {
     this.specialRequest = '',
     this.paymentMethod = 'Thanh toan khi nhan phong',
     this.datesLocked = false,
+    this.paymentPlan,
+    this.amountPaid,
+    this.remainingAtHotel,
   });
 
   final HotelSummary hotel;
@@ -45,6 +48,12 @@ class BookingDraft {
   final String specialRequest;
   final String paymentMethod;
   final bool datesLocked;
+
+  /// Phuong an thanh toan da chon ('deposit_30' | 'full_100') va so tien da tra.
+  /// Duoc set o man chon phuong an truoc khi tao booking.
+  final String? paymentPlan;
+  final num? amountPaid;
+  final num? remainingAtHotel;
 
   int get nights {
     final value = StayzFormatters.nightsBetween(checkInDate, checkOutDate);
@@ -73,6 +82,9 @@ class BookingDraft {
     String? specialRequest,
     String? paymentMethod,
     bool? datesLocked,
+    String? paymentPlan,
+    num? amountPaid,
+    num? remainingAtHotel,
   }) {
     return BookingDraft(
       hotel: hotel ?? this.hotel,
@@ -85,6 +97,9 @@ class BookingDraft {
       specialRequest: specialRequest ?? this.specialRequest,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       datesLocked: datesLocked ?? this.datesLocked,
+      paymentPlan: paymentPlan ?? this.paymentPlan,
+      amountPaid: amountPaid ?? this.amountPaid,
+      remainingAtHotel: remainingAtHotel ?? this.remainingAtHotel,
     );
   }
 }

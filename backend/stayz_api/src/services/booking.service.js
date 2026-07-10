@@ -1,4 +1,4 @@
-const { BadRequestException } = require("../helpers/error.helper");
+const { BadRequestException, ForbiddenException } = require("../helpers/error.helper");
 const bookingModel = require("../models/bookings.model");
 const roomsModel = require("../models/rooms.model");
 const redis = require("../config/redis.config");
@@ -13,6 +13,25 @@ const redlock = new Redlock([redis], {
 
 const activeStatus = ["pending", "confirmed"];
 const allStatus = ["pending", "confirmed", "completed", "cancelled"];
+
+// Trang thai duoc phep dat NGAY LUC TAO don. "completed"/"cancelled"
+// chi den tu chuyen trang thai ve sau, khong bao gio tu client.
+const creatableStatus = ["pending", "confirmed"];
+
+// Chu don duoc tu huy. Cac chuyen trang thai con lai thuoc ve admin.
+const guestAllowedStatus = ["cancelled"];
+
+const isOwner = (booking, user) =>
+  String(booking.user_id?._id || booking.user_id) === String(user?.userId);
+
+// Admin lam gi cung duoc; nguoi dung thuong chi thao tac tren don cua minh.
+const assertOwnership = (booking, user) => {
+  if (!user) throw new ForbiddenException("Vui long dang nhap de tiep tuc");
+  if (user.role === "admin") return;
+  if (!isOwner(booking, user)) {
+    throw new ForbiddenException("Ban khong co quyen thao tac booking nay");
+  }
+};
 const EDIT_LOCK_HOURS = 24;
 
 const parseDate = (value, label) => {
@@ -177,7 +196,15 @@ const bookingService = {
         throw new BadRequestException("So khach vuot qua suc chua phong");
       }
 
-      const status = allStatus.includes(data.status) ? data.status : "pending";
+      // Khi tao moi chi cho phep pending hoac confirmed. Truoc day
+      // `allStatus.includes(...)` cho phep client tao thang mot booking
+      // da "completed" hoac "cancelled".
+      const status = creatableStatus.includes(data.status) ? data.status : "pending";
+
+      // Thanh toan mo phong: phuong an + so tien tra ngay do client gui len.
+      const paymentPlan = ["deposit_30", "full_100"].includes(data.payment_plan) ? data.payment_plan : "";
+      const amountPaid = Number(data.amount_paid) || 0;
+      const remainingAtHotel = Number(data.remaining_at_hotel) || 0;
 
       const booking = await bookingModel.create({
         user_id,
@@ -192,7 +219,21 @@ const bookingService = {
         total_price: totalPrice,
         status,
         payment_status: status === "confirmed" ? "paid" : "pending",
+        payment_plan: paymentPlan,
+        amount_paid: amountPaid,
+        remaining_at_hotel: remainingAtHotel,
       });
+
+      // Tao thong bao khi dat phong. Truoc day chi co thong bao luc doi
+      // trang thai (xac nhan/hoan tat/huy), con luc DAT thi khong co gi.
+      notificationsService.createInternal({
+        userId: booking.user_id,
+        type: "booking_status",
+        title: "Đặt phòng thành công! 🎉",
+        body: `Bạn đã đặt phòng thành công (mã #${booking._id}). Chúc bạn có chuyến đi vui vẻ!`,
+        refId: booking._id,
+        refType: "Booking",
+      }).catch(() => {}); // fire-and-forget, khong chan response
 
       return await populateBooking(bookingModel.findById(booking._id));
     } finally {
@@ -200,12 +241,14 @@ const bookingService = {
       if (lock) await lock.release();
     }
   },
-  updateStatus: async (bookingId, status) => {
+  updateStatus: async (bookingId, status, user, extra = {}) => {
     const booking = await bookingModel.findById(bookingId);
 
     if (!booking) {
       throw new BadRequestException("Booking khong ton tai");
     }
+
+    assertOwnership(booking, user);
 
     const room = await roomsModel.findById(booking.room_id);
 
@@ -215,6 +258,18 @@ const bookingService = {
 
     if (!allStatus.includes(status)) {
       throw new BadRequestException("Trang thai booking khong hop le");
+    }
+
+    // Chu don chi duoc tu huy. Xac nhan/hoan tat la viec cua he thong.
+    if (user?.role !== "admin" && !guestAllowedStatus.includes(status)) {
+      throw new ForbiddenException("Ban chi co the huy booking cua minh");
+    }
+
+    if (booking.status === "cancelled") {
+      throw new BadRequestException("Booking nay da bi huy truoc do");
+    }
+    if (booking.status === "completed") {
+      throw new BadRequestException("Khong the thay doi booking da hoan tat");
     }
 
     if (!activeStatus.includes(booking.status) && activeStatus.includes(status)) {
@@ -232,13 +287,32 @@ const bookingService = {
     }
 
     booking.status = status;
+
+    // Khi huy: luu so tien hoan (fake) do client tinh theo ma tran, danh dau
+    // payment_status = refunded neu co hoan.
+    if (status === "cancelled") {
+      const refundAmount = Number(extra.refund_amount) || 0;
+      const refundRate = Number(extra.refund_rate) || 0;
+      booking.refund_amount = refundAmount;
+      booking.refund_rate = refundRate;
+      if (booking.payment_status === "paid" && refundAmount > 0) {
+        booking.payment_status = "refunded";
+      }
+    }
+
     await booking.save();
+
+    const formatVnd = (value) => `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+    const cancelBody =
+      booking.refund_amount > 0
+        ? `Booking #${booking._id} đã hủy. Hoàn ${formatVnd(booking.refund_amount)} (${booking.refund_rate}%) về phương thức thanh toán ban đầu.`
+        : `Booking #${booking._id} đã hủy. Không có khoản hoàn theo chính sách.`;
 
     // Tự động tạo thông báo cho user khi trạng thái booking thay đổi
     const statusMessages = {
       confirmed: { title: "Booking đã được xác nhận! 🎉", body: `Booking #${booking._id} của bạn đã được xác nhận thành công.` },
       completed:  { title: "Chúc bạn có chuyến đi vui vẻ! ✈️", body: `Booking #${booking._id} đã hoàn thành. Hãy để lại đánh giá của bạn nhé!` },
-      cancelled:  { title: "Booking đã bị hủy", body: `Booking #${booking._id} đã bị hủy.` },
+      cancelled:  { title: "Đã hủy đặt phòng", body: cancelBody },
       pending:    { title: "Booking đang chờ xác nhận ⏳", body: `Booking #${booking._id} đang được xử lý.` },
     };
     const msg = statusMessages[status];
@@ -255,12 +329,14 @@ const bookingService = {
 
     return await populateBooking(bookingModel.findById(booking._id));
   },
-  update: async (bookingId, data) => {
+  update: async (bookingId, data, user) => {
     const booking = await bookingModel.findById(bookingId);
 
     if (!booking) {
       throw new BadRequestException("Booking khong ton tai");
     }
+
+    assertOwnership(booking, user);
 
     const now = new Date();
     const editDeadline = new Date(booking.check_in);
@@ -347,12 +423,14 @@ const bookingService = {
 
     return await populateBooking(bookingModel.findById(bookingId));
   },
-  delete: async (bookingId) => {
+  delete: async (bookingId, user) => {
     const booking = await bookingModel.findById(bookingId);
 
     if (!booking) {
       throw new BadRequestException("Booking khong ton tai");
     }
+
+    assertOwnership(booking, user);
 
     return await bookingModel.findByIdAndDelete(bookingId);
   },

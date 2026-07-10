@@ -6,6 +6,7 @@ import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -32,12 +33,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
         _favoritesFuture = ApiStayzRepository.instance.getFavoriteHotelSummaries();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Da bo khoi yeu thich.')),
+        SnackBar(content: Text(tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.'))),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui long dang nhap de cap nhat yeu thich.')),
+        SnackBar(content: Text(tr('Vui lòng đăng nhập để cập nhật yêu thích.', 'Please sign in to update your saved list.'))),
       );
     }
   }
@@ -53,8 +54,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
         child: Column(
           children: [
             StayZScreenHeader(
-              title: 'Danh sách đã lưu',
-              subtitle: 'Đã lưu',
+              title: tr('Danh sách đã lưu', 'Saved list'),
+              subtitle: tr('Đã lưu', 'Saved'),
               trailing: IconButton.filledTonal(
                 onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
                 icon: const Icon(Icons.add_rounded),
@@ -99,8 +100,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       return FavoriteHotelCard(
                         name: summary.hotel.name,
                         location: '${summary.city.name}, ${summary.city.region}',
-                        price: StayzFormatters.compactVnd(summary.lowestPrice),
-                        rating: summary.rating.toStringAsFixed(1),
+                        price: summary.hasPrice ? StayzFormatters.compactVnd(summary.lowestPrice) : tr('Liên hệ', 'Contact'),
+                        // Chua co danh gia thi khong hien so, thay vi bia mot con so.
+                        rating: summary.hasRating ? summary.rating!.toStringAsFixed(1) : null,
                         imageUrl: summary.hotel.imageUrls.firstOrNull,
                         colors: _favoriteColors[index % _favoriteColors.length],
                         onTap: () => Navigator.of(context).pushNamed(
@@ -155,9 +157,9 @@ class _SavedHero extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Bộ sưu tập cho chuyến đi', style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900)),
+                Text(tr('Bộ sưu tập cho chuyến đi', 'Collection for your trip'), style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900)),
                 SizedBox(height: 5 * responsive.scale),
-                Text('Chạm vào khách sạn để xem phòng và đặt lịch.', style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.35)),
+                Text(tr('Chạm vào khách sạn để xem phòng và đặt lịch.', 'Tap a hotel to view rooms and book.'), style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.35)),
               ],
             ),
           ),
@@ -182,13 +184,13 @@ class _EmptySavedState extends StatelessWidget {
           children: [
             Icon(Icons.favorite_border_rounded, color: AppTheme.primary, size: 52 * responsive.scale),
             SizedBox(height: 16 * responsive.scale),
-            Text('Chưa có nơi lưu', style: TextStyle(color: AppTheme.ink, fontSize: 22 * responsive.scale, fontWeight: FontWeight.w900)),
+            Text(tr('Chưa có nơi lưu', 'No saved places'), style: TextStyle(color: AppTheme.ink, fontSize: 22 * responsive.scale, fontWeight: FontWeight.w900)),
             SizedBox(height: 8 * responsive.scale),
-            Text('Khám phá khách sạn và lưu lại lựa chọn phù hợp.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale)),
+            Text(tr('Khám phá khách sạn và lưu lại lựa chọn phù hợp.', 'Explore hotels and save the ones you like.'), textAlign: TextAlign.center, style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale)),
             SizedBox(height: 18 * responsive.scale),
             FilledButton(
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
-              child: const Text('Tìm khách sạn'),
+              child: Text(tr('Tìm khách sạn', 'Find hotels')),
             ),
           ],
         ),

@@ -1,7 +1,9 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.dart';
+import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/data/auth_validators.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,8 +29,13 @@ class _LoginPageState extends State<LoginPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      _showMessage('Please enter email and password.');
+    final emailError = AuthValidators.email(email);
+    if (emailError != null) {
+      _showMessage(emailError);
+      return;
+    }
+    if (password.isEmpty) {
+      _showMessage('Vui lòng nhập mật khẩu.');
       return;
     }
 
@@ -37,8 +44,9 @@ class _LoginPageState extends State<LoginPage> {
       await AuthService.instance.login(email: email, password: password);
       if (!mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
-    } catch (error) {
-      if (mounted) _showMessage(_messageFromError(error));
+    } on ApiException catch (error) {
+      // Thong diep da duoc dich san; khong con in URL va body loi ra man hinh.
+      if (mounted) _showMessage(error.message);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -46,14 +54,6 @@ class _LoginPageState extends State<LoginPage> {
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  String _messageFromError(Object error) {
-    final text = error.toString();
-    if (text.startsWith('HttpException: ')) {
-      return text.replaceFirst('HttpException: ', '').split(', uri =').first;
-    }
-    return text;
   }
 
   @override
@@ -68,8 +68,8 @@ class _LoginPageState extends State<LoginPage> {
           const AuthLogo(large: true),
           SizedBox(height: 36 * responsive.scale),
           const AuthTitleBlock(
-            title: 'Welcome back',
-            subtitle: 'Sign in to continue your StayZ journey.',
+            title: 'Chào mừng trở lại',
+            subtitle: 'Đăng nhập để tiếp tục hành trình StayZ của bạn.',
           ),
           SizedBox(height: 32 * responsive.scale),
           AuthField(
@@ -81,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: 18 * responsive.scale),
           AuthField(
-            label: 'PASSWORD',
+            label: 'MẬT KHẨU',
             hint: 'Password',
             obscure: true,
             textInputAction: TextInputAction.done,
@@ -104,11 +104,12 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: 20 * responsive.scale),
           AuthPrimaryButton(
-            label: _isLoading ? 'Signing in...' : 'Sign in',
-            onPressed: _isLoading ? () {} : _login,
+            label: _isLoading ? 'Đang đăng nhập...' : 'Đăng nhập',
+            onPressed: _isLoading ? null : _login,
+            loading: _isLoading,
           ),
           SizedBox(height: 28 * responsive.scale),
-          const AuthDivider(label: 'or'),
+          const AuthDivider(label: 'hoặc'),
           SizedBox(height: 24 * responsive.scale),
           const _GoogleButton(),
           SizedBox(height: 36 * responsive.scale),

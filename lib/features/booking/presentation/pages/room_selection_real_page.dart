@@ -1,12 +1,14 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
-import 'package:capstone_mobile/features/chat/ai_chat_sheet.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
 
 class RealRoomSelectionPage extends StatefulWidget {
@@ -17,43 +19,75 @@ class RealRoomSelectionPage extends StatefulWidget {
 }
 
 class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
+  RoomSelectionArgs? _args;
+  Future<List<Room>>? _roomsFuture;
+  bool _initialized = false;
+
   int _guestCount = 2;
   int _roomCount = 1;
   String _roomType = 'all';
-  RangeValues _priceRange = const RangeValues(0, 15000000);
   bool _availableOnly = true;
-  bool _initialized = false;
+  bool _filtersOpen = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_initialized) return;
-    final args = ModalRoute.of(context)?.settings.arguments as RoomSelectionArgs?;
-    if (args != null) {
-      _guestCount = args.adults + args.children;
-      _roomCount = args.roomCount;
-    }
     _initialized = true;
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    _args = args is RoomSelectionArgs ? args : null;
+
+    if (_args != null) {
+      _guestCount = (_args!.adults + _args!.children).clamp(1, 20);
+      _roomCount = _args!.roomCount;
+      // Gan thang, khong setState: didChangeDependencies chay trong luc dung widget.
+      _roomsFuture = _fetchRooms();
+    }
+  }
+
+  Future<List<Room>> _fetchRooms() {
+    return ApiStayzRepository.instance.getRoomsByHotelId(
+      _args!.hotel.hotel.id,
+      checkInDate: _args!.checkInDate,
+      checkOutDate: _args!.checkOutDate,
+    );
+  }
+
+  /// Dung cho nut "Thu lai" - luc nay da qua giai doan dung nen setState hop le.
+  void _loadRooms() {
+    setState(() => _roomsFuture = _fetchRooms());
+  }
+
+  /// Suc chua lon nhat trong danh sach phong: dung de chan nut cong so khach
+  /// khi da cham tran, thay vi kep im lang.
+  int _maxGuests(List<Room> rooms) {
+    if (rooms.isEmpty) return 20;
+    final maxCapacity = rooms
+        .map((room) => room.capacityAdults + room.capacityChildren)
+        .fold<int>(1, (a, b) => a > b ? a : b);
+    return (maxCapacity * _roomCount).clamp(1, 40);
   }
 
   List<Room> _filterRooms(List<Room> rooms) {
     return rooms.where((room) {
       final capacity = room.capacityAdults + room.capacityChildren;
       final capacityOk = capacity * _roomCount >= _guestCount;
-      final priceOk = room.pricePerNight >= _priceRange.start && room.pricePerNight <= _priceRange.end;
       final typeOk = _roomType == 'all' || room.roomType == _roomType;
       final availableOk = !_availableOnly || room.availableUnits >= _roomCount;
-      return capacityOk && priceOk && typeOk && availableOk && room.status != 'inactive';
+      return capacityOk && typeOk && availableOk && room.status != 'inactive';
     }).toList(growable: false);
   }
 
-  BookingDraft _draftFor(HotelSummary hotel, Room room, RoomSelectionArgs? args) {
+  BookingDraft _draftFor(HotelSummary hotel, Room room) {
+    final args = _args!;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final checkIn = args?.hasDates == true ? args!.checkInDate! : today;
-    final checkOut = args?.hasDates == true ? args!.checkOutDate! : today.add(const Duration(days: 1));
-    final maxGuests = ((room.capacityAdults + room.capacityChildren) * _roomCount).clamp(1, 999).toInt();
-    final guests = _guestCount.clamp(1, maxGuests).toInt();
+    final checkIn = args.hasDates ? args.checkInDate! : today;
+    final checkOut = args.hasDates ? args.checkOutDate! : today.add(const Duration(days: 1));
+
+    final maxGuests = ((room.capacityAdults + room.capacityChildren) * _roomCount).clamp(1, 999);
+    final guests = _guestCount.clamp(1, maxGuests);
 
     return BookingDraft(
       hotel: hotel,
@@ -63,143 +97,134 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
       adults: guests,
       children: 0,
       roomCount: _roomCount,
-      datesLocked: args?.hasDates == true,
+      datesLocked: args.hasDates,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final args = ModalRoute.of(context)?.settings.arguments as RoomSelectionArgs?;
-    final selectedHotel = args?.hotel;
+    final args = _args;
+
+    // Mo man nay khong kem `RoomSelectionArgs` la mot loi lap trinh.
+    // Truoc day no am tham lay khach san DAU TIEN trong toan bo danh sach
+    // roi cho nguoi dung dat phong cua mot khach san hoan toan khac.
+    if (args == null) {
+      return Scaffold(
+        backgroundColor: AppTheme.surface,
+        appBar: AppBar(title: Text(tr('Chọn phòng', 'Select room'))),
+        body: StayzEmptyView(
+          icon: Icons.meeting_room_outlined,
+          title: tr('Thiếu thông tin khách sạn', 'Missing hotel info'),
+          message: tr('Hãy quay lại và chọn một khách sạn trước khi xem danh sách phòng.', 'Please go back and pick a hotel before viewing rooms.'),
+          actionLabel: tr('Về trang chủ', 'Go home'),
+          onAction: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+        ),
+      );
+    }
+
+    final hotel = args.hotel;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: AppTheme.surface,
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.search),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Chon phong',
-              trailing: Icon(Icons.tune, color: AppTheme.accentDark, size: 24 * responsive.scale),
+              title: tr('Chọn phòng', 'Select room'),
+              fallbackRoute: AppRoutes.home,
+              trailing: _FilterToggle(
+                open: _filtersOpen,
+                onTap: () => setState(() => _filtersOpen = !_filtersOpen),
+              ),
             ),
             Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  responsive.horizontalPadding,
-                  30 * responsive.scale,
-                  responsive.horizontalPadding,
-                  24 * responsive.scale,
-                ),
-                children: [
-                  _StaySummaryCard(hotel: selectedHotel, args: args),
-                  SizedBox(height: 18 * responsive.scale),
-                  _RoomFilterCard(
-                    guestCount: _guestCount,
-                    roomCount: _roomCount,
-                    roomType: _roomType,
-                    priceRange: _priceRange,
-                    availableOnly: _availableOnly,
-                    onGuestChanged: (value) => setState(() => _guestCount = value),
-                    onRoomCountChanged: (value) => setState(() => _roomCount = value),
-                    onRoomTypeChanged: (value) => setState(() => _roomType = value ?? 'all'),
-                    onPriceRangeChanged: (value) => setState(() => _priceRange = value),
-                    onAvailableChanged: (value) => setState(() => _availableOnly = value),
-                  ),
-                  SizedBox(height: 24 * responsive.scale),
-                  FutureBuilder<List<HotelSummary>>(
-                    future: ApiStayzRepository.instance.getHotelSummaries(),
-                    builder: (context, hotelSnapshot) {
-                      final hotelSummary = selectedHotel ?? hotelSnapshot.data?.firstOrNull;
-                      final hotelId = hotelSummary?.hotel.id;
+              child: FutureBuilder<List<Room>>(
+                future: _roomsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  }
+                  if (snapshot.hasError) {
+                    return StayzErrorView(error: snapshot.error, onRetry: _loadRooms);
+                  }
 
-                      if (hotelId == null) {
-                        if (hotelSnapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
-                        }
-                        return const _StateMessage(message: 'Khong co khach san de chon phong.');
-                      }
+                  final allRooms = snapshot.data ?? const <Room>[];
+                  final rooms = _filterRooms(allRooms);
+                  final maxGuests = _maxGuests(allRooms);
 
-                      return FutureBuilder<List<Room>>(
-                        future: ApiStayzRepository.instance.getRoomsByHotelId(
-                          hotelId,
-                          checkInDate: args?.checkInDate,
-                          checkOutDate: args?.checkOutDate,
+                  return ListView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      responsive.horizontalPadding,
+                      16 * responsive.scale,
+                      responsive.horizontalPadding,
+                      24 * responsive.scale,
+                    ),
+                    children: [
+                      _StaySummaryCard(hotel: hotel, args: args),
+                      SizedBox(height: 14 * responsive.scale),
+
+                      // Bo loc thu gon mac dinh: truoc day the loc chiem gan nua man hinh.
+                      _FilterSummaryRow(
+                        guestCount: _guestCount,
+                        roomCount: _roomCount,
+                        roomType: _roomType,
+                        availableOnly: _availableOnly,
+                      ),
+                      AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 200),
+                        crossFadeState: _filtersOpen ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                        firstChild: const SizedBox(width: double.infinity),
+                        secondChild: Padding(
+                          padding: EdgeInsets.only(top: 12 * responsive.scale),
+                          child: _RoomFilterPanel(
+                            guestCount: _guestCount,
+                            maxGuests: maxGuests,
+                            roomCount: _roomCount,
+                            roomType: _roomType,
+                            availableOnly: _availableOnly,
+                            onGuestChanged: (value) => setState(() => _guestCount = value),
+                            onRoomCountChanged: (value) => setState(() => _roomCount = value),
+                            onRoomTypeChanged: (value) => setState(() => _roomType = value),
+                            onAvailableChanged: (value) => setState(() => _availableOnly = value),
+                          ),
                         ),
-                        builder: (context, roomSnapshot) {
-                          if (roomSnapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
-                          }
-                          if (roomSnapshot.hasError) {
-                            return _StateMessage(message: roomSnapshot.error.toString());
-                          }
+                      ),
 
-                          final rooms = _filterRooms(roomSnapshot.data ?? const <Room>[]);
-                          if (rooms.isEmpty) {
-                            return const _StateMessage(message: 'Khong co phong phu hop voi bo loc hien tai.');
-                          }
+                      SizedBox(height: 20 * responsive.scale),
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${rooms.length} LOAI PHONG',
-                                style: TextStyle(
-                                  color: AppTheme.neutral500,
-                                  fontSize: 12 * responsive.scale,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                              SizedBox(height: 18 * responsive.scale),
-                              for (var i = 0; i < rooms.length; i++) ...[
-                                RoomOptionCard(
-                                  name: rooms[i].name,
-                                  price: StayzFormatters.fullVnd(rooms[i].pricePerNight),
-                                  badge: rooms[i].availableUnits == 0
-                                      ? 'Het phong'
-                                      : rooms[i].availableUnits <= 2
-                                          ? 'Sap het'
-                                          : 'Con ${rooms[i].availableUnits} phong',
-                                  note: '${rooms[i].roomType} - toi da ${rooms[i].capacityAdults + rooms[i].capacityChildren} khach/phong',
-                                  badgeColor: rooms[i].availableUnits == 0
-                                      ? AppTheme.neutral500
-                                      : rooms[i].availableUnits <= 2
-                                          ? const Color(0xFFC06B00)
-                                          : const Color(0xFF007044),
-                                  colors: _roomColors[i % _roomColors.length],
-                                  canBook: rooms[i].availableUnits > 0,
-                                  imageUrl: rooms[i].imageUrls.firstOrNull,
-                                  roomMeta: [
-                                    '${rooms[i].capacityAdults + rooms[i].capacityChildren} khach',
-                                    '${rooms[i].sizeSqm}m2',
-                                    rooms[i].bedType,
-                                  ],
-                                  amenityLabels: rooms[i].amenityIds.map(_amenityLabel).toList(),
-                                  onAskAi: () => showAiChatSheet(
-                                    context,
-                                    aiContext: AiChatContext.forRoom(
-                                      hotel: hotelSummary!,
-                                      room: rooms[i],
-                                      args: args,
-                                    ),
-                                  ),
-                                  onBook: () => Navigator.of(context).pushNamed(
-                                    AppRoutes.bookingSchedule,
-                                    arguments: _draftFor(hotelSummary!, rooms[i], args),
-                                  ),
-                                ),
-                                if (i != rooms.length - 1) SizedBox(height: 20 * responsive.scale),
-                              ],
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
+                      if (rooms.isEmpty)
+                        StayzEmptyView(
+                          icon: Icons.bed_outlined,
+                          title: allRooms.isEmpty ? tr('Khách sạn chưa có phòng', 'No rooms yet') : tr('Không có phòng phù hợp', 'No matching rooms'),
+                          message: allRooms.isEmpty
+                              ? tr('Nơi lưu trú này chưa cập nhật phòng nào.', 'This stay has not listed any rooms yet.')
+                              : tr('Hãy giảm số khách, giảm số phòng hoặc tắt "chỉ phòng còn trống".', 'Try fewer guests, fewer rooms, or turn off "available only".'),
+                          actionLabel: allRooms.isEmpty ? null : tr('Mở bộ lọc', 'Open filters'),
+                          onAction: allRooms.isEmpty ? null : () => setState(() => _filtersOpen = true),
+                          compact: true,
+                        )
+                      else ...[
+                        Text(
+                          tr('${rooms.length} loại phòng', '${rooms.length} room types'),
+                          style: TextStyle(
+                            color: AppTheme.muted,
+                            fontSize: 13 * responsive.scale,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 12 * responsive.scale),
+                        for (var i = 0; i < rooms.length; i++) ...[
+                          _roomCard(hotel, rooms[i], i),
+                          if (i != rooms.length - 1) SizedBox(height: 14 * responsive.scale),
+                        ],
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -207,186 +232,211 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
       ),
     );
   }
-}
 
-const _roomColors = [
-  [Color(0xFF28341C), Color(0xFFB7D27A)],
-  [Color(0xFF3D2514), Color(0xFFF0B36D)],
-  [Color(0xFF4B4C42), Color(0xFFD9D1C2)],
-];
+  Widget _roomCard(HotelSummary hotel, Room room, int index) {
+    final soldOut = room.availableUnits == 0;
+    final lowStock = room.availableUnits > 0 && room.availableUnits <= 2;
+    final capacity = room.capacityAdults + room.capacityChildren;
 
-String _amenityLabel(String value) {
-  const labels = {
-    'toiletries': 'Do dung ca nhan',
-    'shower': 'Voi sen',
-    'toilet': 'Toilet rieng',
-    'towels': 'Khan tam',
-    'socket_near_bed': 'O cam gan giuong',
-    'sitting_area': 'Khu tiep khach',
-    'private_entrance': 'Loi vao rieng',
-    'slippers': 'Dep phong',
-    'hair_dryer': 'May say toc',
-    'fan': 'Quat',
-    'electric_kettle': 'Am dun nuoc',
-    'wardrobe': 'Tu quan ao',
-    'clothes_rack': 'Gia treo do',
-    'toilet_paper': 'Giay ve sinh',
-  };
-  return labels[value] ?? value.replaceAll('_', ' ');
-}
-
-class _StaySummaryCard extends StatelessWidget {
-  const _StaySummaryCard({this.hotel, this.args});
-
-  final HotelSummary? hotel;
-  final RoomSelectionArgs? args;
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-    final hasDates = args?.hasDates == true;
-    final checkIn = hasDates ? StayzFormatters.shortDate(args!.checkInDate!) : 'Chua chon';
-    final checkOut = hasDates ? StayzFormatters.shortDate(args!.checkOutDate!) : 'Chon o buoc tiep';
-    final nights = hasDates ? args!.checkOutDate!.difference(args!.checkInDate!).inDays.clamp(1, 999) : 1;
-
-    return Container(
-      padding: EdgeInsets.all(16 * responsive.scale),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.neutral200),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today_outlined, color: AppTheme.accentDark, size: 20 * responsive.scale),
-          SizedBox(width: 14 * responsive.widthScale),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: _DateText(title: checkIn)),
-                    Text('->', style: TextStyle(fontSize: 16 * responsive.scale)),
-                    Expanded(child: _DateText(title: checkOut)),
-                  ],
-                ),
-                SizedBox(height: 12 * responsive.scale),
-                Text(
-                  hotel == null ? 'Chon khach san' : '${hotel!.hotel.name} - ${hotel!.city.name}',
-                  style: TextStyle(color: AppTheme.neutral500, fontSize: 12 * responsive.scale),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 12 * responsive.widthScale),
-          CircleAvatar(
-            radius: 25 * responsive.scale,
-            backgroundColor: AppTheme.neutral200.withValues(alpha: 0.5),
-            child: Text(
-              '$nights\ndem',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale),
-            ),
-          ),
-        ],
+    return RoomOptionCard(
+      name: room.name,
+      price: StayzFormatters.fullVnd(room.pricePerNight),
+      badge: soldOut
+          ? tr('Hết phòng', 'Sold out')
+          : lowStock
+              ? tr('Sắp hết', 'Few left')
+              : tr('Còn ${room.availableUnits} phòng', '${room.availableUnits} rooms left'),
+      badgeColor: soldOut
+          ? AppTheme.danger
+          : lowStock
+              ? AppTheme.gold
+              : AppTheme.success,
+      note: tr('${StayzTaxonomy.roomTypeLabel(room.roomType)} · tối đa $capacity khách/phòng', '${StayzTaxonomy.roomTypeLabel(room.roomType)} · up to $capacity guests/room'),
+      colors: _roomColors[index % _roomColors.length],
+      canBook: !soldOut,
+      imageUrl: room.imageUrls.firstOrNull,
+      roomMeta: [tr('$capacity khách', '$capacity guests'), '${room.sizeSqm}m²', room.bedType],
+      amenityLabels: room.amenityIds.map((slug) => StayzTaxonomy.amenityTerm(slug).label).toList(),
+      onBook: () => Navigator.of(context).pushNamed(
+        AppRoutes.bookingSchedule,
+        arguments: _draftFor(hotel, room),
       ),
     );
   }
 }
 
-class _RoomFilterCard extends StatelessWidget {
-  const _RoomFilterCard({
+const _roomColors = [
+  [Color(0xFFEAF7FF), Color(0xFF1D8BD1)],
+  [Color(0xFFDDEEFF), Color(0xFF0A4E83)],
+  [Color(0xFFE0F0FB), Color(0xFF135D95)],
+];
+
+class _FilterToggle extends StatelessWidget {
+  const _FilterToggle({required this.open, required this.onTap});
+
+  final bool open;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: open ? tr('Đóng bộ lọc phòng', 'Close room filters') : tr('Mở bộ lọc phòng', 'Open room filters'),
+      child: InkResponse(
+        onTap: onTap,
+        radius: 24,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: open ? AppTheme.ink : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: open ? AppTheme.ink : AppTheme.line),
+              ),
+              child: Icon(Icons.tune_rounded, size: 19, color: open ? Colors.white : AppTheme.ink),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Mot dong tom tat dieu kien dang ap dung, thay cho the loc luon mo.
+class _FilterSummaryRow extends StatelessWidget {
+  const _FilterSummaryRow({
     required this.guestCount,
     required this.roomCount,
     required this.roomType,
-    required this.priceRange,
     required this.availableOnly,
-    required this.onGuestChanged,
-    required this.onRoomCountChanged,
-    required this.onRoomTypeChanged,
-    required this.onPriceRangeChanged,
-    required this.onAvailableChanged,
   });
 
   final int guestCount;
   final int roomCount;
   final String roomType;
-  final RangeValues priceRange;
+  final bool availableOnly;
+
+  @override
+  Widget build(BuildContext context) {
+    final chips = <String>[
+      tr('$guestCount khách', '$guestCount guests'),
+      tr('$roomCount phòng', '$roomCount rooms'),
+      if (roomType != 'all') StayzTaxonomy.roomTypeLabel(roomType),
+      if (availableOnly) tr('Còn trống', 'Available'),
+    ];
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        for (final chip in chips)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: AppTheme.primarySoft.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              chip,
+              style: const TextStyle(color: AppTheme.primaryDark, fontSize: 12, fontWeight: FontWeight.w700),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _RoomFilterPanel extends StatelessWidget {
+  const _RoomFilterPanel({
+    required this.guestCount,
+    required this.maxGuests,
+    required this.roomCount,
+    required this.roomType,
+    required this.availableOnly,
+    required this.onGuestChanged,
+    required this.onRoomCountChanged,
+    required this.onRoomTypeChanged,
+    required this.onAvailableChanged,
+  });
+
+  final int guestCount;
+  final int maxGuests;
+  final int roomCount;
+  final String roomType;
   final bool availableOnly;
   final ValueChanged<int> onGuestChanged;
   final ValueChanged<int> onRoomCountChanged;
-  final ValueChanged<String?> onRoomTypeChanged;
-  final ValueChanged<RangeValues> onPriceRangeChanged;
+  final ValueChanged<String> onRoomTypeChanged;
   final ValueChanged<bool> onAvailableChanged;
 
   @override
   Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
     return Container(
-      padding: EdgeInsets.all(14 * responsive.scale),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppTheme.line),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(child: _StepperFilter(label: 'Khach', value: guestCount, min: 1, onChanged: onGuestChanged)),
-              SizedBox(width: 12 * responsive.widthScale),
-              Expanded(child: _StepperFilter(label: 'Phong', value: roomCount, min: 1, onChanged: onRoomCountChanged)),
-            ],
+          _Stepper(
+            label: tr('Số khách', 'Guests'),
+            value: guestCount,
+            min: 1,
+            max: maxGuests,
+            onChanged: onGuestChanged,
           ),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: roomType,
-                  decoration: const InputDecoration(labelText: 'Loai phong'),
-                  items: const [
-                    DropdownMenuItem(value: 'all', child: Text('Tat ca')),
-                    DropdownMenuItem(value: 'standard_room', child: Text('Standard')),
-                    DropdownMenuItem(value: 'deluxe_room', child: Text('Deluxe')),
-                    DropdownMenuItem(value: 'suite', child: Text('Suite')),
-                  ],
-                  onChanged: onRoomTypeChanged,
+          const Divider(height: 1, color: AppTheme.line),
+          _Stepper(
+            label: tr('Số phòng', 'Rooms'),
+            value: roomCount,
+            min: 1,
+            max: 5,
+            onChanged: onRoomCountChanged,
+          ),
+          const Divider(height: 1, color: AppTheme.line),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 92,
+                  child: Text(tr('Hạng phòng', 'Room class'), style: const TextStyle(color: AppTheme.ink, fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10 * responsive.scale),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Khoang gia: ${StayzFormatters.compactVnd(priceRange.start)} - ${StayzFormatters.compactVnd(priceRange.end)}',
-                  style: TextStyle(
-                    color: AppTheme.ink,
-                    fontSize: 13 * responsive.scale,
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    alignment: WrapAlignment.end,
+                    children: [
+                      _TypeChip(label: tr('Tất cả', 'All'), active: roomType == 'all', onTap: () => onRoomTypeChanged('all')),
+                      for (final term in StayzTaxonomy.roomTypes)
+                        _TypeChip(
+                          label: term.label,
+                          active: roomType == term.slug,
+                          onTap: () => onRoomTypeChanged(term.slug),
+                        ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          RangeSlider(
-            min: 0,
-            max: 15000000,
-            divisions: 15,
-            values: priceRange,
-            labels: RangeLabels(
-              StayzFormatters.compactVnd(priceRange.start),
-              StayzFormatters.compactVnd(priceRange.end),
+              ],
             ),
-            onChanged: onPriceRangeChanged,
           ),
-          SwitchListTile(
+          const Divider(height: 1, color: AppTheme.line),
+          SwitchListTile.adaptive(
             value: availableOnly,
             onChanged: onAvailableChanged,
+            dense: true,
             contentPadding: EdgeInsets.zero,
-            title: const Text('Chi hien phong con trong'),
+            title: Text(
+              tr('Chỉ hiện phòng còn trống', 'Available rooms only'),
+              style: const TextStyle(color: AppTheme.ink, fontSize: 14, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),
@@ -394,58 +444,166 @@ class _RoomFilterCard extends StatelessWidget {
   }
 }
 
-class _StepperFilter extends StatelessWidget {
-  const _StepperFilter({
+class _Stepper extends StatelessWidget {
+  const _Stepper({
     required this.label,
     required this.value,
     required this.min,
+    required this.max,
     required this.onChanged,
   });
 
   final String label;
   final int value;
   final int min;
+  final int max;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700))),
-        IconButton(onPressed: value <= min ? null : () => onChanged(value - 1), icon: const Icon(Icons.remove_circle_outline)),
-        Text('$value', style: const TextStyle(fontWeight: FontWeight.w900)),
-        IconButton(onPressed: () => onChanged(value + 1), icon: const Icon(Icons.add_circle_outline)),
-      ],
+    // Ca hai nut deu disable khi cham gioi han. Truoc day nut cong luon bat
+    // nhung gia tri bi kep im lang, nen bam thay nhu bi treo.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: const TextStyle(color: AppTheme.ink, fontSize: 14, fontWeight: FontWeight.w700)),
+          ),
+          IconButton(
+            onPressed: value <= min ? null : () => onChanged(value - 1),
+            icon: const Icon(Icons.remove_circle_outline),
+            tooltip: tr('Giảm $label', 'Decrease $label'),
+            color: AppTheme.primary,
+          ),
+          SizedBox(
+            width: 28,
+            child: Text(
+              '$value',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.ink, fontSize: 15, fontWeight: FontWeight.w900),
+            ),
+          ),
+          IconButton(
+            onPressed: value >= max ? null : () => onChanged(value + 1),
+            icon: const Icon(Icons.add_circle_outline),
+            tooltip: tr('Tăng $label', 'Increase $label'),
+            color: AppTheme.primary,
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _StateMessage extends StatelessWidget {
-  const _StateMessage({required this.message});
+class _TypeChip extends StatelessWidget {
+  const _TypeChip({required this.label, required this.active, required this.onTap});
 
-  final String message;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Center(child: Text(message, textAlign: TextAlign.center)),
+    return Semantics(
+      button: true,
+      selected: active,
+      child: Material(
+        color: active ? AppTheme.ink : Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 36),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: active ? AppTheme.ink : AppTheme.line),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: active ? Colors.white : AppTheme.ink,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
-class _DateText extends StatelessWidget {
-  const _DateText({required this.title});
+class _StaySummaryCard extends StatelessWidget {
+  const _StaySummaryCard({required this.hotel, required this.args});
 
-  final String title;
+  final HotelSummary hotel;
+  final RoomSelectionArgs args;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    return Text(
-      title,
-      textAlign: TextAlign.center,
-      style: TextStyle(color: AppTheme.ink, fontSize: 15 * responsive.scale, height: 1.35),
+    final hasDates = args.hasDates;
+    final nights = hasDates ? StayzFormatters.nightsBetween(args.checkInDate!, args.checkOutDate!).clamp(1, 999) : null;
+
+    return Container(
+      padding: EdgeInsets.all(14 * responsive.scale),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.line),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hotel.hotel.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: AppTheme.ink, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w800),
+                ),
+                SizedBox(height: 4 * responsive.scale),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined, size: 13 * responsive.scale, color: AppTheme.muted),
+                    SizedBox(width: 5 * responsive.widthScale),
+                    Expanded(
+                      child: Text(
+                        hasDates
+                            ? '${StayzFormatters.shortDate(args.checkInDate!)} → ${StayzFormatters.shortDate(args.checkOutDate!)}'
+                            : tr('Chọn ngày ở bước tiếp theo', 'Pick dates in the next step'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (nights != null) ...[
+            SizedBox(width: 10 * responsive.widthScale),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.primarySoft.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                tr('$nights đêm', '$nights nights'),
+                style: const TextStyle(color: AppTheme.primaryDark, fontSize: 12.5, fontWeight: FontWeight.w800),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

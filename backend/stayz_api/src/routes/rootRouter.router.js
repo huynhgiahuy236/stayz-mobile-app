@@ -10,6 +10,7 @@ const favoritesRouter = require("./favorites.router");
 const notificationsRouter = require("./notifications.router");
 const chatRouter = require("./chat.router");
 const paymentRouter = require("./payment.router");
+const aiRouter = require("./ai.router");
 
 const rootRouter = express.Router();
 
@@ -24,5 +25,6 @@ rootRouter.use("/favorites", favoritesRouter);
 rootRouter.use("/notifications", notificationsRouter);
 rootRouter.use("/chat", chatRouter);
 rootRouter.use("/payment", paymentRouter);
+rootRouter.use("/ai", aiRouter);
 
 module.exports = rootRouter;

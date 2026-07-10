@@ -15,36 +15,61 @@ class CancelBookingResultPage extends StatefulWidget {
 }
 
 class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
-  Future<BookingSummary?>? _cancelFuture;
-  BookingSummary? _originalSummary;
-
-  BookingSummary? _cancelledSummary(BookingSummary? summary) {
-    if (summary == null) return null;
-    if (summary.booking.status == 'cancelled') return summary;
-    return BookingSummary(
-      booking: summary.booking.copyWith(status: 'cancelled', paymentStatus: 'refunded'),
-      room: summary.room,
-      hotel: summary.hotel,
-      city: summary.city,
-    );
-  }
+  BookingSummary? _summary;
+  String? _errorMessage;
+  bool _isCancelling = true;
+  bool _started = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_cancelFuture != null) return;
+    if (_started) return;
+    _started = true;
     final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
-    _originalSummary = args?.summary;
-    final summary = _originalSummary;
-    _cancelFuture = summary == null
-        ? Future<BookingSummary?>.value(null)
-        : ApiStayzRepository.instance.updateBookingStatus(summary.booking.id, 'cancelled');
+    _cancelBooking(args?.summary);
+  }
+
+  Future<void> _cancelBooking(BookingSummary? summary) async {
+    if (summary == null) {
+      setState(() {
+        _isCancelling = false;
+        _errorMessage = 'Thieu thong tin booking can huy.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isCancelling = true;
+      _errorMessage = null;
+      _summary = summary;
+    });
+
+    try {
+      final updated = await ApiStayzRepository.instance.updateBookingStatus(summary.booking.id, 'cancelled');
+      await ApiStayzRepository.instance.getBookingSummaries();
+      if (!mounted) return;
+      setState(() {
+        _summary = updated ?? summary.copyWithStatus('cancelled');
+        _isCancelling = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã hủy đặt phòng')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isCancelling = false;
+        _errorMessage = error.toString();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final hasError = _errorMessage != null;
+    final summary = _summary;
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
@@ -81,101 +106,93 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<BookingSummary?>(
-                future: _cancelFuture,
-                builder: (context, snapshot) {
-                  final summary = _cancelledSummary(snapshot.data ?? _originalSummary);
-                  final isLoading = snapshot.connectionState == ConnectionState.waiting;
-                  final hasError = snapshot.hasError;
-
-                  return ListView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      18 * responsive.scale,
-                      responsive.horizontalPadding,
-                      28 * responsive.scale,
-                    ),
-                    children: [
-                      SizedBox(height: 28 * responsive.scale),
-                      Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 64 * responsive.scale,
-                          backgroundColor: const Color(0xFFFFE9E8),
-                          child: CircleAvatar(
-                            radius: 46 * responsive.scale,
-                            backgroundColor: Colors.white,
-                            child: Icon(
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  responsive.horizontalPadding,
+                  46 * responsive.scale,
+                  responsive.horizontalPadding,
+                  28 * responsive.scale,
+                ),
+                children: [
+                  CircleAvatar(
+                    radius: 64 * responsive.scale,
+                    backgroundColor: const Color(0xFFFFE9E8),
+                    child: CircleAvatar(
+                      radius: 46 * responsive.scale,
+                      backgroundColor: Colors.white,
+                      child: _isCancelling
+                          ? const CircularProgressIndicator(color: AppTheme.accent)
+                          : Icon(
                               hasError ? Icons.error_outline : Icons.check_rounded,
                               color: hasError ? Colors.redAccent : const Color(0xFF0D8A4E),
                               size: 52 * responsive.scale,
                             ),
-                          ),
+                    ),
+                  ),
+                  SizedBox(height: 44 * responsive.scale),
+                  Text(
+                    hasError
+                        ? 'Khong the huy dat phong'
+                        : _isCancelling
+                            ? 'Dang huy dat phong'
+                            : 'Da huy dat phong',
+                    textAlign: TextAlign.center,
+                    style: textTheme.headlineMedium?.copyWith(
+                      color: AppTheme.accent,
+                      fontSize: 31 * responsive.scale,
+                      fontWeight: FontWeight.w800,
+                      height: 1.25,
+                    ),
+                  ),
+                  SizedBox(height: 24 * responsive.scale),
+                  Text(
+                    hasError
+                        ? _errorMessage!
+                        : summary == null
+                            ? 'Booking dang duoc cap nhat trong he thong.'
+                            : 'Booking ${summary.hotel.name} da chuyen sang trang thai huy. Hoan tien du kien: ${StayzFormatters.fullVnd(summary.booking.totalAmount)}.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale, height: 1.45),
+                  ),
+                  SizedBox(height: 38 * responsive.scale),
+                  Container(
+                    padding: EdgeInsets.all(20 * responsive.scale),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFD9B8B8)),
+                    ),
+                    child: Column(
+                      children: [
+                        _ResultLine(
+                          label: 'TRANG THAI',
+                          value: _isCancelling ? 'Dang xu ly' : summary?.booking.normalizedStatus ?? 'cancelled',
                         ),
-                        SizedBox(height: 44 * responsive.scale),
-                        Text(
-                          hasError
-                              ? 'Khong the huy dat phong'
-                              : isLoading
-                                  ? 'Dang huy dat phong'
-                                  : 'Da huy dat phong',
-                          textAlign: TextAlign.center,
-                          style: textTheme.headlineMedium?.copyWith(
-                            color: AppTheme.accent,
-                            fontSize: 31 * responsive.scale,
-                            fontWeight: FontWeight.w800,
-                            height: 1.25,
-                          ),
-                        ),
-                        SizedBox(height: 24 * responsive.scale),
-                        Text(
-                          hasError
-                              ? snapshot.error.toString()
-                              : summary == null
-                                  ? 'Booking da duoc cap nhat trong he thong.'
-                                  : 'Booking ${summary.hotel.name} da chuyen sang trang thai huy. Hoan tien du kien: ${StayzFormatters.fullVnd(summary.booking.totalAmount)}.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale, height: 1.45),
-                        ),
-                        SizedBox(height: 38 * responsive.scale),
-                        Container(
-                          padding: EdgeInsets.all(20 * responsive.scale),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFD9B8B8)),
-                          ),
-                          child: Column(
-                            children: [
-                              _ResultLine(label: 'TRANG THAI', value: isLoading ? 'Dang xu ly' : summary?.booking.status ?? 'cancelled'),
-                              const Divider(),
-                              _ResultLine(label: 'MA DAT PHONG', value: _bookingCode(summary)),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 38 * responsive.scale),
-                        _ResultButton(
-                          label: 'Xem booking da huy',
-                          filled: true,
-                          onTap: isLoading || hasError
-                              ? null
-                              : () => Navigator.of(context).pushNamedAndRemoveUntil(
-                                    AppRoutes.cancelledBookings,
-                                    (route) => false,
-                                    arguments: summary == null ? null : BookingSummaryArgs(summary: summary),
-                                  ),
-                        ),
-                        SizedBox(height: 18 * responsive.scale),
-                        _ResultButton(
-                          label: 'Tim phong khac',
-                          onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.search, (route) => false),
-                        ),
+                        const Divider(),
+                        _ResultLine(label: 'MA DAT PHONG', value: _bookingCode(summary)),
                       ],
                     ),
-                    ],
-                  );
-                },
+                  ),
+                  SizedBox(height: 38 * responsive.scale),
+                  _ResultButton(
+                    label: 'Xem booking da huy',
+                    filled: true,
+                    onTap: _isCancelling || hasError
+                        ? null
+                        : () => Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRoutes.cancelledBookings,
+                              (route) => false,
+                            ),
+                  ),
+                  SizedBox(height: 18 * responsive.scale),
+                  _ResultButton(
+                    label: hasError ? 'Thu lai' : 'Tim phong khac',
+                    onTap: hasError
+                        ? () => _cancelBooking(_summary)
+                        : () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.search, (route) => false),
+                  ),
+                ],
               ),
             ),
           ],
@@ -193,10 +210,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
 }
 
 class _ResultLine extends StatelessWidget {
-  const _ResultLine({
-    required this.label,
-    required this.value,
-  });
+  const _ResultLine({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -254,6 +268,17 @@ class _ResultButton extends StatelessWidget {
               ),
               child: Text(label, style: TextStyle(color: AppTheme.accent, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800)),
             ),
+    );
+  }
+}
+
+extension on BookingSummary {
+  BookingSummary copyWithStatus(String status) {
+    return BookingSummary(
+      booking: booking.copyWith(status: status, paymentStatus: 'refunded'),
+      room: room,
+      hotel: hotel,
+      city: city,
     );
   }
 }

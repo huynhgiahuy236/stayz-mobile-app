@@ -1,16 +1,21 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BookingTopBar extends StatelessWidget {
   const BookingTopBar({
     required this.title,
     this.trailing,
+    this.onBack,
+    this.fallbackRoute,
     super.key,
   });
 
   final String title;
   final Widget? trailing;
+  final VoidCallback? onBack;
+  final String? fallbackRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,18 @@ class BookingTopBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: () {
+              if (onBack != null) {
+                onBack!();
+                return;
+              }
+              final navigator = Navigator.of(context);
+              if (navigator.canPop()) {
+                navigator.pop();
+              } else if (fallbackRoute != null) {
+                navigator.pushReplacementNamed(fallbackRoute!);
+              }
+            },
             icon: const Icon(Icons.arrow_back),
             color: AppTheme.accentDark,
           ),
@@ -114,6 +130,11 @@ class RoomOptionCard extends StatelessWidget {
     required this.badgeColor,
     required this.colors,
     required this.onBook,
+    required this.canBook,
+    this.imageUrl,
+    this.roomMeta = const <String>[],
+    this.amenityLabels = const <String>[],
+    this.onAskAi,
     this.note,
     super.key,
   });
@@ -124,6 +145,11 @@ class RoomOptionCard extends StatelessWidget {
   final Color badgeColor;
   final List<Color> colors;
   final VoidCallback onBook;
+  final bool canBook;
+  final String? imageUrl;
+  final List<String> roomMeta;
+  final List<String> amenityLabels;
+  final VoidCallback? onAskAi;
   final String? note;
 
   @override
@@ -140,15 +166,10 @@ class RoomOptionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          _RoomImageBanner(
+            imageUrl: imageUrl,
+            colors: colors,
             height: 166 * responsive.scale,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: colors,
-              ),
-            ),
           ),
           Padding(
             padding: EdgeInsets.all(18 * responsive.scale),
@@ -206,47 +227,16 @@ class RoomOptionCard extends StatelessWidget {
                 Wrap(
                   spacing: 8 * responsive.widthScale,
                   runSpacing: 8 * responsive.scale,
-                  children: const [
-                    _RoomMeta(label: '2 nguoi'),
-                    _RoomMeta(label: '25m2'),
-                    _RoomMeta(label: 'Giuong doi'),
-                  ],
+                  children: roomMeta.map((label) => _RoomMeta(label: label)).toList(),
                 ),
                 SizedBox(height: 16 * responsive.scale),
-                Row(
-                  children: [
-                    Icons.tv_outlined,
-                    Icons.ac_unit,
-                    Icons.bathtub_outlined,
-                    Icons.wifi,
-                  ]
-                      .map(
-                        (icon) => Padding(
-                          padding: EdgeInsets.only(right: 22 * responsive.widthScale),
-                          child: Icon(icon, color: const Color(0xFF6B5348), size: 18 * responsive.scale),
-                        ),
-                      )
-                      .toList(),
-                ),
-                SizedBox(height: 16 * responsive.scale),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12 * responsive.widthScale,
-                    vertical: 7 * responsive.scale,
+                if (amenityLabels.isNotEmpty)
+                  Wrap(
+                    spacing: 8 * responsive.widthScale,
+                    runSpacing: 8 * responsive.scale,
+                    children: amenityLabels.take(4).map((label) => _AmenityChip(label: label)).toList(),
                   ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEAF3DD),
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: Text(
-                    '✓ Bao gom bua sang',
-                    style: TextStyle(
-                      color: const Color(0xFF3F6D25),
-                      fontSize: 12 * responsive.scale,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                SizedBox(height: amenityLabels.isEmpty ? 0 : 16 * responsive.scale),
                 Divider(height: 42 * responsive.scale, color: AppTheme.neutral200),
                 Row(
                   children: [
@@ -274,17 +264,34 @@ class RoomOptionCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (onAskAi != null) ...[
+                      SizedBox(width: 10 * responsive.widthScale),
+                      SizedBox(
+                        width: 48 * responsive.scale,
+                        height: 52 * responsive.scale,
+                        child: OutlinedButton(
+                          onPressed: onAskAi,
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            foregroundColor: AppTheme.accentDark,
+                            side: const BorderSide(color: AppTheme.line),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+                          ),
+                          child: const Icon(Icons.auto_awesome_rounded),
+                        ),
+                      ),
+                    ],
                     SizedBox(
                       width: 126 * responsive.widthScale,
                       height: 52 * responsive.scale,
                       child: FilledButton(
-                        onPressed: onBook,
+                        onPressed: canBook ? onBook : null,
                         style: FilledButton.styleFrom(
                           backgroundColor: AppTheme.accent,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
                         ),
                         child: Text(
-                          'Dat ngay',
+                          canBook ? 'Dat ngay' : 'Het phong',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15 * responsive.scale,
@@ -299,6 +306,73 @@ class RoomOptionCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RoomImageBanner extends StatelessWidget {
+  const _RoomImageBanner({
+    required this.imageUrl,
+    required this.colors,
+    required this.height,
+  });
+
+  final String? imageUrl;
+  final List<Color> colors;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = imageUrl ?? '';
+    if (url.isNotEmpty) {
+      return StayZNetworkImage(
+        imageUrl: url,
+        width: double.infinity,
+        height: height,
+      );
+    }
+
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+        ),
+      ),
+      child: const Center(
+        child: Icon(Icons.hotel_outlined, color: Colors.white70, size: 42),
+      ),
+    );
+  }
+}
+
+class _AmenityChip extends StatelessWidget {
+  const _AmenityChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 11 * responsive.widthScale,
+        vertical: 6 * responsive.scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF3DD),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: const Color(0xFF3F6D25),
+          fontSize: 11 * responsive.scale,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

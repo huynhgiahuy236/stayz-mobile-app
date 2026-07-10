@@ -35,4 +35,16 @@ class StayzFormatters {
 
     return '$day/$month/${value.year}';
   }
+
+  static int nightsBetween(DateTime checkIn, DateTime checkOut) {
+    return checkOut.difference(checkIn).inDays;
+  }
+
+  static num bookingTotal({
+    required num pricePerNight,
+    required int nights,
+    required int roomQuantity,
+  }) {
+    return pricePerNight * nights * roomQuantity;
+  }
 }

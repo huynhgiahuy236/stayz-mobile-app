@@ -18,14 +18,7 @@ class PaymentCheckoutPage extends StatefulWidget {
 class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   bool _isSubmitting = false;
 
-  Future<void> _confirmBooking(BookingDraft? draft) async {
-    if (draft == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Missing booking information.')),
-      );
-      return;
-    }
-
+  Future<void> _confirmBooking(BookingDraft draft) async {
     setState(() => _isSubmitting = true);
     try {
       final summary = await ApiStayzRepository.instance.createBooking(draft);
@@ -36,9 +29,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
       );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -52,7 +43,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
     if (draft == null) {
       return const Scaffold(
         backgroundColor: Color(0xFFFBF7F4),
-        body: SafeArea(child: Center(child: Text('Missing booking information.'))),
+        body: SafeArea(child: Center(child: Text('Thieu thong tin dat phong.'))),
       );
     }
 
@@ -72,7 +63,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
         child: SafeArea(
           top: false,
           child: BookingPrimaryButton(
-            label: _isSubmitting ? 'Dang dat phong...' : 'Xac nhan dat phong',
+            label: _isSubmitting ? 'Dang dat phong...' : 'Thanh toan',
             onTap: _isSubmitting ? null : () => _confirmBooking(draft),
           ),
         ),
@@ -81,7 +72,17 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
         bottom: false,
         child: Column(
           children: [
-            const BookingTopBar(title: 'Xac nhan dat phong'),
+            BookingTopBar(
+              title: 'Thanh toan',
+              onBack: () {
+                final navigator = Navigator.of(context);
+                if (navigator.canPop()) {
+                  navigator.pop();
+                } else {
+                  navigator.pushReplacementNamed(AppRoutes.bookingSchedule, arguments: draft);
+                }
+              },
+            ),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -94,20 +95,6 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 children: [
                   _CheckoutHotelCard(draft: draft),
                   SizedBox(height: 28 * responsive.scale),
-                  _SectionCaption(label: 'Thong tin lien he'),
-                  SizedBox(height: 24 * responsive.scale),
-                  const CheckoutField(label: 'Ho va ten', value: 'Nguyen Minh Quan'),
-                  SizedBox(height: 22 * responsive.scale),
-                  const CheckoutField(label: 'Email', value: 'quan.nguyen@email.com'),
-                  SizedBox(height: 22 * responsive.scale),
-                  const CheckoutField(label: 'So dien thoai', value: '0901 234 567'),
-                  SizedBox(height: 22 * responsive.scale),
-                  const CheckoutField(
-                    label: 'Yeu cau dac biet (khong bat buoc)',
-                    value: 'Vi du: Phong khong hut thuoc, check-in som...',
-                    large: true,
-                  ),
-                  SizedBox(height: 44 * responsive.scale),
                   _SectionCaption(label: 'Phuong thuc thanh toan'),
                   SizedBox(height: 22 * responsive.scale),
                   const PaymentMethodTile(icon: Icons.payments_outlined, label: 'Thanh toan khi nhan phong', active: true),
@@ -119,18 +106,18 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                   const PaymentMethodTile(icon: Icons.qr_code_2, label: 'ZaloPay'),
                   SizedBox(height: 38 * responsive.scale),
                   PriceLine(
-                    label: draft == null ? 'Tien phong (2 dem)' : 'Tiền phòng (${draft.nights} đêm)',
-                    value: draft == null ? '₫3.600.000' : StayzFormatters.fullVnd(draft.roomSubtotal),
+                    label: 'Tien phong (${draft.nights} dem x ${draft.roomCount} phong)',
+                    value: StayzFormatters.fullVnd(draft.roomSubtotal),
                   ),
                   SizedBox(height: 16 * responsive.scale),
                   PriceLine(
-                    label: 'Thuế & phí',
-                    value: draft == null ? '₫360.000' : StayzFormatters.fullVnd(draft.serviceFee),
+                    label: 'Thue & phi',
+                    value: StayzFormatters.fullVnd(draft.serviceFee),
                   ),
                   Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
                   PriceLine(
-                    label: 'Tổng cộng',
-                    value: draft == null ? '₫3.960.000' : StayzFormatters.fullVnd(draft.totalAmount),
+                    label: 'Tong cong',
+                    value: StayzFormatters.fullVnd(draft.totalAmount),
                     total: true,
                   ),
                 ],
@@ -167,12 +154,12 @@ class _SectionCaption extends StatelessWidget {
 class _CheckoutHotelCard extends StatelessWidget {
   const _CheckoutHotelCard({required this.draft});
 
-  final BookingDraft? draft;
+  final BookingDraft draft;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final imageUrl = draft?.room.imageUrls.firstOrNull ?? draft?.hotel.hotel.imageUrls.firstOrNull;
+    final imageUrl = draft.room.imageUrls.firstOrNull ?? draft.hotel.hotel.imageUrls.firstOrNull;
 
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
@@ -208,7 +195,7 @@ class _CheckoutHotelCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      draft?.hotel.hotel.name ?? 'Missing hotel',
+                      draft.hotel.hotel.name,
                       style: TextStyle(
                         color: AppTheme.ink,
                         fontSize: 16 * responsive.scale,
@@ -217,7 +204,7 @@ class _CheckoutHotelCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8 * responsive.scale),
                     Text(
-                      draft?.room.name ?? 'Missing room',
+                      draft.room.name,
                       style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale),
                     ),
                   ],
@@ -226,19 +213,12 @@ class _CheckoutHotelCard extends StatelessWidget {
             ],
           ),
           Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
-          _BookingInfoRow(
-            label: 'Nhận phòng',
-            value: draft == null ? 'Thu Sau, 12/07/2024' : StayzFormatters.shortDate(draft!.checkInDate),
-          ),
-          _BookingInfoRow(
-            label: 'Trả phòng',
-            value: draft == null ? 'Chu Nhat, 14/07/2024' : StayzFormatters.shortDate(draft!.checkOutDate),
-          ),
-          _BookingInfoRow(label: 'Số đêm', value: draft == null ? '2 dem' : '${draft!.nights} đêm'),
-          _BookingInfoRow(
-            label: 'Số khách',
-            value: draft == null ? '2 nguoi lon' : '${draft!.adults} người lớn, ${draft!.children} trẻ em',
-          ),
+          _BookingInfoRow(label: 'Nhan phong', value: StayzFormatters.shortDate(draft.checkInDate)),
+          _BookingInfoRow(label: 'Tra phong', value: StayzFormatters.shortDate(draft.checkOutDate)),
+          _BookingInfoRow(label: 'So dem', value: '${draft.nights} dem'),
+          _BookingInfoRow(label: 'So khach', value: '${draft.guestCount} khach'),
+          _BookingInfoRow(label: 'So phong', value: '${draft.roomCount} phong'),
+          _BookingInfoRow(label: 'Gia moi dem', value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
         ],
       ),
     );
@@ -246,10 +226,7 @@ class _CheckoutHotelCard extends StatelessWidget {
 }
 
 class _BookingInfoRow extends StatelessWidget {
-  const _BookingInfoRow({
-    required this.label,
-    required this.value,
-  });
+  const _BookingInfoRow({required this.label, required this.value});
 
   final String label;
   final String value;

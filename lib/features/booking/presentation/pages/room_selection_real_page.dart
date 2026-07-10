@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/chat/ai_chat_sheet.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
@@ -19,7 +20,7 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
   int _guestCount = 2;
   int _roomCount = 1;
   String _roomType = 'all';
-  num? _maxPrice;
+  RangeValues _priceRange = const RangeValues(0, 15000000);
   bool _availableOnly = true;
   bool _initialized = false;
 
@@ -39,7 +40,7 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
     return rooms.where((room) {
       final capacity = room.capacityAdults + room.capacityChildren;
       final capacityOk = capacity * _roomCount >= _guestCount;
-      final priceOk = _maxPrice == null || room.pricePerNight <= _maxPrice!;
+      final priceOk = room.pricePerNight >= _priceRange.start && room.pricePerNight <= _priceRange.end;
       final typeOk = _roomType == 'all' || room.roomType == _roomType;
       final availableOk = !_availableOnly || room.availableUnits >= _roomCount;
       return capacityOk && priceOk && typeOk && availableOk && room.status != 'inactive';
@@ -99,12 +100,12 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
                     guestCount: _guestCount,
                     roomCount: _roomCount,
                     roomType: _roomType,
-                    maxPrice: _maxPrice,
+                    priceRange: _priceRange,
                     availableOnly: _availableOnly,
                     onGuestChanged: (value) => setState(() => _guestCount = value),
                     onRoomCountChanged: (value) => setState(() => _roomCount = value),
                     onRoomTypeChanged: (value) => setState(() => _roomType = value ?? 'all'),
-                    onMaxPriceChanged: (value) => setState(() => _maxPrice = value),
+                    onPriceRangeChanged: (value) => setState(() => _priceRange = value),
                     onAvailableChanged: (value) => setState(() => _availableOnly = value),
                   ),
                   SizedBox(height: 24 * responsive.scale),
@@ -122,7 +123,11 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
                       }
 
                       return FutureBuilder<List<Room>>(
-                        future: ApiStayzRepository.instance.getRoomsByHotelId(hotelId),
+                        future: ApiStayzRepository.instance.getRoomsByHotelId(
+                          hotelId,
+                          checkInDate: args?.checkInDate,
+                          checkOutDate: args?.checkOutDate,
+                        ),
                         builder: (context, roomSnapshot) {
                           if (roomSnapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
@@ -153,10 +158,34 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
                                 RoomOptionCard(
                                   name: rooms[i].name,
                                   price: StayzFormatters.fullVnd(rooms[i].pricePerNight),
-                                  badge: rooms[i].availableUnits <= 2 ? 'Sap het' : 'Con ${rooms[i].availableUnits} phong',
+                                  badge: rooms[i].availableUnits == 0
+                                      ? 'Het phong'
+                                      : rooms[i].availableUnits <= 2
+                                          ? 'Sap het'
+                                          : 'Con ${rooms[i].availableUnits} phong',
                                   note: '${rooms[i].roomType} - toi da ${rooms[i].capacityAdults + rooms[i].capacityChildren} khach/phong',
-                                  badgeColor: rooms[i].availableUnits <= 2 ? const Color(0xFFC06B00) : const Color(0xFF007044),
+                                  badgeColor: rooms[i].availableUnits == 0
+                                      ? AppTheme.neutral500
+                                      : rooms[i].availableUnits <= 2
+                                          ? const Color(0xFFC06B00)
+                                          : const Color(0xFF007044),
                                   colors: _roomColors[i % _roomColors.length],
+                                  canBook: rooms[i].availableUnits > 0,
+                                  imageUrl: rooms[i].imageUrls.firstOrNull,
+                                  roomMeta: [
+                                    '${rooms[i].capacityAdults + rooms[i].capacityChildren} khach',
+                                    '${rooms[i].sizeSqm}m2',
+                                    rooms[i].bedType,
+                                  ],
+                                  amenityLabels: rooms[i].amenityIds.map(_amenityLabel).toList(),
+                                  onAskAi: () => showAiChatSheet(
+                                    context,
+                                    aiContext: AiChatContext.forRoom(
+                                      hotel: hotelSummary!,
+                                      room: rooms[i],
+                                      args: args,
+                                    ),
+                                  ),
                                   onBook: () => Navigator.of(context).pushNamed(
                                     AppRoutes.bookingSchedule,
                                     arguments: _draftFor(hotelSummary!, rooms[i], args),
@@ -185,6 +214,26 @@ const _roomColors = [
   [Color(0xFF3D2514), Color(0xFFF0B36D)],
   [Color(0xFF4B4C42), Color(0xFFD9D1C2)],
 ];
+
+String _amenityLabel(String value) {
+  const labels = {
+    'toiletries': 'Do dung ca nhan',
+    'shower': 'Voi sen',
+    'toilet': 'Toilet rieng',
+    'towels': 'Khan tam',
+    'socket_near_bed': 'O cam gan giuong',
+    'sitting_area': 'Khu tiep khach',
+    'private_entrance': 'Loi vao rieng',
+    'slippers': 'Dep phong',
+    'hair_dryer': 'May say toc',
+    'fan': 'Quat',
+    'electric_kettle': 'Am dun nuoc',
+    'wardrobe': 'Tu quan ao',
+    'clothes_rack': 'Gia treo do',
+    'toilet_paper': 'Giay ve sinh',
+  };
+  return labels[value] ?? value.replaceAll('_', ' ');
+}
 
 class _StaySummaryCard extends StatelessWidget {
   const _StaySummaryCard({this.hotel, this.args});
@@ -251,24 +300,24 @@ class _RoomFilterCard extends StatelessWidget {
     required this.guestCount,
     required this.roomCount,
     required this.roomType,
-    required this.maxPrice,
+    required this.priceRange,
     required this.availableOnly,
     required this.onGuestChanged,
     required this.onRoomCountChanged,
     required this.onRoomTypeChanged,
-    required this.onMaxPriceChanged,
+    required this.onPriceRangeChanged,
     required this.onAvailableChanged,
   });
 
   final int guestCount;
   final int roomCount;
   final String roomType;
-  final num? maxPrice;
+  final RangeValues priceRange;
   final bool availableOnly;
   final ValueChanged<int> onGuestChanged;
   final ValueChanged<int> onRoomCountChanged;
   final ValueChanged<String?> onRoomTypeChanged;
-  final ValueChanged<num?> onMaxPriceChanged;
+  final ValueChanged<RangeValues> onPriceRangeChanged;
   final ValueChanged<bool> onAvailableChanged;
 
   @override
@@ -305,21 +354,33 @@ class _RoomFilterCard extends StatelessWidget {
                   onChanged: onRoomTypeChanged,
                 ),
               ),
-              SizedBox(width: 12 * responsive.widthScale),
+            ],
+          ),
+          SizedBox(height: 10 * responsive.scale),
+          Row(
+            children: [
               Expanded(
-                child: DropdownButtonFormField<num?>(
-                  value: maxPrice,
-                  decoration: const InputDecoration(labelText: 'Gia toi da'),
-                  items: const [
-                    DropdownMenuItem<num?>(value: null, child: Text('Tat ca')),
-                    DropdownMenuItem<num?>(value: 3000000, child: Text('3 trieu')),
-                    DropdownMenuItem<num?>(value: 8000000, child: Text('8 trieu')),
-                    DropdownMenuItem<num?>(value: 15000000, child: Text('15 trieu')),
-                  ],
-                  onChanged: onMaxPriceChanged,
+                child: Text(
+                  'Khoang gia: ${StayzFormatters.compactVnd(priceRange.start)} - ${StayzFormatters.compactVnd(priceRange.end)}',
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 13 * responsive.scale,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
+          ),
+          RangeSlider(
+            min: 0,
+            max: 15000000,
+            divisions: 15,
+            values: priceRange,
+            labels: RangeLabels(
+              StayzFormatters.compactVnd(priceRange.start),
+              StayzFormatters.compactVnd(priceRange.end),
+            ),
+            onChanged: onPriceRangeChanged,
           ),
           SwitchListTile(
             value: availableOnly,

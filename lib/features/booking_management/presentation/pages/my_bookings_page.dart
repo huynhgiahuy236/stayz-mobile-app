@@ -41,11 +41,15 @@ class MyBookingsPage extends StatelessWidget {
                 future: ApiStayzRepository.instance.getBookingSummaries(),
                 builder: (context, snapshot) {
                   final bookings = (snapshot.data ?? const <BookingSummary>[])
-                      .where((summary) => summary.booking.status == 'pending' || summary.booking.status == 'confirmed')
+                      .where((summary) => summary.booking.isUpcoming)
                       .toList();
 
                   if (bookings.isEmpty && snapshot.connectionState != ConnectionState.done) {
                     return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  }
+
+                  if (bookings.isEmpty) {
+                    return const _UpcomingEmptyState();
                   }
 
                   return ListView.separated(
@@ -130,6 +134,29 @@ class _TripSummaryCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _UpcomingEmptyState extends StatelessWidget {
+  const _UpcomingEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+        child: Text(
+          'Chưa có đặt phòng sắp tới',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppTheme.ink,
+            fontSize: 20 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
     );
   }

@@ -27,7 +27,7 @@ class _ReviewPageState extends State<ReviewPage> {
   Future<void> _submit(BookingSummaryArgs? args) async {
     final summary = args?.summary;
     if (summary == null) return;
-    if (summary.booking.status != 'completed') {
+    if (!summary.booking.isCompleted) {
       _showMessage('Chi co the danh gia booking da hoan thanh.');
       return;
     }
@@ -69,7 +69,7 @@ class _ReviewPageState extends State<ReviewPage> {
     final responsive = HomeResponsive.of(context);
     final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
     final summary = args?.summary;
-    final canReview = summary?.booking.status == 'completed';
+    final canReview = summary?.booking.isCompleted == true;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF7F4),

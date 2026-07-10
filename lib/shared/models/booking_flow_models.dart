@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 
 class RoomSelectionArgs {
   const RoomSelectionArgs({
@@ -46,11 +47,18 @@ class BookingDraft {
   final bool datesLocked;
 
   int get nights {
-    final value = checkOutDate.difference(checkInDate).inDays;
+    final value = StayzFormatters.nightsBetween(checkInDate, checkOutDate);
     return value < 1 ? 1 : value;
   }
 
-  num get roomSubtotal => room.pricePerNight * nights * roomCount;
+  bool get hasValidDates => StayzFormatters.nightsBetween(checkInDate, checkOutDate) > 0;
+  int get guestCount => adults + children;
+  int get maxGuests => (room.capacityAdults + room.capacityChildren) * roomCount;
+  num get roomSubtotal => StayzFormatters.bookingTotal(
+        pricePerNight: room.pricePerNight,
+        nights: nights,
+        roomQuantity: roomCount,
+      );
   num get serviceFee => 0;
   num get totalAmount => roomSubtotal;
 

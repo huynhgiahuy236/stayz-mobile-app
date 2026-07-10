@@ -35,11 +35,15 @@ class CompletedBookingsPage extends StatelessWidget {
                 future: ApiStayzRepository.instance.getBookingSummaries(),
                 builder: (context, snapshot) {
                   final bookings = (snapshot.data ?? const <BookingSummary>[])
-                      .where((summary) => summary.booking.status == 'completed')
+                      .where((summary) => summary.booking.isCompleted)
                       .toList();
 
                   if (bookings.isEmpty && snapshot.connectionState != ConnectionState.done) {
                     return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                  }
+
+                  if (bookings.isEmpty) {
+                    return const _CompletedEmptyState();
                   }
 
                   return ListView.builder(
@@ -129,6 +133,29 @@ class _BrandText extends StatelessWidget {
         color: AppTheme.accentDark,
         fontSize: 28 * responsive.scale,
         fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+}
+
+class _CompletedEmptyState extends StatelessWidget {
+  const _CompletedEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+        child: Text(
+          'Chưa có đặt phòng hoàn tất',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppTheme.ink,
+            fontSize: 20 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
     );
   }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "StayZ Booking Assistant"
+  short_description: "Grounded AI booking assistant instructions"
+  default_prompt: "Use $stayz-booking-assistant before planning or implementing the StayZ AI booking assistant."

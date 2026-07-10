@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class SearchHeader extends StatelessWidget {
@@ -102,6 +103,10 @@ class SearchHotelCard extends StatelessWidget {
     required this.colors,
     this.badge,
     this.favorite = false,
+    this.imageUrl,
+    this.onTap,
+    this.onRoomsTap,
+    this.onFavoriteTap,
     super.key,
   });
 
@@ -112,32 +117,50 @@ class SearchHotelCard extends StatelessWidget {
   final List<Color> colors;
   final String? badge;
   final bool favorite;
+  final String? imageUrl;
+  final VoidCallback? onTap;
+  final VoidCallback? onRoomsTap;
+  final VoidCallback? onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final imageHeight = 190 * responsive.scale;
+    final imageWidth = MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.line),
+            boxShadow: AppTheme.softShadow,
+          ),
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 190 * responsive.scale,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: colors,
-              ),
-            ),
+          SizedBox(
+            height: imageHeight,
+            width: double.infinity,
             child: Stack(
               children: [
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: LuxuryArchitecturalPainter(colors: colors),
+                  ),
+                ),
+                if (imageUrl != null)
+                  Positioned.fill(
+                    child: StayZNetworkImage(
+                      imageUrl: imageUrl!,
+                      width: imageWidth,
+                      height: imageHeight,
+                    ),
+                  ),
                 Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -145,8 +168,8 @@ class SearchHotelCard extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.05),
-                          Colors.black.withValues(alpha: 0.18),
+                          Colors.black.withValues(alpha: 0.02),
+                          Colors.black.withValues(alpha: 0.15),
                         ],
                       ),
                     ),
@@ -159,7 +182,7 @@ class SearchHotelCard extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12 * responsive.widthScale,
-                        vertical: 8 * responsive.scale,
+                        vertical: 6 * responsive.scale,
                       ),
                       decoration: BoxDecoration(
                         color: AppTheme.accent,
@@ -179,13 +202,17 @@ class SearchHotelCard extends StatelessWidget {
                 Positioned(
                   top: 14 * responsive.scale,
                   right: 14 * responsive.widthScale,
-                  child: CircleAvatar(
-                    radius: 18 * responsive.scale,
-                    backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    child: Icon(
-                      favorite ? Icons.favorite : Icons.favorite_border,
-                      color: AppTheme.accent,
-                      size: 21 * responsive.scale,
+                  child: InkWell(
+                    onTap: onFavoriteTap,
+                    customBorder: const CircleBorder(),
+                    child: CircleAvatar(
+                      radius: 18 * responsive.scale,
+                      backgroundColor: Colors.white.withValues(alpha: 0.9),
+                      child: Icon(
+                        favorite ? Icons.favorite : Icons.favorite_border,
+                        color: AppTheme.accent,
+                        size: 21 * responsive.scale,
+                      ),
                     ),
                   ),
                 ),
@@ -231,7 +258,7 @@ class SearchHotelCard extends StatelessWidget {
                     SizedBox(width: 6 * responsive.widthScale),
                     Expanded(
                       child: Text(
-                        '($reviewCount danh gia)',
+                        '($reviewCount đánh giá)',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -279,7 +306,7 @@ class SearchHotelCard extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text: '/dem',
+                              text: ' / đêm',
                               style: TextStyle(
                                 color: AppTheme.neutral800,
                                 fontSize: 12 * responsive.scale,
@@ -289,12 +316,20 @@ class SearchHotelCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
-                      'Xem phong',
-                      style: TextStyle(
-                        color: AppTheme.accent,
-                        fontSize: 14 * responsive.scale,
-                        fontWeight: FontWeight.w700,
+                    SizedBox(
+                      width: 108 * responsive.widthScale,
+                      height: 42 * responsive.scale,
+                      child: FilledButton(
+                      onPressed: onRoomsTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
+                      style: FilledButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Xem phòng'),
+                        ),
                       ),
                     ),
                   ],
@@ -303,6 +338,8 @@ class SearchHotelCard extends StatelessWidget {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }

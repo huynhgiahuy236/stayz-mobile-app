@@ -1,14 +1,75 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
-class CancelBookingResultPage extends StatelessWidget {
+class CancelBookingResultPage extends StatefulWidget {
   const CancelBookingResultPage({super.key});
+
+  @override
+  State<CancelBookingResultPage> createState() => _CancelBookingResultPageState();
+}
+
+class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
+  BookingSummary? _summary;
+  String? _errorMessage;
+  bool _isCancelling = true;
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
+    _cancelBooking(args?.summary);
+  }
+
+  Future<void> _cancelBooking(BookingSummary? summary) async {
+    if (summary == null) {
+      setState(() {
+        _isCancelling = false;
+        _errorMessage = 'Thieu thong tin booking can huy.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isCancelling = true;
+      _errorMessage = null;
+      _summary = summary;
+    });
+
+    try {
+      final updated = await ApiStayzRepository.instance.updateBookingStatus(summary.booking.id, 'cancelled');
+      await ApiStayzRepository.instance.getBookingSummaries();
+      if (!mounted) return;
+      setState(() {
+        _summary = updated ?? summary.copyWithStatus('cancelled');
+        _isCancelling = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã hủy đặt phòng')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isCancelling = false;
+        _errorMessage = error.toString();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final hasError = _errorMessage != null;
+    final summary = _summary;
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
@@ -31,7 +92,7 @@ class CancelBookingResultPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      'Thanh toan',
+                      'Huy dat phong',
                       textAlign: TextAlign.center,
                       style: textTheme.headlineMedium?.copyWith(
                         color: AppTheme.accentDark,
@@ -45,61 +106,93 @@ class CancelBookingResultPage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 64 * responsive.scale,
-                      backgroundColor: const Color(0xFFFFE9E8),
-                      child: CircleAvatar(
-                        radius: 46 * responsive.scale,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.close, color: const Color(0xFFC71920), size: 52 * responsive.scale),
-                      ),
-                    ),
-                    SizedBox(height: 70 * responsive.scale),
-                    Text(
-                      'Thanh toan khong thanh\ncong',
-                      textAlign: TextAlign.center,
-                      style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.accent,
-                        fontSize: 38 * responsive.scale,
-                        fontWeight: FontWeight.w800,
-                        height: 1.25,
-                      ),
-                    ),
-                    SizedBox(height: 24 * responsive.scale),
-                    Text(
-                      'Rat tiec, giao dich cua ban khong the hoan tat. Vui long kiem tra lai thong tin the hoac so du tai khoan.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 21 * responsive.scale, height: 1.55),
-                    ),
-                    SizedBox(height: 70 * responsive.scale),
-                    Container(
-                      padding: EdgeInsets.all(20 * responsive.scale),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFD9B8B8)),
-                      ),
-                      child: Column(
-                        children: const [
-                          _ResultLine(label: 'LY DO', value: 'Giao dich bi tu choi boi ngan hang'),
-                          Divider(),
-                          _ResultLine(label: 'MA GIAO DICH', value: 'STZ-PAY-778899'),
-                        ],
-                      ),
-                    ),
-                    const Spacer(),
-                    _ResultButton(label: 'Thu lai', filled: true),
-                    SizedBox(height: 18 * responsive.scale),
-                    const _ResultButton(label: 'Chon phuong thuc thanh toan khac'),
-                    SizedBox(height: 28 * responsive.scale),
-                    Text('Quay lai', style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 19 * responsive.scale)),
-                  ],
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  responsive.horizontalPadding,
+                  46 * responsive.scale,
+                  responsive.horizontalPadding,
+                  28 * responsive.scale,
                 ),
+                children: [
+                  CircleAvatar(
+                    radius: 64 * responsive.scale,
+                    backgroundColor: const Color(0xFFFFE9E8),
+                    child: CircleAvatar(
+                      radius: 46 * responsive.scale,
+                      backgroundColor: Colors.white,
+                      child: _isCancelling
+                          ? const CircularProgressIndicator(color: AppTheme.accent)
+                          : Icon(
+                              hasError ? Icons.error_outline : Icons.check_rounded,
+                              color: hasError ? Colors.redAccent : const Color(0xFF0D8A4E),
+                              size: 52 * responsive.scale,
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: 44 * responsive.scale),
+                  Text(
+                    hasError
+                        ? 'Khong the huy dat phong'
+                        : _isCancelling
+                            ? 'Dang huy dat phong'
+                            : 'Da huy dat phong',
+                    textAlign: TextAlign.center,
+                    style: textTheme.headlineMedium?.copyWith(
+                      color: AppTheme.accent,
+                      fontSize: 31 * responsive.scale,
+                      fontWeight: FontWeight.w800,
+                      height: 1.25,
+                    ),
+                  ),
+                  SizedBox(height: 24 * responsive.scale),
+                  Text(
+                    hasError
+                        ? _errorMessage!
+                        : summary == null
+                            ? 'Booking dang duoc cap nhat trong he thong.'
+                            : 'Booking ${summary.hotel.name} da chuyen sang trang thai huy. Hoan tien du kien: ${StayzFormatters.fullVnd(summary.booking.totalAmount)}.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale, height: 1.45),
+                  ),
+                  SizedBox(height: 38 * responsive.scale),
+                  Container(
+                    padding: EdgeInsets.all(20 * responsive.scale),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFD9B8B8)),
+                    ),
+                    child: Column(
+                      children: [
+                        _ResultLine(
+                          label: 'TRANG THAI',
+                          value: _isCancelling ? 'Dang xu ly' : summary?.booking.normalizedStatus ?? 'cancelled',
+                        ),
+                        const Divider(),
+                        _ResultLine(label: 'MA DAT PHONG', value: _bookingCode(summary)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 38 * responsive.scale),
+                  _ResultButton(
+                    label: 'Xem booking da huy',
+                    filled: true,
+                    onTap: _isCancelling || hasError
+                        ? null
+                        : () => Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRoutes.cancelledBookings,
+                              (route) => false,
+                            ),
+                  ),
+                  SizedBox(height: 18 * responsive.scale),
+                  _ResultButton(
+                    label: hasError ? 'Thu lai' : 'Tim phong khac',
+                    onTap: hasError
+                        ? () => _cancelBooking(_summary)
+                        : () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.search, (route) => false),
+                  ),
+                ],
               ),
             ),
           ],
@@ -107,13 +200,17 @@ class CancelBookingResultPage extends StatelessWidget {
       ),
     );
   }
+
+  String _bookingCode(BookingSummary? summary) {
+    final id = summary?.booking.id;
+    if (id == null || id.isEmpty) return 'SZ';
+    final suffix = id.length > 5 ? id.substring(id.length - 5) : id;
+    return 'SZ-$suffix';
+  }
 }
 
 class _ResultLine extends StatelessWidget {
-  const _ResultLine({
-    required this.label,
-    required this.value,
-  });
+  const _ResultLine({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -140,10 +237,12 @@ class _ResultButton extends StatelessWidget {
   const _ResultButton({
     required this.label,
     this.filled = false,
+    this.onTap,
   });
 
   final String label;
   final bool filled;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +253,7 @@ class _ResultButton extends StatelessWidget {
       height: 58 * responsive.scale,
       child: filled
           ? FilledButton(
-              onPressed: () {},
+              onPressed: onTap,
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.accent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -162,13 +261,24 @@ class _ResultButton extends StatelessWidget {
               child: Text(label, style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800)),
             )
           : OutlinedButton(
-              onPressed: () {},
+              onPressed: onTap,
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppTheme.accent),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               child: Text(label, style: TextStyle(color: AppTheme.accent, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800)),
             ),
+    );
+  }
+}
+
+extension on BookingSummary {
+  BookingSummary copyWithStatus(String status) {
+    return BookingSummary(
+      booking: booking.copyWith(status: status, paymentStatus: 'refunded'),
+      room: room,
+      hotel: hotel,
+      city: city,
     );
   }
 }

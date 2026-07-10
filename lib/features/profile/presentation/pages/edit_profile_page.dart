@@ -86,7 +86,10 @@ class EditProfilePage extends StatelessWidget {
                     large: true,
                   ),
                   SizedBox(height: 70 * responsive.scale),
-                  const ProfilePrimaryButton(label: 'Luu thay doi'),
+                  ProfilePrimaryButton(
+                    label: 'Lưu thay đổi',
+                    onTap: () => Navigator.of(context).maybePop(),
+                  ),
                 ],
               ),
             ),

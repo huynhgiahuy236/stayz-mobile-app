@@ -1,18 +1,18 @@
 # StayZ API
 
-Express REST API for the StayZ hotel booking app.
+Express backend for the StayZ booking app.
 
-## Folder Roles
+## Location
 
-- `src/routes`: API endpoint definitions only.
-- `src/controllers`: Request parsing and HTTP responses.
-- `src/services`: Business logic and orchestration.
-- `src/models`: MongoDB/Mongoose schemas.
-- `src/middlewares`: Auth, validation, upload, and error handling.
-- `src/config`: Environment, database, and third-party service config.
-- `src/utils`: Shared helpers such as response format, JWT generation, and pagination.
-- `src/validations`: Request validation schemas.
-- `uploads`: Local upload storage when not using Cloudinary.
+This backend is integrated into the Flutter workspace at `backend/stayz_api`.
+
+## Main Features
+
+- Users, login, refresh token, logout, password reset, and Google OAuth.
+- Properties, rooms, reviews, bookings, favorites, and notifications.
+- PayOS payment create/cancel/webhook flow.
+- Socket.io chat with JWT authentication.
+- MongoDB/Mongoose models, Redis token blacklist/rate limiting, Cloudinary uploads, and SMTP email.
 
 ## Commands
 
@@ -20,3 +20,7 @@ Express REST API for the StayZ hotel booking app.
 npm install
 npm run dev
 ```
+
+The API starts on `PORT` from `.env`, defaulting to `3000`.
+
+Routes are mounted both at root paths such as `/properties/getAll` and API-prefixed paths such as `/api/properties/getAll`.

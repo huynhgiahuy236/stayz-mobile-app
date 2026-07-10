@@ -13,7 +13,7 @@ class NotificationsPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF1EE),
+      backgroundColor: AppTheme.cream,
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.profile),
       body: SafeArea(
         bottom: false,
@@ -29,23 +29,57 @@ class NotificationsPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(Icons.arrow_back),
-                    color: AppTheme.accentDark,
-                  ),
-                  SizedBox(width: 8 * responsive.widthScale),
-                  Expanded(
-                    child: Text(
-                      'Thong bao',
-                      style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.accentDark,
-                        fontSize: 33 * responsive.scale,
-                        fontWeight: FontWeight.w600,
+                  Container(
+                    width: 42 * responsive.scale,
+                    height: 42 * responsive.scale,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppTheme.neutral200.withValues(alpha: 0.6),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: AppTheme.accentDark,
+                          size: 20,
+                        ),
+                        padding: EdgeInsets.zero,
                       ),
                     ),
                   ),
-                  Icon(Icons.done_all, color: AppTheme.accentDark, size: 27 * responsive.scale),
+                  SizedBox(width: 12 * responsive.widthScale),
+                  Expanded(
+                    child: Text(
+                      'Thông báo',
+                      style: textTheme.headlineMedium?.copyWith(
+                        fontFamily: 'Noto Serif JP',
+                        color: AppTheme.accentDark,
+                        fontSize: 30 * responsive.scale,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đã đánh dấu tất cả thông báo là đã đọc.')),
+                    ),
+                    icon: Icon(
+                      Icons.done_all_rounded,
+                      color: AppTheme.accentDark,
+                      size: 22 * responsive.scale,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.all(8 * responsive.scale),
+                      side: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -57,20 +91,20 @@ class NotificationsPage extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
                 children: const [
-                  FilterPill(label: 'Tat ca', active: true),
+                  FilterPill(label: 'Tất cả', active: true),
                   SizedBox(width: 14),
-                  FilterPill(label: 'Uu dai'),
+                  FilterPill(label: 'Ưu đãi'),
                   SizedBox(width: 14),
-                  FilterPill(label: 'Chuyen di'),
+                  FilterPill(label: 'Chuyến đi'),
                   SizedBox(width: 14),
-                  FilterPill(label: 'Cap nhat'),
+                  FilterPill(label: 'Cập nhật'),
                 ],
               ),
             ),
             SizedBox(height: 34 * responsive.scale),
             Expanded(
               child: FutureBuilder<List<StayzNotification>>(
-                future: MockStayzRepository.instance.getNotifications(),
+                future: ApiStayzRepository.instance.getNotifications(),
                 builder: (context, snapshot) {
                   final notifications = snapshot.data ?? const <StayzNotification>[];
 
@@ -124,7 +158,7 @@ class NotificationsPage extends StatelessWidget {
 
 String _notificationTime(DateTime createdAt) {
   final age = DateTime.now().difference(createdAt);
-  if (age.inDays > 0) return '${age.inDays} ngay truoc';
-  if (age.inHours > 0) return '${age.inHours} gio truoc';
-  return 'Vua xong';
+  if (age.inDays > 0) return '${age.inDays} ngày trước';
+  if (age.inHours > 0) return '${age.inHours} giờ trước';
+  return 'Vừa xong';
 }

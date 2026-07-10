@@ -1,7 +1,11 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
 class UpcomingBookingDetailPage extends StatelessWidget {
@@ -11,6 +15,18 @@ class UpcomingBookingDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
+    final summary = args?.summary;
+
+    if (summary == null) {
+      return const Scaffold(
+        backgroundColor: AppTheme.cream,
+        bottomNavigationBar: StayZBottomNav(activeTab: HomeTab.bookings),
+        body: SafeArea(child: Center(child: Text('Missing booking detail.'))),
+      );
+    }
+
+    final imageUrl = summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull;
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
@@ -19,9 +35,10 @@ class UpcomingBookingDetailPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const BookingManageHeader(
+            BookingTopBar(
               title: 'Chi tiet dat phong',
-              trailing: Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
+              fallbackRoute: AppRoutes.myBookings,
+              trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
             ),
             Expanded(
               child: ListView(
@@ -30,13 +47,22 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                 children: [
                   Stack(
                     children: [
-                      Container(
-                        height: 290 * responsive.scale,
-                        decoration: BoxDecoration(
+                      if (imageUrl == null || imageUrl.isEmpty)
+                        Container(
+                          height: 290 * responsive.scale,
+                          decoration: BoxDecoration(
+                            color: AppTheme.neutral200,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.hotel_outlined, color: AppTheme.neutral500),
+                        )
+                      else
+                        StayZNetworkImage(
+                          imageUrl: imageUrl,
+                          width: double.infinity,
+                          height: 290 * responsive.scale,
                           borderRadius: BorderRadius.circular(12),
-                          gradient: const LinearGradient(colors: [Color(0xFF1F332C), Color(0xFF81A185)]),
                         ),
-                      ),
                       Positioned(
                         top: 18 * responsive.scale,
                         left: 18 * responsive.widthScale,
@@ -50,7 +76,7 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   ),
                   SizedBox(height: 24 * responsive.scale),
                   Text(
-                    'The Mist Retreat',
+                    summary.hotel.name,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.ink,
                       fontSize: 28 * responsive.scale,
@@ -62,51 +88,76 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                     children: [
                       Icon(Icons.location_on_outlined, size: 18 * responsive.scale),
                       SizedBox(width: 6 * responsive.widthScale),
-                      Text('Phuong 10, Da Lat', style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 16 * responsive.scale)),
+                      Expanded(
+                        child: Text(
+                          '${summary.city.name}, ${summary.city.region}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 16 * responsive.scale),
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 34 * responsive.scale),
                   BookingDetailPanel(
                     title: 'Thong tin dat phong',
                     children: [
-                      const DetailLine(label: 'Ma dat phong', value: 'STZ-2024-9988'),
+                      DetailLine(label: 'Ma dat phong', value: _bookingCode(summary.booking.id)),
                       const Divider(),
-                      const DetailLine(label: 'Check-in', value: '14:00, 11 Th10\n2024'),
-                      const DetailLine(label: 'Check-out', value: '12:00, 14 Th10\n2024'),
+                      DetailLine(label: 'Khach san', value: summary.hotel.name),
+                      DetailLine(label: 'Loai phong', value: summary.room.name),
                       const Divider(),
-                      const DetailLine(label: 'So khach', value: '2 nguoi lon'),
+                      DetailLine(label: 'Check-in', value: StayzFormatters.shortDate(summary.booking.checkInDate)),
+                      DetailLine(label: 'Check-out', value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
+                      DetailLine(label: 'So dem', value: '${summary.booking.nights} dem'),
                       const Divider(),
-                      const DetailLine(label: 'Loai phong', value: 'Deluxe Garden View'),
+                      DetailLine(
+                        label: 'So khach',
+                        value: '${summary.booking.guests.adults} nguoi lon, ${summary.booking.guests.children} tre em',
+                      ),
+                      DetailLine(label: 'Trang thai', value: summary.booking.status),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
                     title: 'Chi tiet thanh toan',
                     children: [
-                      const DetailLine(label: 'Gia phong', value: 'd3.200.000'),
-                      const DetailLine(label: 'Thue va phi', value: 'd320.000'),
+                      DetailLine(label: 'Gia moi dem', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(label: 'So dem', value: '${summary.booking.nights}'),
+                      const DetailLine(label: 'Thue va phi', value: 'Da bao gom'),
                       const Divider(),
-                      const DetailLine(label: 'Tong thanh toan', value: 'd3.520.000', total: true),
+                      DetailLine(
+                        label: 'Tong thanh toan',
+                        value: StayzFormatters.fullVnd(summary.booking.totalAmount),
+                        total: true,
+                      ),
                       const Divider(),
-                      Text('The Visa (**** 1234)\nDa thanh toan: 10:30, 05 Th10 2024',
-                          style: TextStyle(color: const Color(0xFF6B5348), fontSize: 14 * responsive.scale, height: 1.4)),
-                    ],
-                  ),
-                  SizedBox(height: 20 * responsive.scale),
-                  BookingDetailPanel(
-                    title: 'Ghi chu',
-                    children: [
                       Text(
-                        '"Yeu cau phong tang cao, yen tinh."',
-                        style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 18 * responsive.scale, fontStyle: FontStyle.italic),
+                        'Trang thai thanh toan: ${summary.booking.paymentStatus}',
+                        style: TextStyle(color: const Color(0xFF6B5348), fontSize: 14 * responsive.scale, height: 1.4),
                       ),
                     ],
                   ),
+                  if (summary.booking.specialRequest != null && summary.booking.specialRequest!.trim().isNotEmpty) ...[
+                    SizedBox(height: 20 * responsive.scale),
+                    BookingDetailPanel(
+                      title: 'Ghi chu',
+                      children: [
+                        Text(
+                          summary.booking.specialRequest!,
+                          style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 18 * responsive.scale, fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                  ],
                   SizedBox(height: 34 * responsive.scale),
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cancelBookingResult),
+                      onPressed: () => Navigator.of(context).pushNamed(
+                        AppRoutes.cancelBookingResult,
+                        arguments: args,
+                      ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.accentDark),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -116,7 +167,7 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   Text(
-                    'Chinh sach huy: Hoan tien 100% neu huy truoc ngay 09 Th10 2024.',
+                    'Chinh sach huy duoc ap dung theo dieu kien cua khach san.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale, height: 1.4),
                   ),
@@ -127,6 +178,12 @@ class UpcomingBookingDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _bookingCode(String id) {
+    if (id.isEmpty) return 'SZ';
+    final suffix = id.length > 5 ? id.substring(id.length - 5) : id;
+    return 'SZ-$suffix';
   }
 }
 

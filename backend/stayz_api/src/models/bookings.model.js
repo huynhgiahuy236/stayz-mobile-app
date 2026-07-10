@@ -1,0 +1,93 @@
+const mongoose = require("mongoose");
+
+const bookingSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    property_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Property",
+      required: true,
+    },
+
+    room_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+      required: true,
+    },
+
+    check_in: {
+      type: Date,
+      required: true,
+    },
+
+    check_out: {
+      type: Date,
+      required: true,
+    },
+
+    guests: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    rooms_count: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
+
+    nights: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    price_per_night: {
+      type: Number,
+      required: true,
+    },
+
+    total_price: {
+      type: Number,
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["pending", "confirmed", "completed", "cancelled"],
+      default: "pending",
+    },
+
+    payment_status: {
+      type: String,
+      enum: ["pending", "paid", "failed", "refunded"],
+      default: "pending",
+    },
+  },
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
+);
+
+bookingSchema.virtual("check_in_date").get(function () {
+  return this.check_in;
+});
+
+bookingSchema.virtual("check_out_date").get(function () {
+  return this.check_out;
+});
+
+bookingSchema.virtual("guest_count").get(function () {
+  return this.guests;
+});
+
+bookingSchema.virtual("room_quantity").get(function () {
+  return this.rooms_count;
+});
+
+module.exports = mongoose.model("Booking", bookingSchema);

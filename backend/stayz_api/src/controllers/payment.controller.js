@@ -1,1 +1,56 @@
-module.exports = {};
+const { responseSuccess } = require("../helpers/response.helper");
+const paymentService = require("../services/payment.service");
+
+const paymentController = {
+  // POST /payment/create/:bookingId
+  createPayment: async (req, res, next) => {
+    try {
+      const userId = req.user.userId;
+      const { bookingId } = req.params;
+      const data = await paymentService.createPaymentLink(bookingId, userId);
+      const response = responseSuccess(data, "Tạo link thanh toán PayOS thành công", 201);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // GET /payment/booking/:bookingId
+  getPaymentDetails: async (req, res, next) => {
+    try {
+      const { bookingId } = req.params;
+      const data = await paymentService.getPaymentByBooking(bookingId);
+      const response = responseSuccess(data, "Lấy thông tin thanh toán thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // POST /payment/cancel/:bookingId
+  cancelPayment: async (req, res, next) => {
+    try {
+      const userId = req.user.userId;
+      const { bookingId } = req.params;
+      const data = await paymentService.cancelPaymentLink(bookingId, userId);
+      const response = responseSuccess(data, "Đã hủy giao dịch thanh toán", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // POST /payment/webhook
+  // Endpoint nhận webhook từ PayOS (không cần protect JWT)
+  handleWebhook: async (req, res, next) => {
+    try {
+      const data = await paymentService.handleWebhook(req.body);
+      const response = responseSuccess(data, "Xử lý webhook PayOS thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+};
+
+module.exports = paymentController;

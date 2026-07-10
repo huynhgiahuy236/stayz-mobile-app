@@ -1,0 +1,4 @@
+interface:
+  display_name: "StayZ Product Audit"
+  short_description: "Release candidate audit for the StayZ Flutter app"
+  default_prompt: "Use $stayz-product-audit to perform a complete read-only release candidate audit of StayZ."

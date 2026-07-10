@@ -2,14 +2,50 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
-class PaymentCheckoutPage extends StatelessWidget {
+class PaymentCheckoutPage extends StatefulWidget {
   const PaymentCheckoutPage({super.key});
+
+  @override
+  State<PaymentCheckoutPage> createState() => _PaymentCheckoutPageState();
+}
+
+class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
+  bool _isSubmitting = false;
+
+  Future<void> _confirmBooking(BookingDraft draft) async {
+    setState(() => _isSubmitting = true);
+    try {
+      final summary = await ApiStayzRepository.instance.createBooking(draft);
+      if (!mounted) return;
+      Navigator.of(context).pushNamed(
+        AppRoutes.bookingConfirmation,
+        arguments: summary == null ? draft : BookingSummaryArgs(summary: summary),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final draft = ModalRoute.of(context)?.settings.arguments as BookingDraft?;
+
+    if (draft == null) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFFBF7F4),
+        body: SafeArea(child: Center(child: Text('Thieu thong tin dat phong.'))),
+      );
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF7F4),
@@ -27,8 +63,8 @@ class PaymentCheckoutPage extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: BookingPrimaryButton(
-            label: 'Xac nhan dat phong',
-            onTap: () => Navigator.of(context).pushNamed(AppRoutes.bookingConfirmation),
+            label: _isSubmitting ? 'Dang dat phong...' : 'Thanh toan',
+            onTap: _isSubmitting ? null : () => _confirmBooking(draft),
           ),
         ),
       ),
@@ -36,7 +72,17 @@ class PaymentCheckoutPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const BookingTopBar(title: 'Xac nhan dat phong'),
+            BookingTopBar(
+              title: 'Thanh toan',
+              onBack: () {
+                final navigator = Navigator.of(context);
+                if (navigator.canPop()) {
+                  navigator.pop();
+                } else {
+                  navigator.pushReplacementNamed(AppRoutes.bookingSchedule, arguments: draft);
+                }
+              },
+            ),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -47,22 +93,8 @@ class PaymentCheckoutPage extends StatelessWidget {
                   30 * responsive.scale,
                 ),
                 children: [
-                  const _CheckoutHotelCard(),
+                  _CheckoutHotelCard(draft: draft),
                   SizedBox(height: 28 * responsive.scale),
-                  _SectionCaption(label: 'Thong tin lien he'),
-                  SizedBox(height: 24 * responsive.scale),
-                  const CheckoutField(label: 'Ho va ten', value: 'Nguyen Minh Quan'),
-                  SizedBox(height: 22 * responsive.scale),
-                  const CheckoutField(label: 'Email', value: 'quan.nguyen@email.com'),
-                  SizedBox(height: 22 * responsive.scale),
-                  const CheckoutField(label: 'So dien thoai', value: '0901 234 567'),
-                  SizedBox(height: 22 * responsive.scale),
-                  const CheckoutField(
-                    label: 'Yeu cau dac biet (khong bat buoc)',
-                    value: 'Vi du: Phong khong hut thuoc, check-in som...',
-                    large: true,
-                  ),
-                  SizedBox(height: 44 * responsive.scale),
                   _SectionCaption(label: 'Phuong thuc thanh toan'),
                   SizedBox(height: 22 * responsive.scale),
                   const PaymentMethodTile(icon: Icons.payments_outlined, label: 'Thanh toan khi nhan phong', active: true),
@@ -73,11 +105,21 @@ class PaymentCheckoutPage extends StatelessWidget {
                   SizedBox(height: 14 * responsive.scale),
                   const PaymentMethodTile(icon: Icons.qr_code_2, label: 'ZaloPay'),
                   SizedBox(height: 38 * responsive.scale),
-                  const PriceLine(label: 'Tien phong (2 dem)', value: 'd3.600.000'),
+                  PriceLine(
+                    label: 'Tien phong (${draft.nights} dem x ${draft.roomCount} phong)',
+                    value: StayzFormatters.fullVnd(draft.roomSubtotal),
+                  ),
                   SizedBox(height: 16 * responsive.scale),
-                  const PriceLine(label: 'Thue & phi', value: 'd360.000'),
+                  PriceLine(
+                    label: 'Thue & phi',
+                    value: StayzFormatters.fullVnd(draft.serviceFee),
+                  ),
                   Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
-                  const PriceLine(label: 'Tong cong', value: 'd3.960.000', total: true),
+                  PriceLine(
+                    label: 'Tong cong',
+                    value: StayzFormatters.fullVnd(draft.totalAmount),
+                    total: true,
+                  ),
                 ],
               ),
             ),
@@ -110,11 +152,14 @@ class _SectionCaption extends StatelessWidget {
 }
 
 class _CheckoutHotelCard extends StatelessWidget {
-  const _CheckoutHotelCard();
+  const _CheckoutHotelCard({required this.draft});
+
+  final BookingDraft draft;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final imageUrl = draft.room.imageUrls.firstOrNull ?? draft.hotel.hotel.imageUrls.firstOrNull;
 
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
@@ -127,21 +172,30 @@ class _CheckoutHotelCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 78 * responsive.scale,
-                height: 78 * responsive.scale,
-                decoration: BoxDecoration(
+              if (imageUrl == null || imageUrl.isEmpty)
+                Container(
+                  width: 78 * responsive.scale,
+                  height: 78 * responsive.scale,
+                  decoration: BoxDecoration(
+                    color: AppTheme.neutral200,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: const Icon(Icons.hotel_outlined, color: AppTheme.neutral500),
+                )
+              else
+                StayZNetworkImage(
+                  imageUrl: imageUrl,
+                  width: 78 * responsive.scale,
+                  height: 78 * responsive.scale,
                   borderRadius: BorderRadius.circular(9),
-                  gradient: const LinearGradient(colors: [Color(0xFF355348), Color(0xFFE2ECE5)]),
                 ),
-              ),
               SizedBox(width: 18 * responsive.widthScale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Da Lat Palace',
+                      draft.hotel.hotel.name,
                       style: TextStyle(
                         color: AppTheme.ink,
                         fontSize: 16 * responsive.scale,
@@ -150,7 +204,7 @@ class _CheckoutHotelCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8 * responsive.scale),
                     Text(
-                      'Phong Deluxe Garden View',
+                      draft.room.name,
                       style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale),
                     ),
                   ],
@@ -159,10 +213,12 @@ class _CheckoutHotelCard extends StatelessWidget {
             ],
           ),
           Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
-          const _BookingInfoRow(label: 'Nhan phong', value: 'Thu Sau, 12/07/2024'),
-          const _BookingInfoRow(label: 'Tra phong', value: 'Chu Nhat, 14/07/2024'),
-          const _BookingInfoRow(label: 'So dem', value: '2 dem'),
-          const _BookingInfoRow(label: 'So khach', value: '2 nguoi lon'),
+          _BookingInfoRow(label: 'Nhan phong', value: StayzFormatters.shortDate(draft.checkInDate)),
+          _BookingInfoRow(label: 'Tra phong', value: StayzFormatters.shortDate(draft.checkOutDate)),
+          _BookingInfoRow(label: 'So dem', value: '${draft.nights} dem'),
+          _BookingInfoRow(label: 'So khach', value: '${draft.guestCount} khach'),
+          _BookingInfoRow(label: 'So phong', value: '${draft.roomCount} phong'),
+          _BookingInfoRow(label: 'Gia moi dem', value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
         ],
       ),
     );
@@ -170,10 +226,7 @@ class _CheckoutHotelCard extends StatelessWidget {
 }
 
 class _BookingInfoRow extends StatelessWidget {
-  const _BookingInfoRow({
-    required this.label,
-    required this.value,
-  });
+  const _BookingInfoRow({required this.label, required this.value});
 
   final String label;
   final String value;

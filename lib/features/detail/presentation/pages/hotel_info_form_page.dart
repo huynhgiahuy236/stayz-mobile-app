@@ -165,7 +165,9 @@ class HotelInfoFormPage extends StatelessWidget {
                               SizedBox(
                                 height: 52 * responsive.scale,
                                 child: FilledButton(
-                                  onPressed: () {},
+                                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Cảm ơn bạn, StayZ đã ghi nhận phản hồi.')),
+                                  ),
                                   style: FilledButton.styleFrom(
                                     backgroundColor: AppTheme.accentDark,
                                     shape: RoundedRectangleBorder(
@@ -229,18 +231,20 @@ class _FaqTile extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Container(
-      height: 82 * responsive.scale,
-      padding: EdgeInsets.symmetric(horizontal: 20 * responsive.widthScale),
+      constraints: BoxConstraints(minHeight: 82 * responsive.scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 18 * responsive.widthScale,
+        vertical: 14 * responsive.scale,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.neutral200),
       ),
-      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 18 * responsive.scale),
           Row(
             children: [
               Expanded(
@@ -258,14 +262,15 @@ class _FaqTile extends StatelessWidget {
               Icon(Icons.keyboard_arrow_down, color: AppTheme.ink, size: 24 * responsive.scale),
             ],
           ),
-          SizedBox(height: 18 * responsive.scale),
+          SizedBox(height: 10 * responsive.scale),
           Text(
             body,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: AppTheme.neutral500,
-              fontSize: 16 * responsive.scale,
+              fontSize: 14 * responsive.scale,
+              height: 1.35,
             ),
           ),
         ],

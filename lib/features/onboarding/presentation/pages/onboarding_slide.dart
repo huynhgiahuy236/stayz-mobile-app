@@ -1,6 +1,14 @@
-import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
+import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
+Future<void> _finishOnboarding(BuildContext context) async {
+  await AuthService.instance.markOnboardingSeen();
+  if (!context.mounted) return;
+  Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+}
 
 class OnboardingSlide extends StatelessWidget {
   const OnboardingSlide({
@@ -21,51 +29,237 @@ class OnboardingSlide extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final responsive = _ResponsiveSpec.from(constraints);
-        final topSpacing = data.showHeader ? 34.0 * responsive.scale : 36.0 * responsive.scale;
         final horizontalPadding = 30.0 * responsive.widthScale;
 
-        return Stack(
+        return _FreshBlueSlide(
+          data: data,
+          pageIndex: pageIndex,
+          pageCount: pageCount,
+          responsive: responsive,
+          horizontalPadding: horizontalPadding,
+          onNext: onNext,
+        );
+      },
+    );
+  }
+}
+
+class _FreshBlueSlide extends StatelessWidget {
+  const _FreshBlueSlide({
+    required this.data,
+    required this.pageIndex,
+    required this.pageCount,
+    required this.responsive,
+    required this.horizontalPadding,
+    required this.onNext,
+  });
+
+  final OnboardingSlideData data;
+  final int pageIndex;
+  final int pageCount;
+  final _ResponsiveSpec responsive;
+  final double horizontalPadding;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final heroHeight = (responsive.isCompact ? 330.0 : 390.0) * responsive.scale;
+    final buttonHeight = (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
+
+    return ColoredBox(
+      color: data.palette.background,
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (data.imageMode == OnboardingImageMode.card)
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: const _IntroBackgroundPainter(),
+            _OnboardingHeader(
+              responsive: responsive,
+              showSkip: pageIndex < pageCount - 1,
+              palette: data.palette,
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                4 * responsive.scale,
+                horizontalPadding,
+                0,
+              ),
+              child: SizedBox(
+                height: heroHeight,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(34),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              data.palette.sheet,
+                              data.palette.inactive,
+                            ],
+                          ),
+                          border: Border.all(
+                            color: data.palette.border,
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: data.palette.primaryDark.withValues(alpha: 0.14),
+                              blurRadius: 32,
+                              offset: const Offset(0, 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      top: 18 * responsive.scale,
+                      left: 18 * responsive.widthScale,
+                      right: 18 * responsive.widthScale,
+                      bottom: 18 * responsive.scale,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: _OnboardingImage(source: data.imageAsset),
+                      ),
+                    ),
+                    Positioned(
+                      left: 24 * responsive.widthScale,
+                      bottom: 24 * responsive.scale,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16 * responsive.widthScale,
+                          vertical: 9 * responsive.scale,
+                        ),
+                        decoration: BoxDecoration(
+                          color: data.palette.sheet.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(99),
+                          border: Border.all(
+                            color: data.palette.border,
+                          ),
+                        ),
+                        child: Text(
+                          data.step,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: data.palette.primaryDark,
+                            fontSize: 13 * responsive.scale,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2.4,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  if (data.showHeader)
-                    _OnboardingHeader(
-                      responsive: responsive,
-                    )
-                  else
-                    SizedBox(height: topSpacing),
-                  if (data.logoAlignment != null)
-                    _TopLogo(
-                      alignment: data.logoAlignment!,
-                      responsive: responsive,
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  24 * responsive.scale,
+                  horizontalPadding,
+                  24 * responsive.scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.title,
+                      style: textTheme.displayLarge?.copyWith(
+                        color: data.palette.ink,
+                        fontSize: 35 * responsive.scale,
+                        height: 1.12,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  _HeroImage(
-                    data: data,
-                    responsive: responsive,
-                    horizontalPadding: horizontalPadding,
-                  ),
-                  const Spacer(),
-                  _IntroContentSheet(
-                    data: data,
-                    pageIndex: pageIndex,
-                    pageCount: pageCount,
-                    responsive: responsive,
-                    onNext: onNext,
-                  ),
-                ],
+                    SizedBox(height: 12 * responsive.scale),
+                    Text(
+                      data.description,
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: data.palette.muted,
+                        fontSize: 16 * responsive.scale,
+                        height: 1.45,
+                      ),
+                    ),
+                    SizedBox(height: 16 * responsive.scale),
+                    if (data.showLoginPrompt)
+                      Center(
+                        child: RichText(
+                          text: TextSpan(
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: data.palette.muted,
+                              fontSize: 14 * responsive.scale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Đã có tài khoản? '),
+                              TextSpan(
+                                text: 'Đăng nhập',
+                                style: TextStyle(
+                                  color: data.palette.primary,
+                                  decoration: TextDecoration.underline,
+                                  decorationThickness: 1.5,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    _finishOnboarding(context);
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        _PageIndicator(
+                          pageIndex: pageIndex,
+                          pageCount: pageCount,
+                          scale: responsive.scale,
+                          palette: data.palette,
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: (data.showLoginPrompt ? 162 : 134) * responsive.widthScale,
+                          height: buttonHeight,
+                          child: FilledButton(
+                            onPressed: onNext,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: data.palette.primaryDark,
+                              foregroundColor: data.palette.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            child: data.showLoginPrompt
+                                ? Text(
+                                    data.primaryLabel,
+                                    style: textTheme.labelLarge?.copyWith(
+                                      color: data.palette.onPrimary,
+                                      fontSize: 17 * responsive.scale,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.arrow_forward,
+                                    size: 24 * responsive.scale,
+                                    color: data.palette.onPrimary,
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -107,80 +301,63 @@ class _ResponsiveSpec {
 class _OnboardingHeader extends StatelessWidget {
   const _OnboardingHeader({
     required this.responsive,
+    required this.showSkip,
+    required this.palette,
   });
 
   final _ResponsiveSpec responsive;
+  final bool showSkip;
+  final OnboardingPalette palette;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-
     return Padding(
       padding: EdgeInsets.fromLTRB(
         28 * responsive.widthScale,
         18 * responsive.scale,
         28 * responsive.widthScale,
-        (responsive.isCompact ? 18 : 34) * responsive.scale,
+        (responsive.isCompact ? 12 : 24) * responsive.scale,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           RichText(
             text: TextSpan(
               style: textTheme.headlineMedium?.copyWith(
-                color: AppTheme.accentDark,
-                fontSize: 31 * responsive.scale,
-                fontWeight: FontWeight.w500,
+                color: palette.ink,
+                fontSize: 26 * responsive.scale,
+                fontWeight: FontWeight.w400,
+                height: 1,
               ),
-              children: const [
-                TextSpan(text: 'Stay'),
+              children: [
+                const TextSpan(text: 'Stay'),
                 TextSpan(
                   text: 'Z',
-                  style: TextStyle(color: AppTheme.accent),
+                  style: TextStyle(
+                    color: palette.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopLogo extends StatelessWidget {
-  const _TopLogo({
-    required this.alignment,
-    required this.responsive,
-  });
-
-  final Alignment alignment;
-  final _ResponsiveSpec responsive;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          30 * responsive.widthScale,
-          (responsive.isCompact ? 6 : 16) * responsive.scale,
-          30 * responsive.widthScale,
-          8 * responsive.scale,
-        ),
-        child: RichText(
-          text: TextSpan(
-            style: textTheme.headlineMedium?.copyWith(
-              color: AppTheme.accent.withValues(alpha: 0.36),
-              fontSize: (responsive.isCompact ? 28 : 34) * responsive.scale,
-              fontWeight: FontWeight.w500,
+          if (showSkip)
+            GestureDetector(
+              onTap: () => _finishOnboarding(context),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
+                child: Text(
+                  'Bỏ qua',
+                  style: TextStyle(
+                    color: palette.primaryDark,
+                    fontSize: 16 * responsive.scale,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
-            children: const [
-              TextSpan(text: 'Stay'),
-              TextSpan(text: 'Z'),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -199,56 +376,62 @@ class _HeroImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heightRatio = switch (data.imageMode) {
-      OnboardingImageMode.card => 0.42,
-      OnboardingImageMode.fullBleed => 0.30,
-      OnboardingImageMode.framed => 0.29,
-    };
-    final absoluteMaxHeight = switch (data.imageMode) {
-      OnboardingImageMode.card => 350.0,
-      OnboardingImageMode.fullBleed => 396.0,
-      OnboardingImageMode.framed => 360.0,
-    };
-    final minHeight = data.imageMode == OnboardingImageMode.card ? 210.0 : 154.0;
-    final maxHeight = (responsive.height * heightRatio).clamp(
-      minHeight * responsive.heightScale,
-      absoluteMaxHeight * responsive.scale,
-    ).toDouble();
-    final padding = switch (data.imageMode) {
-      OnboardingImageMode.fullBleed => EdgeInsets.zero,
-      _ => EdgeInsets.symmetric(horizontal: horizontalPadding),
-    };
-    final radius = data.imageMode == OnboardingImageMode.card ? 16.0 : 0.0;
+    final cardHeight = (responsive.isCompact ? 200.0 : 250.0) * responsive.scale;
+    final radius = data.imageMode == OnboardingImageMode.card ? 24.0 : 0.0;
 
     return Padding(
-      padding: padding,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
-        child: AspectRatio(
-          aspectRatio: data.imageAspectRatio,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radius),
-              boxShadow: data.imageMode == OnboardingImageMode.card
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.ink.withValues(alpha: 0.2),
-                        blurRadius: 32,
-                        offset: const Offset(0, 22),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(radius),
-              child: Image.asset(
-                data.imageAsset,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Container(
+        height: cardHeight,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius),
+          border: data.imageMode == OnboardingImageMode.card
+              ? Border.all(
+                  color: data.palette.border.withValues(alpha: 0.7),
+                  width: 1.5,
+                )
+              : null,
+          boxShadow: data.imageMode == OnboardingImageMode.card
+              ? [
+                  BoxShadow(
+                    color: data.palette.primaryDark.withValues(alpha: 0.10),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                  ),
+                ]
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: _OnboardingImage(source: data.imageAsset),
         ),
       ),
+    );
+  }
+}
+
+class _OnboardingImage extends StatelessWidget {
+  const _OnboardingImage({required this.source});
+
+  final String source;
+
+  @override
+  Widget build(BuildContext context) {
+    if (source.startsWith('http')) {
+      return Image.network(
+        source,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
+
+    return Image.asset(
+      source,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
     );
   }
 }
@@ -275,21 +458,26 @@ class _IntroContentSheet extends StatelessWidget {
     final titleSize = (pageIndex == pageCount - 1 ? 36.0 : 33.0) * responsive.scale;
     final descriptionSize = 16.0 * responsive.scale;
     final buttonHeight = (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
+    final sheetHeight = responsive.height * (responsive.isCompact ? 0.44 : 0.48);
 
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(
-        maxHeight: responsive.height * (responsive.isCompact ? 0.48 : 0.54),
-      ),
+      height: sheetHeight,
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
         (responsive.isCompact ? 22 : 30) * responsive.scale,
         horizontalPadding,
         (responsive.isCompact ? 18 : 26) * responsive.scale,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      decoration: BoxDecoration(
+        color: data.palette.sheet,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border(
+          top: BorderSide(
+            color: data.palette.border.withValues(alpha: 0.8),
+            width: 1.5,
+          ),
+        ),
       ),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -302,9 +490,10 @@ class _IntroContentSheet extends StatelessWidget {
                 Text(
                   data.step,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFFA69E92),
+                    color: data.palette.muted.withValues(alpha: 0.85),
                     fontSize: 14 * responsive.scale,
                     letterSpacing: 4,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 if (pageIndex == pageCount - 1) ...[
@@ -313,6 +502,7 @@ class _IntroContentSheet extends StatelessWidget {
                     pageIndex: pageIndex,
                     pageCount: pageCount,
                     scale: responsive.scale,
+                    palette: data.palette,
                   ),
                 ],
               ],
@@ -321,6 +511,7 @@ class _IntroContentSheet extends StatelessWidget {
             Text(
               data.title,
               style: textTheme.displayLarge?.copyWith(
+                color: data.palette.ink,
                 fontSize: titleSize,
                 height: 1.14,
                 fontWeight: FontWeight.w400,
@@ -330,7 +521,7 @@ class _IntroContentSheet extends StatelessWidget {
             Text(
               data.description,
               style: textTheme.bodyLarge?.copyWith(
-                color: const Color(0xFF5A3F3F),
+                color: data.palette.muted,
                 fontSize: descriptionSize,
                 height: 1.45,
               ),
@@ -346,6 +537,7 @@ class _IntroContentSheet extends StatelessWidget {
                 pageIndex: pageIndex,
                 pageCount: pageCount,
                 scale: responsive.scale,
+                palette: data.palette,
               ),
             SizedBox(height: (responsive.isCompact ? 18 : 26) * responsive.scale),
             SizedBox(
@@ -354,8 +546,8 @@ class _IntroContentSheet extends StatelessWidget {
               child: FilledButton(
                 onPressed: onNext,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.accent,
-                  foregroundColor: AppTheme.cream,
+                  backgroundColor: data.palette.primaryDark,
+                  foregroundColor: data.palette.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -368,18 +560,22 @@ class _IntroContentSheet extends StatelessWidget {
                           Text(
                             data.primaryLabel,
                             style: textTheme.labelLarge?.copyWith(
-                              color: AppTheme.cream,
+                              color: data.palette.onPrimary,
                               fontSize: 18 * responsive.scale,
                             ),
                           ),
                           SizedBox(width: 12 * responsive.scale),
-                          Icon(Icons.arrow_forward, size: 22 * responsive.scale),
+                          Icon(
+                            Icons.arrow_forward,
+                            size: 22 * responsive.scale,
+                            color: data.palette.onPrimary,
+                          ),
                         ],
                       )
                     : Text(
                         data.primaryLabel,
                         style: textTheme.labelLarge?.copyWith(
-                          color: AppTheme.cream,
+                          color: data.palette.onPrimary,
                           fontSize: 18 * responsive.scale,
                         ),
                       ),
@@ -391,18 +587,23 @@ class _IntroContentSheet extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.accentDark,
+                      color: data.palette.muted,
                       fontSize: 14 * responsive.scale,
                       fontWeight: FontWeight.w600,
                     ),
-                    children: const [
-                      TextSpan(text: 'Đã có tài khoản? '),
+                    children: [
+                      const TextSpan(text: 'Đã có tài khoản? '),
                       TextSpan(
                         text: 'Đăng nhập',
                         style: TextStyle(
+                          color: data.palette.primary,
                           decoration: TextDecoration.underline,
                           decorationThickness: 1.5,
                         ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            _finishOnboarding(context);
+                          },
                       ),
                     ],
                   ),
@@ -421,11 +622,13 @@ class _PageIndicator extends StatelessWidget {
     required this.pageIndex,
     required this.pageCount,
     required this.scale,
+    required this.palette,
   });
 
   final int pageIndex;
   final int pageCount;
   final double scale;
+  final OnboardingPalette palette;
 
   @override
   Widget build(BuildContext context) {
@@ -435,13 +638,13 @@ class _PageIndicator extends StatelessWidget {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOut,
-          width: (isActive ? 42 : 10) * scale,
-          height: 10 * scale,
+          width: (isActive ? 32 : 8) * scale,
+          height: 8 * scale,
           margin: EdgeInsets.only(
-            right: index == pageCount - 1 ? 0.0 : 12 * scale,
+            right: index == pageCount - 1 ? 0.0 : 8 * scale,
           ),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.accent : AppTheme.neutral200,
+            color: isActive ? palette.primary : palette.inactive,
             borderRadius: BorderRadius.circular(99),
           ),
         );
@@ -450,22 +653,3 @@ class _PageIndicator extends StatelessWidget {
   }
 }
 
-class _IntroBackgroundPainter extends CustomPainter {
-  const _IntroBackgroundPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFFE7DDCA);
-    final top = size.height * 0.45;
-    final stripeWidth = size.width * 0.23;
-
-    for (var i = 0; i < 3; i++) {
-      final left = size.width * 0.15 + (stripeWidth * i);
-      paint.color = i == 1 ? const Color(0xFFD8CEBA) : const Color(0xFFE4DAC8);
-      canvas.drawRect(Rect.fromLTWH(left, top, stripeWidth, 180), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

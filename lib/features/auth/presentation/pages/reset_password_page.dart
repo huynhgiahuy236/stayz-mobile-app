@@ -1,8 +1,18 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.dart';
+import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/data/auth_validators.dart';
 import 'package:flutter/material.dart';
+
+/// Man doi mat khau chi den tu man OTP, nen luon co ca email lan ma da xac thuc.
+class ResetPasswordArgs {
+  const ResetPasswordArgs({required this.email, required this.code});
+
+  final String email;
+  final String code;
+}
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -12,63 +22,67 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  final _emailController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _initializedEmail = false;
+
+  ResetPasswordArgs? _args;
+  bool _initialized = false;
   bool _isLoading = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_initializedEmail) return;
+    if (_initialized) return;
+    _initialized = true;
 
     final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is String) {
-      _emailController.text = args;
-    }
-    _initializedEmail = true;
+    _args = args is ResetPasswordArgs ? args : null;
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _resetPassword() async {
-    final email = _emailController.text.trim();
-    final newPassword = _newPasswordController.text;
-    final confirmPassword = _confirmPasswordController.text;
+    final args = _args;
+    if (args == null) {
+      _showMessage('Thiếu mã xác thực. Vui lòng bắt đầu lại từ bước quên mật khẩu.');
+      return;
+    }
 
-    if (email.isEmpty) {
-      _showMessage('Please enter your email.');
+    final newPassword = _newPasswordController.text;
+    final passwordError = AuthValidators.password(newPassword);
+    if (passwordError != null) {
+      _showMessage(passwordError);
       return;
     }
-    if (newPassword.length < 6) {
-      _showMessage('Password must be at least 6 characters.');
-      return;
-    }
-    if (newPassword != confirmPassword) {
-      _showMessage('Passwords do not match.');
+
+    final confirmError = AuthValidators.confirmPassword(newPassword, _confirmPasswordController.text);
+    if (confirmError != null) {
+      _showMessage(confirmError);
       return;
     }
 
     setState(() => _isLoading = true);
     try {
+      // Ma OTP la bat buoc. Truoc day chi can email la doi duoc mat khau
+      // cua bat ky tai khoan nao.
       await AuthService.instance.resetPassword(
-        email: email,
+        email: args.email,
+        code: args.code,
         newPassword: newPassword,
       );
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password updated. Please sign in.')),
+        const SnackBar(content: Text('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')),
       );
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
-    } catch (error) {
-      if (mounted) _showMessage(_messageFromError(error));
+    } on ApiException catch (error) {
+      if (mounted) _showMessage(error.message);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -78,87 +92,60 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  String _messageFromError(Object error) {
-    final text = error.toString();
-    if (text.startsWith('HttpException: ')) {
-      return text.replaceFirst('HttpException: ', '').split(', uri =').first;
-    }
-    return text;
-  }
-
   @override
   Widget build(BuildContext context) {
     final responsive = AuthResponsive.of(context);
-    final textTheme = Theme.of(context).textTheme;
+    final args = _args;
 
     return AuthScaffold(
       child: Column(
         children: [
-          const AuthTopBar(title: 'New password'),
+          const AuthTopBar(title: 'Mật khẩu mới'),
           Divider(color: AppTheme.neutral200.withValues(alpha: 0.7), height: 1),
           Expanded(
             child: AuthScrollBody(
               bottomPadding: 80,
               children: [
-                Center(
-                  child: Container(
-                    width: 48 * responsive.scale,
-                    height: 4 * responsive.scale,
-                    margin: EdgeInsets.only(top: 28 * responsive.scale),
-                    decoration: BoxDecoration(
-                      color: AppTheme.neutral200.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(99),
+                SizedBox(height: 28 * responsive.scale),
+                AuthTitleBlock(
+                  title: 'Bảo vệ tài khoản',
+                  subtitle: args == null
+                      ? 'Không nhận được mã xác thực. Hãy bắt đầu lại từ bước quên mật khẩu.'
+                      : 'Đặt mật khẩu mới cho ${args.email}.',
+                ),
+                SizedBox(height: 32 * responsive.scale),
+
+                if (args == null) ...[
+                  AuthPrimaryButton(
+                    label: 'Quay lại quên mật khẩu',
+                    onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.forgotPassword,
+                      (route) => route.settings.name == AppRoutes.login,
                     ),
                   ),
-                ),
-                SizedBox(height: 32 * responsive.scale),
-                const AuthTitleBlock(
-                  title: 'Secure your account',
-                  subtitle: 'Enter and confirm your new password.',
-                ),
-                SizedBox(height: 32 * responsive.scale),
-                AuthField(
-                  label: 'EMAIL',
-                  hint: 'example@email.com',
-                  keyboardType: TextInputType.emailAddress,
-                  controller: _emailController,
-                  textInputAction: TextInputAction.next,
-                ),
-                SizedBox(height: 20 * responsive.scale),
-                AuthField(
-                  label: 'NEW PASSWORD',
-                  hint: 'Password',
-                  obscure: true,
-                  controller: _newPasswordController,
-                  textInputAction: TextInputAction.next,
-                ),
-                SizedBox(height: 20 * responsive.scale),
-                AuthField(
-                  label: 'CONFIRM NEW PASSWORD',
-                  hint: 'Password',
-                  obscure: true,
-                  controller: _confirmPasswordController,
-                  textInputAction: TextInputAction.done,
-                ),
-                SizedBox(height: 32 * responsive.scale),
-                AuthPrimaryButton(
-                  label: _isLoading ? 'Updating...' : 'Update password',
-                  onPressed: _isLoading ? () {} : _resetPassword,
-                ),
-                SizedBox(height: 32 * responsive.scale),
-                Divider(color: AppTheme.neutral200.withValues(alpha: 0.6)),
-                SizedBox(height: 18 * responsive.scale),
-                Center(
-                  child: Text(
-                    'OTP and email verification are skipped for this flow.',
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.neutral500,
-                      fontSize: 14 * responsive.scale,
-                      height: 1.4,
-                    ),
+                ] else ...[
+                  AuthField(
+                    label: 'MẬT KHẨU MỚI',
+                    hint: 'Ít nhất 6 ký tự',
+                    obscure: true,
+                    controller: _newPasswordController,
+                    textInputAction: TextInputAction.next,
                   ),
-                ),
+                  SizedBox(height: 20 * responsive.scale),
+                  AuthField(
+                    label: 'NHẬP LẠI MẬT KHẨU',
+                    hint: 'Nhập lại mật khẩu mới',
+                    obscure: true,
+                    controller: _confirmPasswordController,
+                    textInputAction: TextInputAction.done,
+                  ),
+                  SizedBox(height: 32 * responsive.scale),
+                  AuthPrimaryButton(
+                    label: 'Cập nhật mật khẩu',
+                    onPressed: _isLoading ? null : _resetPassword,
+                    loading: _isLoading,
+                  ),
+                ],
               ],
             ),
           ),

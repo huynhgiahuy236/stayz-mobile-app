@@ -19,7 +19,7 @@ class PaymentMethodsPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const ProfileHeader(title: 'Phuong thuc thanh toan', trailing: Text('StayZ')),
+            const ProfileHeader(title: 'Phương thức thanh toán', trailing: Text('StayZ')),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -27,7 +27,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 children: [
                   SizedBox(height: 52 * responsive.scale),
                   Text(
-                    'Tai khoan thanh toan',
+                    'Tài khoản thanh toán',
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.ink,
                       fontSize: 36 * responsive.scale,
@@ -36,25 +36,25 @@ class PaymentMethodsPage extends StatelessWidget {
                   ),
                   SizedBox(height: 24 * responsive.scale),
                   Text(
-                    'Quan ly cac phuong thuc thanh toan cua ban mot cach an toan va tinh te.',
+                    'Quản lý các phương thức thanh toán của bạn một cách an toàn và tinh tế.',
                     style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 23 * responsive.scale, height: 1.55),
                   ),
                   SizedBox(height: 72 * responsive.scale),
-                  const ProfileSectionLabel(label: 'The da luu'),
+                  const ProfileSectionLabel(label: 'Thẻ đã lưu'),
                   SizedBox(height: 24 * responsive.scale),
                   const PaymentAccountTile(icon: Icons.credit_card, title: 'Visa', subtitle: '**** 1234', defaultBadge: true),
                   SizedBox(height: 22 * responsive.scale),
-                  const PaymentAccountTile(icon: Icons.account_balance_wallet_outlined, title: 'Vi MoMo', subtitle: '0901***567'),
+                  const PaymentAccountTile(icon: Icons.account_balance_wallet_outlined, title: 'Ví MoMo', subtitle: '0901***567'),
                   SizedBox(height: 48 * responsive.scale),
                   ProfilePrimaryButton(
-                    label: '+  Them phuong thuc moi',
+                    label: '+  Thêm phương thức mới',
                     onTap: () => Navigator.of(context).pushNamed(AppRoutes.addPaymentMethod),
                   ),
                   SizedBox(height: 82 * responsive.scale),
                   Divider(indent: 150 * responsive.widthScale, endIndent: 150 * responsive.widthScale),
                   SizedBox(height: 24 * responsive.scale),
                   Text(
-                    'Bao mat boi tieu chuan ma hoa Shibui-Z',
+                    'Bảo mật bởi tiêu chuẩn mã hóa Shibui-Z',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTheme.neutral200,

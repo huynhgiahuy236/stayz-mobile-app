@@ -316,7 +316,7 @@ class PaymentAccountTile extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFD9B8B8)),
               ),
               child: Text(
-                'MAC DINH',
+                'MẶC ĐỊNH',
                 style: TextStyle(color: AppTheme.neutral500, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700),
               ),
             ),

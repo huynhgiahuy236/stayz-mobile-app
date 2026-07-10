@@ -7,6 +7,7 @@ import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class CancelledBookingsPage extends StatefulWidget {
@@ -37,7 +38,7 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
         bottom: false,
         child: Column(
           children: [
-            const BookingManageHeader(title: 'StayZ', brand: true),
+            const BookingsScreenHeader(),
             const BookingManageTabs(
               activeTab: BookingManageTab.cancelled,
               upcomingRoute: AppRoutes.myBookings,
@@ -108,7 +109,7 @@ class _CancelledLoadingState extends StatelessWidget {
           const CircularProgressIndicator(color: AppTheme.accent),
           SizedBox(height: 16 * responsive.scale),
           Text(
-            'Dang tai booking da huy...',
+            tr('Đang tải booking đã hủy...', 'Loading cancelled bookings...'),
             style: TextStyle(
               color: AppTheme.neutral500,
               fontSize: 15 * responsive.scale,
@@ -142,7 +143,7 @@ class _CancelledEmptyState extends StatelessWidget {
             ),
             SizedBox(height: 24 * responsive.scale),
             Text(
-              'Chưa có đặt phòng đã hủy',
+              tr('Chưa có đặt phòng đã hủy', 'No cancelled bookings'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.ink,
@@ -152,7 +153,7 @@ class _CancelledEmptyState extends StatelessWidget {
             ),
             SizedBox(height: 10 * responsive.scale),
             Text(
-              message ?? 'Khi ban huy dat phong, booking se xuat hien o day.',
+              message ?? tr('Khi bạn hủy đặt phòng, booking sẽ xuất hiện ở đây.', 'When you cancel a booking, it will appear here.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.neutral500,
@@ -205,7 +206,7 @@ class _CancelledBookingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 120 * responsive.scale,
+              height: 150 * responsive.scale,
               width: double.infinity,
               child: Stack(
                 children: [
@@ -218,7 +219,7 @@ class _CancelledBookingCard extends StatelessWidget {
                         return StayZNetworkImage(
                           imageUrl: imageUrl,
                           width: constraints.maxWidth,
-                          height: 120 * responsive.scale,
+                          height: 150 * responsive.scale,
                         );
                       },
                     ),
@@ -226,7 +227,7 @@ class _CancelledBookingCard extends StatelessWidget {
                   Positioned(
                     top: 14 * responsive.scale,
                     right: 14 * responsive.widthScale,
-                    child: const BookingStatusPill(label: 'Da huy', color: Color(0xFFFFD8D5)),
+                    child: BookingStatusPill(label: tr('Đã hủy', 'Cancelled'), color: const Color(0xFFFFD8D5)),
                   ),
                 ],
               ),
@@ -270,7 +271,7 @@ class _CancelledBookingCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'TONG HOAN',
+                              tr('TỔNG HOÀN', 'TOTAL REFUND'),
                               style: TextStyle(
                                 color: AppTheme.neutral500,
                                 fontSize: 11 * responsive.scale,
@@ -301,7 +302,7 @@ class _CancelledBookingCard extends StatelessWidget {
                             padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
                           ),
                           child: Text(
-                            'Tim phong khac',
+                            tr('Tìm phòng khác', 'Find another stay'),
                             style: TextStyle(color: Colors.white, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700),
                           ),
                         ),

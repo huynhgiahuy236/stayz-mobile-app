@@ -234,6 +234,11 @@ class Booking {
     required this.paymentStatus,
     required this.specialRequest,
     required this.createdAt,
+    this.paymentPlan = '',
+    this.amountPaid,
+    this.remainingAtHotel,
+    this.refundAmount,
+    this.refundRate,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -267,6 +272,14 @@ class Booking {
   final String paymentStatus;
   final String? specialRequest;
   final DateTime createdAt;
+
+  /// Thanh toan mo phong: phuong an ('deposit_30'|'full_100'), so da tra,
+  /// phan con lai tra tai khach san, va thong tin hoan tien khi da huy.
+  final String paymentPlan;
+  final num? amountPaid;
+  final num? remainingAtHotel;
+  final num? refundAmount;
+  final num? refundRate;
 
   static String normalizeStatus(String value) {
     final normalized = value.trim().toLowerCase().replaceAll('-', '_').replaceAll(' ', '_');
@@ -308,6 +321,11 @@ class Booking {
     String? paymentStatus,
     String? specialRequest,
     DateTime? createdAt,
+    String? paymentPlan,
+    num? amountPaid,
+    num? remainingAtHotel,
+    num? refundAmount,
+    num? refundRate,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -323,6 +341,11 @@ class Booking {
       paymentStatus: paymentStatus ?? this.paymentStatus,
       specialRequest: specialRequest ?? this.specialRequest,
       createdAt: createdAt ?? this.createdAt,
+      paymentPlan: paymentPlan ?? this.paymentPlan,
+      amountPaid: amountPaid ?? this.amountPaid,
+      remainingAtHotel: remainingAtHotel ?? this.remainingAtHotel,
+      refundAmount: refundAmount ?? this.refundAmount,
+      refundRate: refundRate ?? this.refundRate,
     );
   }
 }
@@ -402,6 +425,7 @@ class Review {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.userName = '',
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
@@ -415,6 +439,7 @@ class Review {
       status: json['status'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      userName: json['userName'] as String? ?? '',
     );
   }
 
@@ -427,6 +452,10 @@ class Review {
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Ten nguoi danh gia that. Truoc day man chi tiet in cung 'StayZ guest'
+  /// cho moi review du backend co populate `user_id`.
+  final String userName;
 }
 
 class StayzNotification {
@@ -473,14 +502,30 @@ class HotelSummary {
     required this.city,
     required this.lowestPrice,
     required this.availableRooms,
-    required this.rating,
+    this.rating,
+    this.reviewCount = 0,
+    this.maxCapacity,
+    this.roomTypes = const <String>[],
   });
 
   final Hotel hotel;
   final City city;
+
+  /// Gia phong thap nhat con hoat dong. 0 nghia la khach san chua co phong nao.
   final num lowestPrice;
   final int availableRooms;
-  final double rating;
+
+  /// Diem trung binh tu danh gia that. `null` khi chua co danh gia nao —
+  /// khong duoc thay bang mot con so mac dinh.
+  final double? rating;
+  final int reviewCount;
+
+  final int? maxCapacity;
+  final List<String> roomTypes;
+
+  bool get hasRating => rating != null && reviewCount > 0;
+  bool get hasPrice => lowestPrice > 0;
+  bool get isSoldOut => availableRooms <= 0;
 }
 
 class BookingSummary {

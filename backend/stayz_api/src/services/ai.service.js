@@ -347,13 +347,22 @@ const fallbackReply = (context) => {
   return `Mình tìm được vài lựa chọn thật từ StayZ:\n${lines.join("\n")}\n${followUp}`;
 };
 
+const OPENAI_TIMEOUT_MS = 12000;
+
 const callOpenAi = async ({ message, context }) => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return fallbackReply(context);
 
+  // Timeout cho request OpenAI: neu OpenAI cham/bi chan (vi du o VN khong VPN),
+  // huy sau 12s va tra ve cau tra loi dua tren du lieu that thay vi treo den
+  // khi app het thoi gian cho.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
+      signal: controller.signal,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -376,7 +385,13 @@ const callOpenAi = async ({ message, context }) => {
     if (!response.ok) return fallbackReply(context);
     return data?.choices?.[0]?.message?.content?.trim() || fallbackReply(context);
   } catch (error) {
+    // Timeout hoac loi mang toi OpenAI -> dung cau tra loi tu du lieu StayZ.
+    if (error.name === "AbortError") {
+      console.warn("OpenAI timeout, dung fallbackReply");
+    }
     return fallbackReply(context);
+  } finally {
+    clearTimeout(timer);
   }
 };
 

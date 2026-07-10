@@ -3,12 +3,60 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
+
+  Future<void> _pickLanguage(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.language_rounded, color: AppTheme.primary),
+                    const SizedBox(width: 10),
+                    Text(
+                      tr('Chọn ngôn ngữ', 'Choose language'),
+                      style: const TextStyle(color: AppTheme.ink, fontSize: 16, fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+              _LanguageOption(
+                label: 'Tiếng Việt',
+                selected: AppLocale.instance.language == AppLanguage.vi,
+                onTap: () {
+                  AppLocale.instance.setLanguage(AppLanguage.vi);
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+              _LanguageOption(
+                label: 'English',
+                selected: AppLocale.instance.language == AppLanguage.en,
+                onTap: () {
+                  AppLocale.instance.setLanguage(AppLanguage.en);
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,55 +79,56 @@ class SettingsPage extends StatelessWidget {
             SizedBox(height: 22 * responsive.scale),
             _ProfileHeroReal(responsive: responsive),
             SizedBox(height: 18 * responsive.scale),
-            Row(
-              children: const [
-                Expanded(child: _Stat(value: '5', label: 'Chuyến đi')),
-                SizedBox(width: 10),
-                Expanded(child: _Stat(value: '12', label: 'Đã lưu')),
-                SizedBox(width: 10),
-                Expanded(child: _Stat(value: '4.9', label: 'Đánh giá')),
-              ],
-            ),
+            const _ProfileStats(),
             SizedBox(height: 26 * responsive.scale),
-            const ProfileSectionLabel(label: 'Tài khoản'),
+            ProfileSectionLabel(label: tr('Tài khoản', 'Account')),
             SizedBox(height: 12 * responsive.scale),
             ProfileMenuCard(
               children: [
                 ProfileMenuTile(
                   icon: Icons.person_outline_rounded,
-                  label: 'Thông tin cá nhân',
+                  label: tr('Thông tin cá nhân', 'Personal information'),
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.profileForm),
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(
                   icon: Icons.lock_outline_rounded,
-                  label: 'Đổi mật khẩu',
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.resetPassword),
+                  label: tr('Đổi mật khẩu', 'Change password'),
+                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(
                   icon: Icons.credit_card_rounded,
-                  label: 'Phương thức thanh toán',
+                  label: tr('Phương thức thanh toán', 'Payment methods'),
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.paymentMethods),
                 ),
               ],
             ),
             SizedBox(height: 24 * responsive.scale),
-            const ProfileSectionLabel(label: 'Ứng dụng'),
+            ProfileSectionLabel(label: tr('Ứng dụng', 'App')),
             SizedBox(height: 12 * responsive.scale),
             ProfileMenuCard(
               children: [
                 ProfileMenuTile(
-                  icon: Icons.notifications_none_rounded,
-                  label: 'Thông báo',
-                  trailing: Switch(value: true, onChanged: null, activeColor: Colors.white, activeTrackColor: AppTheme.primary),
+                  icon: Icons.language_rounded,
+                  label: tr('Ngôn ngữ', 'Language'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        AppLocale.instance.label,
+                        style: const TextStyle(color: AppTheme.muted, fontSize: 14, fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right_rounded, color: AppTheme.muted),
+                    ],
+                  ),
+                  onTap: () => _pickLanguage(context),
                 ),
-                const Divider(height: 1, indent: 72, endIndent: 20),
-                const ProfileMenuTile(icon: Icons.language_rounded, label: 'Ngôn ngữ', trailing: Text('Tiếng Việt')),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(
                   icon: Icons.help_outline_rounded,
-                  label: 'Trung tâm hỗ trợ',
+                  label: tr('Trung tâm hỗ trợ', 'Help center'),
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
                 ),
               ],
@@ -89,7 +138,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 ProfileMenuTile(
                   icon: Icons.logout_rounded,
-                  label: 'Đăng xuất',
+                  label: tr('Đăng xuất', 'Log out'),
                   danger: true,
                   onTap: () async {
                     final navigator = Navigator.of(context);
@@ -102,6 +151,68 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  const _LanguageOption({required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(label, style: const TextStyle(color: AppTheme.ink, fontSize: 15, fontWeight: FontWeight.w700)),
+      trailing: selected ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
+      onTap: onTap,
+    );
+  }
+}
+
+/// So chuyen di va so khach san da luu la SO THAT tu API.
+/// Truoc day day la 3 hang so gia: "5 / 12 / 4.9".
+class _ProfileStats extends StatefulWidget {
+  const _ProfileStats();
+
+  @override
+  State<_ProfileStats> createState() => _ProfileStatsState();
+}
+
+class _ProfileStatsState extends State<_ProfileStats> {
+  late final Future<List<int>> _future = _load();
+
+  Future<List<int>> _load() async {
+    Future<int> count(Future<List<Object>> Function() fetch) async {
+      try {
+        return (await fetch()).length;
+      } catch (_) {
+        return 0;
+      }
+    }
+
+    final trips = await count(() => ApiStayzRepository.instance.getBookingSummaries());
+    final saved = await count(() async => (await ApiStayzRepository.instance.getFavoriteHotelIds()).toList());
+    return [trips, saved];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<int>>(
+      future: _future,
+      builder: (context, snapshot) {
+        final trips = snapshot.data?[0];
+        final saved = snapshot.data?[1];
+        return Row(
+          children: [
+            Expanded(child: _Stat(value: trips?.toString() ?? '–', label: tr('Chuyến đi', 'Trips'))),
+            const SizedBox(width: 10),
+            Expanded(child: _Stat(value: saved?.toString() ?? '–', label: tr('Đã lưu', 'Saved'))),
+          ],
+        );
+      },
     );
   }
 }
@@ -159,7 +270,7 @@ class _ProfileHeroReal extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: () => Navigator.of(context).pushNamed(AppRoutes.editProfile),
                       icon: const Icon(Icons.tune_rounded, size: 18),
-                      label: const Text('Chinh ho so'),
+                      label: Text(tr('Chỉnh hồ sơ', 'Edit profile')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: BorderSide(color: Colors.white.withValues(alpha: 0.32)),
@@ -182,67 +293,6 @@ class _ProfileHeroReal extends StatelessWidget {
     final first = parts.first[0];
     final second = parts.length > 1 ? parts.last[0] : '';
     return (first + second).toUpperCase();
-  }
-}
-
-class _ProfileHero extends StatelessWidget {
-  const _ProfileHero({required this.responsive});
-
-  final HomeResponsive responsive;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(18 * responsive.scale),
-      decoration: BoxDecoration(
-        color: AppTheme.ink,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 38 * responsive.scale,
-                backgroundColor: AppTheme.primary,
-                child: Text('NH', style: TextStyle(color: Colors.white, fontSize: 22 * responsive.scale, fontWeight: FontWeight.w900)),
-              ),
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: CircleAvatar(
-                  radius: 13 * responsive.scale,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.edit_rounded, color: AppTheme.primary, size: 15 * responsive.scale),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(width: 16 * responsive.widthScale),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Nguyen Huy', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 21 * responsive.scale, fontWeight: FontWeight.w900)),
-                SizedBox(height: 5 * responsive.scale),
-                Text('huy@email.com', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w600)),
-                SizedBox(height: 12 * responsive.scale),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.editProfile),
-                  icon: const Icon(Icons.tune_rounded, size: 18),
-                  label: const Text('Chỉnh hồ sơ'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white.withValues(alpha: 0.32)),
-                    minimumSize: Size(0, 42 * responsive.scale),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

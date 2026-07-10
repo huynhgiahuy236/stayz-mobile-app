@@ -1,9 +1,11 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
 class AiChatContext {
@@ -19,7 +21,7 @@ class AiChatContext {
   factory AiChatContext.forHotel(HotelSummary summary) {
     return AiChatContext(
       propertyId: summary.hotel.id,
-      initialMessage: 'Hoi AI ve khach san ${summary.hotel.name}',
+      initialMessage: 'Hỏi AI về khách sạn ${summary.hotel.name}',
     );
   }
 
@@ -35,7 +37,7 @@ class AiChatContext {
       checkIn: args?.checkInDate,
       checkOut: args?.checkOutDate,
       guests: guests,
-      initialMessage: 'Nho AI chon phong phu hop tai ${hotel.hotel.name}',
+      initialMessage: 'Nhờ AI chọn phòng phù hợp tại ${hotel.hotel.name}',
     );
   }
 
@@ -48,10 +50,83 @@ class AiChatContext {
 }
 
 class AiChatMessage {
-  const AiChatMessage({required this.content, required this.fromUser});
+  const AiChatMessage({
+    required this.content,
+    required this.fromUser,
+    this.suggestions = const <AiSuggestion>[],
+  });
 
   final String content;
   final bool fromUser;
+  final List<AiSuggestion> suggestions;
+}
+
+/// Mot goi y that tu `/ai/chat`: chi giu dung du lieu backend tra ve,
+/// khong tu suy dien gia, rating hay tinh trang phong.
+class AiSuggestion {
+  const AiSuggestion({
+    required this.propertyId,
+    required this.propertyTitle,
+    required this.citySlug,
+    this.roomId,
+    this.roomName,
+    this.pricePerNight,
+    this.totalPrice,
+    this.capacity,
+    this.availableRooms,
+    this.rating,
+    this.reviewCount = 0,
+  });
+
+  final String propertyId;
+  final String propertyTitle;
+  final String citySlug;
+  final String? roomId;
+  final String? roomName;
+  final num? pricePerNight;
+  final num? totalPrice;
+  final int? capacity;
+
+  /// null = backend chua the xac nhan (thieu ngay nhan/tra phong).
+  final int? availableRooms;
+
+  /// Diem trung binh tu review that; null khi chua co review.
+  final double? rating;
+  final int reviewCount;
+
+  static AiSuggestion? tryParse(dynamic json) {
+    if (json is! Map<String, dynamic>) return null;
+    final property = json['property'];
+    final room = json['room'];
+    if (property is! Map<String, dynamic>) return null;
+
+    final propertyId = property['id']?.toString() ?? '';
+    final title = property['title']?.toString() ?? '';
+    if (propertyId.isEmpty || title.isEmpty) return null;
+
+    num? asNum(dynamic value) => value is num ? value : num.tryParse(value?.toString() ?? '');
+    int? asInt(dynamic value) => value is num ? value.round() : int.tryParse(value?.toString() ?? '');
+
+    final roomMap = room is Map<String, dynamic> ? room : const <String, dynamic>{};
+    return AiSuggestion(
+      propertyId: propertyId,
+      propertyTitle: title,
+      citySlug: property['city']?.toString() ?? '',
+      roomId: roomMap['id']?.toString(),
+      roomName: roomMap['name']?.toString(),
+      pricePerNight: asNum(roomMap['price_per_night']) ?? asNum(property['base_price']),
+      totalPrice: asNum(roomMap['total_price']),
+      capacity: asInt(roomMap['capacity']),
+      availableRooms: roomMap['available_rooms'] == null ? null : asInt(roomMap['available_rooms']),
+      rating: asNum(property['rating'])?.toDouble(),
+      reviewCount: asInt(property['review_count']) ?? 0,
+    );
+  }
+
+  static List<AiSuggestion> listFrom(dynamic value) {
+    if (value is! List) return const <AiSuggestion>[];
+    return value.map(tryParse).whereType<AiSuggestion>().toList(growable: false);
+  }
 }
 
 Future<void> showAiChatSheet(
@@ -80,12 +155,13 @@ class _AiChatSheetState extends State<_AiChatSheet> {
   final _controller = TextEditingController();
   final _messages = <AiChatMessage>[
     const AiChatMessage(
-      content: 'Minh co the goi y khach san, chon phong, tinh gia va kiem tra phong trong tu du lieu StayZ.',
+      content: 'Mình có thể gợi ý khách sạn, chọn phòng, tính giá và kiểm tra phòng trống từ dữ liệu StayZ.',
       fromUser: false,
     ),
   ];
   String? _conversationId;
   bool _sending = false;
+  bool _navigating = false;
 
   @override
   void initState() {
@@ -115,7 +191,7 @@ class _AiChatSheetState extends State<_AiChatSheet> {
     try {
       final token = await AuthService.instance.accessToken();
       if (token == null) {
-        throw StateError('Vui long dang nhap de luu lich su chat AI.');
+        throw const ApiException('Vui lòng đăng nhập để lưu lịch sử chat AI.', statusCode: 401);
       }
 
       final data = await const ApiService().post(
@@ -133,15 +209,16 @@ class _AiChatSheetState extends State<_AiChatSheet> {
       );
 
       if (data is! Map<String, dynamic>) {
-        throw StateError('Phan hoi AI khong hop le.');
+        throw const ApiException('Phản hồi AI không hợp lệ.');
       }
 
       setState(() {
         _conversationId = data['conversationId']?.toString();
         _messages.add(
           AiChatMessage(
-            content: data['reply']?.toString() ?? 'AI chua co cau tra loi.',
+            content: data['reply']?.toString() ?? 'AI chưa có câu trả lời.',
             fromUser: false,
+            suggestions: AiSuggestion.listFrom(data['suggestions']),
           ),
         );
       });
@@ -149,13 +226,67 @@ class _AiChatSheetState extends State<_AiChatSheet> {
       setState(() {
         _messages.add(
           AiChatMessage(
-            content: 'Chua the goi AI luc nay. ${error.toString()}',
+            content: 'Chưa thể gọi AI lúc này. ${_msg(error)}',
             fromUser: false,
           ),
         );
       });
     } finally {
       if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  /// Thong diep loi than thien: ApiException da co san message tieng Viet,
+  /// cac loi khac thi bao chung chung thay vi in nguyen exception.
+  String _msg(Object error) => error is ApiException ? error.message : 'Vui lòng thử lại.';
+
+  Future<void> _openRoomSelection(AiSuggestion suggestion) async {
+    if (_navigating) return;
+    setState(() => _navigating = true);
+
+    try {
+      // Xac thuc lai ID voi du lieu hien tai truoc khi dieu huong,
+      // tranh mo booking flow tu goi y da cu (stale).
+      final summaries = await ApiStayzRepository.instance.getHotelSummaries();
+      final summary = summaries.where((item) => item.hotel.id == suggestion.propertyId).firstOrNull;
+
+      if (!mounted) return;
+      if (summary == null) {
+        setState(() {
+          _messages.add(
+            AiChatMessage(
+              content:
+                  'Khách sạn "${suggestion.propertyTitle}" không còn trong dữ liệu hiện tại. Bạn thử hỏi lại để mình gợi ý lựa chọn khác nhé.',
+              fromUser: false,
+            ),
+          );
+        });
+        return;
+      }
+
+      await Navigator.of(context).pushNamed(
+        AppRoutes.roomSelection,
+        arguments: RoomSelectionArgs(
+          hotel: summary,
+          checkInDate: widget.aiContext.checkIn,
+          checkOutDate: widget.aiContext.checkOut,
+          adults: widget.aiContext.guests ?? 2,
+          children: 0,
+          roomCount: 1,
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _messages.add(
+          AiChatMessage(
+            content: 'Chưa thể mở danh sách phòng lúc này. ${_msg(error)}',
+            fromUser: false,
+          ),
+        );
+      });
+    } finally {
+      if (mounted) setState(() => _navigating = false);
     }
   }
 
@@ -211,10 +342,25 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                 itemBuilder: (context, index) {
                   if (_sending && index == _messages.length) {
                     return const _AiBubble(
-                      message: AiChatMessage(content: 'Dang doc du lieu va tra loi...', fromUser: false),
+                      message: AiChatMessage(content: 'Đang đọc dữ liệu và trả lời...', fromUser: false),
                     );
                   }
-                  return _AiBubble(message: _messages[index]);
+                  final message = _messages[index];
+                  if (message.suggestions.isEmpty) {
+                    return _AiBubble(message: message);
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _AiBubble(message: message),
+                      for (final suggestion in message.suggestions)
+                        _SuggestionCard(
+                          suggestion: suggestion,
+                          enabled: !_navigating,
+                          onSelect: () => _openRoomSelection(suggestion),
+                        ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -231,7 +377,7 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
                       decoration: InputDecoration(
-                        hintText: 'Hoi ve khach san, phong, gia...',
+                        hintText: 'Hỏi về khách sạn, phòng, giá...',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -300,6 +446,127 @@ class _AiBubble extends StatelessWidget {
   }
 }
 
+class _SuggestionCard extends StatelessWidget {
+  const _SuggestionCard({
+    required this.suggestion,
+    required this.enabled,
+    required this.onSelect,
+  });
+
+  final AiSuggestion suggestion;
+  final bool enabled;
+  final VoidCallback onSelect;
+
+  static const _cityNames = <String, String>{
+    'da-lat': 'Da Lat',
+    'da-nang': 'Da Nang',
+    'ha-noi': 'Ha Noi',
+    'ho-chi-minh': 'TP Hồ Chí Minh',
+    'vung-tau': 'Vung Tau',
+  };
+
+  String get _availabilityText {
+    final available = suggestion.availableRooms;
+    if (available == null) return 'Chưa xác nhận còn phòng (thiếu ngày nhận/trả phòng)';
+    if (available <= 0) return 'Hết phòng theo ngày đã chọn';
+    return 'Còn khoảng $available phòng theo ngày đã chọn';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final city = _cityNames[suggestion.citySlug] ?? suggestion.citySlug;
+    final details = <String>[
+      if (suggestion.roomName != null && suggestion.roomName!.isNotEmpty) 'Phòng ${suggestion.roomName}',
+      if (suggestion.capacity != null) 'Tối đa ${suggestion.capacity} khách',
+      if (suggestion.totalPrice != null) 'Tổng ${StayzFormatters.fullVnd(suggestion.totalPrice!)}',
+    ];
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 310),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.line),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              suggestion.propertyTitle,
+              style: const TextStyle(color: AppTheme.ink, fontSize: 15, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.place_outlined, size: 15, color: AppTheme.accentDark),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    city.isEmpty ? 'Viet Nam' : city,
+                    style: const TextStyle(color: AppTheme.ink, fontSize: 13),
+                  ),
+                ),
+                if (suggestion.rating != null) ...[
+                  const Icon(Icons.star_rounded, size: 16, color: Color(0xFFF5A623)),
+                  const SizedBox(width: 2),
+                  Text(
+                    '${suggestion.rating!.toStringAsFixed(1)} (${suggestion.reviewCount})',
+                    style: const TextStyle(color: AppTheme.ink, fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ],
+            ),
+            if (details.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                details.join(' • '),
+                style: const TextStyle(color: AppTheme.ink, fontSize: 13, height: 1.4),
+              ),
+            ],
+            const SizedBox(height: 6),
+            Text(
+              _availabilityText,
+              style: TextStyle(
+                color: suggestion.availableRooms == null ? AppTheme.ink : AppTheme.accentDark,
+                fontSize: 12.5,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                if (suggestion.pricePerNight != null)
+                  Expanded(
+                    child: Text(
+                      '${StayzFormatters.fullVnd(suggestion.pricePerNight!)}/đêm',
+                      style: const TextStyle(color: AppTheme.accentDark, fontSize: 15, fontWeight: FontWeight.w900),
+                    ),
+                  )
+                else
+                  const Spacer(),
+                FilledButton(
+                  onPressed: enabled ? onSelect : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.accentDark,
+                    minimumSize: const Size(0, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Chọn phòng'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ContextChips extends StatelessWidget {
   const _ContextChips({required this.aiContext});
 
@@ -308,11 +575,11 @@ class _ContextChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chips = <String>[
-      if (aiContext.guests != null) '${aiContext.guests} khach',
+      if (aiContext.guests != null) '${aiContext.guests} khách',
       if (aiContext.checkIn != null && aiContext.checkOut != null)
         '${StayzFormatters.shortDate(aiContext.checkIn!)} - ${StayzFormatters.shortDate(aiContext.checkOut!)}',
-      if (aiContext.propertyId != null) 'co propertyId',
-      if (aiContext.roomId != null) 'co roomId',
+      if (aiContext.propertyId != null) 'có khách sạn',
+      if (aiContext.roomId != null) 'có phòng',
     ];
 
     if (chips.isEmpty) return const SizedBox.shrink();

@@ -3,9 +3,57 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/chat/ai_chat_sheet.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_alert.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+
+/// Cac lua chon nhanh duoi o tim kiem. Moi chip anh xa sang mot bo loc that
+/// tren du lieu backend, khong con la chip trang tri.
+enum HomeQuickFilter {
+  all(icon: Icons.apps_rounded),
+  preferred(icon: Icons.diamond_rounded),
+  family(icon: Icons.family_restroom_rounded),
+  beach(icon: Icons.beach_access_rounded),
+  budget(icon: Icons.savings_rounded);
+
+  const HomeQuickFilter({required this.icon});
+
+  final IconData icon;
+
+  String get label {
+    switch (this) {
+      case HomeQuickFilter.all:
+        return tr('Tất cả', 'All');
+      case HomeQuickFilter.preferred:
+        return tr('Cao cấp', 'Premium');
+      case HomeQuickFilter.family:
+        return tr('Gia đình', 'Family');
+      case HomeQuickFilter.beach:
+        return tr('Biển', 'Beach');
+      case HomeQuickFilter.budget:
+        return tr('Tiết kiệm', 'Budget');
+    }
+  }
+
+  SearchFilters apply(SearchFilters base) {
+    switch (this) {
+      case HomeQuickFilter.all:
+        return const SearchFilters();
+      case HomeQuickFilter.preferred:
+        return base.copyWith(isPreferred: true);
+      case HomeQuickFilter.family:
+        return base.copyWith(amenities: const ['family_room']);
+      case HomeQuickFilter.beach:
+        return base.copyWith(nearBeach: true);
+      case HomeQuickFilter.budget:
+        return base.copyWith(maxPrice: 1500000);
+    }
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,13 +63,44 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Future duoc giu lai thay vi tao moi trong build(): truoc day moi lan bam
+  // nut tim la tai lai toan bo danh sach khach san.
+  late Future<List<HotelSummary>> _hotelsFuture;
+  Future<BookingSummary?>? _upcomingFuture;
+
   Set<String> _favoriteIds = const <String>{};
   bool _loadedFavorites = false;
 
   @override
   void initState() {
     super.initState();
+    _hotelsFuture = ApiStayzRepository.instance.getHotelSummaries();
+    _upcomingFuture = _loadUpcomingBooking();
     _loadFavorites();
+  }
+
+  Future<void> _refresh() async {
+    final hotels = ApiStayzRepository.instance.getHotelSummaries();
+    setState(() {
+      _hotelsFuture = hotels;
+      _upcomingFuture = _loadUpcomingBooking();
+    });
+    await hotels;
+    await _loadFavorites();
+  }
+
+  /// Chuyen di sap toi THAT cua nguoi dung. Truoc day the nay bia ra mot
+  /// chuyen di tu khach san dau danh sach voi ngay cung '12 - 14/07'.
+  Future<BookingSummary?> _loadUpcomingBooking() async {
+    try {
+      final bookings = await ApiStayzRepository.instance.getBookingSummaries();
+      final upcoming = bookings.where((item) => item.booking.isUpcoming).toList()
+        ..sort((a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate));
+      return upcoming.firstOrNull;
+    } catch (_) {
+      // Chua dang nhap hoac mat mang: an the thay vi hien du lieu gia.
+      return null;
+    }
   }
 
   Future<void> _loadFavorites() async {
@@ -54,30 +133,34 @@ class _HomePageState extends State<HomePage> {
         await ApiStayzRepository.instance.addFavorite(hotelId);
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(wasFavorite ? 'Da bo khoi yeu thich.' : 'Da them vao yeu thich.')),
+      StayzAlert.show(
+        context,
+        type: wasFavorite ? StayzAlertType.info : StayzAlertType.success,
+        message: wasFavorite ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.') : tr('Đã thêm vào yêu thích.', 'Added to saved.'),
       );
-    } catch (_) {
+    } on ApiException catch (error) {
       if (!mounted) return;
       setState(() {
         final rollback = {..._favoriteIds};
         wasFavorite ? rollback.add(hotelId) : rollback.remove(hotelId);
         _favoriteIds = rollback;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui long dang nhap de cap nhat yeu thich.')),
+      StayzAlert.show(
+        context,
+        type: StayzAlertType.error,
+        message: error.isUnauthorized ? tr('Vui lòng đăng nhập để lưu yêu thích.', 'Please sign in to save favorites.') : error.message,
       );
     }
   }
 
-  Future<void> _openFilters(BuildContext context) async {
+  Future<void> _openFilters() async {
     final result = await Navigator.of(context).pushNamed(AppRoutes.filter, arguments: const SearchFilters());
-    if (result is SearchFilters && context.mounted) {
+    if (result is SearchFilters && mounted) {
       Navigator.of(context).pushNamed(AppRoutes.search, arguments: result);
     }
   }
 
-  void _openSearchWith(BuildContext context, SearchFilters filters) {
+  void _openSearchWith(SearchFilters filters) {
     Navigator.of(context).pushNamed(AppRoutes.search, arguments: filters);
   }
 
@@ -91,213 +174,204 @@ class _HomePageState extends State<HomePage> {
         onPressed: () => showAiChatSheet(context),
         backgroundColor: AppTheme.accentDark,
         foregroundColor: Colors.white,
+        tooltip: tr('Trợ lý StayZ AI', 'StayZ AI Assistant'),
         child: const Icon(Icons.auto_awesome_rounded),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
         bottom: false,
         child: FutureBuilder<List<HotelSummary>>(
-          future: ApiStayzRepository.instance.getHotelSummaries(),
+          future: _hotelsFuture,
           builder: (context, snapshot) {
+            final loading = snapshot.connectionState != ConnectionState.done;
             final hotels = snapshot.data ?? const <HotelSummary>[];
 
-            return CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      18 * responsive.scale,
-                      responsive.horizontalPadding,
-                      0,
-                    ),
-                    child: const StayZLogoRow(),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      26 * responsive.scale,
-                      responsive.horizontalPadding,
-                      0,
-                    ),
-                    child: _HomeHero(
-                      featured: hotels.isEmpty ? null : hotels.first,
-                      loading: hotels.isEmpty && snapshot.connectionState != ConnectionState.done,
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      22 * responsive.scale,
-                      responsive.horizontalPadding,
-                      0,
-                    ),
-                    child: SearchBox(
-                      onTap: () => _openSearchWith(context, const SearchFilters()),
-                      onFilterTap: () => _openFilters(context),
+            // Truoc day loi mang bi nuot: man hinh im lang hien du lieu du phong.
+            if (snapshot.hasError && !loading) {
+              return StayzErrorView(
+                error: snapshot.error,
+                onRetry: _refresh,
+              );
+            }
+
+            final featured = hotels.where((item) => item.hotel.status == 'featured').toList();
+            // Carousel "noi bat" hien nhieu hon (toi 8).
+            final topPicks = (featured.isNotEmpty ? featured : hotels).take(8).toList();
+            // "Goi y khac" hien tat ca khach san con lai, khong gioi han 3 nhu truoc.
+            final topIds = topPicks.map((item) => item.hotel.id).toSet();
+            final nearby = hotels.where((item) => !topIds.contains(item.hotel.id)).toList();
+
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 18 * responsive.scale, responsive.horizontalPadding, 0),
+                      child: const StayZLogoRow(),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      18 * responsive.scale,
-                      0,
-                      0,
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 26 * responsive.scale, responsive.horizontalPadding, 0),
+                      child: _HomeHero(featured: topPicks.firstOrNull, loading: loading),
                     ),
-                    child: SizedBox(
-                      height: 42 * responsive.scale,
-                      child: ListView(
-                        physics: const BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        children: const [
-                          FilterPill(label: 'Gần bạn', active: true, icon: Icons.near_me_rounded),
-                          SizedBox(width: 10),
-                          FilterPill(label: 'Cao cấp', icon: Icons.diamond_rounded),
-                          SizedBox(width: 10),
-                          FilterPill(label: 'Gia đình', icon: Icons.family_restroom_rounded),
-                          SizedBox(width: 10),
-                          FilterPill(label: 'Biển', icon: Icons.beach_access_rounded),
-                        ],
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 22 * responsive.scale, responsive.horizontalPadding, 0),
+                      child: SearchBox(
+                        onTap: () => _openSearchWith(const SearchFilters()),
+                        onFilterTap: _openFilters,
                       ),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      30 * responsive.scale,
-                      responsive.horizontalPadding,
-                      14 * responsive.scale,
-                    ),
-                    child: SectionLabel(
-                      title: 'Khách sạn nổi bật',
-                      action: 'Xem tất cả',
-                      onAction: () => Navigator.of(context).pushNamed(AppRoutes.search),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 18 * responsive.scale, 0, 0),
+                      child: SizedBox(
+                        height: 48 * responsive.scale,
+                        child: ListView.separated(
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: HomeQuickFilter.values.length,
+                          padding: EdgeInsets.only(right: responsive.horizontalPadding),
+                          separatorBuilder: (_, _) => const SizedBox(width: 10),
+                          itemBuilder: (context, index) {
+                            final filter = HomeQuickFilter.values[index];
+                            return Center(
+                              child: FilterPill(
+                                label: filter.label,
+                                icon: filter.icon,
+                                onTap: () => _openSearchWith(filter.apply(const SearchFilters())),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 286 * responsive.scale,
-                    child: hotels.isEmpty && snapshot.connectionState != ConnectionState.done
-                        ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-                        : ListView.separated(
-                            physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: hotels.take(4).length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 14),
-                            itemBuilder: (context, index) {
-                              final summary = hotels[index];
-                          return HotelCard(
-                                name: summary.hotel.name,
-                                location: summary.city.name,
-                                price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / đêm',
-                                imageUrl: summary.hotel.imageUrls.firstOrNull,
-                                isFavorite: _loadedFavorites && _favoriteIds.contains(summary.hotel.id),
-                                onFavoriteTap: () => _toggleFavorite(summary),
-                                colors: _homeHotelColors[index % _homeHotelColors.length],
-                                onTap: () => Navigator.of(context).pushNamed(
-                                  AppRoutes.roomDetail,
-                                  arguments: summary,
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 30 * responsive.scale, responsive.horizontalPadding, 14 * responsive.scale),
+                      child: SectionLabel(
+                        title: tr('Khách sạn nổi bật', 'Featured hotels'),
+                        action: tr('Xem tất cả', 'See all'),
+                        onAction: () => _openSearchWith(const SearchFilters(isPreferred: true)),
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 286 * responsive.scale,
+                      child: loading
+                          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+                          : topPicks.isEmpty
+                              ? StayzEmptyView(
+                                  icon: Icons.hotel_outlined,
+                                  title: tr('Chưa có khách sạn nào', 'No hotels yet'),
+                                  message: tr('Dữ liệu khách sạn hiện đang trống.', 'No hotel data available.'),
+                                  compact: true,
+                                )
+                              : ListView.separated(
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: topPicks.length,
+                                  separatorBuilder: (_, _) => const SizedBox(width: 14),
+                                  itemBuilder: (context, index) => _hotelCard(topPicks[index], index),
                                 ),
-                              );
-                            },
-                          ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      30 * responsive.scale,
-                      responsive.horizontalPadding,
-                      14 * responsive.scale,
-                    ),
-                    child: SectionLabel(
-                      title: 'Lịch trình tiếp theo',
-                      action: 'Quản lý',
-                      onAction: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
-                    child: BookingPreviewCard(
-                      name: hotels.isEmpty ? 'StayZ Grand' : hotels.first.hotel.name,
-                      location: hotels.isEmpty ? 'Da Nang' : hotels.first.city.name,
-                      date: '12 - 14/07',
-                      total: hotels.isEmpty ? '2.4M' : StayzFormatters.compactVnd(hotels.first.lowestPrice * 2),
-                      colors: _homeHotelColors[1],
+                  SliverToBoxAdapter(
+                    child: FutureBuilder<BookingSummary?>(
+                      future: _upcomingFuture,
+                      builder: (context, bookingSnapshot) {
+                        final upcoming = bookingSnapshot.data;
+                        // Khong co chuyen di that thi khong hien muc nay.
+                        if (upcoming == null) return const SizedBox.shrink();
+
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 30 * responsive.scale, responsive.horizontalPadding, 14 * responsive.scale),
+                              child: SectionLabel(
+                                title: tr('Lịch trình tiếp theo', 'Your next trip'),
+                                action: tr('Quản lý', 'Manage'),
+                                onAction: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+                              child: BookingPreviewCard(
+                                name: upcoming.hotel.name,
+                                location: upcoming.city.name,
+                                date:
+                                    '${StayzFormatters.shortDate(upcoming.booking.checkInDate)} - ${StayzFormatters.shortDate(upcoming.booking.checkOutDate)}',
+                                total: StayzFormatters.compactVnd(upcoming.booking.totalAmount),
+                                imageUrl: upcoming.room.imageUrls.firstOrNull ?? upcoming.hotel.imageUrls.firstOrNull,
+                                colors: _homeHotelColors[1],
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  AppRoutes.upcomingBookingDetail,
+                                  arguments: BookingSummaryArgs(summary: upcoming),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      responsive.horizontalPadding,
-                      30 * responsive.scale,
-                      responsive.horizontalPadding,
-                      14 * responsive.scale,
+                  if (nearby.isNotEmpty) ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 30 * responsive.scale, responsive.horizontalPadding, 14 * responsive.scale),
+                        child: SectionLabel(title: tr('Gợi ý khác cho bạn', 'More for you')),
+                      ),
                     ),
-                    child: const SectionLabel(title: 'Gợi ý gần bạn'),
-                  ),
-                ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final nearbyHotels = hotels.skip(2).take(3).toList();
-                      final summary = nearbyHotels[index];
-                      return Padding(
+                    SliverList.builder(
+                      itemCount: nearby.length,
+                      itemBuilder: (context, index) => Padding(
                         padding: EdgeInsets.fromLTRB(
                           responsive.horizontalPadding,
                           index == 0 ? 0 : 14 * responsive.scale,
                           responsive.horizontalPadding,
                           0,
                         ),
-                        child: HotelCard(
-                          fullWidth: true,
-                          name: summary.hotel.name,
-                          location: '${summary.city.name}, ${summary.city.region}',
-                          price: '${StayzFormatters.compactVnd(summary.lowestPrice)} / đêm',
-                          imageUrl: summary.hotel.imageUrls.firstOrNull,
-                          isFavorite: _loadedFavorites && _favoriteIds.contains(summary.hotel.id),
-                          onFavoriteTap: () => _toggleFavorite(summary),
-                          colors: _homeHotelColors[(index + 2) % _homeHotelColors.length],
-                          onTap: () => Navigator.of(context).pushNamed(
-                            AppRoutes.roomDetail,
-                            arguments: summary,
-                          ),
-                        ),
-                      );
-                    },
-                    childCount: hotels.skip(2).take(3).length,
-                  ),
-                ),
-                SliverToBoxAdapter(child: SizedBox(height: 28 * responsive.scale)),
-              ],
+                        child: _hotelCard(nearby[index], index + 2, fullWidth: true),
+                      ),
+                    ),
+                  ],
+                  SliverToBoxAdapter(child: SizedBox(height: 28 * responsive.scale)),
+                ],
+              ),
             );
           },
         ),
       ),
     );
   }
+
+  Widget _hotelCard(HotelSummary summary, int index, {bool fullWidth = false}) {
+    return HotelCard(
+      fullWidth: fullWidth,
+      name: summary.hotel.name,
+      location: fullWidth ? '${summary.city.name}, ${summary.city.region}' : summary.city.name,
+      price: summary.hasPrice ? '${StayzFormatters.compactVnd(summary.lowestPrice)}${tr(' / đêm', ' / night')}' : tr('Chưa có phòng', 'No rooms'),
+      imageUrl: summary.hotel.imageUrls.firstOrNull,
+      isFavorite: _loadedFavorites && _favoriteIds.contains(summary.hotel.id),
+      onFavoriteTap: () => _toggleFavorite(summary),
+      rating: summary.rating,
+      reviewCount: summary.reviewCount,
+      colors: _homeHotelColors[index % _homeHotelColors.length],
+      onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail, arguments: summary),
+    );
+  }
 }
 
 class _HomeHero extends StatelessWidget {
-  const _HomeHero({
-    required this.featured,
-    required this.loading,
-  });
+  const _HomeHero({required this.featured, required this.loading});
 
   final HotelSummary? featured;
   final bool loading;
@@ -310,7 +384,7 @@ class _HomeHero extends StatelessWidget {
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
         color: AppTheme.ink,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: AppTheme.softShadow,
       ),
       child: Column(
@@ -323,7 +397,7 @@ class _HomeHero extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              'BOOKING FLOW',
+              tr('ĐẶT PHÒNG NHANH', 'QUICK BOOKING'),
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 11 * responsive.scale,
@@ -334,7 +408,7 @@ class _HomeHero extends StatelessWidget {
           ),
           SizedBox(height: 16 * responsive.scale),
           Text(
-            'Tìm phòng đẹp,\nđặt lịch gọn trong vài chạm.',
+            tr('Tìm phòng đẹp,\nđặt lịch gọn trong vài chạm.', 'Find great stays,\nbook in a few taps.'),
             style: TextStyle(
               color: Colors.white,
               fontSize: 28 * responsive.scale,
@@ -345,8 +419,12 @@ class _HomeHero extends StatelessWidget {
           SizedBox(height: 16 * responsive.scale),
           Text(
             loading
-                ? 'Đang tải gợi ý tốt nhất cho bạn...'
-                : 'Gợi ý hôm nay: ${featured?.hotel.name ?? 'StayZ Collection'}',
+                ? tr('Đang tải gợi ý tốt nhất cho bạn...', 'Loading the best picks for you...')
+                : featured == null
+                    ? tr('Hãy tìm nơi lưu trú phù hợp với bạn.', 'Find a stay that suits you.')
+                    : tr('Gợi ý hôm nay: ${featured!.hotel.name}', 'Today\'s pick: ${featured!.hotel.name}'),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Colors.white70,
               fontSize: 14 * responsive.scale,
@@ -359,9 +437,9 @@ class _HomeHero extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search, arguments: const SearchFilters()),
                   icon: const Icon(Icons.search_rounded),
-                  label: const Text('Tìm phòng'),
+                  label: Text(tr('Tìm phòng', 'Search stays')),
                   style: FilledButton.styleFrom(backgroundColor: AppTheme.primary),
                 ),
               ),
@@ -369,6 +447,7 @@ class _HomeHero extends StatelessWidget {
               IconButton.filledTonal(
                 onPressed: () => Navigator.of(context).pushNamed(AppRoutes.favorites),
                 icon: const Icon(Icons.favorite_rounded),
+                tooltip: tr('Khách sạn yêu thích', 'Favorite hotels'),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white.withValues(alpha: 0.12),
                   foregroundColor: Colors.white,

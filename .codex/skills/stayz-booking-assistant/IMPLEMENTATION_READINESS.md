@@ -6,12 +6,12 @@ Snapshot: 2026-07-10. Status meanings: Ready, Partially ready, Not ready, Not fo
 |---|---|---|
 | Chat API availability | Ready | Protected `POST /ai/chat`; backend route/controller/service and Flutter caller exist |
 | OpenAI environment configuration | Partially ready | Keys/model documented in `.env.example`; actual runtime secret/config not verified |
-| Backend integration approach | Partially ready | Existing AI service and repository/API layers exist; structured assistant contract not confirmed |
+| Backend integration approach | Ready | AI service returns structured `{ success, reply, conversationId, intent, suggestions }`; Flutter chat sheet consumes `suggestions` and maps them to `RoomSelectionArgs` |
 | Database mappings | Partially ready | Property/room/booking fields confirmed; several intent fields have no mapping |
 | Search endpoint | Ready | `GET /properties/search` and `SearchFilters` confirmed |
 | Availability endpoint | Partially ready | `GET /room/:hotelId?checkIn&checkOut` calculates availability; formal standalone endpoint/contract not found |
 | Route names | Ready | Named routes confirmed in `AppRoutes` |
-| Booking DTO | Ready | `RoomSelectionArgs` and `BookingDraft` confirmed; AI payload adapter not implemented |
+| Booking DTO | Ready | `RoomSelectionArgs` and `BookingDraft` confirmed; AI suggestion → `RoomSelectionArgs` adapter implemented in `ai_chat_sheet.dart` with ID revalidation against current repository data |
 | State-management integration | Not ready | Local widget state exists; durable/shared assistant intent ownership not defined |
 | Error handling | Partially ready | Current chat catches failures; structured retry/stale-result/navigation failures need contract |
 | Loading states | Partially ready | `_sending` exists in chat; recommendation/search/navigation loading requirements need validation |
@@ -21,12 +21,12 @@ Snapshot: 2026-07-10. Status meanings: Ready, Partially ready, Not ready, Not fo
 
 ## Blocking implementation checklist
 
-- [ ] Freeze a machine-readable `/ai/chat` intent/recommendation response contract.
+- [x] Freeze a machine-readable `/ai/chat` intent/recommendation response contract. (Source-confirmed 2026-07-10: `{ success, reply, conversationId, intent, suggestions }`; see PROJECT_CONTEXT.md.)
 - [ ] Define ownership and lifetime of conversation intent state.
 - [ ] Confirm date locale/timezone and nights convention across client/server.
 - [ ] Confirm reliable ratings/review aggregation; remove reliance on synthetic summary rating.
 - [ ] Confirm cancellation, breakfast, special-request and infant semantics or mark unsupported.
-- [ ] Define recommendation-to-route adapter and back/state restoration.
+- [x] Define recommendation-to-route adapter and back/state restoration. (Implemented: suggestion card → revalidate ID via repository → `/room-selection` with editable `RoomSelectionArgs`; chat sheet stays below the pushed route so back returns to the recommendation context.)
 - [ ] Specify price and availability recheck moments.
 - [ ] Define privacy, logging, retention, analytics and test requirements.
 - [ ] Verify authentication recovery without losing user intent.

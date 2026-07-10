@@ -27,6 +27,13 @@ const propertySchema = new mongoose.Schema(
     },
     base_price: Number,
     description: String,
+
+    // Chuoi da bo dau, chu thuong: dung cho tim kiem khong dau va go sai chinh ta.
+    search_index: {
+      type: String,
+      default: "",
+      index: true,
+    },
     amenities: {
       outdoor_pool: Boolean,
       free_wifi: Boolean,

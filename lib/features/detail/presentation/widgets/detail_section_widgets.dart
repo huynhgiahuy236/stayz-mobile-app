@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:flutter/material.dart';
@@ -10,34 +11,45 @@ class DetailCircleButton extends StatelessWidget {
   const DetailCircleButton({
     required this.icon,
     this.onTap,
+    this.semanticLabel,
     super.key,
   });
 
   final IconData icon;
   final VoidCallback? onTap;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        width: 42 * responsive.scale,
-        height: 42 * responsive.scale,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.92),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.10),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 24,
+        // Vung cham 48dp theo chuan Android; huy hieu tron ben trong 40dp.
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.92),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: AppTheme.ink, size: 21),
             ),
-          ],
+          ),
         ),
-        child: Icon(icon, color: AppTheme.ink, size: 22 * responsive.scale),
       ),
     );
   }
@@ -240,50 +252,60 @@ class DetailBottomBookingBar extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: summary == null ? '₫1.800.000' : StayzFormatters.fullVnd(summary!.lowestPrice),
+                          // Khong con gia mac dinh '₫1.800.000' khi thieu du lieu.
+                          text: summary == null || !summary!.hasPrice
+                              ? tr('Liên hệ', 'Contact')
+                              : StayzFormatters.fullVnd(summary!.lowestPrice),
                           style: TextStyle(
                             color: AppTheme.accent,
                             fontSize: 18 * responsive.scale,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 1,
                           ),
                         ),
-                        TextSpan(
-                          text: ' /dem',
-                          style: TextStyle(
-                            color: AppTheme.neutral800,
-                            fontSize: 12 * responsive.scale,
+                        if (summary != null && summary!.hasPrice)
+                          TextSpan(
+                            text: tr(' / đêm', ' / night'),
+                            style: TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 12 * responsive.scale,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
                   SizedBox(height: 4 * responsive.scale),
                   Text(
-                    'Da bao gom thue & phi',
+                    // Backend khong tinh thue/phi nao ca; noi "da bao gom" la sai su that.
+                    tr('Giá phòng thấp nhất, chưa gồm phụ phí tại chỗ', 'Lowest room price, excluding on-site fees'),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: AppTheme.neutral500,
+                      color: AppTheme.muted,
                       fontSize: 11 * responsive.scale,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(width: 18 * responsive.widthScale),
+            SizedBox(width: 14 * responsive.widthScale),
             SizedBox(
-              width: 150 * responsive.widthScale,
-              height: 58 * responsive.scale,
+              width: 140 * responsive.widthScale,
+              height: 52 * responsive.scale,
               child: FilledButton(
-                onPressed: () => Navigator.of(context).pushNamed(
-                  AppRoutes.roomSelection,
-                  arguments: summary == null ? null : RoomSelectionArgs(hotel: summary!),
-                ),
+                // Thieu du lieu khach san thi vo hieu hoa, thay vi mo man chon phong
+                // voi tham so rong roi am tham chon khach san dau danh sach.
+                onPressed: summary == null
+                    ? null
+                    : () => Navigator.of(context).pushNamed(
+                          AppRoutes.roomSelection,
+                          arguments: RoomSelectionArgs(hotel: summary!),
+                        ),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppTheme.accentDark,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
-                  'Chon phong',
+                  tr('Chọn phòng', 'Select room'),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14 * responsive.scale,

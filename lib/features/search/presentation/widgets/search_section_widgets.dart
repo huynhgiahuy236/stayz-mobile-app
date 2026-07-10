@@ -1,111 +1,25 @@
-import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
-
-class SearchHeader extends StatelessWidget {
-  const SearchHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = HomeResponsive.of(context);
-
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-          icon: const Icon(Icons.arrow_back),
-          color: AppTheme.ink,
-        ),
-        SizedBox(width: 8 * responsive.widthScale),
-        Expanded(
-          child: Container(
-            height: 50 * responsive.scale,
-            padding: EdgeInsets.symmetric(horizontal: 14 * responsive.widthScale),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.accent),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  color: AppTheme.accent,
-                  size: 22 * responsive.scale,
-                ),
-                SizedBox(width: 8 * responsive.widthScale),
-                Expanded(
-                  child: Text(
-                    'Da Lat',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.ink,
-                      fontSize: 15 * responsive.scale,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.close,
-                  color: AppTheme.neutral500,
-                  size: 20 * responsive.scale,
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(width: 12 * responsive.widthScale),
-        InkWell(
-          onTap: () => Navigator.of(context).pushNamed(AppRoutes.filter),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            height: 50 * responsive.scale,
-            padding: EdgeInsets.symmetric(horizontal: 14 * responsive.widthScale),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.neutral200),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.tune,
-                  color: AppTheme.ink,
-                  size: 20 * responsive.scale,
-                ),
-                SizedBox(width: 6 * responsive.widthScale),
-                Text(
-                  'Loc',
-                  style: TextStyle(
-                    color: AppTheme.ink,
-                    fontSize: 14 * responsive.scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class SearchHotelCard extends StatelessWidget {
   const SearchHotelCard({
     required this.name,
     required this.location,
     required this.price,
-    required this.reviewCount,
     required this.colors,
+    required this.onTap,
+    required this.onRoomsTap,
+    this.rating,
+    this.reviewCount = 0,
+    this.amenities = const <String>[],
     this.badge,
+    this.badgeIsWarning = false,
     this.favorite = false,
     this.imageUrl,
-    this.onTap,
-    this.onRoomsTap,
     this.onFavoriteTap,
     super.key,
   });
@@ -113,231 +27,224 @@ class SearchHotelCard extends StatelessWidget {
   final String name;
   final String location;
   final String price;
-  final String reviewCount;
   final List<Color> colors;
+
+  /// Bat buoc: mac dinh cu dieu huong khong kem tham so, dan toi man
+  /// chon phong am tham chon khach san dau tien trong danh sach.
+  final VoidCallback onTap;
+  final VoidCallback onRoomsTap;
+
+  /// `null` = chua co danh gia. Khong ve sao va khong bia so luot.
+  final double? rating;
+  final int reviewCount;
+
+  /// Khoa tien ich that cua khach san, toi da 4 icon dau.
+  final List<String> amenities;
+
   final String? badge;
+  final bool badgeIsWarning;
   final bool favorite;
   final String? imageUrl;
-  final VoidCallback? onTap;
-  final VoidCallback? onRoomsTap;
   final VoidCallback? onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final imageHeight = 190 * responsive.scale;
     final imageWidth = MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2;
+    final imageHeight = imageWidth / AppTheme.cardImageAspectRatio;
+    final shownAmenities = amenities.take(4).toList();
 
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
+      // Cat moi thu ben trong theo bo goc: nen ve (CustomPaint) phia sau anh
+      // truoc day loi goc vuong ra ngoai the.
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomDetail),
-        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppTheme.line),
-            boxShadow: AppTheme.softShadow,
           ),
           child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: imageHeight,
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: LuxuryArchitecturalPainter(colors: colors),
-                  ),
-                ),
-                if (imageUrl != null)
-                  Positioned.fill(
-                    child: StayZNetworkImage(
-                      imageUrl: imageUrl!,
-                      width: imageWidth,
-                      height: imageHeight,
-                    ),
-                  ),
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.02),
-                          Colors.black.withValues(alpha: 0.15),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                if (badge != null)
-                  Positioned(
-                    top: 16 * responsive.scale,
-                    left: 16 * responsive.widthScale,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12 * responsive.widthScale,
-                        vertical: 6 * responsive.scale,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.accent,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        badge!.toUpperCase(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10 * responsive.scale,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                // Chieu cao suy tu chieu rong the theo ti le chung, tranh anh
+                // bi cat cut thanh dai mong.
+                aspectRatio: AppTheme.cardImageAspectRatio,
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors))),
+                    if (imageUrl != null)
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          child: StayZNetworkImage(imageUrl: imageUrl!, width: imageWidth, height: imageHeight),
                         ),
                       ),
-                    ),
-                  ),
-                Positioned(
-                  top: 14 * responsive.scale,
-                  right: 14 * responsive.widthScale,
-                  child: InkWell(
-                    onTap: onFavoriteTap,
-                    customBorder: const CircleBorder(),
-                    child: CircleAvatar(
-                      radius: 18 * responsive.scale,
-                      backgroundColor: Colors.white.withValues(alpha: 0.9),
-                      child: Icon(
-                        favorite ? Icons.favorite : Icons.favorite_border,
-                        color: AppTheme.accent,
-                        size: 21 * responsive.scale,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(18 * responsive.scale),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  location.toUpperCase(),
-                  style: TextStyle(
-                    color: AppTheme.neutral500,
-                    fontSize: 10 * responsive.scale,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.4,
-                  ),
-                ),
-                SizedBox(height: 8 * responsive.scale),
-                Text(
-                  name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppTheme.ink,
-                    fontSize: 19 * responsive.scale,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 8 * responsive.scale),
-                Row(
-                  children: [
-                    ...List.generate(
-                      5,
-                      (index) => Icon(
-                        Icons.star_border,
-                        color: const Color(0xFF8E5F1B),
-                        size: 16 * responsive.scale,
-                      ),
-                    ),
-                    SizedBox(width: 6 * responsive.widthScale),
-                    Expanded(
-                      child: Text(
-                        '($reviewCount đánh giá)',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppTheme.neutral500,
-                          fontSize: 12 * responsive.scale,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16 * responsive.scale),
-                Row(
-                  children: [
-                    Icons.wifi,
-                    Icons.local_parking_outlined,
-                    Icons.pool_outlined,
-                    Icons.restaurant_outlined,
-                  ]
-                      .map(
-                        (icon) => Padding(
-                          padding: EdgeInsets.only(right: 18 * responsive.widthScale),
-                          child: Icon(
-                            icon,
-                            color: const Color(0xFF6B5348),
-                            size: 18 * responsive.scale,
+                    if (badge != null)
+                      Positioned(
+                        top: 12 * responsive.scale,
+                        left: 12 * responsive.widthScale,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10 * responsive.widthScale, vertical: 5 * responsive.scale),
+                          decoration: BoxDecoration(
+                            color: badgeIsWarning ? AppTheme.danger : AppTheme.accent,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            badge!,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                      )
-                      .toList(),
-                ),
-                Divider(height: 30 * responsive.scale, color: AppTheme.neutral200),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: price,
-                              style: TextStyle(
-                                color: AppTheme.accent,
-                                fontSize: 19 * responsive.scale,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' / đêm',
-                              style: TextStyle(
-                                color: AppTheme.neutral800,
-                                fontSize: 12 * responsive.scale,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 108 * responsive.widthScale,
-                      height: 42 * responsive.scale,
-                      child: FilledButton(
-                      onPressed: onRoomsTap ?? () => Navigator.of(context).pushNamed(AppRoutes.roomSelection),
-                      style: FilledButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text('Xem phòng'),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Semantics(
+                        button: true,
+                        label: favorite ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích',
+                        child: InkResponse(
+                          onTap: onFavoriteTap,
+                          radius: 24,
+                          // Vung cham 48dp; huy hieu tron ben trong van 36dp.
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: Center(
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.white.withValues(alpha: 0.92),
+                                child: Icon(
+                                  favorite ? Icons.favorite : Icons.favorite_border,
+                                  color: AppTheme.accent,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(14 * responsive.scale, 12 * responsive.scale, 14 * responsive.scale, 12 * responsive.scale),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppTheme.ink,
+                              fontSize: 16 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        if (rating != null && reviewCount > 0) ...[
+                          SizedBox(width: 8 * responsive.widthScale),
+                          Icon(Icons.star_rounded, color: AppTheme.gold, size: 16 * responsive.scale),
+                          SizedBox(width: 2 * responsive.widthScale),
+                          Text(
+                            rating!.toStringAsFixed(1),
+                            style: TextStyle(color: AppTheme.ink, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w800),
+                          ),
+                          SizedBox(width: 3 * responsive.widthScale),
+                          Text(
+                            '($reviewCount)',
+                            style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale),
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 4 * responsive.scale),
+                    Row(
+                      children: [
+                        Icon(Icons.place_outlined, size: 14 * responsive.scale, color: AppTheme.muted),
+                        SizedBox(width: 3 * responsive.widthScale),
+                        Expanded(
+                          child: Text(
+                            location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (shownAmenities.isNotEmpty) ...[
+                      SizedBox(height: 10 * responsive.scale),
+                      Row(
+                        children: [
+                          for (final slug in shownAmenities)
+                            Padding(
+                              padding: EdgeInsets.only(right: 14 * responsive.widthScale),
+                              child: Tooltip(
+                                message: StayzTaxonomy.amenityTerm(slug).label,
+                                child: Icon(
+                                  StayzTaxonomy.amenityTerm(slug).icon,
+                                  color: AppTheme.muted,
+                                  size: 17 * responsive.scale,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                    SizedBox(height: 12 * responsive.scale),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: price,
+                                  style: TextStyle(
+                                    color: AppTheme.accent,
+                                    fontSize: 17 * responsive.scale,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: tr(' / đêm', ' / night'),
+                                  style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 44 * responsive.scale,
+                          child: FilledButton(
+                            onPressed: onRoomsTap,
+                            style: FilledButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Xem phòng', 'View rooms'))),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -352,6 +259,8 @@ class SearchStateScaffold extends StatelessWidget {
     required this.body,
     required this.primaryLabel,
     required this.secondaryLabel,
+    this.onPrimary,
+    this.onSecondary,
     this.showHeader = true,
     this.footer,
     super.key,
@@ -362,6 +271,11 @@ class SearchStateScaffold extends StatelessWidget {
   final String body;
   final String primaryLabel;
   final String secondaryLabel;
+
+  /// Thieu handler thi nut se bi vo hieu hoa thay vi im lang khong lam gi.
+  final VoidCallback? onPrimary;
+  final VoidCallback? onSecondary;
+
   final bool showHeader;
   final Widget? footer;
 
@@ -371,65 +285,72 @@ class SearchStateScaffold extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF7F4),
+      backgroundColor: AppTheme.surface,
       bottomNavigationBar: showHeader ? const StayZBottomNav(activeTab: HomeTab.search) : null,
       body: SafeArea(
         bottom: !showHeader,
         child: Column(
           children: [
             if (showHeader) const SearchTopBar(),
+            // Cuon duoc: khoi tran khi man hinh nho hoac co chu he thong phong to.
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 244 * responsive.widthScale,
-                      height: 244 * responsive.widthScale,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.5),
-                        border: Border.all(color: AppTheme.neutral200),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          icon,
-                          color: AppTheme.accent.withValues(alpha: 0.84),
-                          size: 82 * responsive.scale,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: responsive.horizontalPadding,
+                    vertical: 24 * responsive.scale,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 180 * responsive.widthScale,
+                        height: 180 * responsive.widthScale,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          border: Border.all(color: AppTheme.neutral200),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            icon,
+                            color: AppTheme.accent.withValues(alpha: 0.84),
+                            size: 64 * responsive.scale,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 50 * responsive.scale),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.ink,
-                        fontSize: 38 * responsive.scale,
-                        fontWeight: FontWeight.w700,
-                        height: 1.1,
+                      SizedBox(height: 32 * responsive.scale),
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: textTheme.headlineMedium?.copyWith(
+                          color: AppTheme.ink,
+                          fontSize: 28 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 18 * responsive.scale),
-                    Text(
-                      body,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: const Color(0xFF6B5348),
-                        fontSize: 19 * responsive.scale,
-                        height: 1.55,
+                      SizedBox(height: 14 * responsive.scale),
+                      Text(
+                        body,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppTheme.muted,
+                          fontSize: 15 * responsive.scale,
+                          height: 1.55,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 42 * responsive.scale),
-                    PrimarySearchButton(label: primaryLabel),
-                    SizedBox(height: 16 * responsive.scale),
-                    SecondarySearchButton(label: secondaryLabel),
-                    if (footer != null) ...[
-                      SizedBox(height: 70 * responsive.scale),
-                      footer!,
+                      SizedBox(height: 30 * responsive.scale),
+                      PrimarySearchButton(label: primaryLabel, onTap: onPrimary),
+                      SizedBox(height: 12 * responsive.scale),
+                      SecondarySearchButton(label: secondaryLabel, onTap: onSecondary),
+                      if (footer != null) ...[
+                        SizedBox(height: 32 * responsive.scale),
+                        footer!,
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -509,7 +430,8 @@ class PrimarySearchButton extends StatelessWidget {
       width: double.infinity,
       height: 58 * responsive.scale,
       child: FilledButton(
-        onPressed: onTap ?? () {},
+        // Khong co handler thi disable, thay vi giả vờ bấm được rồi không làm gì.
+        onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.accent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -545,7 +467,7 @@ class SecondarySearchButton extends StatelessWidget {
       width: double.infinity,
       height: 58 * responsive.scale,
       child: OutlinedButton(
-        onPressed: onTap ?? () {},
+        onPressed: onTap,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppTheme.neutral200),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

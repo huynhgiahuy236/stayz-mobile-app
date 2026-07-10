@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "StayZ (điện thoại thật · adb reverse)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=STAYZ_API_BASE_URL=http://127.0.0.1:3000/api"
+      ]
+    },
+    {
+      "name": "StayZ (máy ảo / emulator)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=STAYZ_API_BASE_URL=http://10.0.2.2:3000/api"
+      ]
+    }
+  ]
+}

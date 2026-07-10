@@ -12,6 +12,9 @@ const streamifier = require("streamifier");
 const { sendPasswordResetCodeEmail } = require("../config/mailer.config");
 const { generateAuthTokens, generateAccessToken, verifyRefreshToken, verifyAccessToken } = require("../utils/token.util");
 const redis = require("../config/redis.config");
+// buildResetCodeHash dung SECRET nhung truoc day khong he import bien nay,
+// nen ca luong OTP se nem ReferenceError neu duoc goi toi.
+const { SECRET } = require("../constants/app.constant");
 
 const RESET_CODE_EXPIRES_IN_MINUTES = 10;
 
@@ -20,6 +23,39 @@ const buildResetCodeHash = (email, code) => {
     .createHash("sha256")
     .update(`${email}:${code}:${SECRET}`)
     .digest("hex");
+};
+
+/**
+ * Xac thuc ma OTP dat lai mat khau.
+ * Nem loi neu thieu tham so, ma het han hoac ma sai.
+ * Tra ve email da chuan hoa de ham goi dung tiep.
+ */
+const assertResetCode = async (email, code) => {
+  if (!email?.trim() || !code?.toString().trim()) {
+    throw new BadRequestException("Thiếu email hoặc mã xác thực");
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedCode = code.toString().trim();
+
+  const storedHash = await redis.get(`otp:${normalizedEmail}`);
+  if (!storedHash) {
+    throw new BadRequestException("Mã xác thực không hợp lệ hoặc đã hết hạn");
+  }
+
+  const incomingHash = buildResetCodeHash(normalizedEmail, normalizedCode);
+
+  // So sanh theo thoi gian hang so de khong ro ri thong tin qua do tre.
+  const stored = Buffer.from(storedHash, "utf8");
+  const incoming = Buffer.from(incomingHash, "utf8");
+  const matches =
+    stored.length === incoming.length && crypto.timingSafeEqual(stored, incoming);
+
+  if (!matches) {
+    throw new BadRequestException("Mã xác thực không đúng");
+  }
+
+  return { normalizedEmail, normalizedCode };
 };
 
 const createResetCode = () => {
@@ -247,77 +283,46 @@ const userService = {
     // Lưu OTP vào Redis với TTL tự động hết hạn (không cần cron cleanup)
     await redis.setex(`otp:${normalizedEmail}`, ttlSeconds, hash);
 
-    await sendPasswordResetCodeEmail({
-      to: normalizedEmail,
-      code,
-    });
+    try {
+      await sendPasswordResetCodeEmail({ to: normalizedEmail, code });
+    } catch (error) {
+      // SMTP hong khong duoc lam sap ca luong quen mat khau. O moi truong
+      // phat trien, in ma ra console de con thu duoc. Tuyet doi khong tra
+      // ma ve cho client - do la lo hong chiem tai khoan.
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(`[OTP] Khong gui duoc email toi ${normalizedEmail}. Ma dat lai mat khau: ${code}`);
+      } else {
+        console.error("Gui email OTP that bai:", error.message);
+      }
+    }
 
     return {
       email: normalizedEmail,
       expires_in_minutes: RESET_CODE_EXPIRES_IN_MINUTES,
     };
   },
+  // Doi chieu ma OTP nguoi dung nhap voi hash luu trong Redis.
+  // Khong xoa ma o buoc nay: nguoi dung con phai nhap mat khau moi.
   verifyPasswordResetCode: async ({ email, code }) => {
-    if (!email?.trim() || !code?.trim()) {
-      throw new BadRequestException("Thiếu email hoặc mã xác thực");
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-    const resetUser = await usersModel.findOne({ email: normalizedEmail });
-    if (!resetUser) {
-      throw new BadRequestException("Nguoi dung khong ton tai");
-    }
-
-    resetUser.password = await bcrypt.hash(newPassword, 10);
-    await resetUser.save();
-
-    return {
-      email: normalizedEmail,
-      passwordUpdated: true,
-    };
-
-    const normalizedCode = code.trim();
-
-    // Lấy hash từ Redis (tự hết hạn nếu quá TTL)
-    const storedHash = await redis.get(`otp:${normalizedEmail}`);
-    if (!storedHash) {
-      throw new BadRequestException("Mã xác thực không hợp lệ hoặc đã hết hạn");
-    }
-
-    const incomingHash = buildResetCodeHash(normalizedEmail, normalizedCode);
-    if (incomingHash !== storedHash) {
-      throw new BadRequestException("Mã xác thực không đúng");
-    }
+    const { normalizedEmail } = await assertResetCode(email, code);
 
     return {
       email: normalizedEmail,
       verified: true,
     };
   },
-  resetPasswordWithCode: async ({ email, newPassword }) => {
-    if (!email?.trim() || !newPassword) {
-      throw new BadRequestException(
-        "Thiếu email, mã xác thực hoặc mật khẩu mới",
-      );
-    }
 
+  // Doi mat khau. BAT BUOC kem ma OTP hop le - truoc day ham nay chi can
+  // email la ghi de duoc mat khau cua bat ky ai.
+  resetPasswordWithCode: async ({ email, code, newPassword }) => {
+    if (!newPassword) {
+      throw new BadRequestException("Vui lòng nhập mật khẩu mới");
+    }
     if (String(newPassword).length < 6) {
       throw new BadRequestException("Mật khẩu mới phải có ít nhất 6 ký tự");
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedCode = code.trim();
-
-    // Lấy OTP từ Redis
-    const storedHash = await redis.get(`otp:${normalizedEmail}`);
-    if (!storedHash) {
-      throw new BadRequestException("Mã xác thực không hợp lệ hoặc đã hết hạn");
-    }
-
-    const incomingHash = buildResetCodeHash(normalizedEmail, normalizedCode);
-    if (incomingHash !== storedHash) {
-      throw new BadRequestException("Mã xác thực không đúng");
-    }
+    const { normalizedEmail } = await assertResetCode(email, code);
 
     const user = await usersModel.findOne({ email: normalizedEmail });
     if (!user) {
@@ -325,44 +330,11 @@ const userService = {
     }
 
     user.password = await bcrypt.hash(newPassword, 10);
+    clearResetPasswordData(user);
     await user.save();
 
-    // Xóa OTP sau khi dùng xong (one-time use)
+    // Ma chi dung duoc mot lan.
     await redis.del(`otp:${normalizedEmail}`);
-
-    return {
-      email: normalizedEmail,
-    };
-  },
-
-  verifyPasswordResetCode: async ({ email }) => {
-    if (!email?.trim()) {
-      throw new BadRequestException("Thieu email");
-    }
-
-    return {
-      email: email.trim().toLowerCase(),
-      verified: true,
-    };
-  },
-
-  resetPasswordWithCode: async ({ email, newPassword }) => {
-    if (!email?.trim() || !newPassword) {
-      throw new BadRequestException("Thieu email hoac mat khau moi");
-    }
-
-    if (String(newPassword).length < 6) {
-      throw new BadRequestException("Mat khau moi phai co it nhat 6 ky tu");
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-    const user = await usersModel.findOne({ email: normalizedEmail });
-    if (!user) {
-      throw new BadRequestException("Nguoi dung khong ton tai");
-    }
-
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
 
     return {
       email: normalizedEmail,

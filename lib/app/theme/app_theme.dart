@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 class AppTheme {
   const AppTheme._();
 
+  /// Ti le khung anh dung chung cho MOI the khach san (rong : cao = 16 : 10).
+  /// Dung AspectRatio thay cho chieu cao cung de anh khong bi cat cut thanh
+  /// dai mong o the rong het man hinh — nguon goc cua hien tuong "bi be".
+  static const double cardImageAspectRatio = 16 / 10;
+
   static const cream = Color(0xFFEAF7FF);
   static const surface = Color(0xFFF7FBFF);
   static const ink = Color(0xFF102A43);

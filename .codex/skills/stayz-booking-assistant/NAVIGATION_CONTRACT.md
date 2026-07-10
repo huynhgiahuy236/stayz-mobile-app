@@ -43,10 +43,13 @@ Mappings: `hotelId -> Hotel.id/property_id`, `roomId -> Room.id/room_id`, dates 
 - On stale inventory, show a grounded failure and return to room/recommendation selection.
 - On route or argument mismatch, fail safely; do not fall through to booking creation.
 
+## Implemented adapter (Source-confirmed 2026-07-10)
+
+`/ai/chat` returns a machine-readable `suggestions` array (`{ property, room }`). The Flutter chat sheet (`lib/features/chat/ai_chat_sheet.dart`) renders each suggestion as a grounded card and, on selection, revalidates the property ID against `ApiStayzRepository.getHotelSummaries()` before pushing `/room-selection` with an editable `RoomSelectionArgs` (dates/guests from chat context, room count suggested as 1). Stale IDs produce a grounded in-chat failure instead of navigation. The chat sheet remains below the pushed route, so back returns to the recommendation context.
+
 ## Unconfirmed contract items
 
 - Deep-link entry route for the assistant.
-- Machine-readable recommendation payload from `/ai/chat`.
-- Cross-route restoration of conversation state.
+- Cross-route restoration of conversation state after re-authentication.
 - Analytics source attribution for `ai_booking_assistant`.
 

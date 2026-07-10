@@ -70,6 +70,19 @@ const bookingSchema = new mongoose.Schema(
       enum: ["pending", "paid", "failed", "refunded"],
       default: "pending",
     },
+
+    // Thanh toan mo phong (fake): phuong an + so tien.
+    payment_plan: {
+      type: String,
+      enum: ["deposit_30", "full_100", ""],
+      default: "",
+    },
+    amount_paid: { type: Number, default: 0 },
+    remaining_at_hotel: { type: Number, default: 0 },
+
+    // Hoan tien khi huy (fake): so tien va ti le da ap dung.
+    refund_amount: { type: Number, default: 0 },
+    refund_rate: { type: Number, default: 0 },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );

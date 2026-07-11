@@ -17,4 +17,37 @@ redis.on("error", (err) => {
   console.error("❌ Redis error:", err.message);
 });
 
-module.exports = redis;
+const safeCommands = new Set([
+  "del",
+  "expire",
+  "get",
+  "incr",
+  "lpush",
+  "lrange",
+  "ltrim",
+  "set",
+  "setex",
+]);
+
+const safeRedis = new Proxy(redis, {
+  get(target, prop) {
+    const value = target[prop];
+    if (typeof value !== "function") return value;
+
+    if (!safeCommands.has(prop)) {
+      return value.bind(target);
+    }
+
+    return async (...args) => {
+      try {
+        return await value.apply(target, args);
+      } catch (err) {
+        console.warn(`Redis ${prop} skipped:`, err.message);
+        if (prop === "incr") return 1;
+        return null;
+      }
+    };
+  },
+});
+
+module.exports = safeRedis;

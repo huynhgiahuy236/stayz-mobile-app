@@ -10,6 +10,11 @@ const {
   PAYOS_API_KEY,
   PAYOS_CHECKSUM_KEY,
   PAYOS_CLIENT_ID,
+  SMTP_FROM,
+  SMTP_HOST,
+  SMTP_PASS,
+  SMTP_PORT,
+  SMTP_USER,
 } = require("./src/constants/app.constant");
 const { handleError } = require("./src/helpers/error.helper");
 const passport = require("passport");
@@ -60,6 +65,14 @@ app.get("/health", (_req, res) => {
       checksum_key_length: PAYOS_CHECKSUM_KEY?.length || 0,
     },
     redis: redis.health(),
+    smtp: {
+      host: Boolean(SMTP_HOST),
+      port: Boolean(SMTP_PORT),
+      user: Boolean(SMTP_USER),
+      pass: Boolean(SMTP_PASS),
+      pass_length: SMTP_PASS?.replace(/\s/g, "").length || 0,
+      from: Boolean(SMTP_FROM),
+    },
   };
 
   if (!connected) {

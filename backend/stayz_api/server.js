@@ -5,7 +5,12 @@ const cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
 const rootRouter = require("./src/routes/rootRouter.router");
-const { DATABASE_URL } = require("./src/constants/app.constant");
+const {
+  DATABASE_URL,
+  PAYOS_API_KEY,
+  PAYOS_CHECKSUM_KEY,
+  PAYOS_CLIENT_ID,
+} = require("./src/constants/app.constant");
 const { handleError } = require("./src/helpers/error.helper");
 const passport = require("passport");
 const { initSocket } = require("./src/config/socket.config");
@@ -47,6 +52,12 @@ app.get("/health", (_req, res) => {
     status: connected ? "ok" : "starting",
     database: connected ? "connected" : "disconnected",
     mongo_ready_state: mongoose.connection.readyState,
+    payos: {
+      client_id: Boolean(PAYOS_CLIENT_ID),
+      api_key: Boolean(PAYOS_API_KEY),
+      checksum_key: Boolean(PAYOS_CHECKSUM_KEY),
+      checksum_key_length: PAYOS_CHECKSUM_KEY?.length || 0,
+    },
   };
 
   if (!connected) {

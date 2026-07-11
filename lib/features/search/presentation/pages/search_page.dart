@@ -22,11 +22,14 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   SearchFilters _filters = const SearchFilters();
   Future<List<HotelSummary>>? _hotelsFuture;
   Set<String> _favoriteIds = const <String>{};
   Timer? _debounce;
   bool _initialized = false;
+  int _searchRequestId = 0;
+  String _searchResultKey = 'initial';
 
   @override
   void initState() {
@@ -53,6 +56,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -67,7 +71,21 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _runSearch() {
-    setState(() => _hotelsFuture = ApiStayzRepository.instance.searchHotelSummaries(_filters));
+    final requestId = ++_searchRequestId;
+    final filters = _filters;
+    final resultKey = filters.toQuery().entries.map((entry) => '${entry.key}=${entry.value}').join('&');
+    final request = ApiStayzRepository.instance.searchHotelSummaries(filters).then((hotels) {
+      // Response cua lan tim cu den sau thi bo qua, khong duoc ghi de ket qua moi.
+      if (requestId != _searchRequestId) return const <HotelSummary>[];
+      return hotels;
+    });
+    setState(() {
+      _searchResultKey = '$requestId:$resultKey';
+      _hotelsFuture = request;
+    });
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
   }
 
   void _applyFilters(SearchFilters filters, {bool syncTextField = true}) {
@@ -78,12 +96,20 @@ class _SearchPageState extends State<SearchPage> {
     _runSearch();
   }
 
-  /// 2 giay la qua lau, nguoi dung tuong o tim kiem bi treo.
   void _onSearchChanged(String value) {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 350), () {
-      if (mounted) _applyFilters(_filters.copyWith(keyword: value), syncTextField: false);
+    // Ghi keyword vao state ngay, tranh timer dung lai gia tri filter cu.
+    _filters = _filters.copyWith(keyword: value.trim());
+    _debounce = Timer(const Duration(seconds: 1), () {
+      if (mounted) _submitSearch(_searchController.text);
     });
+  }
+
+  void _submitSearch(String value) {
+    _debounce?.cancel();
+    final keyword = value.trim();
+    _applyFilters(_filters.copyWith(keyword: keyword), syncTextField: false);
+    FocusScope.of(context).unfocus();
   }
 
   Future<void> _openFilter() async {
@@ -92,6 +118,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _clearAllFilters() {
+    _debounce?.cancel();
     _searchController.clear();
     _applyFilters(const SearchFilters());
   }
@@ -142,9 +169,10 @@ class _SearchPageState extends State<SearchPage> {
             _SearchBar(
               controller: _searchController,
               onChanged: _onSearchChanged,
-              onSubmitted: (value) => _applyFilters(_filters.copyWith(keyword: value), syncTextField: false),
+              onSubmitted: _submitSearch,
               onFilter: _openFilter,
               onClear: () {
+                _debounce?.cancel();
                 _searchController.clear();
                 _applyFilters(_filters.copyWith(keyword: ''), syncTextField: false);
               },
@@ -156,6 +184,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Expanded(
               child: FutureBuilder<List<HotelSummary>>(
+                key: ValueKey(_searchResultKey),
                 future: _hotelsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
@@ -167,7 +196,12 @@ class _SearchPageState extends State<SearchPage> {
                     return StayzErrorView(error: snapshot.error, onRetry: _runSearch);
                   }
 
-                  final hotels = snapshot.data ?? const <HotelSummary>[];
+                  // Chan response cu/khong loc bi render sau khi keyword da doi.
+                  // Day la lop bao ve UI ngoai viec loc trong repository.
+                  final currentKeyword = _normalizeSearchText(_filters.keyword);
+                  final hotels = (snapshot.data ?? const <HotelSummary>[])
+                      .where((summary) => currentKeyword.isEmpty || _matchesCurrentKeyword(summary, currentKeyword))
+                      .toList(growable: false);
                   if (hotels.isEmpty) {
                     return StayzEmptyView(
                       icon: Icons.search_off_rounded,
@@ -181,6 +215,7 @@ class _SearchPageState extends State<SearchPage> {
                   }
 
                   return ListView.separated(
+                    controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
                       responsive.horizontalPadding,
@@ -197,6 +232,7 @@ class _SearchPageState extends State<SearchPage> {
                       final soldOut = summary.isSoldOut;
 
                       return SearchHotelCard(
+                        key: ValueKey('search-hotel-${summary.hotel.id}'),
                         name: summary.hotel.name,
                         location: '${summary.city.name}, ${summary.city.region}',
                         price: summary.hasPrice ? StayzFormatters.fullVnd(summary.lowestPrice) : tr('Liên hệ', 'Contact'),
@@ -230,6 +266,26 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     );
+  }
+
+  bool _matchesCurrentKeyword(HotelSummary summary, String keyword) {
+    final text = _normalizeSearchText([
+      summary.hotel.name,
+      summary.hotel.address,
+      summary.city.name,
+      summary.city.region,
+    ].join(' '));
+    return text.contains(keyword);
+  }
+
+  String _normalizeSearchText(String value) {
+    const accented = 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
+    const plain = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
+    var result = value.toLowerCase();
+    for (var i = 0; i < accented.length; i++) {
+      result = result.replaceAll(accented[i], plain[i]);
+    }
+    return result.replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 }
 
@@ -278,13 +334,24 @@ class _SearchBar extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.primary),
-                  SizedBox(width: 12 * responsive.widthScale),
+                  IconButton(
+                    onPressed: () => onSubmitted(controller.text.trim()),
+                    tooltip: tr('Tìm kiếm', 'Search'),
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints.tightFor(
+                      width: 36 * responsive.scale,
+                      height: 40 * responsive.scale,
+                    ),
+                    icon: Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.primary),
+                  ),
+                  SizedBox(width: 6 * responsive.widthScale),
                   Expanded(
                     child: TextField(
                       controller: controller,
                       onChanged: onChanged,
                       onSubmitted: onSubmitted,
+                      onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       textInputAction: TextInputAction.search,
                       style: TextStyle(fontSize: 15 * responsive.scale, color: AppTheme.ink, fontWeight: FontWeight.w700),
                       decoration: InputDecoration(
@@ -358,6 +425,11 @@ class _QuickChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    const quickAmenities = {'outdoor_pool', 'breakfast', 'family_room', 'free_parking'};
+    final hasQuickFilter = filters.isPreferred ||
+        filters.nearBeach ||
+        filters.maxPrice == 2000000 ||
+        filters.amenities.any(quickAmenities.contains);
 
     void toggleAmenity(String slug) {
       final next = Set<String>.of(filters.amenities);
@@ -373,8 +445,27 @@ class _QuickChips extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
         children: [
           _chip(
-            label: tr('Nổi bật', 'Featured'),
-            icon: Icons.star_rounded,
+            label: tr('Tất cả', 'All'),
+            icon: Icons.apps_rounded,
+            active: !hasQuickFilter,
+            onTap: () => onChanged(
+              SearchFilters(
+                keyword: filters.keyword,
+                city: filters.city,
+                type: filters.type,
+                roomType: filters.roomType,
+                minPrice: filters.minPrice,
+                maxPrice: filters.maxPrice == 2000000 ? null : filters.maxPrice,
+                guests: filters.guests,
+                amenities: filters.amenities
+                    .where((slug) => !quickAmenities.contains(slug))
+                    .toList(growable: false),
+              ),
+            ),
+          ),
+          _chip(
+            label: tr('Cao cấp', 'Premium'),
+            icon: Icons.diamond_rounded,
             active: filters.isPreferred,
             onTap: () => onChanged(filters.copyWith(isPreferred: !filters.isPreferred)),
           ),

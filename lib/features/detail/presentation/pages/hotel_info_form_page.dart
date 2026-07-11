@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/detail/presentation/widgets/detail_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class HotelInfoFormPage extends StatelessWidget {
@@ -40,7 +41,7 @@ class HotelInfoFormPage extends StatelessWidget {
                   SizedBox(width: 8 * responsive.widthScale),
                   Expanded(
                     child: Text(
-                      'Trung tâm hỗ trợ',
+                      tr('Trung tâm hỗ trợ', 'Help center'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.headlineMedium?.copyWith(
@@ -78,7 +79,7 @@ class HotelInfoFormPage extends StatelessWidget {
                         SizedBox(width: 16 * responsive.widthScale),
                         Expanded(
                           child: Text(
-                            'Tìm kiếm giải pháp...',
+                            tr('Tìm kiếm giải pháp...', 'Search for help...'),
                             style: TextStyle(
                               color: AppTheme.ink,
                               fontSize: 18 * responsive.scale,
@@ -89,28 +90,28 @@ class HotelInfoFormPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 54 * responsive.scale),
-                  const DetailSectionTitle(title: 'Câu hỏi thường gặp'),
+                  DetailSectionTitle(title: tr('Câu hỏi thường gặp', 'Frequently asked questions')),
                   SizedBox(height: 24 * responsive.scale),
-                  const _FaqTile(
-                    title: 'Làm thế nào để hủy phòng?',
-                    body: 'Bạn có thể hủy phòng trong mục "Đặt phòng" và xem điều kiện hủy trước khi xác nhận.',
+                  _FaqTile(
+                    title: tr('Làm thế nào để hủy phòng?', 'How do I cancel a booking?'),
+                    body: tr('Bạn có thể hủy phòng trong mục "Đặt phòng" và xem điều kiện hủy trước khi xác nhận.', 'Open Trips, select the booking, and review the cancellation terms before confirming.'),
                   ),
                   SizedBox(height: 12 * responsive.scale),
-                  const _FaqTile(
-                    title: 'Chính sách hoàn tiền',
-                    body: 'Tiền sẽ được hoàn trả vào phương thức thanh toán bạn đã sử dụng.',
+                  _FaqTile(
+                    title: tr('Chính sách hoàn tiền', 'Refund policy'),
+                    body: tr('Tiền sẽ được hoàn trả vào phương thức thanh toán bạn đã sử dụng.', 'Eligible refunds are returned to the original payment method.'),
                   ),
                   SizedBox(height: 12 * responsive.scale),
-                  const _FaqTile(
-                    title: 'Thay đổi thời gian lưu trú',
-                    body: 'Để thay đổi thời gian, vui lòng liên hệ khách sạn hoặc bộ phận hỗ trợ.',
+                  _FaqTile(
+                    title: tr('Thay đổi thời gian lưu trú', 'Change stay dates'),
+                    body: tr('Để thay đổi thời gian, vui lòng liên hệ khách sạn hoặc bộ phận hỗ trợ.', 'Contact the hotel or StayZ support to change your stay dates.'),
                   ),
                   SizedBox(height: 56 * responsive.scale),
-                  const DetailSectionTitle(title: 'Liên hệ với chúng tôi'),
+                  DetailSectionTitle(title: tr('Liên hệ với chúng tôi', 'Contact us')),
                   SizedBox(height: 24 * responsive.scale),
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: SupportActionCard(
                           icon: Icons.phone_outlined,
                           title: 'HOTLINE',
@@ -119,11 +120,11 @@ class HotelInfoFormPage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 20 * responsive.widthScale),
-                      const Expanded(
+                      Expanded(
                         child: SupportActionCard(
                           icon: Icons.chat_bubble_outline,
-                          title: 'TRỰC\nTUYẾN',
-                          value: 'Chat ngay',
+                          title: tr('TRỰC\nTUYẾN', 'LIVE\nCHAT'),
+                          value: tr('Chat ngay', 'Chat now'),
                           color: Color(0xFFFFC76B),
                         ),
                       ),
@@ -145,7 +146,7 @@ class HotelInfoFormPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Gửi phản hồi cho chúng tôi',
+                                tr('Gửi phản hồi cho chúng tôi', 'Send us feedback'),
                                 style: TextStyle(
                                   color: AppTheme.accentDark,
                                   fontSize: 17 * responsive.scale,
@@ -154,7 +155,7 @@ class HotelInfoFormPage extends StatelessWidget {
                               ),
                               SizedBox(height: 14 * responsive.scale),
                               Text(
-                                'Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn mỗi ngày.',
+                                tr('Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn mỗi ngày.', 'Your feedback helps us improve StayZ.'),
                                 style: TextStyle(
                                   color: const Color(0xFF6B5348),
                                   fontSize: 18 * responsive.scale,
@@ -166,7 +167,7 @@ class HotelInfoFormPage extends StatelessWidget {
                                 height: 52 * responsive.scale,
                                 child: FilledButton(
                                   onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Cảm ơn bạn, StayZ đã ghi nhận phản hồi.')),
+                                    SnackBar(content: Text(tr('Cảm ơn bạn, StayZ đã ghi nhận phản hồi.', 'Thank you. StayZ received your feedback.'))),
                                   ),
                                   style: FilledButton.styleFrom(
                                     backgroundColor: AppTheme.accentDark,
@@ -175,7 +176,7 @@ class HotelInfoFormPage extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    'VIẾT PHẢN HỒI',
+                                    tr('VIẾT PHẢN HỒI', 'WRITE FEEDBACK'),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16 * responsive.scale,
@@ -197,10 +198,10 @@ class HotelInfoFormPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 56 * responsive.scale),
-                  const DetailSectionTitle(title: 'Pháp lý'),
+                  DetailSectionTitle(title: tr('Pháp lý', 'Legal')),
                   SizedBox(height: 26 * responsive.scale),
-                  const _LegalTile(label: 'Điều khoản sử dụng'),
-                  const _LegalTile(label: 'Chính sách bảo mật'),
+                  _LegalTile(label: tr('Điều khoản sử dụng', 'Terms of use')),
+                  _LegalTile(label: tr('Chính sách bảo mật', 'Privacy policy')),
                   SizedBox(height: 54 * responsive.scale),
                   Icon(
                     Icons.local_florist_outlined,

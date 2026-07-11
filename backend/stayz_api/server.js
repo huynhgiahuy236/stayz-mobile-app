@@ -1,4 +1,5 @@
 const http = require("http");
+const dns = require("node:dns");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -36,11 +37,29 @@ app.use(
 app.use(express.json());
 app.use(passport.initialize());
 
-mongoose.connect(DATABASE_URL);
-
-mongoose.connection.on("connected", () => {
-  console.log("MongoDB connected");
+app.get("/health", (_req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+  res.status(connected ? 200 : 503).json({
+    status: connected ? "ok" : "starting",
+    database: connected ? "connected" : "disconnected",
+  });
 });
+
+if (!DATABASE_URL?.startsWith("mongodb://") && !DATABASE_URL?.startsWith("mongodb+srv://")) {
+  throw new Error(
+    "DATABASE_URL must start with mongodb:// or mongodb+srv://",
+  );
+}
+
+// Some local routers refuse the SRV DNS lookup used by MongoDB Atlas.
+// Public resolvers can be overridden with MONGODB_DNS_SERVERS in .env.
+if (DATABASE_URL.startsWith("mongodb+srv://")) {
+  const dnsServers = (process.env.MONGODB_DNS_SERVERS || "1.1.1.1,8.8.8.8")
+    .split(",")
+    .map((server) => server.trim())
+    .filter(Boolean);
+  dns.setServers(dnsServers);
+}
 
 const imageStaticOptions = {
   maxAge: "7d",
@@ -59,6 +78,18 @@ const server = http.createServer(app);
 // Initialize Socket.io on the server
 initSocket(server);
 
-server.listen(PORT, () => {
-  console.log(`StayZ API online at http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 10000 });
+    console.log("MongoDB connected");
+
+    server.listen(PORT, () => {
+      console.log(`StayZ API online at http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("MongoDB connection failed:", error.message);
+    process.exitCode = 1;
+  }
+}
+
+startServer();

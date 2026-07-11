@@ -83,6 +83,12 @@ const bookingSchema = new mongoose.Schema(
     // Hoan tien khi huy (fake): so tien va ti le da ap dung.
     refund_amount: { type: Number, default: 0 },
     refund_rate: { type: Number, default: 0 },
+    refund_status: {
+      type: String,
+      enum: ["none", "pending_manual", "completed", "failed"],
+      default: "none",
+    },
+    payment_expires_at: { type: Date, default: null },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );

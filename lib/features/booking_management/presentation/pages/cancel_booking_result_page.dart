@@ -77,7 +77,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
         type: StayzAlertType.success,
         title: 'Đã hủy đặt phòng',
         message: refund > 0
-            ? 'Hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) về phương thức thanh toán ban đầu.'
+            ? 'Yêu cầu hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) đang chờ xử lý thủ công.'
             : 'Không có khoản hoàn theo chính sách hủy.',
       );
     } on ApiException catch (error) {

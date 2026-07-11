@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/shared/repositories/booking_cache.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -107,13 +108,13 @@ class AuthService {
     );
 
     if (data is! Map<String, dynamic>) {
-      throw const ApiException('Máy chủ trả về dữ liệu đăng nhập không hợp lệ.');
+      throw ApiException(tr('Máy chủ trả về dữ liệu đăng nhập không hợp lệ.', 'The server returned an invalid sign-in response.'));
     }
 
     final token = data['accessToken']?.toString() ?? '';
     final user = data['user'];
     if (token.isEmpty || user is! Map<String, dynamic>) {
-      throw const ApiException('Đăng nhập không thành công. Vui lòng thử lại.');
+      throw ApiException(tr('Đăng nhập không thành công. Vui lòng thử lại.', 'Sign-in failed. Please try again.'));
     }
 
     // Doi tai khoan: du lieu cua nguoi truoc phai bien mat.

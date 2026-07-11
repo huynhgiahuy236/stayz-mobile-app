@@ -8,8 +8,14 @@ import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:flutter/material.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _pickLanguage(BuildContext context) async {
     await showModalBottomSheet<void>(
@@ -37,16 +43,18 @@ class SettingsPage extends StatelessWidget {
               _LanguageOption(
                 label: 'Tiếng Việt',
                 selected: AppLocale.instance.language == AppLanguage.vi,
-                onTap: () {
-                  AppLocale.instance.setLanguage(AppLanguage.vi);
+                onTap: () async {
+                  await AppLocale.instance.setLanguage(AppLanguage.vi);
+                  if (!sheetContext.mounted) return;
                   Navigator.of(sheetContext).pop();
                 },
               ),
               _LanguageOption(
                 label: 'English',
                 selected: AppLocale.instance.language == AppLanguage.en,
-                onTap: () {
-                  AppLocale.instance.setLanguage(AppLanguage.en);
+                onTap: () async {
+                  await AppLocale.instance.setLanguage(AppLanguage.en);
+                  if (!sheetContext.mounted) return;
                   Navigator.of(sheetContext).pop();
                 },
               ),
@@ -88,7 +96,10 @@ class SettingsPage extends StatelessWidget {
                 ProfileMenuTile(
                   icon: Icons.person_outline_rounded,
                   label: tr('Thông tin cá nhân', 'Personal information'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.profileForm),
+                  onTap: () async {
+                    await Navigator.of(context).pushNamed(AppRoutes.profileForm);
+                    if (mounted) setState(() {});
+                  },
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(

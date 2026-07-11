@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingIntroPage extends StatefulWidget {
@@ -51,36 +52,36 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
     onPrimary: Color(0xFFFBFDFF),
   );
 
-  static const _slides = [
+  List<OnboardingSlideData> get _slides => [
     OnboardingSlideData(
       step: '01 / 03',
-      title: 'Khám phá hàng nghìn\nkhách sạn',
-      description:
-          'Từ boutique hotel ẩn mình trong phố cổ đến resort sang trọng ven biển.',
+      title: tr('Khám phá hàng nghìn\nkhách sạn', 'Discover thousands\nof hotels'),
+      description: tr('Từ boutique hotel ẩn mình trong phố cổ đến resort sang trọng ven biển.', 'From hidden boutique hotels in old towns to luxurious beach resorts.'),
       imageAsset: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
       imageAspectRatio: 570 / 623,
       imageMode: OnboardingImageMode.card,
       palette: _gardenPalette,
+      primaryLabel: tr('Tiếp theo', 'Next'),
     ),
     OnboardingSlideData(
       step: '02 / 03',
-      title: 'Tìm kiếm nhanh,\nđặt phòng dễ dàng',
-      description: 'Lọc theo giá, vị trí, tiện nghi. Đặt phòng trong vài giây.',
+      title: tr('Tìm kiếm nhanh,\nđặt phòng dễ dàng', 'Search quickly,\nbook with ease'),
+      description: tr('Lọc theo giá, vị trí, tiện nghi. Đặt phòng trong vài giây.', 'Filter by price, location and amenities. Book in seconds.'),
       imageAsset: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791',
       imageAspectRatio: 706 / 731,
       imageMode: OnboardingImageMode.card,
       palette: _mistPalette,
+      primaryLabel: tr('Tiếp theo', 'Next'),
     ),
     OnboardingSlideData(
       step: '03 / 03',
-      title: 'Trải nghiệm đáng\nnhớ mỗi chuyến đi',
-      description:
-          'Đánh giá thực từ khách hàng. Không bất ngờ khi check-in.',
+      title: tr('Trải nghiệm đáng\nnhớ mỗi chuyến đi', 'Make every trip\nmemorable'),
+      description: tr('Đánh giá thực từ khách hàng. Không bất ngờ khi check-in.', 'Real guest reviews with no surprises at check-in.'),
       imageAsset: 'https://images.unsplash.com/photo-1582719508461-905c673771fd',
       imageAspectRatio: 648 / 580,
       imageMode: OnboardingImageMode.card,
       palette: _clayPalette,
-      primaryLabel: 'Bắt đầu',
+      primaryLabel: tr('Bắt đầu', 'Get started'),
       showLoginPrompt: true,
     ),
   ];

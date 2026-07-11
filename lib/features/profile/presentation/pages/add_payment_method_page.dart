@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class AddPaymentMethodPage extends StatelessWidget {
@@ -23,7 +24,7 @@ class AddPaymentMethodPage extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: ProfilePrimaryButton(
-            label: 'Lưu phương thức',
+            label: tr('Lưu phương thức', 'Save payment method'),
             onTap: () => Navigator.of(context).maybePop(),
           ),
         ),
@@ -47,7 +48,7 @@ class AddPaymentMethodPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      'Thêm phương thức mới',
+                      tr('Thêm phương thức mới', 'Add payment method'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.headlineMedium?.copyWith(
@@ -65,13 +66,13 @@ class AddPaymentMethodPage extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.all(responsive.horizontalPadding),
                 children: [
-                  const ProfileSectionLabel(label: 'Chọn loại thanh toán'),
+                  ProfileSectionLabel(label: tr('Chọn loại thanh toán', 'Choose payment type')),
                   SizedBox(height: 20 * responsive.scale),
-                  const _PaymentTypeTile(icon: Icons.credit_card, title: 'Thẻ Tín dụng/Ghi nợ', subtitle: 'Visa, Mastercard, JCB'),
+                  _PaymentTypeTile(icon: Icons.credit_card, title: tr('Thẻ tín dụng/Ghi nợ', 'Credit/Debit card'), subtitle: 'Visa, Mastercard, JCB'),
                   SizedBox(height: 52 * responsive.scale),
-                  const _PaymentTypeTile(icon: Icons.account_balance_wallet_outlined, title: 'Ví điện tử', subtitle: 'MoMo, ZaloPay, ShopeePay'),
+                  _PaymentTypeTile(icon: Icons.account_balance_wallet_outlined, title: tr('Ví điện tử', 'E-wallet'), subtitle: 'MoMo, ZaloPay, ShopeePay'),
                   SizedBox(height: 20 * responsive.scale),
-                  const _PaymentTypeTile(icon: Icons.account_balance, title: 'Chuyển khoản ngân hàng', subtitle: 'Internet Banking / QR Code'),
+                  _PaymentTypeTile(icon: Icons.account_balance, title: tr('Chuyển khoản ngân hàng', 'Bank transfer'), subtitle: 'Internet Banking / QR Code'),
                   SizedBox(height: 34 * responsive.scale),
                   Container(
                     height: 190 * responsive.scale,

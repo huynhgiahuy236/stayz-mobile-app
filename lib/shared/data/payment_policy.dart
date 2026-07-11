@@ -1,3 +1,5 @@
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+
 /// Chinh sach thanh toan & hoan tien (mo phong - fake).
 ///
 /// Toan bo la ham thuan de de kiem tra. Dung chung cho man chon phuong an,
@@ -76,28 +78,30 @@ class PaymentPolicy {
 
   static PaymentPlan fromSlug(String? value) => value == 'full_100' ? PaymentPlan.full100 : PaymentPlan.deposit30;
 
-  static String planLabel(PaymentPlan plan) => plan == PaymentPlan.full100 ? 'Trả trước 100%' : 'Đặt cọc 30%';
+  static String planLabel(PaymentPlan plan) => plan == PaymentPlan.full100 ? tr('Trả trước 100%', 'Pay 100% now') : tr('Đặt cọc 30%', '30% deposit');
 
   /// Cac dong chinh sach hien duoi moi phuong an.
   static List<String> policyLines(PaymentPlan plan) {
     if (plan == PaymentPlan.full100) {
-      return const [
-        'Giảm 10% khi thanh toán toàn bộ.',
-        'Hoàn 100% nếu hủy trước 7 ngày.',
-        'Hoàn 90% nếu hủy trong khoảng 48 giờ – dưới 7 ngày.',
-        'Hoàn 70% nếu hủy trong vòng 48 giờ trước nhận phòng.',
-        'Không hoàn nếu không đến nhận phòng.',
+      return [
+        tr('Giảm 10% khi thanh toán toàn bộ.', 'Save 10% when paying in full.'),
+        tr('Hoàn 100% nếu hủy trước 7 ngày.', '100% refund when cancelled at least 7 days before check-in.'),
+        tr('Hoàn 90% nếu hủy trong khoảng 48 giờ – dưới 7 ngày.', '90% refund when cancelled between 48 hours and 7 days before check-in.'),
+        tr('Hoàn 70% nếu hủy trong vòng 48 giờ trước nhận phòng.', '70% refund when cancelled within 48 hours of check-in.'),
+        tr('Không hoàn nếu không đến nhận phòng.', 'No refund for no-shows.'),
       ];
     }
-    return const [
-      'Thanh toán trước 30%, phần còn lại trả tại khách sạn.',
-      'Hoàn 100% nếu hủy trước 7 ngày.',
-      'Hoàn 70% nếu hủy trong khoảng 48 giờ – dưới 7 ngày.',
-      'Hoàn 50% nếu hủy trong vòng 48 giờ trước nhận phòng.',
-      'Không hoàn nếu không đến nhận phòng.',
+    return [
+      tr('Thanh toán trước 30%, phần còn lại trả tại khách sạn.', 'Pay 30% now and the balance at the hotel.'),
+      tr('Hoàn 100% nếu hủy trước 7 ngày.', '100% refund when cancelled at least 7 days before check-in.'),
+      tr('Hoàn 70% nếu hủy trong khoảng 48 giờ – dưới 7 ngày.', '70% refund when cancelled between 48 hours and 7 days before check-in.'),
+      tr('Hoàn 50% nếu hủy trong vòng 48 giờ trước nhận phòng.', '50% refund when cancelled within 48 hours of check-in.'),
+      tr('Không hoàn nếu không đến nhận phòng.', 'No refund for no-shows.'),
     ];
   }
 
-  static const String refundDisclaimer =
-      'Tiền hoàn (nếu có) sẽ được xử lý về phương thức thanh toán ban đầu theo thời gian quy định của cổng thanh toán/ngân hàng.';
+  static String get refundDisclaimer => tr(
+        'Tiền hoàn (nếu có) sẽ được xử lý về phương thức thanh toán ban đầu theo thời gian quy định của cổng thanh toán/ngân hàng.',
+        'Eligible refunds are returned to the original payment method according to the payment provider or bank processing time.',
+      );
 }

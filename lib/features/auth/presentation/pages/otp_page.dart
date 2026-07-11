@@ -7,6 +7,7 @@ import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/auth_validators.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -148,7 +149,7 @@ class _OtpPageState extends State<OtpPage> {
     try {
       await AuthService.instance.requestPasswordReset(email: _email);
       if (!mounted) return;
-      _showMessage('Đã gửi lại mã xác thực.');
+      _showMessage(tr('Đã gửi lại mã xác thực.', 'A new verification code has been sent.'));
       _startCountdown();
     } on ApiException catch (error) {
       if (mounted) _showMessage(error.message);
@@ -169,17 +170,17 @@ class _OtpPageState extends State<OtpPage> {
     return AuthScaffold(
       child: Column(
         children: [
-          const AuthTopBar(title: 'Xác thực'),
+          AuthTopBar(title: tr('Xác thực', 'Verification')),
           Expanded(
             child: AuthScrollBody(
               bottomPadding: 80,
               children: [
                 SizedBox(height: 24 * responsive.scale),
                 AuthTitleBlock(
-                  title: 'Nhập mã xác thực',
+                  title: tr('Nhập mã xác thực', 'Enter verification code'),
                   subtitle: _email.isEmpty
-                      ? 'Nhập mã gồm 6 chữ số đã được gửi tới email của bạn.'
-                      : 'Chúng tôi đã gửi mã gồm 6 chữ số tới $_email.',
+                      ? tr('Nhập mã gồm 6 chữ số đã được gửi tới email của bạn.', 'Enter the 6-digit code sent to your email.')
+                      : tr('Chúng tôi đã gửi mã gồm 6 chữ số tới $_email.', 'We sent a 6-digit code to $_email.'),
                 ),
                 SizedBox(height: 32 * responsive.scale),
                 // Tinh be rong moi o tu be rong thuc con lai, chia deu 6 o tren
@@ -208,7 +209,7 @@ class _OtpPageState extends State<OtpPage> {
                 ),
                 SizedBox(height: 28 * responsive.scale),
                 AuthPrimaryButton(
-                  label: 'Xác nhận',
+                  label: tr('Xác nhận', 'Verify'),
                   onPressed: complete && !_verifying ? _verify : null,
                   loading: _verifying,
                 ),
@@ -216,12 +217,12 @@ class _OtpPageState extends State<OtpPage> {
                 Center(
                   child: _secondsLeft > 0
                       ? Text(
-                          'Gửi lại mã sau $_secondsLeft giây',
+                          tr('Gửi lại mã sau $_secondsLeft giây', 'Resend code in $_secondsLeft seconds'),
                           style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale),
                         )
                       : TextButton(
                           onPressed: _resending ? null : _resend,
-                          child: Text(_resending ? 'Đang gửi...' : 'Gửi lại mã'),
+                          child: Text(_resending ? tr('Đang gửi...', 'Sending...') : tr('Gửi lại mã', 'Resend code')),
                         ),
                 ),
               ],
@@ -255,7 +256,7 @@ class _OtpBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Chữ số thứ $position trên $total',
+      label: tr('Chữ số thứ $position trên $total', 'Digit $position of $total'),
       child: SizedBox(
         width: width,
         height: 56,

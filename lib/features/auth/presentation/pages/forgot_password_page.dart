@@ -5,6 +5,7 @@ import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/auth_validators.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nếu email tồn tại, mã xác thực đã được gửi.')),
+        SnackBar(content: Text(tr('Nếu email tồn tại, mã xác thực đã được gửi.', 'If the email exists, a verification code has been sent.'))),
       );
       await Navigator.of(context).pushNamed(AppRoutes.otp, arguments: OtpArgs(email: email));
     } on ApiException catch (error) {
@@ -71,9 +72,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SizedBox(height: 42 * responsive.heightScale),
                 const _ResetIcon(),
                 SizedBox(height: 32 * responsive.scale),
-                const AuthTitleBlock(
-                  title: 'Quên mật khẩu',
-                  subtitle: 'Nhập email tài khoản, chúng tôi sẽ gửi mã xác thực gồm 6 chữ số.',
+                AuthTitleBlock(
+                  title: tr('Quên mật khẩu', 'Forgot password'),
+                  subtitle: tr('Nhập email tài khoản, chúng tôi sẽ gửi mã xác thực gồm 6 chữ số.', 'Enter your account email and we will send a 6-digit verification code.'),
                   centered: true,
                 ),
                 SizedBox(height: 32 * responsive.scale),
@@ -89,7 +90,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 SizedBox(height: 20 * responsive.scale),
                 AuthPrimaryButton(
-                  label: _isLoading ? 'Đang gửi mã...' : 'Gửi mã xác thực',
+                  label: _isLoading ? tr('Đang gửi mã...', 'Sending...') : tr('Gửi mã xác thực', 'Send verification code'),
                   // `null` de nut that su bi vo hieu hoa khi dang tai,
                   // thay vi giu mau day du nhung bam khong an gi.
                   onPressed: _isLoading ? null : _sendCode,
@@ -100,7 +101,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   // Truoc day nut nay dieu huong sang... form thong tin khach san.
                   onPressed: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
                   icon: const Icon(Icons.support_agent_outlined),
-                  label: const Text('Trung tâm hỗ trợ'),
+                  label: Text(tr('Trung tâm hỗ trợ', 'Help center')),
                   style: TextButton.styleFrom(foregroundColor: AppTheme.accent),
                 ),
               ],

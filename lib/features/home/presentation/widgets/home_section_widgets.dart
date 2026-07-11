@@ -427,9 +427,9 @@ class FilterPill extends StatelessWidget {
             constraints: BoxConstraints(minHeight: 42 * responsive.scale),
             padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
             decoration: BoxDecoration(
-              color: active ? AppTheme.ink : Colors.white,
+              color: active ? AppTheme.primary : Colors.white,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: active ? AppTheme.ink : AppTheme.line),
+              border: Border.all(color: active ? AppTheme.primary : AppTheme.line),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

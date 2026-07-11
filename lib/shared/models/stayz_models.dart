@@ -4,6 +4,8 @@ class StayzUser {
     required this.fullName,
     required this.email,
     required this.phone,
+    this.gender = '',
+    this.homeAddress = '',
     required this.avatarUrl,
     required this.role,
     required this.status,
@@ -31,6 +33,8 @@ class StayzUser {
   final String fullName;
   final String email;
   final String phone;
+  final String gender;
+  final String homeAddress;
   final String avatarUrl;
   final String role;
   final String status;

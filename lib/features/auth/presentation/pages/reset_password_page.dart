@@ -4,6 +4,7 @@ import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/auth_validators.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 /// Man doi mat khau chi den tu man OTP, nen luon co ca email lan ma da xac thuc.
@@ -49,7 +50,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   Future<void> _resetPassword() async {
     final args = _args;
     if (args == null) {
-      _showMessage('Thiếu mã xác thực. Vui lòng bắt đầu lại từ bước quên mật khẩu.');
+      _showMessage(tr('Thiếu mã xác thực. Vui lòng bắt đầu lại từ bước quên mật khẩu.', 'Missing verification code. Please restart the password reset flow.'));
       return;
     }
 
@@ -78,7 +79,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')),
+        SnackBar(content: Text(tr('Đã đổi mật khẩu. Vui lòng đăng nhập lại.', 'Password changed. Please sign in again.'))),
       );
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
     } on ApiException catch (error) {
@@ -100,7 +101,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return AuthScaffold(
       child: Column(
         children: [
-          const AuthTopBar(title: 'Mật khẩu mới'),
+          AuthTopBar(title: tr('Mật khẩu mới', 'New password')),
           Divider(color: AppTheme.neutral200.withValues(alpha: 0.7), height: 1),
           Expanded(
             child: AuthScrollBody(
@@ -108,16 +109,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               children: [
                 SizedBox(height: 28 * responsive.scale),
                 AuthTitleBlock(
-                  title: 'Bảo vệ tài khoản',
+                  title: tr('Bảo vệ tài khoản', 'Secure your account'),
                   subtitle: args == null
-                      ? 'Không nhận được mã xác thực. Hãy bắt đầu lại từ bước quên mật khẩu.'
-                      : 'Đặt mật khẩu mới cho ${args.email}.',
+                      ? tr('Không nhận được mã xác thực. Hãy bắt đầu lại từ bước quên mật khẩu.', 'No verification code was provided. Please restart the password reset flow.')
+                      : tr('Đặt mật khẩu mới cho ${args.email}.', 'Set a new password for ${args.email}.'),
                 ),
                 SizedBox(height: 32 * responsive.scale),
 
                 if (args == null) ...[
                   AuthPrimaryButton(
-                    label: 'Quay lại quên mật khẩu',
+                    label: tr('Quay lại quên mật khẩu', 'Restart password reset'),
                     onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
                       AppRoutes.forgotPassword,
                       (route) => route.settings.name == AppRoutes.login,
@@ -125,23 +126,23 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                 ] else ...[
                   AuthField(
-                    label: 'MẬT KHẨU MỚI',
-                    hint: 'Ít nhất 6 ký tự',
+                    label: tr('MẬT KHẨU MỚI', 'NEW PASSWORD'),
+                    hint: tr('Ít nhất 6 ký tự', 'At least 6 characters'),
                     obscure: true,
                     controller: _newPasswordController,
                     textInputAction: TextInputAction.next,
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   AuthField(
-                    label: 'NHẬP LẠI MẬT KHẨU',
-                    hint: 'Nhập lại mật khẩu mới',
+                    label: tr('NHẬP LẠI MẬT KHẨU', 'CONFIRM PASSWORD'),
+                    hint: tr('Nhập lại mật khẩu mới', 'Enter the new password again'),
                     obscure: true,
                     controller: _confirmPasswordController,
                     textInputAction: TextInputAction.done,
                   ),
                   SizedBox(height: 32 * responsive.scale),
                   AuthPrimaryButton(
-                    label: 'Cập nhật mật khẩu',
+                    label: tr('Cập nhật mật khẩu', 'Update password'),
                     onPressed: _isLoading ? null : _resetPassword,
                     loading: _isLoading,
                   ),

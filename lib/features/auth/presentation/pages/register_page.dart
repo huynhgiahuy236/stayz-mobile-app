@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -35,15 +36,15 @@ class _RegisterPageState extends State<RegisterPage> {
     final password = _passwordController.text;
 
     if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
-      _showMessage('Please enter name, email and password.');
+      _showMessage(tr('Vui lòng nhập họ tên, email và mật khẩu.', 'Please enter name, email and password.'));
       return;
     }
     if (password.length < 6) {
-      _showMessage('Password must be at least 6 characters.');
+      _showMessage(tr('Mật khẩu phải có ít nhất 6 ký tự.', 'Password must be at least 6 characters.'));
       return;
     }
     if (!_agreedToTerms) {
-      _showMessage('Please agree to the terms before registering.');
+      _showMessage(tr('Vui lòng đồng ý điều khoản trước khi đăng ký.', 'Please agree to the terms before registering.'));
       return;
     }
 
@@ -57,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created. Please sign in.')),
+        SnackBar(content: Text(tr('Tạo tài khoản thành công. Vui lòng đăng nhập.', 'Account created. Please sign in.'))),
       );
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
     } catch (error) {
@@ -92,11 +93,11 @@ class _RegisterPageState extends State<RegisterPage> {
               bottomPadding: 72,
               children: [
                 SizedBox(height: 20 * responsive.scale),
-                const AuthTitleBlock(title: 'Create account'),
+                AuthTitleBlock(title: tr('Tạo tài khoản', 'Create account')),
                 SizedBox(height: 24 * responsive.scale),
                 AuthField(
-                  label: 'FULL NAME',
-                  hint: 'Enter your name',
+                  label: tr('HỌ VÀ TÊN', 'FULL NAME'),
+                  hint: tr('Nhập họ tên', 'Enter your name'),
                   controller: _nameController,
                   textInputAction: TextInputAction.next,
                 ),
@@ -110,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 SizedBox(height: 16 * responsive.scale),
                 AuthField(
-                  label: 'PHONE',
+                  label: tr('SỐ ĐIỆN THOẠI', 'PHONE'),
                   hint: '901 234 567',
                   keyboardType: TextInputType.phone,
                   controller: _phoneController,
@@ -136,8 +137,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 SizedBox(height: 16 * responsive.scale),
                 AuthField(
-                  label: 'PASSWORD',
-                  hint: 'Password',
+                  label: tr('MẬT KHẨU', 'PASSWORD'),
+                  hint: tr('Mật khẩu', 'Password'),
                   obscure: true,
                   controller: _passwordController,
                   textInputAction: TextInputAction.done,
@@ -149,13 +150,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 SizedBox(height: 28 * responsive.scale),
                 AuthPrimaryButton(
-                  label: _isLoading ? 'Creating account...' : 'Register',
+                  label: _isLoading ? tr('Đang tạo tài khoản...', 'Creating account...') : tr('Đăng ký', 'Register'),
                   onPressed: _isLoading ? () {} : _register,
                 ),
                 SizedBox(height: 36 * responsive.scale),
                 AuthInlineLink(
-                  text: 'Already have an account?',
-                  actionText: 'Sign in',
+                  text: tr('Đã có tài khoản?', 'Already have an account?'),
+                  actionText: tr('Đăng nhập', 'Sign in'),
                   onTap: _isLoading ? () {} : () => Navigator.of(context).pop(),
                 ),
               ],
@@ -196,16 +197,16 @@ class _AgreementRow extends StatelessWidget {
                 color: AppTheme.neutral500,
                 fontSize: 14 * responsive.scale,
               ),
-              children: const [
-                TextSpan(text: 'I agree to the '),
+              children: [
+                TextSpan(text: tr('Tôi đồng ý với ', 'I agree to the ')),
                 TextSpan(
-                  text: 'Terms',
-                  style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w600),
+                  text: tr('Điều khoản', 'Terms'),
+                  style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w600),
                 ),
-                TextSpan(text: ' & '),
+                const TextSpan(text: ' & '),
                 TextSpan(
-                  text: 'Privacy Policy',
-                  style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w600),
+                  text: tr('Chính sách bảo mật', 'Privacy Policy'),
+                  style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w600),
                 ),
               ],
             ),

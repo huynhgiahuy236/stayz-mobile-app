@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
 
   Set<String> _favoriteIds = const <String>{};
   bool _loadedFavorites = false;
+  HomeQuickFilter _selectedQuickFilter = HomeQuickFilter.all;
 
   @override
   void initState() {
@@ -160,8 +161,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _openSearchWith(SearchFilters filters) {
-    Navigator.of(context).pushNamed(AppRoutes.search, arguments: filters);
+  Future<void> _openSearchWith(SearchFilters filters, {HomeQuickFilter? quickFilter}) async {
+    if (quickFilter != null) setState(() => _selectedQuickFilter = quickFilter);
+    await Navigator.of(context).pushNamed(AppRoutes.search, arguments: filters);
   }
 
   @override
@@ -244,7 +246,11 @@ class _HomePageState extends State<HomePage> {
                               child: FilterPill(
                                 label: filter.label,
                                 icon: filter.icon,
-                                onTap: () => _openSearchWith(filter.apply(const SearchFilters())),
+                                active: _selectedQuickFilter == filter,
+                                onTap: () => _openSearchWith(
+                                  filter.apply(const SearchFilters()),
+                                  quickFilter: filter,
+                                ),
                               ),
                             );
                           },

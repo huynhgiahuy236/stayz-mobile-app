@@ -1,11 +1,11 @@
 require("dotenv").config();
-const DATABASE_URL = process.env.DATABASE_URL;
-const SECRET = process.env.SECRET;
+const DATABASE_URL = process.env.MONGODB_URI || process.env.DATABASE_URL;
+const SECRET = process.env.JWT_SECRET || process.env.SECRET;
 const CLIENT_URL = process.env.CLIENT_URL;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL;
-const REFRESH_SECRET = process.env.REFRESH_SECRET;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.REFRESH_SECRET;
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
 const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;

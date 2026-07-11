@@ -65,13 +65,10 @@ const bookingController = {
   },
   updateStatus: async (req, res, next) => {
     const bookingId = req.params.bookingId;
-    const { status, refund_amount, refund_rate } = req.body;
+    const { status } = req.body;
 
     try {
-      const data = await bookingService.updateStatus(bookingId, status, req.user, {
-        refund_amount,
-        refund_rate,
-      });
+      const data = await bookingService.updateStatus(bookingId, status, req.user);
       const response = responseSuccess(
         data,
         "Cập nhật trạng thái booking thành công",

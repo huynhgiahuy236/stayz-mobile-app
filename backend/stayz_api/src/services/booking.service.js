@@ -84,7 +84,10 @@ const getOverlappingBookedRooms = async ({
 }) => {
   const query = {
     room_id: roomId,
-    status: { $in: activeStatus },
+    $or: [
+      { status: "confirmed" },
+      { status: "pending", payment_expires_at: { $gt: new Date() } },
+    ],
     check_in: { $lt: checkOut },
     check_out: { $gt: checkIn },
   };
@@ -199,12 +202,9 @@ const bookingService = {
       // Khi tao moi chi cho phep pending hoac confirmed. Truoc day
       // `allStatus.includes(...)` cho phep client tao thang mot booking
       // da "completed" hoac "cancelled".
-      const status = creatableStatus.includes(data.status) ? data.status : "pending";
-
-      // Thanh toan mo phong: phuong an + so tien tra ngay do client gui len.
-      const paymentPlan = ["deposit_30", "full_100"].includes(data.payment_plan) ? data.payment_plan : "";
-      const amountPaid = Number(data.amount_paid) || 0;
-      const remainingAtHotel = Number(data.remaining_at_hotel) || 0;
+      // Booking luon cho thanh toan. PayOS webhook moi duoc quyen confirm.
+      const status = "pending";
+      const paymentPlan = "full_100";
 
       const booking = await bookingModel.create({
         user_id,
@@ -218,10 +218,11 @@ const bookingService = {
         price_per_night: pricePerNight,
         total_price: totalPrice,
         status,
-        payment_status: status === "confirmed" ? "paid" : "pending",
+        payment_status: "pending",
+        payment_expires_at: new Date(Date.now() + 15 * 60 * 1000),
         payment_plan: paymentPlan,
-        amount_paid: amountPaid,
-        remaining_at_hotel: remainingAtHotel,
+        amount_paid: 0,
+        remaining_at_hotel: 0,
       });
 
       // Tao thong bao khi dat phong. Truoc day chi co thong bao luc doi
@@ -229,8 +230,8 @@ const bookingService = {
       notificationsService.createInternal({
         userId: booking.user_id,
         type: "booking_status",
-        title: "Đặt phòng thành công! 🎉",
-        body: `Bạn đã đặt phòng thành công (mã #${booking._id}). Chúc bạn có chuyến đi vui vẻ!`,
+        title: "Booking đang chờ thanh toán",
+        body: `Booking #${booking._id} đã được giữ trong 15 phút. Vui lòng hoàn tất thanh toán PayOS.`,
         refId: booking._id,
         refType: "Booking",
       }).catch(() => {}); // fire-and-forget, khong chan response
@@ -291,12 +292,17 @@ const bookingService = {
     // Khi huy: luu so tien hoan (fake) do client tinh theo ma tran, danh dau
     // payment_status = refunded neu co hoan.
     if (status === "cancelled") {
-      const refundAmount = Number(extra.refund_amount) || 0;
-      const refundRate = Number(extra.refund_rate) || 0;
+      const paid = Number(booking.amount_paid) || 0;
+      const hours = new Date(booking.check_in).getTime() <= Date.now()
+        ? 0
+        : Math.floor((new Date(booking.check_in).getTime() - Date.now()) / 3600000);
+      const isFull = booking.payment_plan === "full_100";
+      const refundRate = hours >= 168 ? 100 : hours >= 48 ? (isFull ? 90 : 70) : hours > 0 ? (isFull ? 70 : 50) : 0;
+      const refundAmount = Math.round((paid * refundRate) / 100);
       booking.refund_amount = refundAmount;
       booking.refund_rate = refundRate;
       if (booking.payment_status === "paid" && refundAmount > 0) {
-        booking.payment_status = "refunded";
+        booking.refund_status = "pending_manual";
       }
     }
 

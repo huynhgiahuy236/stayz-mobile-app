@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_slide_data.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -197,9 +198,9 @@ class _FreshBlueSlide extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                             children: [
-                              const TextSpan(text: 'Đã có tài khoản? '),
+                              TextSpan(text: tr('Đã có tài khoản? ', 'Already have an account? ')),
                               TextSpan(
-                                text: 'Đăng nhập',
+                                text: tr('Đăng nhập', 'Sign in'),
                                 style: TextStyle(
                                   color: data.palette.primary,
                                   decoration: TextDecoration.underline,
@@ -348,7 +349,7 @@ class _OnboardingHeader extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
                 child: Text(
-                  'Bỏ qua',
+                  tr('Bỏ qua', 'Skip'),
                   style: TextStyle(
                     color: palette.primaryDark,
                     fontSize: 16 * responsive.scale,

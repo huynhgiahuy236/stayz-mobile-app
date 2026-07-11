@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -316,7 +317,7 @@ class PaymentAccountTile extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFD9B8B8)),
               ),
               child: Text(
-                'MẶC ĐỊNH',
+                tr('MẶC ĐỊNH', 'DEFAULT'),
                 style: TextStyle(color: AppTheme.neutral500, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700),
               ),
             ),

@@ -95,7 +95,7 @@ class BookingPrimaryButton extends StatelessWidget {
       width: double.infinity,
       height: 58 * responsive.scale,
       child: FilledButton(
-        onPressed: onTap ?? () {},
+          onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.accent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

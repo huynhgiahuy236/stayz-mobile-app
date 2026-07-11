@@ -109,3 +109,11 @@ class BookingSummaryArgs {
 
   final BookingSummary summary;
 }
+
+class PayOSPaymentArgs {
+  const PayOSPaymentArgs({required this.summary, required this.checkoutUrl, required this.amount});
+
+  final BookingSummary summary;
+  final String checkoutUrl;
+  final num amount;
+}

@@ -1,98 +1,81 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
 
-class ProfileFormPage extends StatelessWidget {
+class ProfileFormPage extends StatefulWidget {
   const ProfileFormPage({super.key});
+
+  @override
+  State<ProfileFormPage> createState() => _ProfileFormPageState();
+}
+
+class _ProfileFormPageState extends State<ProfileFormPage> {
+  late Future<StayzUser?> _profile = ApiStayzRepository.instance.getProfile();
+
+  void _reload() => setState(() => _profile = ApiStayzRepository.instance.getProfile());
+
+  Future<void> _openEdit() async {
+    await Navigator.of(context).pushNamed(AppRoutes.editProfile);
+    if (mounted) _reload();
+  }
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-
     return Scaffold(
       backgroundColor: const Color(0xFFFBF7F4),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(
-          responsive.horizontalPadding,
-          18 * responsive.scale,
-          responsive.horizontalPadding,
-          24 * responsive.scale,
-        ),
-        child: SafeArea(
-          top: false,
-          child: ProfilePrimaryButton(
-            label: 'Lưu thay đổi',
-            onTap: () => Navigator.of(context).maybePop(),
-          ),
-        ),
-      ),
+      appBar: null,
       body: SafeArea(
-        bottom: false,
         child: Column(
           children: [
-            const ProfileHeader(title: 'Thông tin cá nhân'),
+            ProfileHeader(title: tr('Thông tin cá nhân', 'Personal information')),
             Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.all(responsive.horizontalPadding),
-                children: [
-                  SizedBox(height: 32 * responsive.scale),
-                  Center(
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 82 * responsive.scale,
-                          backgroundColor: AppTheme.neutral200,
-                          child: Icon(Icons.person, color: AppTheme.accentDark, size: 76 * responsive.scale),
-                        ),
-                        Positioned(
-                          right: 0,
-                          bottom: 10 * responsive.scale,
-                          child: CircleAvatar(
-                            radius: 28 * responsive.scale,
-                            backgroundColor: AppTheme.accentDark,
-                            child: Icon(Icons.edit, color: Colors.white, size: 25 * responsive.scale),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 58 * responsive.scale),
-                  const ProfileInputField(label: 'Họ và tên', value: 'Nguyễn Huy'),
-                  SizedBox(height: 34 * responsive.scale),
-                  const ProfileInputField(label: 'Email', value: 'huy@email.com'),
-                  SizedBox(height: 34 * responsive.scale),
-                  const ProfileInputField(label: 'Số điện thoại', value: '+84 901 234 567'),
-                  SizedBox(height: 34 * responsive.scale),
-                  Row(
+              child: FutureBuilder<StayzUser?>(
+                future: _profile,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  }
+                  if (snapshot.hasError) return StayzErrorView(error: snapshot.error, onRetry: _reload);
+                  final user = snapshot.data;
+                  if (user == null) {
+                    return StayzEmptyView(
+                      icon: Icons.person_off_outlined,
+                      title: tr('Không tìm thấy hồ sơ', 'Profile not found'),
+                      message: tr('Vui lòng đăng nhập lại.', 'Please sign in again.'),
+                    );
+                  }
+                  return ListView(
+                    padding: EdgeInsets.all(responsive.horizontalPadding),
                     children: [
-                      Expanded(
-                        child: ProfileInputField(
-                          label: 'Ngày sinh',
-                          value: 'DD/MM/YYYY',
-                          trailing: Icon(Icons.calendar_today_outlined, color: const Color(0xFF5A3F3F), size: 22 * responsive.scale),
-                        ),
+                      SizedBox(height: 28 * responsive.scale),
+                      CircleAvatar(
+                        radius: 58 * responsive.scale,
+                        backgroundColor: AppTheme.neutral200,
+                        backgroundImage: user.avatarUrl.isNotEmpty ? NetworkImage(user.avatarUrl) : null,
+                        child: user.avatarUrl.isEmpty ? Icon(Icons.person, size: 58 * responsive.scale, color: AppTheme.accentDark) : null,
                       ),
-                      SizedBox(width: 18 * responsive.widthScale),
-                      Expanded(
-                        child: ProfileInputField(
-                          label: 'Giới tính',
-                          value: 'Nam',
-                          trailing: Icon(Icons.keyboard_arrow_down, color: AppTheme.neutral500, size: 24 * responsive.scale),
-                        ),
-                      ),
+                      SizedBox(height: 34 * responsive.scale),
+                      ProfileInputField(label: tr('Họ và tên', 'Full name'), value: user.fullName),
+                      SizedBox(height: 24 * responsive.scale),
+                      ProfileInputField(label: 'Email', value: user.email),
+                      SizedBox(height: 24 * responsive.scale),
+                      ProfileInputField(label: tr('Số điện thoại', 'Phone number'), value: user.phone.isEmpty ? tr('Chưa cập nhật', 'Not provided') : user.phone),
+                      SizedBox(height: 24 * responsive.scale),
+                      ProfileInputField(label: tr('Giới tính', 'Gender'), value: _genderLabel(user.gender)),
+                      SizedBox(height: 24 * responsive.scale),
+                      ProfileInputField(label: tr('Địa chỉ', 'Address'), value: user.homeAddress.isEmpty ? tr('Chưa cập nhật', 'Not provided') : user.homeAddress, large: true),
+                      SizedBox(height: 36 * responsive.scale),
+                      ProfilePrimaryButton(label: tr('Chỉnh sửa hồ sơ', 'Edit profile'), onTap: _openEdit),
                     ],
-                  ),
-                  SizedBox(height: 66 * responsive.scale),
-                  Divider(color: AppTheme.neutral200),
-                  SizedBox(height: 62 * responsive.scale),
-                  const ProfileMenuCard(
-                    children: [
-                      ProfileMenuTile(icon: Icons.shield_outlined, label: 'Mật khẩu & Bảo mật'),
-                    ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ],
@@ -100,4 +83,11 @@ class ProfileFormPage extends StatelessWidget {
       ),
     );
   }
+
+  String _genderLabel(String value) => switch (value) {
+        'male' => tr('Nam', 'Male'),
+        'female' => tr('Nữ', 'Female'),
+        'other' => tr('Khác', 'Other'),
+        _ => tr('Chưa cập nhật', 'Not provided'),
+      };
 }

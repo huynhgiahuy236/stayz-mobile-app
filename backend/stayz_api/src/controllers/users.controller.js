@@ -43,6 +43,9 @@ const userController = {
     const id = req.params.id;
     const payload = req.body;
     try {
+      if (req.user?.userId !== id && req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Ban khong co quyen cap nhat tai khoan nay" });
+      }
       const data = await userService.update(id, payload);
       const response = responseSuccess(data, "Cap nhat user thanh cong", 200);
       res.status(response.code).json(response);

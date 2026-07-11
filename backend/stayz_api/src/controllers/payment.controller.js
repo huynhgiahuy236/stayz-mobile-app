@@ -51,6 +51,12 @@ const paymentController = {
       next(err);
     }
   },
+  paymentReturn: (req, res) => {
+    res.status(200).json({ status: "return", query: req.query });
+  },
+  paymentCancel: (req, res) => {
+    res.status(200).json({ status: "cancel", query: req.query });
+  },
 };
 
 module.exports = paymentController;

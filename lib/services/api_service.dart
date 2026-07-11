@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 
 /// Loi API da duoc dich sang ngon ngu nguoi dung doc duoc.
 ///
@@ -104,22 +105,22 @@ class ApiService {
       rethrow;
     } on SocketException catch (error) {
       throw ApiException(
-        'Không kết nối được máy chủ. Kiểm tra kết nối mạng rồi thử lại.',
+        tr('Không kết nối được máy chủ. Kiểm tra kết nối mạng rồi thử lại.', 'Cannot reach the server. Check your connection and try again.'),
         detail: '$method $uri -> $error',
       );
     } on TimeoutException catch (error) {
       throw ApiException(
-        'Máy chủ phản hồi quá lâu. Vui lòng thử lại.',
+        tr('Máy chủ phản hồi quá lâu. Vui lòng thử lại.', 'The server took too long to respond. Please try again.'),
         detail: '$method $uri -> $error',
       );
     } on HttpException catch (error) {
       throw ApiException(
-        'Không kết nối được máy chủ. Vui lòng thử lại.',
+        tr('Không kết nối được máy chủ. Vui lòng thử lại.', 'Cannot reach the server. Please try again.'),
         detail: '$method $uri -> $error',
       );
     } on FormatException catch (error) {
       throw ApiException(
-        'Máy chủ trả về dữ liệu không hợp lệ.',
+        tr('Máy chủ trả về dữ liệu không hợp lệ.', 'The server returned invalid data.'),
         detail: '$method $uri -> $error',
       );
     } finally {
@@ -139,25 +140,25 @@ class ApiService {
   /// dich ma trang thai sang cau noi nguoi dung hieu duoc.
   String _messageFor(int statusCode, dynamic decoded) {
     final serverMessage = decoded is Map<String, dynamic> ? decoded['message']?.toString() : null;
-    if (serverMessage != null && serverMessage.trim().isNotEmpty) {
+    if (AppLocale.instance.isVietnamese && serverMessage != null && serverMessage.trim().isNotEmpty) {
       return serverMessage;
     }
 
     switch (statusCode) {
       case 400:
-        return 'Yêu cầu không hợp lệ. Vui lòng kiểm tra lại thông tin.';
+        return tr('Yêu cầu không hợp lệ. Vui lòng kiểm tra lại thông tin.', 'Invalid request. Please check your information.');
       case 401:
-        return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+        return tr('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'Your session has expired. Please sign in again.');
       case 403:
-        return 'Bạn không có quyền thực hiện thao tác này.';
+        return tr('Bạn không có quyền thực hiện thao tác này.', 'You do not have permission to perform this action.');
       case 404:
-        return 'Không tìm thấy dữ liệu.';
+        return tr('Không tìm thấy dữ liệu.', 'The requested data was not found.');
       case 429:
-        return 'Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.';
+        return tr('Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.', 'Too many requests. Please try again in a few minutes.');
       default:
         return statusCode >= 500
-            ? 'Máy chủ đang gặp sự cố. Vui lòng thử lại sau.'
-            : 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+            ? tr('Máy chủ đang gặp sự cố. Vui lòng thử lại sau.', 'The server is unavailable. Please try again later.')
+            : tr('Đã có lỗi xảy ra. Vui lòng thử lại.', 'Something went wrong. Please try again.');
     }
   }
 }

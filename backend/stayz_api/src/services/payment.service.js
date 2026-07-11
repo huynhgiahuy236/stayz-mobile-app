@@ -25,6 +25,9 @@ const paymentService = {
       throw new BadRequestException("Booking này đã được thanh toán rồi");
     }
 
+    const existingPayment = await paymentsModel.findOne({ booking_id: bookingId });
+    if (existingPayment) return existingPayment;
+
     // Tạo mã đơn hàng ngẫu nhiên duy nhất (PayOS yêu cầu định dạng số)
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(1000 + Math.random() * 9000));
 
@@ -32,13 +35,14 @@ const paymentService = {
     // Tạo request data theo chuẩn PayOS
     const requestData = {
       orderCode,
-      amount: booking.total_price,
+      amount: Number(booking.total_price),
       description: description.substring(0, 25), // PayOS giới hạn 25 ký tự không dấu
       cancelUrl: PAYOS_CANCEL_URL || "http://localhost:5173/payment/cancel",
       returnUrl: PAYOS_RETURN_URL || "http://localhost:5173/payment/success",
+      expiredAt: Math.floor(Date.now() / 1000) + 15 * 60,
     };
 
-    const paymentLinkRes = await payOS.createPaymentLink(requestData);
+    const paymentLinkRes = await payOS.paymentRequests.create(requestData);
 
     // Lưu thông tin thanh toán vào DB
     const payment = await paymentsModel.create({
@@ -59,17 +63,21 @@ const paymentService = {
     if (!payOS) return null;
 
     // Xác thực webhook từ PayOS gửi đến
-    const verifiedData = payOS.verifyPaymentWebhookData(webhookBody);
+    const verifiedData = await payOS.webhooks.verify(webhookBody);
 
-    const { orderCode, success } = verifiedData;
+    const { orderCode } = verifiedData;
 
     // Tìm giao dịch thanh toán
     const payment = await paymentsModel.findOne({ order_code: orderCode });
     if (!payment) {
-      throw new BadRequestException("Giao dịch thanh toán không tồn tại");
+      return null;
     }
 
-    if (success) {
+    if (verifiedData.code === "00") {
+      if (Number(verifiedData.amount) !== Number(payment.amount)) {
+        throw new BadRequestException("So tien webhook khong khop giao dich");
+      }
+      if (payment.status === "PAID") return payment;
       // 1. Cập nhật trạng thái Payment là PAID
       payment.status = "PAID";
       await payment.save();
@@ -77,6 +85,10 @@ const paymentService = {
       // 2. Cập nhật trạng thái Booking là confirmed
       await bookingModel.findByIdAndUpdate(payment.booking_id, {
         status: "confirmed",
+        payment_status: "paid",
+        amount_paid: payment.amount,
+        remaining_at_hotel: 0,
+        payment_expires_at: null,
       });
     } else {
       // 1. Cập nhật trạng thái Payment là CANCELLED
@@ -105,7 +117,7 @@ const paymentService = {
 
     if (payOS) {
       try {
-        await payOS.cancelPaymentLink(payment.payment_link_id);
+        await payOS.paymentRequests.cancel(payment.payment_link_id, "Cancelled by StayZ user");
       } catch (err) {
         console.warn("PayOS SDK cancel link error:", err.message);
       }

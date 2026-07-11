@@ -4,6 +4,7 @@ import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/auth_validators.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     if (password.isEmpty) {
-      _showMessage('Vui lòng nhập mật khẩu.');
+      _showMessage(tr('Vui lòng nhập mật khẩu.', 'Password is required.'));
       return;
     }
 
@@ -67,9 +68,9 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 32 * responsive.scale),
           const AuthLogo(large: true),
           SizedBox(height: 36 * responsive.scale),
-          const AuthTitleBlock(
-            title: 'Chào mừng trở lại',
-            subtitle: 'Đăng nhập để tiếp tục hành trình StayZ của bạn.',
+          AuthTitleBlock(
+            title: tr('Chào mừng trở lại', 'Welcome back'),
+            subtitle: tr('Đăng nhập để tiếp tục hành trình StayZ của bạn.', 'Sign in to continue your StayZ journey.'),
           ),
           SizedBox(height: 32 * responsive.scale),
           AuthField(
@@ -81,8 +82,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: 18 * responsive.scale),
           AuthField(
-            label: 'MẬT KHẨU',
-            hint: 'Password',
+            label: tr('MẬT KHẨU', 'PASSWORD'),
+            hint: tr('Mật khẩu', 'Password'),
             obscure: true,
             textInputAction: TextInputAction.done,
             controller: _passwordController,
@@ -93,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
             child: TextButton(
               onPressed: _isLoading ? null : () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
               child: Text(
-                'Forgot password?',
+                tr('Quên mật khẩu?', 'Forgot password?'),
                 style: TextStyle(
                   color: AppTheme.accent,
                   fontSize: 14 * responsive.scale,
@@ -104,18 +105,18 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: 20 * responsive.scale),
           AuthPrimaryButton(
-            label: _isLoading ? 'Đang đăng nhập...' : 'Đăng nhập',
+            label: _isLoading ? tr('Đang đăng nhập...', 'Signing in...') : tr('Đăng nhập', 'Sign in'),
             onPressed: _isLoading ? null : _login,
             loading: _isLoading,
           ),
           SizedBox(height: 28 * responsive.scale),
-          const AuthDivider(label: 'hoặc'),
+          AuthDivider(label: tr('hoặc', 'or')),
           SizedBox(height: 24 * responsive.scale),
           const _GoogleButton(),
           SizedBox(height: 36 * responsive.scale),
           AuthInlineLink(
-            text: 'No account yet?',
-            actionText: 'Register',
+            text: tr('Chưa có tài khoản?', 'No account yet?'),
+            actionText: tr('Đăng ký', 'Register'),
             onTap: _isLoading ? () {} : () => Navigator.of(context).pushNamed(AppRoutes.register),
           ),
         ],
@@ -151,7 +152,7 @@ class _GoogleButton extends StatelessWidget {
             GoogleLogo(size: 22 * responsive.scale),
             SizedBox(width: 14 * responsive.widthScale),
             Text(
-              'Google sign-in not configured',
+              tr('Đăng nhập Google chưa được cấu hình', 'Google sign-in is not configured'),
               style: textTheme.bodyLarge?.copyWith(
                 color: AppTheme.neutral500,
                 fontSize: 16 * responsive.scale,

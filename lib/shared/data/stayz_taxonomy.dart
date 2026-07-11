@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 
 /// Nguon duy nhat anh xa gia tri enum trong database sang nhan tieng Viet.
 ///
@@ -6,11 +7,14 @@ import 'package:flutter/material.dart';
 /// ich tieng Anh, man chi tiet hardcode 6 tien ich khong lien quan toi du lieu,
 /// man chon phong lai co tu dien rieng. Gio tat ca doc tu day.
 class StayzTerm {
-  const StayzTerm({required this.slug, required this.label, this.icon});
+  const StayzTerm({required this.slug, required String label, this.enLabel, this.icon}) : _label = label;
 
   final String slug;
-  final String label;
+  final String _label;
+  final String? enLabel;
   final IconData? icon;
+
+  String get label => AppLocale.instance.isVietnamese ? _label : (enLabel ?? slug.replaceAll('_', ' '));
 }
 
 class StayzTaxonomy {
@@ -18,42 +22,42 @@ class StayzTaxonomy {
 
   /// Khop enum `city` trong `properties.model.js`.
   static const cities = <StayzTerm>[
-    StayzTerm(slug: 'ha-noi', label: 'Hà Nội'),
-    StayzTerm(slug: 'da-nang', label: 'Đà Nẵng'),
-    StayzTerm(slug: 'da-lat', label: 'Đà Lạt'),
-    StayzTerm(slug: 'ho-chi-minh', label: 'TP.HCM'),
-    StayzTerm(slug: 'vung-tau', label: 'Vũng Tàu'),
+    StayzTerm(slug: 'ha-noi', label: 'Hà Nội', enLabel: 'Hanoi'),
+    StayzTerm(slug: 'da-nang', label: 'Đà Nẵng', enLabel: 'Da Nang'),
+    StayzTerm(slug: 'da-lat', label: 'Đà Lạt', enLabel: 'Da Lat'),
+    StayzTerm(slug: 'ho-chi-minh', label: 'TP.HCM', enLabel: 'Ho Chi Minh City'),
+    StayzTerm(slug: 'vung-tau', label: 'Vũng Tàu', enLabel: 'Vung Tau'),
   ];
 
   /// Khop enum `type` trong `properties.model.js`.
   static const propertyTypes = <StayzTerm>[
-    StayzTerm(slug: 'hotel', label: 'Khách sạn', icon: Icons.apartment_rounded),
+    StayzTerm(slug: 'hotel', label: 'Khách sạn', enLabel: 'Hotel', icon: Icons.apartment_rounded),
     StayzTerm(slug: 'resort', label: 'Resort', icon: Icons.beach_access_rounded),
-    StayzTerm(slug: 'villa', label: 'Biệt thự', icon: Icons.villa_rounded),
-    StayzTerm(slug: 'apartment', label: 'Căn hộ', icon: Icons.house_rounded),
-    StayzTerm(slug: 'business', label: 'Công tác', icon: Icons.business_center_rounded),
+    StayzTerm(slug: 'villa', label: 'Biệt thự', enLabel: 'Villa', icon: Icons.villa_rounded),
+    StayzTerm(slug: 'apartment', label: 'Căn hộ', enLabel: 'Apartment', icon: Icons.house_rounded),
+    StayzTerm(slug: 'business', label: 'Công tác', enLabel: 'Business', icon: Icons.business_center_rounded),
     StayzTerm(slug: 'hostel', label: 'Hostel', icon: Icons.bed_rounded),
   ];
 
   /// Khop enum `room_type` trong `rooms.model.js`.
   static const roomTypes = <StayzTerm>[
-    StayzTerm(slug: 'standard_room', label: 'Tiêu chuẩn'),
+    StayzTerm(slug: 'standard_room', label: 'Tiêu chuẩn', enLabel: 'Standard'),
     StayzTerm(slug: 'deluxe_room', label: 'Deluxe'),
     StayzTerm(slug: 'suite', label: 'Suite'),
   ];
 
   /// Khop 10 khoa trong `properties.model.js -> amenities`.
   static const propertyAmenities = <StayzTerm>[
-    StayzTerm(slug: 'free_wifi', label: 'Wifi miễn phí', icon: Icons.wifi_rounded),
-    StayzTerm(slug: 'outdoor_pool', label: 'Hồ bơi', icon: Icons.pool_rounded),
-    StayzTerm(slug: 'breakfast', label: 'Bữa sáng', icon: Icons.free_breakfast_rounded),
-    StayzTerm(slug: 'free_parking', label: 'Đỗ xe miễn phí', icon: Icons.local_parking_rounded),
-    StayzTerm(slug: 'family_room', label: 'Phòng gia đình', icon: Icons.family_restroom_rounded),
-    StayzTerm(slug: 'restaurant', label: 'Nhà hàng', icon: Icons.restaurant_rounded),
-    StayzTerm(slug: 'airport_shuttle', label: 'Đưa đón sân bay', icon: Icons.airport_shuttle_rounded),
-    StayzTerm(slug: 'room_service', label: 'Phục vụ phòng', icon: Icons.room_service_rounded),
-    StayzTerm(slug: 'bar', label: 'Quầy bar', icon: Icons.local_bar_rounded),
-    StayzTerm(slug: 'non_smoking_room', label: 'Không hút thuốc', icon: Icons.smoke_free_rounded),
+    StayzTerm(slug: 'free_wifi', label: 'Wifi miễn phí', enLabel: 'Free Wi-Fi', icon: Icons.wifi_rounded),
+    StayzTerm(slug: 'outdoor_pool', label: 'Hồ bơi', enLabel: 'Outdoor pool', icon: Icons.pool_rounded),
+    StayzTerm(slug: 'breakfast', label: 'Bữa sáng', enLabel: 'Breakfast', icon: Icons.free_breakfast_rounded),
+    StayzTerm(slug: 'free_parking', label: 'Đỗ xe miễn phí', enLabel: 'Free parking', icon: Icons.local_parking_rounded),
+    StayzTerm(slug: 'family_room', label: 'Phòng gia đình', enLabel: 'Family room', icon: Icons.family_restroom_rounded),
+    StayzTerm(slug: 'restaurant', label: 'Nhà hàng', enLabel: 'Restaurant', icon: Icons.restaurant_rounded),
+    StayzTerm(slug: 'airport_shuttle', label: 'Đưa đón sân bay', enLabel: 'Airport shuttle', icon: Icons.airport_shuttle_rounded),
+    StayzTerm(slug: 'room_service', label: 'Phục vụ phòng', enLabel: 'Room service', icon: Icons.room_service_rounded),
+    StayzTerm(slug: 'bar', label: 'Quầy bar', enLabel: 'Bar', icon: Icons.local_bar_rounded),
+    StayzTerm(slug: 'non_smoking_room', label: 'Không hút thuốc', enLabel: 'Non-smoking room', icon: Icons.smoke_free_rounded),
   ];
 
   /// Khop `rooms.model.js -> amenities` va `-> badges`.

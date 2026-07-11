@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,7 +36,7 @@ class LocationMapCard extends StatelessWidget {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không mở được Google Maps.')),
+        SnackBar(content: Text(tr('Không mở được Google Maps.', 'Could not open Google Maps.'))),
       );
     }
   }
@@ -79,12 +80,12 @@ class LocationMapCard extends StatelessWidget {
                               BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 8),
                             ],
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.map_rounded, size: 15, color: AppTheme.primary),
-                              SizedBox(width: 5),
-                              Text('Mở Google Maps', style: TextStyle(color: AppTheme.primary, fontSize: 12, fontWeight: FontWeight.w800)),
+                              const Icon(Icons.map_rounded, size: 15, color: AppTheme.primary),
+                              const SizedBox(width: 5),
+                              Text(tr('Mở Google Maps', 'Open Google Maps'), style: const TextStyle(color: AppTheme.primary, fontSize: 12, fontWeight: FontWeight.w800)),
                             ],
                           ),
                         ),

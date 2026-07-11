@@ -2,6 +2,7 @@ import 'package:capstone_mobile/services/api_service.dart' show ApiService, ApiE
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/repositories/booking_cache.dart';
 
 export 'package:capstone_mobile/services/api_service.dart' show ApiException;
@@ -112,6 +113,12 @@ class SearchFilters {
 abstract class StayzRepository {
   Future<List<StayzUser>> getUsers();
   Future<StayzUser?> getProfile();
+  Future<StayzUser> updateProfile({
+    required String fullName,
+    required String phone,
+    required String gender,
+    required String homeAddress,
+  });
   Future<List<City>> getCities();
   Future<List<Amenity>> getAmenities();
   Future<List<Hotel>> getHotels();
@@ -125,6 +132,8 @@ abstract class StayzRepository {
   Future<List<Room>> getRoomsByHotelId(String hotelId, {DateTime? checkInDate, DateTime? checkOutDate});
   Future<List<BookingSummary>> getBookingSummaries({String? userId});
   Future<BookingSummary?> createBooking(BookingDraft draft);
+  Future<Map<String, dynamic>> createPayOSPayment(String bookingId);
+  Future<Map<String, dynamic>?> getPayOSPayment(String bookingId);
   Future<BookingSummary?> updateBookingStatus(String bookingId, String status, {num? refundAmount, num? refundRate});
   Future<List<Payment>> getPayments();
   Future<Payment?> getPaymentByBookingId(String bookingId);
@@ -177,6 +186,34 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   @override
+  Future<StayzUser> updateProfile({
+    required String fullName,
+    required String phone,
+    required String gender,
+    required String homeAddress,
+  }) async {
+    final userId = await AuthService.instance.userId();
+    final token = await AuthService.instance.accessToken();
+    if (userId == null || token == null) {
+      throw ApiException(tr('Vui lòng đăng nhập lại để cập nhật hồ sơ.', 'Please sign in again to update your profile.'), statusCode: 401);
+    }
+    final data = await api.patch(
+      '/users/update/$userId',
+      bearerToken: token,
+      body: {
+        'full_name': fullName.trim(),
+        'phone_number': phone.trim(),
+        'gender': gender,
+        'home_address': homeAddress.trim(),
+      },
+    );
+    if (data is! Map<String, dynamic>) {
+      throw ApiException(tr('Dữ liệu hồ sơ trả về không hợp lệ.', 'The profile response is invalid.'));
+    }
+    return _userFromApi(data);
+  }
+
+  @override
   Future<List<City>> getCities() async {
     final hotels = await getHotels();
     final cities = <String, City>{};
@@ -211,7 +248,46 @@ class ApiStayzRepository implements StayzRepository {
   Future<List<HotelSummary>> searchHotelSummaries(SearchFilters filters) async {
     final uri = Uri(path: '/properties/search', queryParameters: filters.toQuery());
     final rows = await _list(uri.toString());
-    return _summariesFromApi(rows);
+    final results = _summariesFromApi(rows);
+    final keyword = _searchText(filters.keyword);
+    if (keyword.isEmpty) {
+      return results;
+    }
+
+    // Khong tin rang server/cache da ap dung keyword chi vi response khong rong.
+    // Hau kiem tren client de tranh truong hop go "vung tau" nhung van hien
+    // ca 18 khach san. Cac filter khac van do server quyet dinh vi tap dau vao
+    // o day chinh la response da loc cua server.
+    final keywordMatches = results.where((summary) => _matchesKeyword(summary, keyword)).toList(growable: false);
+    if (keywordMatches.isNotEmpty || filters.activeCount > 0) {
+      return keywordMatches;
+    }
+
+    // Fallback cho input tu khoa: backend cu/co cache co the tra rong trong khi
+    // danh sach properties van co du lieu. Khong ap dung khi dang bat bo loc de
+    // tranh bo qua dieu kien gia, phong, tien ich.
+    final all = await getHotelSummaries();
+    return all.where((summary) => _matchesKeyword(summary, keyword)).toList(growable: false);
+  }
+
+  bool _matchesKeyword(HotelSummary summary, String keyword) {
+    final haystack = _searchText([
+      summary.hotel.name,
+      summary.hotel.address,
+      summary.city.name,
+      summary.city.region,
+    ].join(' '));
+    return haystack.contains(keyword);
+  }
+
+  String _searchText(String value) {
+    const accented = 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
+    const plain = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
+    var result = value.toLowerCase();
+    for (var i = 0; i < accented.length; i++) {
+      result = result.replaceAll(accented[i], plain[i]);
+    }
+    return result.replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 
   /// Backend da tinh san rating that, gia phong thap nhat va so phong trong
@@ -330,16 +406,27 @@ class ApiStayzRepository implements StayzRepository {
         'check_out': draft.checkOutDate.toIso8601String(),
         'guests': draft.adults + draft.children,
         'rooms_count': draft.roomCount,
-        'status': 'confirmed',
-        // Thanh toan mo phong: phuong an + so tien da tra.
-        if (draft.paymentPlan != null) 'payment_plan': draft.paymentPlan,
-        if (draft.amountPaid != null) 'amount_paid': draft.amountPaid,
-        if (draft.remainingAtHotel != null) 'remaining_at_hotel': draft.remainingAtHotel,
+        'status': 'pending',
       },
     );
     final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;
     if (summary != null) BookingCache.put(summary);
     return summary;
+  }
+
+  @override
+  Future<Map<String, dynamic>> createPayOSPayment(String bookingId) async {
+    final token = await _requireToken();
+    final data = await api.post('/payment/create/$bookingId', bearerToken: token);
+    if (data is! Map<String, dynamic>) throw const ApiException('Invalid PayOS response.');
+    return data;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getPayOSPayment(String bookingId) async {
+    final token = await _requireToken();
+    final data = await api.get('/payment/booking/$bookingId', bearerToken: token);
+    return data is Map<String, dynamic> ? data : null;
   }
 
   @override
@@ -355,9 +442,6 @@ class ApiStayzRepository implements StayzRepository {
       bearerToken: token,
       body: {
         'status': status,
-        // Hoan tien mo phong: gui so tien + ti le de backend luu va tao thong bao.
-        if (refundAmount != null) 'refund_amount': refundAmount,
-        if (refundRate != null) 'refund_rate': refundRate,
       },
     );
     final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;
@@ -464,6 +548,8 @@ class ApiStayzRepository implements StayzRepository {
       fullName: _string(json['full_name'], fallback: 'StayZ Guest'),
       email: _string(json['email'], fallback: 'guest@stayz.vn'),
       phone: _string(json['phone_number']),
+      gender: _string(json['gender']),
+      homeAddress: _string(json['home_address']),
       avatarUrl: avatar is Map ? _string(avatar['url']) : '',
       role: _string(json['role'], fallback: 'user'),
       status: 'active',

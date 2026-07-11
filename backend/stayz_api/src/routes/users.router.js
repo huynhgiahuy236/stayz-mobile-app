@@ -10,7 +10,7 @@ const userRouter = express.Router();
 userRouter.get("/getAll", userController.getAll);
 userRouter.get("/getById/:id", userController.getById);
 userRouter.delete("/delete/:id", userController.delete);
-userRouter.patch("/update/:id", userController.update);
+userRouter.patch("/update/:id", protect, userController.update);
 // Rate limit: đăng ký tối đa 5 lần / 15 phút, chặn spam tạo tài khoản
 userRouter.post("/create", rateLimiter(5, 900), userController.create);
 

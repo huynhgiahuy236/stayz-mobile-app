@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class AuthResponsive {
@@ -189,7 +190,7 @@ class AuthTopBar extends StatelessWidget {
                 ),
               ),
               padding: EdgeInsets.zero,
-              tooltip: 'Quay lại',
+              tooltip: tr('Quay lại', 'Back'),
               // 48dp la nguong toi thieu tren Android; 44dp truoc day chua dat.
               constraints: const BoxConstraints.tightFor(width: 48, height: 48),
             ),

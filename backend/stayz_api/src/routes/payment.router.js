@@ -6,6 +6,8 @@ const paymentRouter = express.Router();
 
 // Webhook endpoint: Cần gọi công khai không có JWT, PayOS sẽ POST đến đây
 paymentRouter.post("/webhook", paymentController.handleWebhook);
+paymentRouter.get("/return", paymentController.paymentReturn);
+paymentRouter.get("/cancel", paymentController.paymentCancel);
 
 // Các endpoint khách hàng cần đăng nhập để thao tác
 paymentRouter.use(protect);

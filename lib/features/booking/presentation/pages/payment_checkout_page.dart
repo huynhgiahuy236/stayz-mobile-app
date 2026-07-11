@@ -4,7 +4,9 @@ import 'package:capstone_mobile/features/booking/presentation/widgets/booking_se
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/payment_policy.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
@@ -17,18 +19,29 @@ class PaymentCheckoutPage extends StatefulWidget {
 }
 
 class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
-  PaymentPlan _plan = PaymentPlan.deposit30;
+  bool _creatingPayment = false;
 
   /// Sang man QR gia voi phuong an + so tien da chon. Booking chi duoc tao
   /// SAU khi QR "thanh toan thanh cong" (10s), khong tao ngay tai day.
-  void _goToPayment(BookingDraft draft) {
-    final quote = PaymentPolicy.quote(_plan, draft.totalAmount);
-    final draftWithPlan = draft.copyWith(
-      paymentPlan: PaymentPolicy.slug(_plan),
-      amountPaid: quote.payNow,
-      remainingAtHotel: quote.remaining,
-    );
-    Navigator.of(context).pushNamed(AppRoutes.paymentQr, arguments: draftWithPlan);
+  Future<void> _goToPayment(BookingDraft draft) async {
+    if (_creatingPayment) return;
+    setState(() => _creatingPayment = true);
+    try {
+      final summary = await ApiStayzRepository.instance.createBooking(draft);
+      if (summary == null) throw const ApiException('Could not create booking.');
+      final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
+      final checkoutUrl = payment['checkout_url']?.toString() ?? '';
+      if (checkoutUrl.isEmpty) throw const ApiException('PayOS checkout URL is missing.');
+      if (!mounted) return;
+      Navigator.of(context).pushNamed(
+        AppRoutes.paymentQr,
+        arguments: PayOSPaymentArgs(summary: summary, checkoutUrl: checkoutUrl, amount: payment['amount'] as num? ?? draft.totalAmount),
+      );
+    } on ApiException catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _creatingPayment = false);
+    }
   }
 
   @override
@@ -39,18 +52,18 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
     if (draft == null) {
       return Scaffold(
         backgroundColor: AppTheme.surface,
-        appBar: AppBar(title: const Text('Thanh toán')),
+        appBar: AppBar(title: Text(tr('Thanh toán', 'Payment'))),
         body: StayzEmptyView(
           icon: Icons.receipt_long_outlined,
-          title: 'Thiếu thông tin đặt phòng',
-          message: 'Hãy chọn lại phòng và ngày ở trước khi thanh toán.',
-          actionLabel: 'Về trang chủ',
+          title: tr('Thiếu thông tin đặt phòng', 'Missing booking details'),
+          message: tr('Hãy chọn lại phòng và ngày ở trước khi thanh toán.', 'Select a room and stay dates before payment.'),
+          actionLabel: tr('Về trang chủ', 'Back to home'),
           onAction: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
         ),
       );
     }
 
-    final quote = PaymentPolicy.quote(_plan, draft.totalAmount);
+    final payNow = draft.totalAmount;
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -74,20 +87,20 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Trả ngay',
+                      tr('Trả ngay', 'Pay now'),
                       style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700),
                     ),
                   ),
                   Text(
-                    StayzFormatters.fullVnd(quote.payNow),
+                    StayzFormatters.fullVnd(payNow),
                     style: TextStyle(color: AppTheme.accent, fontSize: 20 * responsive.scale, fontWeight: FontWeight.w900),
                   ),
                 ],
               ),
               SizedBox(height: 10 * responsive.scale),
               BookingPrimaryButton(
-                label: 'Thanh toán',
-                onTap: () => _goToPayment(draft),
+                label: _creatingPayment ? tr('Đang tạo thanh toán...', 'Creating payment...') : tr('Thanh toán qua PayOS', 'Pay with PayOS'),
+                onTap: _creatingPayment ? null : () => _goToPayment(draft),
               ),
             ],
           ),
@@ -98,7 +111,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Thanh toán',
+              title: tr('Thanh toán', 'Payment'),
               onBack: () {
                 final navigator = Navigator.of(context);
                 if (navigator.canPop()) {
@@ -120,21 +133,9 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 children: [
                   _CheckoutHotelCard(draft: draft),
                   SizedBox(height: 24 * responsive.scale),
-                  _SectionCaption(label: 'Chọn phương án thanh toán'),
+                  _SectionCaption(label: tr('Thanh toán toàn bộ qua PayOS', 'Full payment via PayOS')),
                   SizedBox(height: 14 * responsive.scale),
-                  _PlanCard(
-                    plan: PaymentPlan.deposit30,
-                    base: draft.totalAmount,
-                    selected: _plan == PaymentPlan.deposit30,
-                    onTap: () => setState(() => _plan = PaymentPlan.deposit30),
-                  ),
-                  SizedBox(height: 12 * responsive.scale),
-                  _PlanCard(
-                    plan: PaymentPlan.full100,
-                    base: draft.totalAmount,
-                    selected: _plan == PaymentPlan.full100,
-                    onTap: () => setState(() => _plan = PaymentPlan.full100),
-                  ),
+                  Text(tr('Số tiền được backend tính lại từ giá phòng trong hệ thống. Booking chỉ được xác nhận sau webhook PayOS hợp lệ.', 'The backend recalculates the amount from the room price. The booking is confirmed only after a valid PayOS webhook.')),
                   SizedBox(height: 18 * responsive.scale),
                   Container(
                     padding: EdgeInsets.all(12 * responsive.scale),
@@ -223,7 +224,7 @@ class _PlanCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(color: AppTheme.success, borderRadius: BorderRadius.circular(999)),
-                            child: const Text('Giảm 10%', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                            child: Text(tr('Giảm 10%', 'Save 10%'), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
                           ),
                         ],
                       ],
@@ -240,7 +241,7 @@ class _PlanCard extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(left: 32 * responsive.widthScale),
                   child: Text(
-                    'Còn ${StayzFormatters.fullVnd(quote.remaining)} trả tại khách sạn',
+                    tr('Còn ${StayzFormatters.fullVnd(quote.remaining)} trả tại khách sạn', '${StayzFormatters.fullVnd(quote.remaining)} due at the hotel'),
                     style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale),
                   ),
                 ),
@@ -351,14 +352,14 @@ class _CheckoutHotelCard extends StatelessWidget {
             ],
           ),
           Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
-          _BookingInfoRow(label: 'Nhận phòng', value: StayzFormatters.shortDate(draft.checkInDate)),
-          _BookingInfoRow(label: 'Trả phòng', value: StayzFormatters.shortDate(draft.checkOutDate)),
-          _BookingInfoRow(label: 'Số đêm', value: '${draft.nights} đêm'),
-          _BookingInfoRow(label: 'Số khách', value: '${draft.guestCount} khách'),
-          _BookingInfoRow(label: 'Số phòng', value: '${draft.roomCount} phòng'),
-          _BookingInfoRow(label: 'Giá mỗi đêm', value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
+          _BookingInfoRow(label: tr('Nhận phòng', 'Check-in'), value: StayzFormatters.shortDate(draft.checkInDate)),
+          _BookingInfoRow(label: tr('Trả phòng', 'Check-out'), value: StayzFormatters.shortDate(draft.checkOutDate)),
+          _BookingInfoRow(label: tr('Số đêm', 'Nights'), value: tr('${draft.nights} đêm', '${draft.nights} nights')),
+          _BookingInfoRow(label: tr('Số khách', 'Guests'), value: tr('${draft.guestCount} khách', '${draft.guestCount} guests')),
+          _BookingInfoRow(label: tr('Số phòng', 'Rooms'), value: tr('${draft.roomCount} phòng', '${draft.roomCount} rooms')),
+          _BookingInfoRow(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
           Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
-          _BookingInfoRow(label: 'Tổng giá phòng', value: StayzFormatters.fullVnd(draft.totalAmount)),
+          _BookingInfoRow(label: tr('Tổng giá phòng', 'Room total'), value: StayzFormatters.fullVnd(draft.totalAmount)),
         ],
       ),
     );

@@ -78,18 +78,29 @@ const server = http.createServer(app);
 // Initialize Socket.io on the server
 initSocket(server);
 
-async function startServer() {
+let isMongoConnecting = false;
+
+async function connectMongoWithRetry() {
+  if (isMongoConnecting || mongoose.connection.readyState === 1) return;
+
+  isMongoConnecting = true;
   try {
     await mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 10000 });
     console.log("MongoDB connected");
-
-    server.listen(PORT, () => {
-      console.log(`StayZ API online at http://localhost:${PORT}`);
-    });
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
-    process.exitCode = 1;
+    setTimeout(connectMongoWithRetry, 10000);
+  } finally {
+    isMongoConnecting = false;
   }
 }
 
-startServer();
+mongoose.connection.on("disconnected", () => {
+  console.warn("MongoDB disconnected. Retrying connection...");
+  setTimeout(connectMongoWithRetry, 10000);
+});
+
+server.listen(PORT, () => {
+  console.log(`StayZ API online at http://localhost:${PORT}`);
+  connectMongoWithRetry();
+});

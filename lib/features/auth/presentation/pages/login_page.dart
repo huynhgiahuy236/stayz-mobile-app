@@ -63,16 +63,16 @@ class _LoginPageState extends State<LoginPage> {
 
     return AuthScaffold(
       child: AuthScrollBody(
-        bottomPadding: 72,
+        bottomPadding: responsive.isCompact ? 28 : 56,
         children: [
-          SizedBox(height: 32 * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 2 : 20) * responsive.scale),
           const AuthLogo(large: true),
-          SizedBox(height: 36 * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 12 : 26) * responsive.scale),
           AuthTitleBlock(
             title: tr('Chào mừng trở lại', 'Welcome back'),
             subtitle: tr('Đăng nhập để tiếp tục hành trình StayZ của bạn.', 'Sign in to continue your StayZ journey.'),
           ),
-          SizedBox(height: 32 * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 16 : 26) * responsive.scale),
           AuthField(
             label: 'EMAIL',
             hint: 'example@email.com',
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
             textInputAction: TextInputAction.next,
             controller: _emailController,
           ),
-          SizedBox(height: 18 * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 12 : 18) * responsive.scale),
           AuthField(
             label: tr('MẬT KHẨU', 'PASSWORD'),
             hint: tr('Mật khẩu', 'Password'),
@@ -103,17 +103,19 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          SizedBox(height: 20 * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 8 : 18) * responsive.scale),
           AuthPrimaryButton(
             label: _isLoading ? tr('Đang đăng nhập...', 'Signing in...') : tr('Đăng nhập', 'Sign in'),
             onPressed: _isLoading ? null : _login,
             loading: _isLoading,
           ),
-          SizedBox(height: 28 * responsive.scale),
-          AuthDivider(label: tr('hoặc', 'or')),
-          SizedBox(height: 24 * responsive.scale),
-          const _GoogleButton(),
-          SizedBox(height: 36 * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 18 : 28) * responsive.scale),
+          if (!responsive.isCompact) ...[
+            AuthDivider(label: tr('hoặc', 'or')),
+            SizedBox(height: 20 * responsive.scale),
+            const _GoogleButton(),
+          ],
+          SizedBox(height: (responsive.isCompact ? 20 : 36) * responsive.scale),
           AuthInlineLink(
             text: tr('Chưa có tài khoản?', 'No account yet?'),
             actionText: tr('Đăng ký', 'Register'),
@@ -147,16 +149,20 @@ class _GoogleButton extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             GoogleLogo(size: 22 * responsive.scale),
             SizedBox(width: 14 * responsive.widthScale),
-            Text(
-              tr('Đăng nhập Google chưa được cấu hình', 'Google sign-in is not configured'),
-              style: textTheme.bodyLarge?.copyWith(
-                color: AppTheme.neutral500,
-                fontSize: 16 * responsive.scale,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Text(
+                tr('Đăng nhập Google', 'Continue with Google'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: AppTheme.neutral500,
+                  fontSize: 16 * responsive.scale,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

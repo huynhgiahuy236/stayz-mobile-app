@@ -18,6 +18,8 @@ userRouter.post("/create", rateLimiter(5, 900), userController.create);
 userRouter.post("/login", rateLimiter(5, 60), userController.login);
 userRouter.post("/refresh-token", userController.refreshAccessToken);
 userRouter.post("/logout", userController.logout);
+userRouter.post("/request-register-otp", rateLimiter(3, 900), userController.requestRegisterOtp);
+userRouter.post("/verify-register-otp", rateLimiter(5, 900), userController.verifyRegisterOtp);
 
 // Rate limit: reset password tối đa 3 lần / 15 phút
 userRouter.post("/request-password-reset", rateLimiter(3, 900), userController.requestPasswordReset);

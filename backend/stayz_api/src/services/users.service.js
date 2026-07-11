@@ -9,7 +9,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const cloudinary = require("../config/cloudinary.config");
 const streamifier = require("streamifier");
-const { sendPasswordResetCodeEmail } = require("../config/mailer.config");
+const { sendPasswordResetCodeEmail, sendRegisterCodeEmail } = require("../config/mailer.config");
 const { generateAuthTokens, generateAccessToken, verifyRefreshToken, verifyAccessToken } = require("../utils/token.util");
 const redis = require("../config/redis.config");
 // buildResetCodeHash dung SECRET nhung truoc day khong he import bien nay,
@@ -53,6 +53,31 @@ const assertResetCode = async (email, code) => {
 
   if (!matches) {
     throw new BadRequestException("Mã xác thực không đúng");
+  }
+
+  return { normalizedEmail, normalizedCode };
+};
+
+const assertRegisterCode = async (email, code) => {
+  if (!email?.trim() || !code?.toString().trim()) {
+    throw new BadRequestException("Thieu email hoac ma xac thuc dang ky");
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedCode = code.toString().trim();
+  const storedHash = await redis.get(`register-otp:${normalizedEmail}`);
+  if (!storedHash) {
+    throw new BadRequestException("Ma xac thuc dang ky khong hop le hoac da het han");
+  }
+
+  const incomingHash = buildResetCodeHash(normalizedEmail, normalizedCode);
+  const stored = Buffer.from(storedHash, "utf8");
+  const incoming = Buffer.from(incomingHash, "utf8");
+  const matches =
+    stored.length === incoming.length && crypto.timingSafeEqual(stored, incoming);
+
+  if (!matches) {
+    throw new BadRequestException("Ma xac thuc dang ky khong dung");
   }
 
   return { normalizedEmail, normalizedCode };
@@ -164,6 +189,7 @@ const userService = {
         url: "",
         public_id: "",
       },
+      register_code,
     } = data;
 
     if (!email?.trim() || !password || !full_name?.trim()) {
@@ -173,7 +199,10 @@ const userService = {
       throw new BadRequestException("Mat khau phai co it nhat 6 ky tu");
     }
 
-    const existing = await usersModel.findOne({ email: email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const { normalizedEmail: verifiedEmail } = await assertRegisterCode(normalizedEmail, register_code);
+
+    const existing = await usersModel.findOne({ email: normalizedEmail });
     if (existing) {
       throw new ConflictException("Email da ton tai");
     }
@@ -181,7 +210,7 @@ const userService = {
     const safeRole = ["admin", "user"].includes(role) ? role : "user";
 
     const user = await usersModel.create({
-      email,
+      email: verifiedEmail,
       password: hasedPassword,
       full_name,
       phone_number,
@@ -190,7 +219,48 @@ const userService = {
       avatar,
       role: safeRole,
     });
+    await redis.del(`register-otp:${verifiedEmail}`);
     return sanitizeUser(user);
+  },
+
+  requestRegisterOtp: async (email) => {
+    if (!email?.trim()) {
+      throw new BadRequestException("Vui long nhap email");
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = await usersModel.findOne({ email: normalizedEmail });
+    if (existing) {
+      throw new ConflictException("Email da ton tai");
+    }
+
+    const code = createResetCode();
+    const hash = buildResetCodeHash(normalizedEmail, code);
+    const ttlSeconds = RESET_CODE_EXPIRES_IN_MINUTES * 60;
+    await redis.setex(`register-otp:${normalizedEmail}`, ttlSeconds, hash);
+
+    try {
+      await sendRegisterCodeEmail({ to: normalizedEmail, code });
+    } catch (error) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(`[REGISTER OTP] Khong gui duoc email toi ${normalizedEmail}. Ma dang ky: ${code}`);
+      } else {
+        console.error("Gui email OTP dang ky that bai:", error.message);
+      }
+    }
+
+    return {
+      email: normalizedEmail,
+      expires_in_minutes: RESET_CODE_EXPIRES_IN_MINUTES,
+    };
+  },
+
+  verifyRegisterOtp: async ({ email, code }) => {
+    const { normalizedEmail } = await assertRegisterCode(email, code);
+    return {
+      email: normalizedEmail,
+      verified: true,
+    };
   },
 
   login: async (data) => {

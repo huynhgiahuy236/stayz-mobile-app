@@ -4,6 +4,7 @@ const roomsModel = require("../models/rooms.model");
 const redis = require("../config/redis.config");
 const { default: Redlock } = require("redlock");
 const notificationsService = require("./notifications.service");
+const { normalizePaymentPlan, calculatePaymentQuote } = require("../utils/paymentQuote.util");
 
 const redlock = new Redlock([redis], {
   retryCount: 3,       // thử lại 3 lần nếu lock đang bị giữ
@@ -204,7 +205,8 @@ const bookingService = {
       // da "completed" hoac "cancelled".
       // Booking luon cho thanh toan. PayOS webhook moi duoc quyen confirm.
       const status = "pending";
-      const paymentPlan = "full_100";
+      const paymentPlan = normalizePaymentPlan(data.payment_plan);
+      const paymentQuote = calculatePaymentQuote(paymentPlan, totalPrice);
 
       const booking = await bookingModel.create({
         user_id,
@@ -222,7 +224,7 @@ const bookingService = {
         payment_expires_at: new Date(Date.now() + 15 * 60 * 1000),
         payment_plan: paymentPlan,
         amount_paid: 0,
-        remaining_at_hotel: 0,
+        remaining_at_hotel: paymentQuote.remaining,
       });
 
       // Tao thong bao khi dat phong. Truoc day chi co thong bao luc doi

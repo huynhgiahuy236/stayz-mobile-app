@@ -3,6 +3,7 @@ const { BadRequestException } = require("../helpers/error.helper");
 const bookingModel = require("../models/bookings.model");
 const paymentsModel = require("../models/payments.model");
 const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL } = require("../constants/app.constant");
+const { calculatePaymentQuote } = require("../utils/paymentQuote.util");
 
 const paymentService = {
   // Tạo liên kết thanh toán PayOS từ một Booking
@@ -31,11 +32,12 @@ const paymentService = {
     // Tạo mã đơn hàng ngẫu nhiên duy nhất (PayOS yêu cầu định dạng số)
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(1000 + Math.random() * 9000));
 
-    const description = `Thanh toán Booking StayZ`;
+    const paymentQuote = calculatePaymentQuote(booking.payment_plan, booking.total_price);
+    const description = `Thanh toan StayZ`;
     // Tạo request data theo chuẩn PayOS
     const requestData = {
       orderCode,
-      amount: Number(booking.total_price),
+      amount: paymentQuote.payNow,
       description: description.substring(0, 25), // PayOS giới hạn 25 ký tự không dấu
       cancelUrl: PAYOS_CANCEL_URL || "http://localhost:5173/payment/cancel",
       returnUrl: PAYOS_RETURN_URL || "http://localhost:5173/payment/success",
@@ -49,7 +51,7 @@ const paymentService = {
       booking_id: bookingId,
       user_id: userId,
       order_code: orderCode,
-      amount: booking.total_price,
+      amount: paymentQuote.payNow,
       payment_link_id: paymentLinkRes.paymentLinkId,
       checkout_url: paymentLinkRes.checkoutUrl,
       status: "pending",
@@ -83,11 +85,13 @@ const paymentService = {
       await payment.save();
 
       // 2. Cập nhật trạng thái Booking là confirmed
+      const booking = await bookingModel.findById(payment.booking_id);
+      const paymentQuote = calculatePaymentQuote(booking?.payment_plan, booking?.total_price);
       await bookingModel.findByIdAndUpdate(payment.booking_id, {
         status: "confirmed",
         payment_status: "paid",
         amount_paid: payment.amount,
-        remaining_at_hotel: 0,
+        remaining_at_hotel: paymentQuote.remaining,
         payment_expires_at: null,
       });
     } else {

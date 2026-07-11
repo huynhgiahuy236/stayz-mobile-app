@@ -83,6 +83,7 @@ class AuthService {
     required String email,
     required String phoneNumber,
     required String password,
+    required String registerCode,
   }) async {
     await api.post(
       '/users/create',
@@ -91,6 +92,27 @@ class AuthService {
         'email': email.trim().toLowerCase(),
         'phone_number': phoneNumber.trim(),
         'password': password,
+        'register_code': registerCode.trim(),
+      },
+    );
+  }
+
+  Future<void> requestRegisterOtp({required String email}) async {
+    await api.post(
+      '/users/request-register-otp',
+      body: {'email': email.trim().toLowerCase()},
+    );
+  }
+
+  Future<void> verifyRegisterOtp({
+    required String email,
+    required String code,
+  }) async {
+    await api.post(
+      '/users/verify-register-otp',
+      body: {
+        'email': email.trim().toLowerCase(),
+        'code': code.trim(),
       },
     );
   }

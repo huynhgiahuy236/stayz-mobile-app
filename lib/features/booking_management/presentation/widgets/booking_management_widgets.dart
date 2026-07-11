@@ -281,6 +281,8 @@ class UpcomingBookingCard extends StatelessWidget {
     required this.colors,
     required this.onDetail,
     required this.onCancel,
+    this.onPay,
+    this.pendingPayment = false,
     this.imageUrl,
     super.key,
   });
@@ -293,6 +295,8 @@ class UpcomingBookingCard extends StatelessWidget {
   final List<Color> colors;
   final VoidCallback onDetail;
   final VoidCallback onCancel;
+  final VoidCallback? onPay;
+  final bool pendingPayment;
   final String? imageUrl;
 
   @override
@@ -327,7 +331,10 @@ class UpcomingBookingCard extends StatelessWidget {
                 Positioned(
                   top: 12 * responsive.scale,
                   right: 12 * responsive.widthScale,
-                  child: BookingStatusPill(label: tr('Sắp tới', 'Upcoming'), color: AppTheme.primarySoft),
+                  child: BookingStatusPill(
+                    label: pendingPayment ? tr('Chờ thanh toán', 'Pending payment') : tr('Sắp tới', 'Upcoming'),
+                    color: pendingPayment ? const Color(0xFFFFE8B0) : AppTheme.primarySoft,
+                  ),
                 ),
               ],
             ),
@@ -371,7 +378,11 @@ class UpcomingBookingCard extends StatelessWidget {
                   children: [
                     Expanded(child: BookingSoftButton(label: tr('Chi tiết', 'Details'), onTap: onDetail)),
                     SizedBox(width: 10 * responsive.widthScale),
-                    Expanded(child: BookingOutlineButton(label: tr('Hủy lịch', 'Cancel'), onTap: onCancel)),
+                    Expanded(
+                      child: pendingPayment && onPay != null
+                          ? BookingSoftButton(label: tr('Thanh toán', 'Pay now'), onTap: onPay!)
+                          : BookingOutlineButton(label: tr('Hủy lịch', 'Cancel'), onTap: onCancel),
+                    ),
                   ],
                 ),
               ],

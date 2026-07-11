@@ -117,6 +117,24 @@ const userController = {
       next(err);
     }
   },
+  requestRegisterOtp: async (req, res, next) => {
+    try {
+      const data = await userService.requestRegisterOtp(req.body.email);
+      const response = responseSuccess(data, "Ma xac thuc dang ky da duoc gui", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+  verifyRegisterOtp: async (req, res, next) => {
+    try {
+      const data = await userService.verifyRegisterOtp(req.body);
+      const response = responseSuccess(data, "Xac thuc ma dang ky thanh cong", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   verifyPasswordResetCode: async (req, res, next) => {
     try {
       const data = await userService.verifyPasswordResetCode(req.body);

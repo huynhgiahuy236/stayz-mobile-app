@@ -20,14 +20,25 @@ class PaymentCheckoutPage extends StatefulWidget {
 
 class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   bool _creatingPayment = false;
+  PaymentPlan _selectedPlan = PaymentPlan.deposit30;
 
   /// Sang man QR gia voi phuong an + so tien da chon. Booking chi duoc tao
   /// SAU khi QR "thanh toan thanh cong" (10s), khong tao ngay tai day.
   Future<void> _goToPayment(BookingDraft draft) async {
     if (_creatingPayment) return;
+    final quote = PaymentPolicy.quote(_selectedPlan, draft.totalAmount);
+    final payableDraft = draft.copyWith(
+      paymentMethod: 'PayOS',
+      paymentPlan: PaymentPolicy.slug(_selectedPlan),
+      amountPaid: quote.payNow,
+      remainingAtHotel: quote.remaining,
+    );
     setState(() => _creatingPayment = true);
     try {
-      final summary = await ApiStayzRepository.instance.createBooking(draft);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr('Đang tạo booking chờ thanh toán...', 'Creating a pending payment booking...'))),
+      );
+      final summary = await ApiStayzRepository.instance.createBooking(payableDraft);
       if (summary == null) throw const ApiException('Could not create booking.');
       final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
       final checkoutUrl = payment['checkout_url']?.toString() ?? '';
@@ -35,7 +46,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
       if (!mounted) return;
       Navigator.of(context).pushNamed(
         AppRoutes.paymentQr,
-        arguments: PayOSPaymentArgs(summary: summary, checkoutUrl: checkoutUrl, amount: payment['amount'] as num? ?? draft.totalAmount),
+        arguments: PayOSPaymentArgs(summary: summary, checkoutUrl: checkoutUrl, amount: payment['amount'] as num? ?? quote.payNow),
       );
     } on ApiException catch (error) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
@@ -63,7 +74,8 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
       );
     }
 
-    final payNow = draft.totalAmount;
+    final quote = PaymentPolicy.quote(_selectedPlan, draft.totalAmount);
+    final payNow = quote.payNow;
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -133,9 +145,23 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 children: [
                   _CheckoutHotelCard(draft: draft),
                   SizedBox(height: 24 * responsive.scale),
-                  _SectionCaption(label: tr('Thanh toán toàn bộ qua PayOS', 'Full payment via PayOS')),
+                  _SectionCaption(label: tr('Chọn hình thức thanh toán', 'Choose payment option')),
                   SizedBox(height: 14 * responsive.scale),
-                  Text(tr('Số tiền được backend tính lại từ giá phòng trong hệ thống. Booking chỉ được xác nhận sau webhook PayOS hợp lệ.', 'The backend recalculates the amount from the room price. The booking is confirmed only after a valid PayOS webhook.')),
+                  _PlanCard(
+                    plan: PaymentPlan.deposit30,
+                    base: draft.totalAmount,
+                    selected: _selectedPlan == PaymentPlan.deposit30,
+                    onTap: () => setState(() => _selectedPlan = PaymentPlan.deposit30),
+                  ),
+                  SizedBox(height: 12 * responsive.scale),
+                  _PlanCard(
+                    plan: PaymentPlan.full100,
+                    base: draft.totalAmount,
+                    selected: _selectedPlan == PaymentPlan.full100,
+                    onTap: () => setState(() => _selectedPlan = PaymentPlan.full100),
+                  ),
+                  SizedBox(height: 18 * responsive.scale),
+                  Text(tr('Số tiền PayOS được backend tính lại từ giá phòng và gói thanh toán bạn chọn. Booking sẽ nằm ở mục đang chờ thanh toán cho tới khi webhook PayOS hợp lệ.', 'PayOS amount is recalculated by the backend from the room price and selected payment option. The booking stays pending until a valid PayOS webhook confirms it.')),
                   SizedBox(height: 18 * responsive.scale),
                   Container(
                     padding: EdgeInsets.all(12 * responsive.scale),

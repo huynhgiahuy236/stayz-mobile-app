@@ -47,6 +47,28 @@ const sendPasswordResetCodeEmail = async ({ to, code }) => {
   });
 };
 
+const sendRegisterCodeEmail = async ({ to, code }) => {
+  const transporter = nodemailer.createTransport(getMailerConfig());
+
+  await transporter.sendMail({
+    from: SMTP_FROM,
+    to,
+    subject: "Ma xac thuc dang ky StayZ",
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2f46">
+        <h2 style="margin-bottom:12px;color:#003b95">Xac thuc tai khoan StayZ</h2>
+        <p>Ban dang tao tai khoan StayZ. Ma xac thuc cua ban la:</p>
+        <div style="display:inline-block;margin:12px 0;padding:12px 20px;border-radius:12px;background:#eef4ff;font-size:28px;font-weight:700;letter-spacing:6px;color:#003b95">
+          ${code}
+        </div>
+        <p>Ma co hieu luc trong 10 phut.</p>
+        <p>Neu ban khong dang ky tai khoan, hay bo qua email nay.</p>
+      </div>
+    `,
+  });
+};
+
 module.exports = {
   sendPasswordResetCodeEmail,
+  sendRegisterCodeEmail,
 };

@@ -407,6 +407,7 @@ class ApiStayzRepository implements StayzRepository {
         'guests': draft.adults + draft.children,
         'rooms_count': draft.roomCount,
         'status': 'pending',
+        if (draft.paymentPlan != null) 'payment_plan': draft.paymentPlan,
       },
     );
     final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;

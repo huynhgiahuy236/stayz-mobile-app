@@ -70,6 +70,27 @@ class MyBookingsPage extends StatelessWidget {
                         checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
                         imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
                         colors: _bookingColors[(index - 1) % _bookingColors.length],
+                        pendingPayment: summary.booking.normalizedStatus == 'pending' || summary.booking.paymentStatus == 'pending',
+                        onPay: () async {
+                          try {
+                            final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
+                            final checkoutUrl = payment['checkout_url']?.toString() ?? '';
+                            if (checkoutUrl.isEmpty) throw const ApiException('PayOS checkout URL is missing.');
+                            if (!context.mounted) return;
+                            Navigator.of(context).pushNamed(
+                              AppRoutes.paymentQr,
+                              arguments: PayOSPaymentArgs(
+                                summary: summary,
+                                checkoutUrl: checkoutUrl,
+                                amount: payment['amount'] as num? ?? summary.booking.totalAmount,
+                              ),
+                            );
+                          } on ApiException catch (error) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+                            }
+                          }
+                        },
                         onDetail: () => Navigator.of(context).pushNamed(
                           AppRoutes.upcomingBookingDetail,
                           arguments: BookingSummaryArgs(summary: summary),

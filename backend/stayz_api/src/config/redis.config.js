@@ -1,20 +1,36 @@
 const Redis = require("ioredis");
 
-const redis = new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
+const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+const parsedRedisUrl = new URL(redisUrl);
+const shouldUseTls =
+  parsedRedisUrl.protocol === "rediss:" ||
+  parsedRedisUrl.hostname.includes("upstash.io");
+
+const redis = new Redis(redisUrl, {
+  ...(shouldUseTls ? { tls: {} } : {}),
   lazyConnect: false,
   retryStrategy(times) {
-    // Tự reconnect, tối đa 3 lần, mỗi lần cách 500ms
     if (times > 3) return null;
     return Math.min(times * 500, 2000);
   },
 });
 
+let redisConnected = false;
+let lastRedisError = null;
+
 redis.on("connect", () => {
-  console.log("✅ Redis connected");
+  redisConnected = true;
+  lastRedisError = null;
+  console.log("Redis connected");
+});
+
+redis.on("close", () => {
+  redisConnected = false;
 });
 
 redis.on("error", (err) => {
-  console.error("❌ Redis error:", err.message);
+  lastRedisError = err.message;
+  console.error("Redis error:", err.message);
 });
 
 const safeCommands = new Set([
@@ -31,6 +47,16 @@ const safeCommands = new Set([
 
 const safeRedis = new Proxy(redis, {
   get(target, prop) {
+    if (prop === "health") {
+      return () => ({
+        configured: Boolean(process.env.REDIS_URL),
+        connected: redisConnected,
+        tls: shouldUseTls,
+        host: parsedRedisUrl.hostname,
+        last_error: lastRedisError,
+      });
+    }
+
     const value = target[prop];
     if (typeof value !== "function") return value;
 

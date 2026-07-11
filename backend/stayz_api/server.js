@@ -14,6 +14,7 @@ const {
 const { handleError } = require("./src/helpers/error.helper");
 const passport = require("passport");
 const { initSocket } = require("./src/config/socket.config");
+const redis = require("./src/config/redis.config");
 
 require("./src/config/passport.config");
 
@@ -58,6 +59,7 @@ app.get("/health", (_req, res) => {
       checksum_key: Boolean(PAYOS_CHECKSUM_KEY),
       checksum_key_length: PAYOS_CHECKSUM_KEY?.length || 0,
     },
+    redis: redis.health(),
   };
 
   if (!connected) {

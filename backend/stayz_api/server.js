@@ -37,12 +37,24 @@ app.use(
 app.use(express.json());
 app.use(passport.initialize());
 
+let isMongoConnecting = false;
+let lastMongoError = null;
+let lastMongoAttemptAt = null;
+
 app.get("/health", (_req, res) => {
   const connected = mongoose.connection.readyState === 1;
-  res.status(connected ? 200 : 503).json({
+  const body = {
     status: connected ? "ok" : "starting",
     database: connected ? "connected" : "disconnected",
-  });
+    mongo_ready_state: mongoose.connection.readyState,
+  };
+
+  if (!connected) {
+    body.mongo_error = lastMongoError;
+    body.last_mongo_attempt_at = lastMongoAttemptAt;
+  }
+
+  res.status(connected ? 200 : 503).json(body);
 });
 
 if (!DATABASE_URL?.startsWith("mongodb://") && !DATABASE_URL?.startsWith("mongodb+srv://")) {
@@ -78,16 +90,17 @@ const server = http.createServer(app);
 // Initialize Socket.io on the server
 initSocket(server);
 
-let isMongoConnecting = false;
-
 async function connectMongoWithRetry() {
   if (isMongoConnecting || mongoose.connection.readyState === 1) return;
 
   isMongoConnecting = true;
+  lastMongoAttemptAt = new Date().toISOString();
   try {
     await mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 10000 });
+    lastMongoError = null;
     console.log("MongoDB connected");
   } catch (error) {
+    lastMongoError = error.message;
     console.error("MongoDB connection failed:", error.message);
     setTimeout(connectMongoWithRetry, 10000);
   } finally {

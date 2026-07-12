@@ -18,7 +18,10 @@ class RoomSelectionArgs {
   final int children;
   final int roomCount;
 
-  bool get hasDates => checkInDate != null && checkOutDate != null && checkOutDate!.isAfter(checkInDate!);
+  bool get hasDates =>
+      checkInDate != null &&
+      checkOutDate != null &&
+      checkOutDate!.isAfter(checkInDate!);
 }
 
 class BookingDraft {
@@ -60,14 +63,16 @@ class BookingDraft {
     return value < 1 ? 1 : value;
   }
 
-  bool get hasValidDates => StayzFormatters.nightsBetween(checkInDate, checkOutDate) > 0;
+  bool get hasValidDates =>
+      StayzFormatters.nightsBetween(checkInDate, checkOutDate) > 0;
   int get guestCount => adults + children;
-  int get maxGuests => (room.capacityAdults + room.capacityChildren) * roomCount;
+  int get maxGuests =>
+      (room.capacityAdults + room.capacityChildren) * roomCount;
   num get roomSubtotal => StayzFormatters.bookingTotal(
-        pricePerNight: room.pricePerNight,
-        nights: nights,
-        roomQuantity: roomCount,
-      );
+    pricePerNight: room.pricePerNight,
+    nights: nights,
+    roomQuantity: roomCount,
+  );
   num get serviceFee => 0;
   num get totalAmount => roomSubtotal;
 
@@ -111,9 +116,71 @@ class BookingSummaryArgs {
 }
 
 class PayOSPaymentArgs {
-  const PayOSPaymentArgs({required this.summary, required this.checkoutUrl, required this.amount});
+  const PayOSPaymentArgs({
+    required this.summary,
+    required this.checkoutUrl,
+    required this.amount,
+    required this.qrCode,
+    required this.qrImageUrl,
+    this.bankBin = '',
+    this.accountNumber = '',
+    this.accountName = '',
+    this.transferDescription = '',
+  });
 
   final BookingSummary summary;
   final String checkoutUrl;
   final num amount;
+  final String qrCode;
+  final String qrImageUrl;
+  final String bankBin;
+  final String accountNumber;
+  final String accountName;
+  final String transferDescription;
+
+  factory PayOSPaymentArgs.fromPayment({
+    required BookingSummary summary,
+    required Map<String, dynamic> payment,
+    required num fallbackAmount,
+  }) {
+    final amount = payment['amount'] as num? ?? fallbackAmount;
+    final orderCode = payment['order_code']?.toString() ?? '';
+    final bankBin = payment['bank_bin']?.toString().trim().isNotEmpty == true
+        ? payment['bank_bin'].toString()
+        : '970416';
+    final accountNumber =
+        payment['account_number']?.toString().trim().isNotEmpty == true
+        ? payment['account_number'].toString().replaceAll(' ', '')
+        : '18944777';
+    final accountName =
+        payment['account_name']?.toString().trim().isNotEmpty == true
+        ? payment['account_name'].toString()
+        : 'TRINH VI THANH';
+    final transferDescription =
+        payment['transfer_description']?.toString().trim().isNotEmpty == true
+        ? payment['transfer_description'].toString()
+        : 'STAYZ$orderCode';
+    final backendQrImage = payment['qr_image_url']?.toString() ?? '';
+    final fallbackQrImage = Uri.https(
+      'img.vietqr.io',
+      '/image/$bankBin-$accountNumber-compact2.png',
+      {
+        'amount': amount.round().toString(),
+        'addInfo': transferDescription,
+        'accountName': accountName,
+      },
+    ).toString();
+
+    return PayOSPaymentArgs(
+      summary: summary,
+      checkoutUrl: payment['checkout_url']?.toString() ?? '',
+      amount: amount,
+      qrCode: payment['qr_code']?.toString() ?? '',
+      qrImageUrl: backendQrImage.isNotEmpty ? backendQrImage : fallbackQrImage,
+      bankBin: bankBin,
+      accountNumber: accountNumber,
+      accountName: accountName,
+      transferDescription: transferDescription,
+    );
+  }
 }

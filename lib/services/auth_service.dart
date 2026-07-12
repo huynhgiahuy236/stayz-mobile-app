@@ -162,6 +162,39 @@ class AuthService {
   }
 
   /// Buoc 1: gui ma OTP 6 chu so toi email.
+  Uri googleLoginUri() {
+    final origin = api.baseUri.replace(path: '', query: '', fragment: '');
+    return origin.replace(path: '/auth/google');
+  }
+
+  Future<void> completeGoogleLogin(Uri callbackUri) async {
+    if (callbackUri.scheme != 'stayz' || callbackUri.host != 'auth' || callbackUri.path != '/login-success') {
+      throw ApiException(tr('Liên kết đăng nhập Google không hợp lệ.', 'Invalid Google sign-in callback.'));
+    }
+    final token = callbackUri.queryParameters['accessToken'] ?? '';
+    if (token.isEmpty || _isExpired(token)) {
+      throw ApiException(tr('Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn.', 'The Google sign-in session is invalid or expired.'));
+    }
+    final payload = _jwtPayload(token);
+    BookingCache.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_accessTokenKey, token);
+    await prefs.setString(_userIdKey, payload['userId']?.toString() ?? '');
+    await prefs.setString(_userEmailKey, callbackUri.queryParameters['email'] ?? '');
+    await prefs.setString(_userNameKey, callbackUri.queryParameters['name'] ?? '');
+  }
+
+  Map<String, dynamic> _jwtPayload(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return const {};
+      final value = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+      return value is Map<String, dynamic> ? value : const {};
+    } catch (_) {
+      return const {};
+    }
+  }
+
   Future<void> requestPasswordReset({required String email}) async {
     await api.post(
       '/users/request-password-reset',

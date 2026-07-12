@@ -20,6 +20,7 @@ import 'package:capstone_mobile/features/booking_management/presentation/pages/r
 import 'package:capstone_mobile/features/booking_management/presentation/pages/upcoming_booking_detail_page.dart';
 import 'package:capstone_mobile/features/detail/presentation/pages/hotel_info_form_page.dart';
 import 'package:capstone_mobile/features/detail/presentation/pages/room_detail_page.dart';
+import 'package:capstone_mobile/features/detail/presentation/pages/room_type_detail_page.dart';
 import 'package:capstone_mobile/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
@@ -52,6 +53,7 @@ class AppRoutes {
   static const filter = '/filter';
   static const emptySearch = '/empty-search';
   static const offlineError = '/offline-error';
+  static const hotelDetail = '/hotel-detail';
   static const roomDetail = '/room-detail';
   static const hotelInfoForm = '/hotel-info-form';
   static const roomSelection = '/room-selection';
@@ -89,7 +91,8 @@ class AppRoutes {
     filter: (_) => const FilterPage(),
     emptySearch: (_) => const EmptySearchPage(),
     offlineError: (_) => const OfflineErrorPage(),
-    roomDetail: (_) => const RoomDetailPage(),
+    hotelDetail: (_) => const RoomDetailPage(),
+    roomDetail: (_) => const RoomTypeDetailPage(),
     hotelInfoForm: (_) => const HotelInfoFormPage(),
     roomSelection: (_) => const RealRoomSelectionPage(),
     bookingSchedule: (_) => const BookingSchedulePage(),

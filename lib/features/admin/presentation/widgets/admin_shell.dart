@@ -88,8 +88,11 @@ class AdminSideNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 224,
-    color: Colors.white,
+    width: 240,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      border: Border(right: BorderSide(color: AppTheme.line)),
+    ),
     child: Column(
       children: [
         Material(
@@ -156,30 +159,20 @@ class AdminSideNav extends StatelessWidget {
               ),
               for (final section in AdminSection.values)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: Material(
                     color: selected == section
                         ? AppTheme.primarySoft
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(14),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(14),
                       onTap: () => onSelect(section),
                       child: SizedBox(
-                        height: 44,
+                        height: 48,
                         child: Row(
                           children: [
-                            Container(
-                              width: 3,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                color: selected == section
-                                    ? AppTheme.primary
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 11),
+                            const SizedBox(width: 14),
                             Icon(
                               section.icon,
                               size: 20,
@@ -216,8 +209,8 @@ class AdminSideNav extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F8FB),
-              borderRadius: BorderRadius.circular(6),
+              color: AppTheme.primarySoft.withValues(alpha: 0.45),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppTheme.line),
             ),
             child: Row(
@@ -251,7 +244,7 @@ class _BrandMark extends StatelessWidget {
   const _BrandMark();
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(7),
+    borderRadius: BorderRadius.circular(12),
     child: Image.asset(
       'assets/images/stayz_app_logo.png',
       width: 36,
@@ -310,7 +303,7 @@ class AdminHeader extends StatelessWidget {
       ],
     );
     final search = SizedBox(
-      height: 40,
+      height: 48,
       child: TextField(
         controller: searchController,
         decoration: InputDecoration(
@@ -333,16 +326,16 @@ class AdminHeader extends StatelessWidget {
     final addButton = onAdd == null
         ? null
         : SizedBox(
-            height: 40,
+            height: 48,
             child: FilledButton.icon(
               onPressed: onAdd,
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(tr('Thêm mới', 'Add new')),
               style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 40),
+                minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
@@ -369,8 +362,8 @@ class AdminHeader extends StatelessWidget {
     );
 
     return Container(
-      padding: EdgeInsets.fromLTRB(wide ? 24 : 16, 14, wide ? 24 : 16, 12),
-      color: const Color(0xFFF4F7FB),
+      padding: EdgeInsets.fromLTRB(wide ? 24 : 16, 18, wide ? 24 : 16, 14),
+      color: AppTheme.surface,
       child: Column(
         children: [
           Row(
@@ -380,10 +373,10 @@ class AdminHeader extends StatelessWidget {
                   message: tr('Về trang chủ', 'Go to home'),
                   child: Material(
                     color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(7),
+                    borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       onTap: onHome,
-                      borderRadius: BorderRadius.circular(7),
+                      borderRadius: BorderRadius.circular(12),
                       child: const _BrandMark(),
                     ),
                   ),
@@ -429,8 +422,8 @@ class _HeaderIcon extends StatelessWidget {
   final VoidCallback onPressed;
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     child: IconButton(
       onPressed: onPressed,
       icon: Icon(icon, size: 20),
@@ -439,7 +432,7 @@ class _HeaderIcon extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: AppTheme.ink,
         side: const BorderSide(color: AppTheme.line),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     ),
   );
@@ -452,11 +445,11 @@ class _LanguageButton extends StatelessWidget {
     builder: (context, _) => Tooltip(
       message: tr('Đổi ngôn ngữ', 'Change language'),
       child: Container(
-        height: 40,
+        height: 48,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppTheme.line),
         ),
         child: Row(
@@ -491,16 +484,16 @@ class _LanguageOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 40,
     child: TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
-        minimumSize: const Size(32, 32),
+        minimumSize: const Size(36, 40),
         backgroundColor: selected ? AppTheme.primary : Colors.transparent,
         foregroundColor: selected ? Colors.white : AppTheme.muted,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: Text(
         label,
@@ -520,23 +513,34 @@ class AdminTopTabs extends StatelessWidget {
   final ValueChanged<AdminSection> onSelect;
   @override
   Widget build(BuildContext context) => Container(
-    height: 52,
-    color: const Color(0xFFF4F7FB),
-    child: ListView.separated(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      itemBuilder: (_, index) {
-        final section = AdminSection.values[index];
-        return ChoiceChip(
-          selected: selected == section,
-          avatar: Icon(section.icon, size: 17),
-          label: Text(section.label),
-          onSelected: (_) => onSelect(section),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        );
+    color: AppTheme.surface,
+    padding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
+    child: DropdownButtonFormField<AdminSection>(
+      initialValue: selected,
+      isExpanded: true,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      ),
+      items: AdminSection.values
+          .map(
+            (section) => DropdownMenuItem(
+              value: section,
+              child: Row(
+                children: [
+                  Icon(section.icon, size: 20, color: AppTheme.primary),
+                  const SizedBox(width: 12),
+                  Text(
+                    section.label,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+      onChanged: (section) {
+        if (section != null) onSelect(section);
       },
-      separatorBuilder: (_, _) => const SizedBox(width: 6),
-      itemCount: AdminSection.values.length,
     ),
   );
 }
@@ -559,7 +563,7 @@ class AdminEmptyState extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(7),
+      borderRadius: BorderRadius.circular(18),
       border: Border.all(color: AppTheme.line),
     ),
     child: Column(
@@ -569,7 +573,7 @@ class AdminEmptyState extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: const Color(0xFFF0F5F9),
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon, size: 25, color: AppTheme.muted),
         ),
@@ -593,7 +597,7 @@ class AdminEmptyState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 38),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),

@@ -25,14 +25,19 @@ class AppTheme {
   static const neutral800 = Color(0xFF12314D);
   static const success = Color(0xFF17875A);
   static const danger = Color(0xFFD34B3F);
+  static const double cardRadius = 18;
+  static const double controlRadius = 16;
+  static const double dialogRadius = 20;
+  static const double pageActionHeight = 52;
+  static const double cardActionHeight = 48;
 
   static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: ink.withValues(alpha: 0.07),
-          blurRadius: 24,
-          offset: const Offset(0, 12),
-        ),
-      ];
+    BoxShadow(
+      color: ink.withValues(alpha: 0.07),
+      blurRadius: 24,
+      offset: const Offset(0, 12),
+    ),
+  ];
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(
@@ -59,7 +64,9 @@ class AppTheme {
           backgroundColor: primary,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
       ),
@@ -68,7 +75,9 @@ class AppTheme {
           foregroundColor: primaryDark,
           side: const BorderSide(color: line),
           minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
       ),
@@ -81,7 +90,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: line),

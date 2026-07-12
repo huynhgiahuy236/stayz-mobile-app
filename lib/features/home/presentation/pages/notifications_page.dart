@@ -1,3 +1,4 @@
+import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -131,6 +132,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _openNotification(StayzNotification item) {
+    if (item.referenceType == 'Booking' && item.referenceId.isNotEmpty) {
+      Navigator.of(context).pushNamed(AppRoutes.myBookings, arguments: item.referenceId);
+      return;
+    }
+    if (item.referenceType == 'Property' && item.referenceId.isNotEmpty) {
+      Navigator.of(context).pushNamed(AppRoutes.search);
+      return;
+    }
+    _showSnack(tr('Thông báo này không có nội dung điều hướng.', 'This notification has no linked destination.'));
   }
 
   @override
@@ -296,6 +309,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           onDismissed: (_) => _deleteOne(item),
           child: GestureDetector(
             onLongPress: () => _enterSelection(item.id),
+            onTap: () => _openNotification(item),
             child: card,
           ),
         );

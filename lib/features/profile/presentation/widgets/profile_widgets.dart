@@ -28,8 +28,10 @@ class ProfileHeader extends StatelessWidget {
         16 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFFBF7F4),
-        border: Border(bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6))),
+        color: AppTheme.surface,
+        border: Border(
+          bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+        ),
       ),
       child: Row(
         children: [
@@ -50,7 +52,10 @@ class ProfileHeader extends StatelessWidget {
                       ),
                       children: const [
                         TextSpan(text: 'Stay'),
-                        TextSpan(text: 'Z', style: TextStyle(color: AppTheme.accent)),
+                        TextSpan(
+                          text: 'Z',
+                          style: TextStyle(color: AppTheme.accent),
+                        ),
                       ],
                     ),
                   )
@@ -87,7 +92,7 @@ class ProfileSectionLabel extends StatelessWidget {
     return Text(
       label.toUpperCase(),
       style: TextStyle(
-        color: const Color(0xFF5A3F3F),
+        color: AppTheme.muted,
         fontSize: 13 * responsive.scale,
         letterSpacing: 4,
         fontWeight: FontWeight.w600,
@@ -97,10 +102,7 @@ class ProfileSectionLabel extends StatelessWidget {
 }
 
 class ProfileMenuCard extends StatelessWidget {
-  const ProfileMenuCard({
-    required this.children,
-    super.key,
-  });
+  const ProfileMenuCard({required this.children, super.key});
 
   final List<Widget> children;
 
@@ -160,7 +162,12 @@ class ProfileMenuTile extends StatelessWidget {
                 ),
               ),
             ),
-            trailing ?? Icon(Icons.chevron_right, color: AppTheme.neutral500, size: 28 * responsive.scale),
+            trailing ??
+                Icon(
+                  Icons.chevron_right,
+                  color: AppTheme.neutral500,
+                  size: 28 * responsive.scale,
+                ),
           ],
         ),
       ),
@@ -200,7 +207,11 @@ class ProfileInputField extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: hasError ? const Color(0xFFD00000) : const Color(0xFF5C6778)),
+            border: Border.all(
+              color: hasError
+                  ? const Color(0xFFD00000)
+                  : const Color(0xFF5C6778),
+            ),
           ),
           child: Row(
             children: [
@@ -209,7 +220,10 @@ class ProfileInputField extends StatelessWidget {
                   value,
                   maxLines: large ? 3 : 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: AppTheme.ink, fontSize: 17 * responsive.scale),
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 17 * responsive.scale,
+                  ),
                 ),
               ),
               if (trailing != null) trailing!,
@@ -220,7 +234,11 @@ class ProfileInputField extends StatelessWidget {
           SizedBox(height: 10 * responsive.scale),
           Text(
             error!,
-            style: TextStyle(color: const Color(0xFFD00000), fontSize: 14 * responsive.scale, height: 1.35),
+            style: TextStyle(
+              color: const Color(0xFFD00000),
+              fontSize: 14 * responsive.scale,
+              height: 1.35,
+            ),
           ),
         ],
       ],
@@ -229,11 +247,7 @@ class ProfileInputField extends StatelessWidget {
 }
 
 class ProfilePrimaryButton extends StatelessWidget {
-  const ProfilePrimaryButton({
-    required this.label,
-    this.onTap,
-    super.key,
-  });
+  const ProfilePrimaryButton({required this.label, this.onTap, super.key});
 
   final String label;
   final VoidCallback? onTap;
@@ -246,14 +260,20 @@ class ProfilePrimaryButton extends StatelessWidget {
       width: double.infinity,
       height: 62 * responsive.scale,
       child: FilledButton(
-        onPressed: onTap ?? () {},
+        onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.accent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: Text(
           label,
-          style: TextStyle(color: Colors.white, fontSize: 19 * responsive.scale, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 19 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
@@ -295,22 +315,43 @@ class PaymentAccountTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: const Color(0xFFD9B8B8)),
             ),
-            child: Icon(icon, color: AppTheme.accentDark, size: 28 * responsive.scale),
+            child: Icon(
+              icon,
+              color: AppTheme.accentDark,
+              size: 28 * responsive.scale,
+            ),
           ),
           SizedBox(width: 20 * responsive.widthScale),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: AppTheme.ink, fontSize: 20 * responsive.scale, fontWeight: FontWeight.w900)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 20 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 SizedBox(height: 6 * responsive.scale),
-                Text(subtitle, style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 16 * responsive.scale, fontWeight: FontWeight.w600)),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 16 * responsive.scale,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
           if (defaultBadge)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 14 * responsive.widthScale, vertical: 10 * responsive.scale),
+              padding: EdgeInsets.symmetric(
+                horizontal: 14 * responsive.widthScale,
+                vertical: 10 * responsive.scale,
+              ),
               decoration: BoxDecoration(
                 color: const Color(0xFFF1E7E3),
                 borderRadius: BorderRadius.circular(6),
@@ -318,11 +359,19 @@ class PaymentAccountTile extends StatelessWidget {
               ),
               child: Text(
                 tr('MẶC ĐỊNH', 'DEFAULT'),
-                style: TextStyle(color: AppTheme.neutral500, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: AppTheme.neutral500,
+                  fontSize: 13 * responsive.scale,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           SizedBox(width: 14 * responsive.widthScale),
-          Icon(Icons.chevron_right, color: AppTheme.neutral500, size: 30 * responsive.scale),
+          Icon(
+            Icons.chevron_right,
+            color: AppTheme.neutral500,
+            size: 30 * responsive.scale,
+          ),
         ],
       ),
     );

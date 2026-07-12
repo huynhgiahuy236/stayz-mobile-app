@@ -73,8 +73,14 @@ class _SearchPageState extends State<SearchPage> {
   void _runSearch() {
     final requestId = ++_searchRequestId;
     final filters = _filters;
-    final resultKey = filters.toQuery().entries.map((entry) => '${entry.key}=${entry.value}').join('&');
-    final request = ApiStayzRepository.instance.searchHotelSummaries(filters).then((hotels) {
+    final resultKey = filters
+        .toQuery()
+        .entries
+        .map((entry) => '${entry.key}=${entry.value}')
+        .join('&');
+    final request = ApiStayzRepository.instance.searchHotelSummaries(filters).then((
+      hotels,
+    ) {
       // Response cua lan tim cu den sau thi bo qua, khong duoc ghi de ket qua moi.
       if (requestId != _searchRequestId) return const <HotelSummary>[];
       return hotels;
@@ -113,7 +119,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _openFilter() async {
-    final result = await Navigator.of(context).pushNamed(AppRoutes.filter, arguments: _filters);
+    final result = await Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.filter, arguments: _filters);
     if (result is SearchFilters && mounted) _applyFilters(result);
   }
 
@@ -139,17 +147,34 @@ class _SearchPageState extends State<SearchPage> {
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(wasFavorite ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.') : tr('Đã thêm vào yêu thích.', 'Added to saved.'))),
+        SnackBar(
+          content: Text(
+            wasFavorite
+                ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.')
+                : tr('Đã thêm vào yêu thích.', 'Added to saved.'),
+          ),
+        ),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
       setState(() {
         final next = Set<String>.of(_favoriteIds);
-        wasFavorite ? next.add(summary.hotel.id) : next.remove(summary.hotel.id);
+        wasFavorite
+            ? next.add(summary.hotel.id)
+            : next.remove(summary.hotel.id);
         _favoriteIds = next;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.isUnauthorized ? tr('Vui lòng đăng nhập để lưu yêu thích.', 'Please sign in to save favorites.') : error.message)),
+        SnackBar(
+          content: Text(
+            error.isUnauthorized
+                ? tr(
+                    'Vui lòng đăng nhập để lưu yêu thích.',
+                    'Please sign in to save favorites.',
+                  )
+                : error.message,
+          ),
+        ),
       );
     }
   }
@@ -174,43 +199,66 @@ class _SearchPageState extends State<SearchPage> {
               onClear: () {
                 _debounce?.cancel();
                 _searchController.clear();
-                _applyFilters(_filters.copyWith(keyword: ''), syncTextField: false);
+                _applyFilters(
+                  _filters.copyWith(keyword: ''),
+                  syncTextField: false,
+                );
               },
               activeFilterCount: activeCount,
             ),
-            _QuickChips(
-              filters: _filters,
-              onChanged: _applyFilters,
-            ),
+            _QuickChips(filters: _filters, onChanged: _applyFilters),
             Expanded(
               child: FutureBuilder<List<HotelSummary>>(
                 key: ValueKey(_searchResultKey),
                 future: _hotelsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    );
                   }
 
                   // Loi mang va "khong co ket qua" phai trong khac nhau.
                   if (snapshot.hasError) {
-                    return StayzErrorView(error: snapshot.error, onRetry: _runSearch);
+                    return StayzErrorView(
+                      error: snapshot.error,
+                      onRetry: _runSearch,
+                    );
                   }
 
                   // Chan response cu/khong loc bi render sau khi keyword da doi.
                   // Day la lop bao ve UI ngoai viec loc trong repository.
                   final currentKeyword = _normalizeSearchText(_filters.keyword);
                   final hotels = (snapshot.data ?? const <HotelSummary>[])
-                      .where((summary) => currentKeyword.isEmpty || _matchesCurrentKeyword(summary, currentKeyword))
+                      .where(
+                        (summary) =>
+                            currentKeyword.isEmpty ||
+                            _matchesCurrentKeyword(summary, currentKeyword),
+                      )
                       .toList(growable: false);
                   if (hotels.isEmpty) {
                     return StayzEmptyView(
                       icon: Icons.search_off_rounded,
-                      title: tr('Không tìm thấy khách sạn phù hợp', 'No matching hotels'),
+                      title: tr(
+                        'Không tìm thấy khách sạn phù hợp',
+                        'No matching hotels',
+                      ),
                       message: activeCount > 0 || _filters.keyword.isNotEmpty
-                          ? tr('Hãy thử bỏ bớt điều kiện lọc hoặc dùng từ khoá khác.', 'Try removing some filters or using a different keyword.')
-                          : tr('Hiện chưa có khách sạn nào trong dữ liệu.', 'No hotels available yet.'),
-                      actionLabel: activeCount > 0 || _filters.keyword.isNotEmpty ? tr('Xoá bộ lọc', 'Clear filters') : null,
-                      onAction: activeCount > 0 || _filters.keyword.isNotEmpty ? _clearAllFilters : null,
+                          ? tr(
+                              'Hãy thử bỏ bớt điều kiện lọc hoặc dùng từ khoá khác.',
+                              'Try removing some filters or using a different keyword.',
+                            )
+                          : tr(
+                              'Hiện chưa có khách sạn nào trong dữ liệu.',
+                              'No hotels available yet.',
+                            ),
+                      actionLabel:
+                          activeCount > 0 || _filters.keyword.isNotEmpty
+                          ? tr('Xoá bộ lọc', 'Clear filters')
+                          : null,
+                      onAction: activeCount > 0 || _filters.keyword.isNotEmpty
+                          ? _clearAllFilters
+                          : null,
                     );
                   }
 
@@ -224,7 +272,8 @@ class _SearchPageState extends State<SearchPage> {
                       24 * responsive.scale,
                     ),
                     itemCount: hotels.length + 1,
-                    separatorBuilder: (_, _) => SizedBox(height: 14 * responsive.scale),
+                    separatorBuilder: (_, _) =>
+                        SizedBox(height: 14 * responsive.scale),
                     itemBuilder: (context, index) {
                       if (index == 0) return _ResultCount(count: hotels.length);
 
@@ -234,28 +283,44 @@ class _SearchPageState extends State<SearchPage> {
                       return SearchHotelCard(
                         key: ValueKey('search-hotel-${summary.hotel.id}'),
                         name: summary.hotel.name,
-                        location: '${summary.city.name}, ${summary.city.region}',
-                        price: summary.hasPrice ? StayzFormatters.fullVnd(summary.lowestPrice) : tr('Liên hệ', 'Contact'),
+                        location:
+                            '${summary.city.name}, ${summary.city.region}',
+                        price: summary.hasPrice
+                            ? StayzFormatters.fullVnd(summary.lowestPrice)
+                            : tr('Liên hệ', 'Contact'),
                         rating: summary.rating,
                         reviewCount: summary.reviewCount,
                         amenities: summary.hotel.amenityIds,
                         badge: soldOut
                             ? tr('Hết phòng', 'Sold out')
                             : summary.availableRooms <= 3
-                                ? tr('Chỉ còn ${summary.availableRooms} phòng', 'Only ${summary.availableRooms} rooms left')
-                                : summary.hotel.status == 'featured'
-                                    ? tr('Nổi bật', 'Featured')
-                                    : null,
+                            ? tr(
+                                'Chỉ còn ${summary.availableRooms} phòng',
+                                'Only ${summary.availableRooms} rooms left',
+                              )
+                            : summary.hotel.status == 'featured'
+                            ? tr('Nổi bật', 'Featured')
+                            : null,
                         badgeIsWarning: soldOut || summary.availableRooms <= 3,
                         favorite: _favoriteIds.contains(summary.hotel.id),
                         imageUrl: summary.hotel.imageUrls.firstOrNull,
-                        colors: _searchHotelColors[(index - 1) % _searchHotelColors.length],
+                        colors:
+                            _searchHotelColors[(index - 1) %
+                                _searchHotelColors.length],
                         onFavoriteTap: () => _toggleFavorite(summary),
-                        onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail, arguments: summary),
+                        onTap: () => Navigator.of(
+                          context,
+                        ).pushNamed(AppRoutes.hotelDetail, arguments: summary),
                         onRoomsTap: () => Navigator.of(context).pushNamed(
                           AppRoutes.roomSelection,
-                          arguments: RoomSelectionArgs(hotel: summary, adults: _filters.guests ?? 2),
+                          arguments: RoomSelectionArgs(
+                            hotel: summary,
+                            adults: _filters.guests ?? 2,
+                          ),
                         ),
+                        onBookNow: () => Navigator.of(
+                          context,
+                        ).pushNamed(AppRoutes.hotelDetail, arguments: summary),
                       );
                     },
                   );
@@ -269,18 +334,22 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   bool _matchesCurrentKeyword(HotelSummary summary, String keyword) {
-    final text = _normalizeSearchText([
-      summary.hotel.name,
-      summary.hotel.address,
-      summary.city.name,
-      summary.city.region,
-    ].join(' '));
+    final text = _normalizeSearchText(
+      [
+        summary.hotel.name,
+        summary.hotel.address,
+        summary.city.name,
+        summary.city.region,
+      ].join(' '),
+    );
     return text.contains(keyword);
   }
 
   String _normalizeSearchText(String value) {
-    const accented = 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
-    const plain = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
+    const accented =
+        'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
+    const plain =
+        'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
     var result = value.toLowerCase();
     for (var i = 0; i < accented.length; i++) {
       result = result.replaceAll(accented[i], plain[i]);
@@ -314,7 +383,12 @@ class _SearchBar extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(4 * responsive.widthScale, 8 * responsive.scale, responsive.horizontalPadding, 10 * responsive.scale),
+      padding: EdgeInsets.fromLTRB(
+        4 * responsive.widthScale,
+        8 * responsive.scale,
+        responsive.horizontalPadding,
+        10 * responsive.scale,
+      ),
       child: Row(
         children: [
           IconButton(
@@ -326,7 +400,10 @@ class _SearchBar extends StatelessWidget {
           Expanded(
             child: Container(
               constraints: BoxConstraints(minHeight: 60 * responsive.scale),
-              padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale, vertical: 10 * responsive.scale),
+              padding: EdgeInsets.symmetric(
+                horizontal: 16 * responsive.widthScale,
+                vertical: 10 * responsive.scale,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -343,7 +420,11 @@ class _SearchBar extends StatelessWidget {
                       width: 36 * responsive.scale,
                       height: 40 * responsive.scale,
                     ),
-                    icon: Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.primary),
+                    icon: Icon(
+                      Icons.search_rounded,
+                      size: 24 * responsive.scale,
+                      color: AppTheme.primary,
+                    ),
                   ),
                   SizedBox(width: 6 * responsive.widthScale),
                   Expanded(
@@ -353,10 +434,18 @@ class _SearchBar extends StatelessWidget {
                       onSubmitted: onSubmitted,
                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       textInputAction: TextInputAction.search,
-                      style: TextStyle(fontSize: 15 * responsive.scale, color: AppTheme.ink, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 15 * responsive.scale,
+                        color: AppTheme.ink,
+                        fontWeight: FontWeight.w700,
+                      ),
                       decoration: InputDecoration(
                         hintText: tr('Bạn muốn đi đâu?', 'Where to?'),
-                        hintStyle: TextStyle(color: AppTheme.muted, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w700),
+                        hintStyle: TextStyle(
+                          color: AppTheme.muted,
+                          fontSize: 15 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                        ),
                         // Tat het cac vien: theme co focusedBorder xanh, neu khong
                         // ghi de thi luc bam vao go se hien vien quanh chu.
                         border: InputBorder.none,
@@ -376,8 +465,14 @@ class _SearchBar extends StatelessWidget {
                         onTap: onClear,
                         radius: 18,
                         child: Padding(
-                          padding: EdgeInsets.only(right: 6 * responsive.widthScale),
-                          child: const Icon(Icons.close_rounded, size: 18, color: AppTheme.muted),
+                          padding: EdgeInsets.only(
+                            right: 6 * responsive.widthScale,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: AppTheme.muted,
+                          ),
                         ),
                       );
                     },
@@ -386,7 +481,12 @@ class _SearchBar extends StatelessWidget {
                   // them badge dem so dieu kien dang bat.
                   Semantics(
                     button: true,
-                    label: activeFilterCount > 0 ? tr('Bộ lọc, đang bật $activeFilterCount điều kiện', 'Filters, $activeFilterCount active') : tr('Bộ lọc', 'Filters'),
+                    label: activeFilterCount > 0
+                        ? tr(
+                            'Bộ lọc, đang bật $activeFilterCount điều kiện',
+                            'Filters, $activeFilterCount active',
+                          )
+                        : tr('Bộ lọc', 'Filters'),
                     child: GestureDetector(
                       onTap: onFilter,
                       child: Badge(
@@ -400,7 +500,11 @@ class _SearchBar extends StatelessWidget {
                             color: AppTheme.ink,
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: Icon(Icons.tune_rounded, color: Colors.white, size: 19 * responsive.scale),
+                          child: Icon(
+                            Icons.tune_rounded,
+                            color: Colors.white,
+                            size: 19 * responsive.scale,
+                          ),
                         ),
                       ),
                     ),
@@ -425,8 +529,14 @@ class _QuickChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    const quickAmenities = {'outdoor_pool', 'breakfast', 'family_room', 'free_parking'};
-    final hasQuickFilter = filters.isPreferred ||
+    const quickAmenities = {
+      'outdoor_pool',
+      'breakfast',
+      'family_room',
+      'free_parking',
+    };
+    final hasQuickFilter =
+        filters.isPreferred ||
         filters.nearBeach ||
         filters.maxPrice == 2000000 ||
         filters.amenities.any(quickAmenities.contains);
@@ -467,23 +577,32 @@ class _QuickChips extends StatelessWidget {
             label: tr('Cao cấp', 'Premium'),
             icon: Icons.diamond_rounded,
             active: filters.isPreferred,
-            onTap: () => onChanged(filters.copyWith(isPreferred: !filters.isPreferred)),
+            onTap: () =>
+                onChanged(filters.copyWith(isPreferred: !filters.isPreferred)),
           ),
           _chip(
             label: tr('Gần biển', 'Near beach'),
             icon: Icons.beach_access_rounded,
             active: filters.nearBeach,
-            onTap: () => onChanged(filters.copyWith(nearBeach: !filters.nearBeach)),
+            onTap: () =>
+                onChanged(filters.copyWith(nearBeach: !filters.nearBeach)),
           ),
           _chip(
             label: tr('Dưới 2tr', 'Under 2M'),
             icon: Icons.payments_rounded,
             active: filters.maxPrice == 2000000,
             onTap: () => onChanged(
-              filters.maxPrice == 2000000 ? filters.copyWith(clearPrice: true) : filters.copyWith(maxPrice: 2000000),
+              filters.maxPrice == 2000000
+                  ? filters.copyWith(clearPrice: true)
+                  : filters.copyWith(maxPrice: 2000000),
             ),
           ),
-          for (final slug in const ['outdoor_pool', 'breakfast', 'family_room', 'free_parking'])
+          for (final slug in const [
+            'outdoor_pool',
+            'breakfast',
+            'family_room',
+            'free_parking',
+          ])
             _chip(
               label: StayzTaxonomy.amenityTerm(slug).label,
               icon: StayzTaxonomy.amenityTerm(slug).icon,
@@ -495,11 +614,21 @@ class _QuickChips extends StatelessWidget {
     );
   }
 
-  Widget _chip({required String label, IconData? icon, required bool active, required VoidCallback onTap}) {
+  Widget _chip({
+    required String label,
+    IconData? icon,
+    required bool active,
+    required VoidCallback onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Center(
-        child: FilterPill(label: label, icon: icon, active: active, onTap: onTap),
+        child: FilterPill(
+          label: label,
+          icon: icon,
+          active: active,
+          onTap: onTap,
+        ),
       ),
     );
   }
@@ -516,7 +645,11 @@ class _ResultCount extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4, top: 6),
       child: Text(
         tr('Tìm thấy $count khách sạn', 'Found $count hotels'),
-        style: const TextStyle(color: AppTheme.muted, fontSize: 13, fontWeight: FontWeight.w700),
+        style: const TextStyle(
+          color: AppTheme.muted,
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }

@@ -222,7 +222,7 @@ class ApiService {
     if (AppLocale.instance.isVietnamese &&
         serverMessage != null &&
         serverMessage.trim().isNotEmpty) {
-      return serverMessage;
+      return repairMojibake(serverMessage);
     }
 
     switch (statusCode) {

@@ -61,7 +61,7 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
       titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
@@ -311,7 +311,7 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
       titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
@@ -574,7 +574,7 @@ class _ImagePickerField extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFD6E1EA)),
       ),
       child: Row(
@@ -612,7 +612,7 @@ class _ImagePickerField extends StatelessWidget {
               minimumSize: const Size(0, 38),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ),
@@ -668,7 +668,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,
     titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
@@ -902,7 +902,7 @@ class _BookingFormDialogState extends State<BookingFormDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,
     titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
@@ -926,7 +926,7 @@ class _BookingFormDialogState extends State<BookingFormDialog> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF7E6),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: const Color(0xFFF1D392)),
                 ),
                 child: Row(
@@ -1182,7 +1182,7 @@ class _ReviewFormDialogState extends State<ReviewFormDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,
     titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
@@ -1232,7 +1232,7 @@ InputDecoration _adminInputDecoration(String label) {
   const borderColor = Color(0xFFD6E1EA);
   const focusedColor = AppTheme.primary;
   final border = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(6),
+    borderRadius: BorderRadius.circular(14),
     borderSide: const BorderSide(color: borderColor),
   );
   return InputDecoration(
@@ -1265,5 +1265,5 @@ InputDecoration _adminInputDecoration(String label) {
 ButtonStyle get _adminDialogPrimaryButtonStyle => FilledButton.styleFrom(
   minimumSize: const Size(112, 42),
   padding: const EdgeInsets.symmetric(horizontal: 18),
-  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
 );

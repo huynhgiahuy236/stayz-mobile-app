@@ -20,6 +20,7 @@ class FavoriteHotelCard extends StatelessWidget {
   final String name;
   final String location;
   final String price;
+
   /// `null` = khach san chua co danh gia nao.
   final String? rating;
   final List<Color> colors;
@@ -31,18 +32,21 @@ class FavoriteHotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final imageWidth = MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2 - 24 * responsive.scale;
+    final imageWidth =
+        MediaQuery.sizeOf(context).width -
+        responsive.horizontalPadding * 2 -
+        24 * responsive.scale;
     final imageHeight = imageWidth / AppTheme.cardImageAspectRatio;
 
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppTheme.cardRadius),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
             border: Border.all(color: AppTheme.line),
             boxShadow: AppTheme.softShadow,
           ),
@@ -59,7 +63,9 @@ class FavoriteHotelCard extends StatelessWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors)),
+                        CustomPaint(
+                          painter: LuxuryArchitecturalPainter(colors: colors),
+                        ),
                         if (imageUrl != null)
                           StayZNetworkImage(
                             imageUrl: imageUrl!,
@@ -72,10 +78,22 @@ class FavoriteHotelCard extends StatelessWidget {
                           child: InkWell(
                             onTap: onFavoriteTap,
                             customBorder: const CircleBorder(),
-                            child: CircleAvatar(
-                              radius: 18 * responsive.scale,
-                              backgroundColor: Colors.white.withValues(alpha: 0.92),
-                              child: Icon(Icons.favorite_rounded, color: AppTheme.primary, size: 19 * responsive.scale),
+                            child: SizedBox(
+                              width: 48,
+                              height: 48,
+                              child: Center(
+                                child: CircleAvatar(
+                                  radius: 18 * responsive.scale,
+                                  backgroundColor: Colors.white.withValues(
+                                    alpha: 0.92,
+                                  ),
+                                  child: Icon(
+                                    Icons.favorite_rounded,
+                                    color: AppTheme.primary,
+                                    size: 19 * responsive.scale,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -109,23 +127,42 @@ class FavoriteHotelCard extends StatelessWidget {
                           ),
                         ),
                         if (rating != null) ...[
-                          Icon(Icons.star_rounded, color: AppTheme.gold, size: 17 * responsive.scale),
+                          Icon(
+                            Icons.star_rounded,
+                            color: AppTheme.gold,
+                            size: 17 * responsive.scale,
+                          ),
                           SizedBox(width: 4 * responsive.widthScale),
-                          Text(rating!, style: TextStyle(color: AppTheme.ink, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w800)),
+                          Text(
+                            rating!,
+                            style: TextStyle(
+                              color: AppTheme.ink,
+                              fontSize: 13 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ],
                       ],
                     ),
                     SizedBox(height: 8 * responsive.scale),
                     Row(
                       children: [
-                        Icon(Icons.location_on_outlined, color: AppTheme.muted, size: 16 * responsive.scale),
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: AppTheme.muted,
+                          size: 16 * responsive.scale,
+                        ),
                         SizedBox(width: 5 * responsive.widthScale),
                         Expanded(
                           child: Text(
                             location,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 13 * responsive.scale,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -136,11 +173,19 @@ class FavoriteHotelCard extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: price,
-                            style: TextStyle(color: AppTheme.primary, fontSize: 17 * responsive.scale, fontWeight: FontWeight.w900),
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              fontSize: 17 * responsive.scale,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                           TextSpan(
                             text: ' / đêm',
-                            style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 12 * responsive.scale,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ],
                       ),
@@ -158,7 +203,7 @@ class FavoriteHotelCard extends StatelessWidget {
                         Expanded(
                           child: FilledButton(
                             onPressed: onBook,
-                            child: const Text('Đặt ngay'),
+                            child: const Text('Xem phòng'),
                           ),
                         ),
                       ],

@@ -149,7 +149,9 @@ class _OtpPageState extends State<OtpPage> {
     try {
       await AuthService.instance.requestPasswordReset(email: _email);
       if (!mounted) return;
-      _showMessage(tr('Đã gửi lại mã xác thực.', 'A new verification code has been sent.'));
+      _showMessage(
+        tr('Đã gửi lại mã xác thực.', 'A new verification code has been sent.'),
+      );
       _startCountdown();
     } on ApiException catch (error) {
       if (mounted) _showMessage(error.message);
@@ -159,7 +161,9 @@ class _OtpPageState extends State<OtpPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -179,8 +183,14 @@ class _OtpPageState extends State<OtpPage> {
                 AuthTitleBlock(
                   title: tr('Nhập mã xác thực', 'Enter verification code'),
                   subtitle: _email.isEmpty
-                      ? tr('Nhập mã gồm 6 chữ số đã được gửi tới email của bạn.', 'Enter the 6-digit code sent to your email.')
-                      : tr('Chúng tôi đã gửi mã gồm 6 chữ số tới $_email.', 'We sent a 6-digit code to $_email.'),
+                      ? tr(
+                          'Nhập mã gồm 6 chữ số đã được gửi tới email của bạn.',
+                          'Enter the 6-digit code sent to your email.',
+                        )
+                      : tr(
+                          'Chúng tôi đã gửi mã gồm 6 chữ số tới $_email.',
+                          'We sent a 6-digit code to $_email.',
+                        ),
                 ),
                 SizedBox(height: 32 * responsive.scale),
                 // Tinh be rong moi o tu be rong thuc con lai, chia deu 6 o tren
@@ -189,7 +199,9 @@ class _OtpPageState extends State<OtpPage> {
                 LayoutBuilder(
                   builder: (context, constraints) {
                     const gap = 8.0;
-                    final boxWidth = ((constraints.maxWidth - gap * (_length - 1)) / _length).clamp(38.0, 56.0);
+                    final boxWidth =
+                        ((constraints.maxWidth - gap * (_length - 1)) / _length)
+                            .clamp(38.0, 56.0);
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -217,12 +229,22 @@ class _OtpPageState extends State<OtpPage> {
                 Center(
                   child: _secondsLeft > 0
                       ? Text(
-                          tr('Gửi lại mã sau $_secondsLeft giây', 'Resend code in $_secondsLeft seconds'),
-                          style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale),
+                          tr(
+                            'Gửi lại mã sau $_secondsLeft giây',
+                            'Resend code in $_secondsLeft seconds',
+                          ),
+                          style: TextStyle(
+                            color: AppTheme.muted,
+                            fontSize: 14 * responsive.scale,
+                          ),
                         )
                       : TextButton(
                           onPressed: _resending ? null : _resend,
-                          child: Text(_resending ? tr('Đang gửi...', 'Sending...') : tr('Gửi lại mã', 'Resend code')),
+                          child: Text(
+                            _resending
+                                ? tr('Đang gửi...', 'Sending...')
+                                : tr('Gửi lại mã', 'Resend code'),
+                          ),
                         ),
                 ),
               ],
@@ -256,7 +278,10 @@ class _OtpBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: tr('Chữ số thứ $position trên $total', 'Digit $position of $total'),
+      label: tr(
+        'Chữ số thứ $position trên $total',
+        'Digit $position of $total',
+      ),
       child: SizedBox(
         width: width,
         height: 56,
@@ -269,7 +294,11 @@ class _OtpBox extends StatelessWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           maxLength: 1,
           onChanged: onChanged,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.ink),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.ink,
+          ),
           decoration: InputDecoration(
             counterText: '',
             contentPadding: EdgeInsets.zero,

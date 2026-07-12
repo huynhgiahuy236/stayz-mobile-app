@@ -318,6 +318,9 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
       amenityLabels: room.amenityIds
           .map((slug) => StayzTaxonomy.amenityTerm(slug).label)
           .toList(),
+      onDetails: () => Navigator.of(
+        context,
+      ).pushNamed(AppRoutes.roomDetail, arguments: _draftFor(hotel, room)),
       onBook: () => Navigator.of(
         context,
       ).pushNamed(AppRoutes.bookingSchedule, arguments: _draftFor(hotel, room)),

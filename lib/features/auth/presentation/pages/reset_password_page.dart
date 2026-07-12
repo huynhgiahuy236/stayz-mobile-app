@@ -50,7 +50,12 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   Future<void> _resetPassword() async {
     final args = _args;
     if (args == null) {
-      _showMessage(tr('Thiếu mã xác thực. Vui lòng bắt đầu lại từ bước quên mật khẩu.', 'Missing verification code. Please restart the password reset flow.'));
+      _showMessage(
+        tr(
+          'Thiếu mã xác thực. Vui lòng bắt đầu lại từ bước quên mật khẩu.',
+          'Missing verification code. Please restart the password reset flow.',
+        ),
+      );
       return;
     }
 
@@ -61,7 +66,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       return;
     }
 
-    final confirmError = AuthValidators.confirmPassword(newPassword, _confirmPasswordController.text);
+    final confirmError = AuthValidators.confirmPassword(
+      newPassword,
+      _confirmPasswordController.text,
+    );
     if (confirmError != null) {
       _showMessage(confirmError);
       return;
@@ -79,9 +87,20 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Đã đổi mật khẩu. Vui lòng đăng nhập lại.', 'Password changed. Please sign in again.'))),
+        SnackBar(
+          content: Text(
+            tr(
+              'Đã đổi mật khẩu. Vui lòng đăng nhập lại.',
+              'Password changed. Please sign in again.',
+            ),
+          ),
+        ),
       );
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+      await _showSuccess();
+      if (!mounted) return;
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
     } on ApiException catch (error) {
       if (mounted) _showMessage(error.message);
     } finally {
@@ -90,8 +109,66 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
+
+  Future<void> _showSuccess() => showModalBottomSheet<void>(
+    context: context,
+    isDismissible: false,
+    enableDrag: false,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 34, 28, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircleAvatar(
+              radius: 42,
+              backgroundColor: Color(0xFFE7F8EE),
+              child: Icon(
+                Icons.check_rounded,
+                size: 48,
+                color: AppTheme.success,
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              tr('Đổi mật khẩu thành công!', 'Password updated!'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppTheme.ink,
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              tr(
+                'Bạn có thể đăng nhập bằng mật khẩu mới.',
+                'You can now sign in with your new password.',
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.muted, height: 1.5),
+            ),
+            const SizedBox(height: 26),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton(
+                onPressed: () => Navigator.of(sheetContext).pop(),
+                child: Text(tr('Tiếp tục', 'Continue')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -111,22 +188,32 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 AuthTitleBlock(
                   title: tr('Bảo vệ tài khoản', 'Secure your account'),
                   subtitle: args == null
-                      ? tr('Không nhận được mã xác thực. Hãy bắt đầu lại từ bước quên mật khẩu.', 'No verification code was provided. Please restart the password reset flow.')
-                      : tr('Đặt mật khẩu mới cho ${args.email}.', 'Set a new password for ${args.email}.'),
+                      ? tr(
+                          'Không nhận được mã xác thực. Hãy bắt đầu lại từ bước quên mật khẩu.',
+                          'No verification code was provided. Please restart the password reset flow.',
+                        )
+                      : tr(
+                          'Đặt mật khẩu mới cho ${args.email}.',
+                          'Set a new password for ${args.email}.',
+                        ),
                 ),
                 SizedBox(height: 32 * responsive.scale),
 
                 if (args == null) ...[
                   AuthPrimaryButton(
-                    label: tr('Quay lại quên mật khẩu', 'Restart password reset'),
-                    onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                      AppRoutes.forgotPassword,
-                      (route) => route.settings.name == AppRoutes.login,
+                    label: tr(
+                      'Quay lại quên mật khẩu',
+                      'Restart password reset',
                     ),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.forgotPassword,
+                          (route) => route.settings.name == AppRoutes.login,
+                        ),
                   ),
                 ] else ...[
                   AuthField(
-                    label: tr('MẬT KHẨU MỚI', 'NEW PASSWORD'),
+                    label: tr('Mật khẩu mới', 'New password'),
                     hint: tr('Ít nhất 6 ký tự', 'At least 6 characters'),
                     obscure: true,
                     controller: _newPasswordController,
@@ -134,8 +221,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   AuthField(
-                    label: tr('NHẬP LẠI MẬT KHẨU', 'CONFIRM PASSWORD'),
-                    hint: tr('Nhập lại mật khẩu mới', 'Enter the new password again'),
+                    label: tr('Xác nhận mật khẩu', 'Confirm password'),
+                    hint: tr(
+                      'Nhập lại mật khẩu mới',
+                      'Enter the new password again',
+                    ),
                     obscure: true,
                     controller: _confirmPasswordController,
                     textInputAction: TextInputAction.done,

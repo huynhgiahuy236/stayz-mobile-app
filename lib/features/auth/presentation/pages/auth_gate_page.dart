@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +17,9 @@ class _AuthGatePageState extends State<AuthGatePage> {
   @override
   void initState() {
     super.initState();
+    // Wake a sleeping Render service while the user is still entering auth
+    // details, so OTP submission does not pay the full cold-start delay.
+    unawaited(const ApiService().get('/health').catchError((_) => null));
     _resolveStartRoute();
   }
 
@@ -38,7 +44,7 @@ class _AuthGatePageState extends State<AuthGatePage> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Colors.white,
       body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
     );
   }

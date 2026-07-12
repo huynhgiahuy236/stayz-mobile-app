@@ -13,6 +13,7 @@ class SearchHotelCard extends StatelessWidget {
     required this.colors,
     required this.onTap,
     required this.onRoomsTap,
+    required this.onBookNow,
     this.rating,
     this.reviewCount = 0,
     this.amenities = const <String>[],
@@ -33,6 +34,7 @@ class SearchHotelCard extends StatelessWidget {
   /// chon phong am tham chon khach san dau tien trong danh sach.
   final VoidCallback onTap;
   final VoidCallback onRoomsTap;
+  final VoidCallback onBookNow;
 
   /// `null` = chua co danh gia. Khong ve sao va khong bia so luot.
   final double? rating;
@@ -50,13 +52,14 @@ class SearchHotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final imageWidth = MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2;
+    final imageWidth =
+        MediaQuery.sizeOf(context).width - responsive.horizontalPadding * 2;
     final imageHeight = imageWidth / AppTheme.cardImageAspectRatio;
     final shownAmenities = amenities.take(4).toList();
 
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppTheme.cardRadius),
       // Cat moi thu ben trong theo bo goc: nen ve (CustomPaint) phia sau anh
       // truoc day loi goc vuong ra ngoai the.
       clipBehavior: Clip.antiAlias,
@@ -64,8 +67,9 @@ class SearchHotelCard extends StatelessWidget {
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
             border: Border.all(color: AppTheme.line),
+            boxShadow: AppTheme.softShadow,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,12 +80,22 @@ class SearchHotelCard extends StatelessWidget {
                 aspectRatio: AppTheme.cardImageAspectRatio,
                 child: Stack(
                   children: [
-                    Positioned.fill(child: CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors))),
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: LuxuryArchitecturalPainter(colors: colors),
+                      ),
+                    ),
                     if (imageUrl != null)
                       Positioned.fill(
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                          child: StayZNetworkImage(imageUrl: imageUrl!, width: imageWidth, height: imageHeight),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(AppTheme.cardRadius),
+                          ),
+                          child: StayZNetworkImage(
+                            imageUrl: imageUrl!,
+                            width: imageWidth,
+                            height: imageHeight,
+                          ),
                         ),
                       ),
                     if (badge != null)
@@ -89,9 +103,14 @@ class SearchHotelCard extends StatelessWidget {
                         top: 12 * responsive.scale,
                         left: 12 * responsive.widthScale,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10 * responsive.widthScale, vertical: 5 * responsive.scale),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10 * responsive.widthScale,
+                            vertical: 5 * responsive.scale,
+                          ),
                           decoration: BoxDecoration(
-                            color: badgeIsWarning ? AppTheme.danger : AppTheme.accent,
+                            color: badgeIsWarning
+                                ? AppTheme.danger
+                                : AppTheme.accent,
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
@@ -109,7 +128,9 @@ class SearchHotelCard extends StatelessWidget {
                       right: 4,
                       child: Semantics(
                         button: true,
-                        label: favorite ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích',
+                        label: favorite
+                            ? 'Bỏ khỏi yêu thích'
+                            : 'Thêm vào yêu thích',
                         child: InkResponse(
                           onTap: onFavoriteTap,
                           radius: 24,
@@ -120,9 +141,13 @@ class SearchHotelCard extends StatelessWidget {
                             child: Center(
                               child: CircleAvatar(
                                 radius: 18,
-                                backgroundColor: Colors.white.withValues(alpha: 0.92),
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.92,
+                                ),
                                 child: Icon(
-                                  favorite ? Icons.favorite : Icons.favorite_border,
+                                  favorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
                                   color: AppTheme.accent,
                                   size: 20,
                                 ),
@@ -136,7 +161,12 @@ class SearchHotelCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(14 * responsive.scale, 12 * responsive.scale, 14 * responsive.scale, 12 * responsive.scale),
+                padding: EdgeInsets.fromLTRB(
+                  14 * responsive.scale,
+                  12 * responsive.scale,
+                  14 * responsive.scale,
+                  12 * responsive.scale,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -156,16 +186,27 @@ class SearchHotelCard extends StatelessWidget {
                         ),
                         if (rating != null && reviewCount > 0) ...[
                           SizedBox(width: 8 * responsive.widthScale),
-                          Icon(Icons.star_rounded, color: AppTheme.gold, size: 16 * responsive.scale),
+                          Icon(
+                            Icons.star_rounded,
+                            color: AppTheme.gold,
+                            size: 16 * responsive.scale,
+                          ),
                           SizedBox(width: 2 * responsive.widthScale),
                           Text(
                             rating!.toStringAsFixed(1),
-                            style: TextStyle(color: AppTheme.ink, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w800),
+                            style: TextStyle(
+                              color: AppTheme.ink,
+                              fontSize: 13 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                           SizedBox(width: 3 * responsive.widthScale),
                           Text(
                             '($reviewCount)',
-                            style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale),
+                            style: TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 12 * responsive.scale,
+                            ),
                           ),
                         ],
                       ],
@@ -173,14 +214,21 @@ class SearchHotelCard extends StatelessWidget {
                     SizedBox(height: 4 * responsive.scale),
                     Row(
                       children: [
-                        Icon(Icons.place_outlined, size: 14 * responsive.scale, color: AppTheme.muted),
+                        Icon(
+                          Icons.place_outlined,
+                          size: 14 * responsive.scale,
+                          color: AppTheme.muted,
+                        ),
                         SizedBox(width: 3 * responsive.widthScale),
                         Expanded(
                           child: Text(
                             location,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale),
+                            style: TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 12.5 * responsive.scale,
+                            ),
                           ),
                         ),
                       ],
@@ -191,7 +239,9 @@ class SearchHotelCard extends StatelessWidget {
                         children: [
                           for (final slug in shownAmenities)
                             Padding(
-                              padding: EdgeInsets.only(right: 14 * responsive.widthScale),
+                              padding: EdgeInsets.only(
+                                right: 14 * responsive.widthScale,
+                              ),
                               child: Tooltip(
                                 message: StayzTaxonomy.amenityTerm(slug).label,
                                 child: Icon(
@@ -221,22 +271,50 @@ class SearchHotelCard extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text: tr(' / đêm', ' / night'),
-                                  style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale),
+                                  style: TextStyle(
+                                    color: AppTheme.muted,
+                                    fontSize: 12 * responsive.scale,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
+                        SizedBox(width: 8 * responsive.widthScale),
+                        SizedBox(
+                          height: 44 * responsive.scale,
+                          child: OutlinedButton(
+                            onPressed: onBookNow,
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 14 * responsive.widthScale,
+                              ),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(tr('Chi tiết', 'Details')),
+                          ),
+                        ),
+                        SizedBox(width: 8 * responsive.widthScale),
                         SizedBox(
                           height: 44 * responsive.scale,
                           child: FilledButton(
                             onPressed: onRoomsTap,
                             style: FilledButton.styleFrom(
-                              padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16 * responsive.widthScale,
+                              ),
                               minimumSize: const Size(0, 44),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            child: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Xem phòng', 'View rooms'))),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(tr('Xem phòng', 'View rooms')),
+                            ),
                           ),
                         ),
                       ],
@@ -286,7 +364,9 @@ class SearchStateScaffold extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      bottomNavigationBar: showHeader ? const StayZBottomNav(activeTab: HomeTab.search) : null,
+      bottomNavigationBar: showHeader
+          ? const StayZBottomNav(activeTab: HomeTab.search)
+          : null,
       body: SafeArea(
         bottom: !showHeader,
         child: Column(
@@ -342,9 +422,15 @@ class SearchStateScaffold extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 30 * responsive.scale),
-                      PrimarySearchButton(label: primaryLabel, onTap: onPrimary),
+                      PrimarySearchButton(
+                        label: primaryLabel,
+                        onTap: onPrimary,
+                      ),
                       SizedBox(height: 12 * responsive.scale),
-                      SecondarySearchButton(label: secondaryLabel, onTap: onSecondary),
+                      SecondarySearchButton(
+                        label: secondaryLabel,
+                        onTap: onSecondary,
+                      ),
                       if (footer != null) ...[
                         SizedBox(height: 32 * responsive.scale),
                         footer!,
@@ -377,14 +463,18 @@ class SearchTopBar extends StatelessWidget {
         20 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFFBF7F4),
+        color: AppTheme.surface,
         border: Border(
           bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
         ),
       ),
       child: Row(
         children: [
-          Icon(Icons.menu, color: AppTheme.accentDark, size: 30 * responsive.scale),
+          Icon(
+            Icons.menu,
+            color: AppTheme.accentDark,
+            size: 30 * responsive.scale,
+          ),
           SizedBox(width: 28 * responsive.widthScale),
           Expanded(
             child: RichText(
@@ -396,7 +486,10 @@ class SearchTopBar extends StatelessWidget {
                 ),
                 children: const [
                   TextSpan(text: 'Stay'),
-                  TextSpan(text: 'Z', style: TextStyle(color: AppTheme.accent)),
+                  TextSpan(
+                    text: 'Z',
+                    style: TextStyle(color: AppTheme.accent),
+                  ),
                 ],
               ),
             ),
@@ -413,11 +506,7 @@ class SearchTopBar extends StatelessWidget {
 }
 
 class PrimarySearchButton extends StatelessWidget {
-  const PrimarySearchButton({
-    required this.label,
-    this.onTap,
-    super.key,
-  });
+  const PrimarySearchButton({required this.label, this.onTap, super.key});
 
   final String label;
   final VoidCallback? onTap;
@@ -434,7 +523,9 @@ class PrimarySearchButton extends StatelessWidget {
         onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.accent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: Text(
           label,
@@ -450,11 +541,7 @@ class PrimarySearchButton extends StatelessWidget {
 }
 
 class SecondarySearchButton extends StatelessWidget {
-  const SecondarySearchButton({
-    required this.label,
-    this.onTap,
-    super.key,
-  });
+  const SecondarySearchButton({required this.label, this.onTap, super.key});
 
   final String label;
   final VoidCallback? onTap;
@@ -470,7 +557,9 @@ class SecondarySearchButton extends StatelessWidget {
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppTheme.neutral200),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: Text(
           label,

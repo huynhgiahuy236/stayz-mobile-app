@@ -95,10 +95,12 @@ class BookingPrimaryButton extends StatelessWidget {
       width: double.infinity,
       height: 58 * responsive.scale,
       child: FilledButton(
-          onPressed: onTap,
+        onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.accent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -131,6 +133,7 @@ class RoomOptionCard extends StatelessWidget {
     required this.badgeColor,
     required this.colors,
     required this.onBook,
+    required this.onDetails,
     required this.canBook,
     this.imageUrl,
     this.roomMeta = const <String>[],
@@ -145,6 +148,7 @@ class RoomOptionCard extends StatelessWidget {
   final Color badgeColor;
   final List<Color> colors;
   final VoidCallback onBook;
+  final VoidCallback onDetails;
   final bool canBook;
   final String? imageUrl;
   final List<String> roomMeta;
@@ -158,8 +162,9 @@ class RoomOptionCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         border: Border.all(color: AppTheme.neutral200),
+        boxShadow: AppTheme.softShadow,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -226,58 +231,84 @@ class RoomOptionCard extends StatelessWidget {
                 Wrap(
                   spacing: 8 * responsive.widthScale,
                   runSpacing: 8 * responsive.scale,
-                  children: roomMeta.map((label) => _RoomMeta(label: label)).toList(),
+                  children: roomMeta
+                      .map((label) => _RoomMeta(label: label))
+                      .toList(),
                 ),
                 SizedBox(height: 16 * responsive.scale),
                 if (amenityLabels.isNotEmpty)
                   Wrap(
                     spacing: 8 * responsive.widthScale,
                     runSpacing: 8 * responsive.scale,
-                    children: amenityLabels.take(4).map((label) => _AmenityChip(label: label)).toList(),
+                    children: amenityLabels
+                        .take(4)
+                        .map((label) => _AmenityChip(label: label))
+                        .toList(),
                   ),
-                SizedBox(height: amenityLabels.isEmpty ? 0 : 16 * responsive.scale),
-                Divider(height: 42 * responsive.scale, color: AppTheme.neutral200),
+                SizedBox(
+                  height: amenityLabels.isEmpty ? 0 : 16 * responsive.scale,
+                ),
+                Divider(
+                  height: 42 * responsive.scale,
+                  color: AppTheme.neutral200,
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: price,
+                        style: TextStyle(
+                          color: AppTheme.accent,
+                          fontSize: 18 * responsive.scale,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      TextSpan(
+                        text: tr(' / đêm', ' / night'),
+                        style: TextStyle(
+                          color: AppTheme.neutral800,
+                          fontSize: 11 * responsive.scale,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: price,
-                              style: TextStyle(
-                                color: AppTheme.accent,
-                                fontSize: 18 * responsive.scale,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                            TextSpan(
-                              text: tr(' / đêm', ' / night'),
-                              style: TextStyle(
-                                color: AppTheme.neutral800,
-                                fontSize: 11 * responsive.scale,
-                              ),
-                            ),
-                          ],
+                      child: SizedBox(
+                        height: AppTheme.cardActionHeight,
+                        child: OutlinedButton(
+                          onPressed: onDetails,
+                          child: Text(tr('Chi tiáº¿t phÃ²ng', 'Room details')),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 126 * responsive.widthScale,
-                      height: 52 * responsive.scale,
-                      child: FilledButton(
-                        onPressed: canBook ? onBook : null,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.accent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: Text(
-                          canBook ? tr('Đặt ngay', 'Book now') : tr('Hết phòng', 'Sold out'),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15 * responsive.scale,
-                            fontWeight: FontWeight.w800,
+                    SizedBox(width: 10 * responsive.widthScale),
+                    Expanded(
+                      child: SizedBox(
+                        height: AppTheme.cardActionHeight,
+                        child: FilledButton(
+                          onPressed: canBook ? onBook : null,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppTheme.accent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.controlRadius,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            canBook
+                                ? tr('Đặt ngay', 'Book now')
+                                : tr('Hết phòng', 'Sold out'),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
@@ -469,7 +500,9 @@ class PaymentMethodTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: active ? AppTheme.accentDark : AppTheme.neutral200),
+        border: Border.all(
+          color: active ? AppTheme.accentDark : AppTheme.neutral200,
+        ),
       ),
       child: Row(
         children: [

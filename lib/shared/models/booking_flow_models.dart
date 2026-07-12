@@ -111,9 +111,38 @@ class BookingSummaryArgs {
 }
 
 class PayOSPaymentArgs {
-  const PayOSPaymentArgs({required this.summary, required this.checkoutUrl, required this.amount});
+  const PayOSPaymentArgs({
+    required this.summary,
+    required this.checkoutUrl,
+    required this.amount,
+    required this.qrCode,
+    this.bankBin = '',
+    this.accountNumber = '',
+    this.accountName = '',
+    this.transferDescription = '',
+  });
 
   final BookingSummary summary;
   final String checkoutUrl;
   final num amount;
+  final String qrCode;
+  final String bankBin;
+  final String accountNumber;
+  final String accountName;
+  final String transferDescription;
+
+  factory PayOSPaymentArgs.fromPayment({
+    required BookingSummary summary,
+    required Map<String, dynamic> payment,
+    required num fallbackAmount,
+  }) => PayOSPaymentArgs(
+        summary: summary,
+        checkoutUrl: payment['checkout_url']?.toString() ?? '',
+        amount: payment['amount'] as num? ?? fallbackAmount,
+        qrCode: payment['qr_code']?.toString() ?? '',
+        bankBin: payment['bank_bin']?.toString() ?? '',
+        accountNumber: payment['account_number']?.toString() ?? '',
+        accountName: payment['account_name']?.toString() ?? '',
+        transferDescription: payment['transfer_description']?.toString() ?? '',
+      );
 }

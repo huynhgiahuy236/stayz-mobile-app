@@ -16,6 +16,7 @@ class MyBookingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final focusedBookingId = ModalRoute.of(context)?.settings.arguments as String?;
 
     return Scaffold(
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
@@ -37,6 +38,9 @@ class MyBookingsPage extends StatelessWidget {
                   final bookings = (snapshot.data ?? const <BookingSummary>[])
                       .where((summary) => summary.booking.isUpcoming)
                       .toList();
+                  if (focusedBookingId != null) {
+                    bookings.sort((a, b) => a.booking.id == focusedBookingId ? -1 : b.booking.id == focusedBookingId ? 1 : 0);
+                  }
 
                   if (bookings.isEmpty && snapshot.connectionState != ConnectionState.done) {
                     return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
@@ -74,16 +78,16 @@ class MyBookingsPage extends StatelessWidget {
                         onPay: () async {
                           try {
                             final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
-                            final checkoutUrl = payment['checkout_url']?.toString() ?? '';
-                            if (checkoutUrl.isEmpty) throw const ApiException('PayOS checkout URL is missing.');
+                            final paymentArgs = PayOSPaymentArgs.fromPayment(
+                              summary: summary,
+                              payment: payment,
+                              fallbackAmount: summary.booking.totalAmount,
+                            );
+                            if (paymentArgs.qrCode.isEmpty) throw const ApiException('PayOS QR code is missing.');
                             if (!context.mounted) return;
                             Navigator.of(context).pushNamed(
                               AppRoutes.paymentQr,
-                              arguments: PayOSPaymentArgs(
-                                summary: summary,
-                                checkoutUrl: checkoutUrl,
-                                amount: payment['amount'] as num? ?? summary.booking.totalAmount,
-                              ),
+                              arguments: paymentArgs,
                             );
                           } on ApiException catch (error) {
                             if (context.mounted) {

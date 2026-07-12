@@ -377,6 +377,7 @@ class _OnboardingImage extends StatelessWidget {
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
+        errorBuilder: (_, _, _) => const _OnboardingImageFallback(),
       );
     }
 
@@ -385,6 +386,31 @@ class _OnboardingImage extends StatelessWidget {
       fit: BoxFit.cover,
       width: double.infinity,
       height: double.infinity,
+      errorBuilder: (_, _, _) => const _OnboardingImageFallback(),
+    );
+  }
+}
+
+class _OnboardingImageFallback extends StatelessWidget {
+  const _OnboardingImageFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE9F6FF), Color(0xFFCFEAFF)],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.hotel_rounded,
+          color: const Color(0xFF0A4E83).withValues(alpha: 0.38),
+          size: 84,
+        ),
+      ),
     );
   }
 }

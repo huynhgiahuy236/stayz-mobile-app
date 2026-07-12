@@ -98,12 +98,12 @@ class _RegisterPageState extends State<RegisterPage> {
     final phone = _phoneController.text.trim();
     final password = _passwordController.text;
 
-    if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
-      _showMessage(tr('Vui lòng nhập họ tên, email và mật khẩu.', 'Please enter name, email and password.'));
-      return;
-    }
-    if (password.length < 6) {
-      _showMessage(tr('Mật khẩu phải có ít nhất 6 ký tự.', 'Password must be at least 6 characters.'));
+    final validationError = AuthValidators.fullName(fullName) ??
+        AuthValidators.email(email) ??
+        (phone.isEmpty ? null : AuthValidators.phone(phone)) ??
+        AuthValidators.password(password);
+    if (validationError != null) {
+      _showMessage(validationError);
       return;
     }
     final otpError = AuthValidators.otpCode(_otpController.text);
@@ -288,22 +288,32 @@ class _OtpMethodRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: ChoiceChip(
+          child: SizedBox(
+            height: 52 * responsive.scale,
+            child: ChoiceChip(
             selected: value == 'email',
             label: Text(tr('Email', 'Email')),
-            avatar: const Icon(Icons.mail_outline, size: 18),
+            avatar: const Icon(Icons.mail_outline, size: 20),
             onSelected: (_) => onChanged('email'),
-            labelStyle: TextStyle(fontSize: 13.5 * responsive.scale, fontWeight: FontWeight.w800),
+            showCheckmark: false,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            labelStyle: TextStyle(fontSize: 15 * responsive.scale, fontWeight: FontWeight.w800),
+            ),
           ),
         ),
         SizedBox(width: 8 * responsive.widthScale),
         Expanded(
-          child: ChoiceChip(
+          child: SizedBox(
+            height: 52 * responsive.scale,
+            child: ChoiceChip(
             selected: value == 'phone',
             label: Text(tr('Điện thoại', 'Phone')),
-            avatar: const Icon(Icons.phone_android, size: 18),
+            avatar: const Icon(Icons.phone_android, size: 20),
             onSelected: (_) => onChanged('phone'),
-            labelStyle: TextStyle(fontSize: 13.5 * responsive.scale, fontWeight: FontWeight.w800),
+            showCheckmark: false,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            labelStyle: TextStyle(fontSize: 15 * responsive.scale, fontWeight: FontWeight.w800),
+            ),
           ),
         ),
       ],

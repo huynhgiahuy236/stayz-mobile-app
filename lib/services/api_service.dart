@@ -141,7 +141,7 @@ class ApiService {
   String _messageFor(int statusCode, dynamic decoded) {
     final serverMessage = decoded is Map<String, dynamic> ? decoded['message']?.toString() : null;
     if (AppLocale.instance.isVietnamese && serverMessage != null && serverMessage.trim().isNotEmpty) {
-      return serverMessage;
+      return repairMojibake(serverMessage);
     }
 
     switch (statusCode) {

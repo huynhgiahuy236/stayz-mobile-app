@@ -256,6 +256,10 @@ class _SearchPageState extends State<SearchPage> {
                           AppRoutes.roomSelection,
                           arguments: RoomSelectionArgs(hotel: summary, adults: _filters.guests ?? 2),
                         ),
+                        onBookNow: () => Navigator.of(context).pushNamed(
+                          AppRoutes.roomSelection,
+                          arguments: RoomSelectionArgs(hotel: summary, adults: _filters.guests ?? 2),
+                        ),
                       );
                     },
                   );

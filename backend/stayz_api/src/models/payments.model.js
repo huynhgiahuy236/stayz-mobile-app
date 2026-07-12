@@ -32,6 +32,12 @@ const paymentSchema = new mongoose.Schema(
     checkout_url: {
       type: String,
     },
+    qr_code: String,
+    bank_bin: String,
+    account_number: String,
+    account_name: String,
+    transfer_description: String,
+    currency: { type: String, default: "VND" },
   },
   { timestamps: true },
 );

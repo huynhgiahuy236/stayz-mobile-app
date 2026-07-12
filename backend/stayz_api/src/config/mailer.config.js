@@ -31,11 +31,11 @@ const sendPasswordResetCodeEmail = async ({ to, code }) => {
   await transporter.sendMail({
     from: SMTP_FROM,
     to,
-    subject: "Mã xác thực đặt lại mật khẩu",
+    subject: "Mã xác thực đặt lại mật khẩu StayZ",
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2f46">
-        <h2 style="margin-bottom:12px;color:#003b95">Khôi phục mật khẩu Booking</h2>
-        <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản Booking.</p>
+        <h2 style="margin-bottom:12px;color:#003b95">Khôi phục mật khẩu StayZ</h2>
+        <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản StayZ.</p>
         <p>Mã xác thực của bạn là:</p>
         <div style="display:inline-block;margin:12px 0;padding:12px 20px;border-radius:12px;background:#eef4ff;font-size:28px;font-weight:700;letter-spacing:6px;color:#003b95">
           ${code}
@@ -53,16 +53,16 @@ const sendRegisterCodeEmail = async ({ to, code }) => {
   await transporter.sendMail({
     from: SMTP_FROM,
     to,
-    subject: "Ma xac thuc dang ky StayZ",
+    subject: "Mã xác thực đăng ký StayZ",
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2f46">
-        <h2 style="margin-bottom:12px;color:#003b95">Xac thuc tai khoan StayZ</h2>
-        <p>Ban dang tao tai khoan StayZ. Ma xac thuc cua ban la:</p>
+        <h2 style="margin-bottom:12px;color:#003b95">Xác thực tài khoản StayZ</h2>
+        <p>Bạn đang tạo tài khoản StayZ. Mã xác thực của bạn là:</p>
         <div style="display:inline-block;margin:12px 0;padding:12px 20px;border-radius:12px;background:#eef4ff;font-size:28px;font-weight:700;letter-spacing:6px;color:#003b95">
           ${code}
         </div>
-        <p>Ma co hieu luc trong 10 phut.</p>
-        <p>Neu ban khong dang ky tai khoan, hay bo qua email nay.</p>
+        <p>Mã có hiệu lực trong 10 phút.</p>
+        <p>Nếu bạn không đăng ký tài khoản, hãy bỏ qua email này.</p>
       </div>
     `,
   });

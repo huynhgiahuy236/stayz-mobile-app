@@ -27,7 +27,19 @@ const paymentService = {
     }
 
     const existingPayment = await paymentsModel.findOne({ booking_id: bookingId });
-    if (existingPayment) return existingPayment;
+    if (existingPayment) {
+      if (!existingPayment.qr_code && existingPayment.payment_link_id) {
+        const current = await payOS.paymentRequests.get(existingPayment.payment_link_id);
+        existingPayment.qr_code = current.qrCode;
+        existingPayment.bank_bin = current.bin;
+        existingPayment.account_number = current.accountNumber;
+        existingPayment.account_name = current.accountName;
+        existingPayment.transfer_description = current.description;
+        existingPayment.currency = current.currency || "VND";
+        await existingPayment.save();
+      }
+      return existingPayment;
+    }
 
     // Tạo mã đơn hàng ngẫu nhiên duy nhất (PayOS yêu cầu định dạng số)
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(1000 + Math.random() * 9000));
@@ -54,6 +66,12 @@ const paymentService = {
       amount: paymentQuote.payNow,
       payment_link_id: paymentLinkRes.paymentLinkId,
       checkout_url: paymentLinkRes.checkoutUrl,
+      qr_code: paymentLinkRes.qrCode,
+      bank_bin: paymentLinkRes.bin,
+      account_number: paymentLinkRes.accountNumber,
+      account_name: paymentLinkRes.accountName,
+      transfer_description: paymentLinkRes.description,
+      currency: paymentLinkRes.currency || "VND",
       status: "pending",
     });
 

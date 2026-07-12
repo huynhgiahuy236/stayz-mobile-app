@@ -13,6 +13,7 @@ class SearchHotelCard extends StatelessWidget {
     required this.colors,
     required this.onTap,
     required this.onRoomsTap,
+    required this.onBookNow,
     this.rating,
     this.reviewCount = 0,
     this.amenities = const <String>[],
@@ -33,6 +34,7 @@ class SearchHotelCard extends StatelessWidget {
   /// chon phong am tham chon khach san dau tien trong danh sach.
   final VoidCallback onTap;
   final VoidCallback onRoomsTap;
+  final VoidCallback onBookNow;
 
   /// `null` = chua co danh gia. Khong ve sao va khong bia so luot.
   final double? rating;
@@ -227,6 +229,22 @@ class SearchHotelCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                        SizedBox(width: 8 * responsive.widthScale),
+                        SizedBox(
+                          height: 44 * responsive.scale,
+                          child: FilledButton(
+                            onPressed: onBookNow,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.accent,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 14 * responsive.widthScale),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(tr('Đặt ngay', 'Book now')),
+                          ),
+                        ),
+                        SizedBox(width: 8 * responsive.widthScale),
                         SizedBox(
                           height: 44 * responsive.scale,
                           child: FilledButton(

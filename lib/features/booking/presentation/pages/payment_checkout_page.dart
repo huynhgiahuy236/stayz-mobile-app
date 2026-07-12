@@ -41,12 +41,12 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
       final summary = await ApiStayzRepository.instance.createBooking(payableDraft);
       if (summary == null) throw const ApiException('Could not create booking.');
       final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
-      final checkoutUrl = payment['checkout_url']?.toString() ?? '';
-      if (checkoutUrl.isEmpty) throw const ApiException('PayOS checkout URL is missing.');
+      final paymentArgs = PayOSPaymentArgs.fromPayment(summary: summary, payment: payment, fallbackAmount: quote.payNow);
+      if (paymentArgs.qrCode.isEmpty) throw const ApiException('PayOS QR code is missing.');
       if (!mounted) return;
       Navigator.of(context).pushNamed(
         AppRoutes.paymentQr,
-        arguments: PayOSPaymentArgs(summary: summary, checkoutUrl: checkoutUrl, amount: payment['amount'] as num? ?? quote.payNow),
+        arguments: paymentArgs,
       );
     } on ApiException catch (error) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));

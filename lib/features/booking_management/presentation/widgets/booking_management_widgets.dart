@@ -457,7 +457,7 @@ class BookingSoftButton extends StatelessWidget {
         // Khong co handler thi disable han, thay vi bam roi khong co gi xay ra.
         onPressed: onTap,
         style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFFF4ECE6),
+          backgroundColor: AppTheme.primarySoft,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
         ),
         child: Text(
@@ -491,7 +491,7 @@ class BookingOutlineButton extends StatelessWidget {
         // Khong co handler thi disable han, thay vi bam roi khong co gi xay ra.
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color(0xFFFFC5C3)),
+          side: const BorderSide(color: AppTheme.danger),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
         ),
         child: Text(

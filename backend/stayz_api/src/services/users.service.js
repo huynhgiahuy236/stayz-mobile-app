@@ -247,6 +247,8 @@ const userService = {
       } else {
         console.error("Gui email OTP dang ky that bai:", error.message);
       }
+      await redis.del(`register-otp:${normalizedEmail}`);
+      throw new BadRequestException("Khong the gui email OTP. Vui long thu lai sau");
     }
 
     return {
@@ -364,6 +366,8 @@ const userService = {
       } else {
         console.error("Gui email OTP that bai:", error.message);
       }
+      await redis.del(`otp:${normalizedEmail}`);
+      throw new BadRequestException("Khong the gui email OTP. Vui long thu lai sau");
     }
 
     return {

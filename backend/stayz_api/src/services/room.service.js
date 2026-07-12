@@ -1,6 +1,9 @@
 const roomModel = require("../models/rooms.model");
 const bookingModel = require("../models/bookings.model");
 const redis = require("../config/redis.config");
+const cloudinary = require("../config/cloudinary.config");
+const streamifier = require("streamifier");
+const { BadRequestException } = require("../helpers/error.helper");
 
 const activeBookingStatus = ["pending", "confirmed"];
 
@@ -168,12 +171,62 @@ const roomService = {
 
   delete: async (id) => {
     const room = await roomModel.findById(id);
+    if (room?.main_image_public_id) {
+      await cloudinary.uploader.destroy(room.main_image_public_id);
+    }
+    if (room?.gallery_images?.length) {
+      await Promise.all(
+        room.gallery_images
+          .filter((image) => image.public_id)
+          .map((image) => cloudinary.uploader.destroy(image.public_id)),
+      );
+    }
     const result = await roomModel.findByIdAndDelete(id);
 
     await clearRoomCache(room?.property_id);
 
     return result;
   },
+  uploadMainImageCloud: async (id, file) => {
+    if (!file) throw new BadRequestException("Vui lòng chọn ảnh phòng");
+    const room = await roomModel.findById(id);
+    if (!room) throw new BadRequestException("Không tìm thấy phòng");
+
+    if (room.main_image_public_id) {
+      await cloudinary.uploader.destroy(room.main_image_public_id);
+    }
+    const uploaded = await uploadCloudinary(file, `rooms/${id}/main`);
+    room.main_image_url = uploaded.secure_url;
+    room.main_image_public_id = uploaded.public_id;
+    await room.save();
+    await clearRoomCache(room.property_id);
+    return room;
+  },
+  uploadGalleryCloud: async (id, files) => {
+    if (!files?.length) throw new BadRequestException("Vui lòng chọn ảnh phòng");
+    const room = await roomModel.findById(id);
+    if (!room) throw new BadRequestException("Không tìm thấy phòng");
+
+    const uploaded = await Promise.all(
+      files.map(async (file) => {
+        const result = await uploadCloudinary(file, `rooms/${id}/gallery`);
+        return { url: result.secure_url, public_id: result.public_id };
+      }),
+    );
+    room.gallery_images = [...(room.gallery_images || []), ...uploaded];
+    await room.save();
+    await clearRoomCache(room.property_id);
+    return room;
+  },
 };
+
+const uploadCloudinary = (file, folder) =>
+  new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image" },
+      (error, result) => (error ? reject(error) : resolve(result)),
+    );
+    streamifier.createReadStream(file.buffer).pipe(uploadStream);
+  });
 
 module.exports = roomService;

@@ -176,6 +176,40 @@ const userService = {
     await user.save();
     return sanitizeUser(user);
   },
+  createByAdmin: async (data) => {
+    const {
+      email,
+      password,
+      full_name,
+      phone_number = "",
+      gender = "",
+      home_address = "",
+      role = "user",
+    } = data;
+
+    if (!email?.trim() || !password || !full_name?.trim()) {
+      throw new BadRequestException("Thiếu email, mật khẩu hoặc họ tên");
+    }
+    if (String(password).trim().length < 6) {
+      throw new BadRequestException("Mật khẩu phải có ít nhất 6 ký tự");
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (await usersModel.findOne({ email: normalizedEmail })) {
+      throw new ConflictException("Email đã tồn tại");
+    }
+
+    const user = await usersModel.create({
+      email: normalizedEmail,
+      password: await bcrypt.hash(String(password).trim(), 10),
+      full_name: full_name.trim(),
+      phone_number,
+      gender,
+      home_address,
+      role: role === "admin" ? "admin" : "user",
+    });
+    return sanitizeUser(user);
+  },
   create: async (data) => {
     const {
       email,
@@ -448,6 +482,9 @@ const userService = {
     const userId = req.params?.id || req.user?.userId;
     if (!userId) {
       throw new UnauthorizedError("Token khong hop le");
+    }
+    if (req.params?.id && req.user?.role !== "admin" && req.params.id !== req.user?.userId) {
+      throw new UnauthorizedError("Bạn không có quyền cập nhật ảnh đại diện này");
     }
 
     const user = await usersModel.findById(userId);

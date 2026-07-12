@@ -2,6 +2,7 @@ const express = require("express");
 const userController = require("../controllers/users.controller");
 
 const protect = require("../middlewares/protect.middleware");
+const adminOnly = require("../middlewares/admin.middleware");
 const uploadLocalMiddleware = require("../middlewares/uploadLocal.middleware");
 const uploadCloud = require("../middlewares/uploadCloud.middleware");
 const { rateLimiter } = require("../middlewares/rateLimit.middleware");
@@ -9,10 +10,11 @@ const userRouter = express.Router();
 
 userRouter.get("/getAll", userController.getAll);
 userRouter.get("/getById/:id", userController.getById);
-userRouter.delete("/delete/:id", userController.delete);
+userRouter.delete("/delete/:id", protect, adminOnly, userController.delete);
 userRouter.patch("/update/:id", protect, userController.update);
 // Rate limit: đăng ký tối đa 5 lần / 15 phút, chặn spam tạo tài khoản
 userRouter.post("/create", rateLimiter(5, 900), userController.create);
+userRouter.post("/admin/create", protect, adminOnly, userController.createByAdmin);
 
 // Rate limit: login tối đa 5 lần / 60 giây
 userRouter.post("/login", rateLimiter(5, 60), userController.login);

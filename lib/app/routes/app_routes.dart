@@ -1,3 +1,4 @@
+import 'package:capstone_mobile/features/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/auth_gate_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/login_page.dart';
@@ -38,6 +39,7 @@ class AppRoutes {
   const AppRoutes._();
 
   static const home = '/';
+  static const admin = '/admin';
   static const authGate = '/auth-gate';
   static const onboarding = '/onboarding';
   static const login = '/login';
@@ -73,39 +75,40 @@ class AppRoutes {
   static const addPaymentMethod = '/add-payment-method';
 
   static Map<String, WidgetBuilder> get routes => {
-        authGate: (_) => const AuthGatePage(),
-        home: (_) => const HomePage(),
-        onboarding: (_) => const OnboardingIntroPage(),
-        login: (_) => const LoginPage(),
-        register: (_) => const RegisterPage(),
-        forgotPassword: (_) => const ForgotPasswordPage(),
-        otp: (_) => const OtpPage(),
-        resetPassword: (_) => const ResetPasswordPage(),
-        notifications: (_) => const NotificationsPage(),
-        search: (_) => const SearchPage(),
-        filter: (_) => const FilterPage(),
-        emptySearch: (_) => const EmptySearchPage(),
-        offlineError: (_) => const OfflineErrorPage(),
-        roomDetail: (_) => const RoomDetailPage(),
-        hotelInfoForm: (_) => const HotelInfoFormPage(),
-        roomSelection: (_) => const RealRoomSelectionPage(),
-        bookingSchedule: (_) => const BookingSchedulePage(),
-        paymentCheckout: (_) => const PaymentCheckoutPage(),
-        paymentQr: (_) => const PaymentQrPage(),
-        bookingConfirmation: (_) => const BookingConfirmationPage(),
-        myBookings: (_) => const MyBookingsPage(),
-        upcomingBookingDetail: (_) => const UpcomingBookingDetailPage(),
-        completedBookings: (_) => const CompletedBookingsPage(),
-        completedBookingDetail: (_) => const CompletedBookingDetailPage(),
-        cancelledBookings: (_) => const CancelledBookingsPage(),
-        cancelledBookingDetail: (_) => const CancelledBookingDetailPage(),
-        cancelBookingResult: (_) => const CancelBookingResultPage(),
-        review: (_) => const ReviewPage(),
-        favorites: (_) => const FavoritesPage(),
-        settings: (_) => const SettingsPage(),
-        profileForm: (_) => const ProfileFormPage(),
-        editProfile: (_) => const EditProfilePage(),
-        paymentMethods: (_) => const PaymentMethodsPage(),
-        addPaymentMethod: (_) => const AddPaymentMethodPage(),
-      };
+    authGate: (_) => const AuthGatePage(),
+    admin: (_) => const AdminDashboardPage(),
+    home: (_) => const HomePage(),
+    onboarding: (_) => const OnboardingIntroPage(),
+    login: (_) => const LoginPage(),
+    register: (_) => const RegisterPage(),
+    forgotPassword: (_) => const ForgotPasswordPage(),
+    otp: (_) => const OtpPage(),
+    resetPassword: (_) => const ResetPasswordPage(),
+    notifications: (_) => const NotificationsPage(),
+    search: (_) => const SearchPage(),
+    filter: (_) => const FilterPage(),
+    emptySearch: (_) => const EmptySearchPage(),
+    offlineError: (_) => const OfflineErrorPage(),
+    roomDetail: (_) => const RoomDetailPage(),
+    hotelInfoForm: (_) => const HotelInfoFormPage(),
+    roomSelection: (_) => const RealRoomSelectionPage(),
+    bookingSchedule: (_) => const BookingSchedulePage(),
+    paymentCheckout: (_) => const PaymentCheckoutPage(),
+    paymentQr: (_) => const PaymentQrPage(),
+    bookingConfirmation: (_) => const BookingConfirmationPage(),
+    myBookings: (_) => const MyBookingsPage(),
+    upcomingBookingDetail: (_) => const UpcomingBookingDetailPage(),
+    completedBookings: (_) => const CompletedBookingsPage(),
+    completedBookingDetail: (_) => const CompletedBookingDetailPage(),
+    cancelledBookings: (_) => const CancelledBookingsPage(),
+    cancelledBookingDetail: (_) => const CancelledBookingDetailPage(),
+    cancelBookingResult: (_) => const CancelBookingResultPage(),
+    review: (_) => const ReviewPage(),
+    favorites: (_) => const FavoritesPage(),
+    settings: (_) => const SettingsPage(),
+    profileForm: (_) => const ProfileFormPage(),
+    editProfile: (_) => const EditProfilePage(),
+    paymentMethods: (_) => const PaymentMethodsPage(),
+    addPaymentMethod: (_) => const AddPaymentMethodPage(),
+  };
 }

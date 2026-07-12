@@ -174,14 +174,18 @@ class _OtpPageState extends State<OtpPage> {
     return AuthScaffold(
       child: Column(
         children: [
-          AuthTopBar(title: tr('Xác thực', 'Verification')),
+          AuthTopBar(
+            title: tr('Nhập mã xác thực', 'Verification code'),
+            showLogo: false,
+          ),
           Expanded(
             child: AuthScrollBody(
               bottomPadding: 80,
               children: [
                 SizedBox(height: 24 * responsive.scale),
                 AuthTitleBlock(
-                  title: tr('Nhập mã xác thực', 'Enter verification code'),
+                  title: '',
+                  centered: true,
                   subtitle: _email.isEmpty
                       ? tr(
                           'Nhập mã gồm 6 chữ số đã được gửi tới email của bạn.',

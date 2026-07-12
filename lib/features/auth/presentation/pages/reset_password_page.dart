@@ -178,7 +178,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return AuthScaffold(
       child: Column(
         children: [
-          AuthTopBar(title: tr('Mật khẩu mới', 'New password')),
+          AuthTopBar(
+            title: tr('Đặt mật khẩu mới', 'Set new password'),
+            showLogo: false,
+          ),
           Divider(color: AppTheme.neutral200.withValues(alpha: 0.7), height: 1),
           Expanded(
             child: AuthScrollBody(
@@ -186,7 +189,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               children: [
                 SizedBox(height: 28 * responsive.scale),
                 AuthTitleBlock(
-                  title: tr('Bảo vệ tài khoản', 'Secure your account'),
+                  title: '',
+                  centered: true,
                   subtitle: args == null
                       ? tr(
                           'Không nhận được mã xác thực. Hãy bắt đầu lại từ bước quên mật khẩu.',

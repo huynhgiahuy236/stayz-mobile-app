@@ -74,7 +74,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return AuthScaffold(
       child: Column(
         children: [
-          const AuthTopBar(),
+          AuthTopBar(
+            title: tr('Quên mật khẩu', 'Recover password'),
+            showLogo: false,
+          ),
           Expanded(
             child: AuthScrollBody(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,7 +87,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 const _ResetIcon(),
                 SizedBox(height: 32 * responsive.scale),
                 AuthTitleBlock(
-                  title: tr('Quên mật khẩu', 'Forgot password'),
+                  title: '',
                   subtitle: tr(
                     'Nhập email tài khoản, chúng tôi sẽ gửi mã xác thực gồm 6 chữ số.',
                     'Enter your account email and we will send a 6-digit verification code.',

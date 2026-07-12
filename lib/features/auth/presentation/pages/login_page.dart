@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
     return AuthScaffold(
       child: Column(
         children: [
-          const AuthTopBar(showLogo: false),
+          const AuthTopBar(showLogo: false, showBack: false),
           Expanded(
             child: AuthScrollBody(
               bottomPadding: responsive.isCompact ? 28 : 44,

@@ -149,79 +149,94 @@ class _LoginPageState extends State<LoginPage> {
     final responsive = AuthResponsive.of(context);
 
     return AuthScaffold(
-      child: AuthScrollBody(
-        bottomPadding: responsive.isCompact ? 28 : 56,
+      child: Column(
         children: [
-          SizedBox(height: (responsive.isCompact ? 2 : 20) * responsive.scale),
-          const AuthTopBar(showLogo: true),
-          SizedBox(height: (responsive.isCompact ? 8 : 18) * responsive.scale),
-          AuthTitleBlock(
-            title: tr('Chào mừng', 'Welcome'),
-            subtitle: tr(
-              'Nhập thông tin để đăng nhập vào tài khoản StayZ.',
-              'Enter your details to sign in to StayZ.',
-            ),
-            centered: true,
-          ),
-          SizedBox(height: (responsive.isCompact ? 16 : 26) * responsive.scale),
-          AuthField(
-            label: tr('Địa chỉ email', 'Email address'),
-            hint: 'example@email.com',
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            controller: _emailController,
-          ),
-          SizedBox(height: (responsive.isCompact ? 12 : 18) * responsive.scale),
-          AuthField(
-            label: tr('Mật khẩu', 'Password'),
-            hint: tr('Mật khẩu', 'Password'),
-            obscure: true,
-            textInputAction: TextInputAction.done,
-            controller: _passwordController,
-          ),
-          SizedBox(height: 10 * responsive.scale),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: _isLoading
-                  ? null
-                  : () => Navigator.of(
-                      context,
-                    ).pushNamed(AppRoutes.forgotPassword),
-              child: Text(
-                tr('Quên mật khẩu?', 'Forgot password?'),
-                style: TextStyle(
-                  color: AppTheme.accent,
-                  fontSize: 14 * responsive.scale,
-                  fontWeight: FontWeight.w700,
+          const AuthTopBar(showLogo: false),
+          Expanded(
+            child: AuthScrollBody(
+              bottomPadding: responsive.isCompact ? 28 : 44,
+              children: [
+                AuthTitleBlock(
+                  title: tr('Chào mừng', 'Welcome'),
+                  subtitle: tr(
+                    'Nhập thông tin để đăng nhập vào tài khoản StayZ.',
+                    'Enter your details to sign in to StayZ.',
+                  ),
+                  centered: true,
                 ),
-              ),
+                SizedBox(
+                  height: (responsive.isCompact ? 16 : 26) * responsive.scale,
+                ),
+                AuthField(
+                  label: tr('Địa chỉ email', 'Email address'),
+                  hint: 'example@email.com',
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  controller: _emailController,
+                ),
+                SizedBox(
+                  height: (responsive.isCompact ? 12 : 18) * responsive.scale,
+                ),
+                AuthField(
+                  label: tr('Mật khẩu', 'Password'),
+                  hint: tr('Mật khẩu', 'Password'),
+                  obscure: true,
+                  textInputAction: TextInputAction.done,
+                  controller: _passwordController,
+                ),
+                SizedBox(height: 10 * responsive.scale),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () => Navigator.of(
+                            context,
+                          ).pushNamed(AppRoutes.forgotPassword),
+                    child: Text(
+                      tr('Quên mật khẩu?', 'Forgot password?'),
+                      style: TextStyle(
+                        color: AppTheme.accent,
+                        fontSize: 14 * responsive.scale,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: (responsive.isCompact ? 8 : 18) * responsive.scale,
+                ),
+                AuthPrimaryButton(
+                  label: _isLoading
+                      ? tr('Đang đăng nhập...', 'Signing in...')
+                      : tr('Đăng nhập', 'Sign in'),
+                  onPressed: _isLoading ? null : _login,
+                  loading: _isLoading,
+                ),
+                SizedBox(
+                  height: (responsive.isCompact ? 18 : 28) * responsive.scale,
+                ),
+                ...[
+                  AuthDivider(label: tr('hoặc', 'or')),
+                  SizedBox(height: 16 * responsive.scale),
+                  _GoogleButton(
+                    loading: _googleLoading,
+                    onPressed: _startGoogleLogin,
+                  ),
+                ],
+                SizedBox(
+                  height: (responsive.isCompact ? 20 : 36) * responsive.scale,
+                ),
+                AuthInlineLink(
+                  text: tr('Chưa có tài khoản?', 'No account yet?'),
+                  actionText: tr('Đăng ký', 'Register'),
+                  onTap: _isLoading
+                      ? () {}
+                      : () =>
+                            Navigator.of(context).pushNamed(AppRoutes.register),
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: (responsive.isCompact ? 8 : 18) * responsive.scale),
-          AuthPrimaryButton(
-            label: _isLoading
-                ? tr('Đang đăng nhập...', 'Signing in...')
-                : tr('Đăng nhập', 'Sign in'),
-            onPressed: _isLoading ? null : _login,
-            loading: _isLoading,
-          ),
-          SizedBox(height: (responsive.isCompact ? 18 : 28) * responsive.scale),
-          ...[
-            AuthDivider(label: tr('hoặc', 'or')),
-            SizedBox(height: 16 * responsive.scale),
-            _GoogleButton(
-              loading: _googleLoading,
-              onPressed: _startGoogleLogin,
-            ),
-          ],
-          SizedBox(height: (responsive.isCompact ? 20 : 36) * responsive.scale),
-          AuthInlineLink(
-            text: tr('Chưa có tài khoản?', 'No account yet?'),
-            actionText: tr('Đăng ký', 'Register'),
-            onTap: _isLoading
-                ? () {}
-                : () => Navigator.of(context).pushNamed(AppRoutes.register),
           ),
         ],
       ),

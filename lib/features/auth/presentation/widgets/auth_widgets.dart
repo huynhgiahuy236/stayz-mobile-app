@@ -87,9 +87,9 @@ class AuthScrollBody extends StatelessWidget {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
-        responsive.horizontalPadding,
+        16 * responsive.widthScale,
         24 * responsive.scale,
-        responsive.horizontalPadding,
+        16 * responsive.widthScale,
         bottomPadding * responsive.scale,
       ),
       child: Column(crossAxisAlignment: crossAxisAlignment, children: children),

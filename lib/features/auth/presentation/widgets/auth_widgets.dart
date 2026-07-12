@@ -130,10 +130,16 @@ class AuthLogo extends StatelessWidget {
 }
 
 class AuthTopBar extends StatelessWidget {
-  const AuthTopBar({this.title, this.showLogo = true, super.key});
+  const AuthTopBar({
+    this.title,
+    this.showLogo = true,
+    this.showBack = true,
+    super.key,
+  });
 
   final String? title;
   final bool showLogo;
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {
@@ -152,40 +158,47 @@ class AuthTopBar extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                onPressed: () => Navigator.of(context).maybePop(),
-                icon: Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
-                    border: Border.all(color: AppTheme.line),
+            if (showBack)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      border: Border.all(color: AppTheme.line),
+                    ),
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: AppTheme.accentDark,
+                      size: 20 * responsive.scale,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.arrow_back,
-                    color: AppTheme.accentDark,
-                    size: 20 * responsive.scale,
+                  padding: EdgeInsets.zero,
+                  tooltip: tr('Quay lại', 'Back'),
+                  // 48dp la nguong toi thieu tren Android; 44dp truoc day chua dat.
+                  constraints: const BoxConstraints.tightFor(
+                    width: 48,
+                    height: 48,
                   ),
-                ),
-                padding: EdgeInsets.zero,
-                tooltip: tr('Quay lại', 'Back'),
-                // 48dp la nguong toi thieu tren Android; 44dp truoc day chua dat.
-                constraints: const BoxConstraints.tightFor(
-                  width: 48,
-                  height: 48,
                 ),
               ),
-            ),
             if (title != null)
-              Text(
-                title!,
-                style: textTheme.titleLarge?.copyWith(
-                  color: AppTheme.ink,
-                  fontSize: 18 * responsive.scale,
-                  fontWeight: FontWeight.w800,
-                  fontFamily: 'Inter',
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 56),
+                child: Text(
+                  title!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: textTheme.titleLarge?.copyWith(
+                    color: AppTheme.ink,
+                    fontSize: 18 * responsive.scale,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Inter',
+                  ),
                 ),
               )
             else if (showLogo)
@@ -230,19 +243,20 @@ class AuthTitleBlock extends StatelessWidget {
           ? CrossAxisAlignment.center
           : CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          textAlign: centered ? TextAlign.center : TextAlign.start,
-          style: textTheme.displayLarge?.copyWith(
-            color: accentTitle ? AppTheme.accent : AppTheme.ink,
-            fontSize: 26 * responsive.scale,
-            fontWeight: FontWeight.w800,
-            fontFamily: 'Inter',
-            height: 1.16,
+        if (title.isNotEmpty)
+          Text(
+            title,
+            textAlign: centered ? TextAlign.center : TextAlign.start,
+            style: textTheme.displayLarge?.copyWith(
+              color: accentTitle ? AppTheme.accent : AppTheme.ink,
+              fontSize: 26 * responsive.scale,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Inter',
+              height: 1.16,
+            ),
           ),
-        ),
         if (subtitle != null) ...[
-          SizedBox(height: 14 * responsive.scale),
+          SizedBox(height: (title.isEmpty ? 0 : 14) * responsive.scale),
           Text(
             subtitle!,
             textAlign: centered ? TextAlign.center : TextAlign.start,

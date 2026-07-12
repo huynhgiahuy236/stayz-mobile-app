@@ -276,8 +276,8 @@ class _RegisterPageState extends State<RegisterPage> {
         children: [
           AuthTopBar(
             title: _step == 0
-                ? tr('Tạo tài khoản', 'Create account')
-                : tr('Xác minh', 'Verification'),
+                ? tr('Bắt đầu hành trình', 'Start your journey')
+                : tr('Mã xác minh', 'Verification code'),
             showLogo: false,
           ),
           Expanded(
@@ -296,7 +296,7 @@ class _RegisterPageState extends State<RegisterPage> {
   List<Widget> _accountStep(AuthResponsive responsive) => [
     const SizedBox(height: 8),
     AuthTitleBlock(
-      title: tr('Bắt đầu hành trình', 'Start your journey'),
+      title: '',
       subtitle: tr(
         'Tạo tài khoản để đặt kỳ nghỉ tiếp theo cùng StayZ.',
         'Create an account for your next StayZ trip.',
@@ -372,7 +372,7 @@ class _RegisterPageState extends State<RegisterPage> {
     ),
     const SizedBox(height: 22),
     AuthTitleBlock(
-      title: tr('Mã xác minh', 'Verification code'),
+      title: '',
       subtitle: tr(
         'Nhập mã OTP 6 số đã gửi tới ${_emailController.text.trim()}.',
         'Enter the 6-digit OTP sent to ${_emailController.text.trim()}.',

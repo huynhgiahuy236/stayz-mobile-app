@@ -18,6 +18,12 @@ const getMailerConfig = () => {
     host: SMTP_HOST,
     port: Number(SMTP_PORT),
     secure: Number(SMTP_PORT) === 465,
+    pool: true,
+    maxConnections: 1,
+    maxMessages: 50,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS,
@@ -26,7 +32,7 @@ const getMailerConfig = () => {
 };
 
 const sendPasswordResetCodeEmail = async ({ to, code }) => {
-  const transporter = nodemailer.createTransport(getMailerConfig());
+  const transporter = getTransporter();
 
   await transporter.sendMail({
     from: SMTP_FROM,
@@ -47,8 +53,14 @@ const sendPasswordResetCodeEmail = async ({ to, code }) => {
   });
 };
 
+let sharedTransporter;
+const getTransporter = () => {
+  sharedTransporter ??= nodemailer.createTransport(getMailerConfig());
+  return sharedTransporter;
+};
+
 const sendRegisterCodeEmail = async ({ to, code }) => {
-  const transporter = nodemailer.createTransport(getMailerConfig());
+  const transporter = getTransporter();
 
   await transporter.sendMail({
     from: SMTP_FROM,

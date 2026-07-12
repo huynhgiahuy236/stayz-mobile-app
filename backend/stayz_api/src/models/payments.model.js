@@ -33,6 +33,7 @@ const paymentSchema = new mongoose.Schema(
       type: String,
     },
     qr_code: String,
+    qr_image_url: String,
     bank_bin: String,
     account_number: String,
     account_name: String,

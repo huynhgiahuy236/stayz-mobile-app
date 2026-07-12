@@ -27,13 +27,13 @@ class AdminOverview extends StatelessWidget {
               : 1;
           return GridView.count(
             crossAxisCount: columns,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
             mainAxisExtent: columns == 1
-                ? 116
+                ? 124
                 : columns == 2
-                ? 110
-                : 104,
+                ? 118
+                : 112,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             children: [
@@ -71,7 +71,7 @@ class AdminOverview extends StatelessWidget {
                 icon: Icons.group_outlined,
                 label: tr('Tài khoản', 'Users'),
                 value: '${snapshot.users.length}',
-                color: const Color(0xFF566A7F),
+                color: AppTheme.primaryDark,
                 note: tr(
                   '${snapshot.reviews.length} đánh giá',
                   '${snapshot.reviews.length} reviews',
@@ -81,7 +81,7 @@ class AdminOverview extends StatelessWidget {
           );
         },
       ),
-      const SizedBox(height: 18),
+      const SizedBox(height: 24),
       LayoutBuilder(
         builder: (_, constraints) {
           final title = Text(
@@ -133,20 +133,21 @@ class MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(15),
+    padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(7),
-      border: Border.all(color: const Color(0xFFDDE6EE)),
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: AppTheme.line),
+      boxShadow: AppTheme.softShadow,
     ),
     child: Row(
       children: [
         Container(
-          width: 42,
-          height: 42,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon, color: color, size: 22),
         ),
@@ -509,13 +510,15 @@ class AdminDataTable extends StatelessWidget {
   final List<DataRow> rows;
   @override
   Widget build(BuildContext context) => DataTable(
-    headingRowHeight: 43,
-    dataRowMinHeight: 52,
-    dataRowMaxHeight: 58,
-    horizontalMargin: 16,
+    headingRowHeight: 48,
+    dataRowMinHeight: 56,
+    dataRowMaxHeight: 64,
+    horizontalMargin: 20,
     columnSpacing: 28,
     dividerThickness: 0.7,
-    headingRowColor: WidgetStateProperty.all(const Color(0xFFF6F8FA)),
+    headingRowColor: WidgetStateProperty.all(
+      AppTheme.primarySoft.withValues(alpha: 0.42),
+    ),
     headingTextStyle: const TextStyle(
       color: AppTheme.muted,
       fontSize: 11,
@@ -587,7 +590,8 @@ class StatusPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -648,8 +652,8 @@ class _ActionIcon extends StatelessWidget {
   final Color? color;
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 33,
-    height: 33,
+    width: 44,
+    height: 44,
     child: IconButton(
       onPressed: onPressed,
       icon: Icon(icon, size: 18),
@@ -657,7 +661,7 @@ class _ActionIcon extends StatelessWidget {
       color: color ?? AppTheme.muted,
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
   );
@@ -709,7 +713,7 @@ class _ImageCell extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       ClipRRect(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(12),
         child: SizedBox(
           width: 38,
           height: 38,
@@ -779,11 +783,12 @@ class TableShell extends StatelessWidget {
     width: double.infinity,
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(7),
-      border: Border.all(color: const Color(0xFFDDE6EE)),
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: AppTheme.line),
+      boxShadow: AppTheme.softShadow,
     ),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(7),
+      borderRadius: BorderRadius.circular(18),
       child: LayoutBuilder(
         builder: (_, constraints) => SingleChildScrollView(
           scrollDirection: Axis.horizontal,

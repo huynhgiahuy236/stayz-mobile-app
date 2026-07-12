@@ -473,7 +473,7 @@ class _HomePageState extends State<HomePage> {
       colors: _homeHotelColors[index % _homeHotelColors.length],
       onTap: () => Navigator.of(
         context,
-      ).pushNamed(AppRoutes.roomDetail, arguments: summary),
+      ).pushNamed(AppRoutes.hotelDetail, arguments: summary),
     );
   }
 }

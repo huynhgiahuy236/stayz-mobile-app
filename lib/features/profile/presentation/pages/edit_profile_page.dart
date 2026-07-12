@@ -76,7 +76,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF7F4),
+      backgroundColor: AppTheme.surface,
       body: SafeArea(
         child: Column(
           children: [

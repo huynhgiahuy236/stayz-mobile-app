@@ -16,7 +16,8 @@ class MyBookingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final focusedBookingId = ModalRoute.of(context)?.settings.arguments as String?;
+    final focusedBookingId =
+        ModalRoute.of(context)?.settings.arguments as String?;
 
     return Scaffold(
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
@@ -39,11 +40,20 @@ class MyBookingsPage extends StatelessWidget {
                       .where((summary) => summary.booking.isUpcoming)
                       .toList();
                   if (focusedBookingId != null) {
-                    bookings.sort((a, b) => a.booking.id == focusedBookingId ? -1 : b.booking.id == focusedBookingId ? 1 : 0);
+                    bookings.sort(
+                      (a, b) => a.booking.id == focusedBookingId
+                          ? -1
+                          : b.booking.id == focusedBookingId
+                          ? 1
+                          : 0,
+                    );
                   }
 
-                  if (bookings.isEmpty && snapshot.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  if (bookings.isEmpty &&
+                      snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    );
                   }
 
                   if (bookings.isEmpty) {
@@ -59,7 +69,8 @@ class MyBookingsPage extends StatelessWidget {
                       24 * responsive.scale,
                     ),
                     itemCount: bookings.length + 1,
-                    separatorBuilder: (_, __) => SizedBox(height: 16 * responsive.scale),
+                    separatorBuilder: (_, __) =>
+                        SizedBox(height: 16 * responsive.scale),
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         return _TripSummaryCard(count: bookings.length);
@@ -68,22 +79,36 @@ class MyBookingsPage extends StatelessWidget {
                       final summary = bookings[index - 1];
                       return UpcomingBookingCard(
                         name: summary.hotel.name,
-                        location: '${summary.city.name}, ${summary.city.region}',
-                        code: 'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
-                        checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
-                        checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
-                        imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
-                        colors: _bookingColors[(index - 1) % _bookingColors.length],
-                        pendingPayment: summary.booking.normalizedStatus == 'pending' || summary.booking.paymentStatus == 'pending',
+                        location:
+                            '${summary.city.name}, ${summary.city.region}',
+                        code:
+                            'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
+                        checkIn: StayzFormatters.shortDate(
+                          summary.booking.checkInDate,
+                        ),
+                        checkOut: StayzFormatters.shortDate(
+                          summary.booking.checkOutDate,
+                        ),
+                        imageUrl:
+                            summary.room.imageUrls.firstOrNull ??
+                            summary.hotel.imageUrls.firstOrNull,
+                        colors:
+                            _bookingColors[(index - 1) % _bookingColors.length],
+                        pendingPayment:
+                            summary.booking.normalizedStatus == 'pending' ||
+                            summary.booking.paymentStatus == 'pending',
                         onPay: () async {
                           try {
-                            final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
+                            final payment = await ApiStayzRepository.instance
+                                .createPayOSPayment(summary.booking.id);
                             final paymentArgs = PayOSPaymentArgs.fromPayment(
                               summary: summary,
                               payment: payment,
                               fallbackAmount: summary.booking.totalAmount,
                             );
-                            if (paymentArgs.qrCode.isEmpty) throw const ApiException('PayOS QR code is missing.');
+                            if (paymentArgs.qrCode.isEmpty &&
+                                paymentArgs.qrImageUrl.isEmpty)
+                              throw const ApiException('VietQR is missing.');
                             if (!context.mounted) return;
                             Navigator.of(context).pushNamed(
                               AppRoutes.paymentQr,
@@ -91,7 +116,9 @@ class MyBookingsPage extends StatelessWidget {
                             );
                           } on ApiException catch (error) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(error.message)),
+                              );
                             }
                           }
                         },
@@ -101,7 +128,10 @@ class MyBookingsPage extends StatelessWidget {
                         ),
                         // Hoi lai truoc, roi moi dieu huong sang man thuc thi huy.
                         onCancel: () async {
-                          final confirmed = await confirmCancelBooking(context, summary);
+                          final confirmed = await confirmCancelBooking(
+                            context,
+                            summary,
+                          );
                           if (!confirmed || !context.mounted) return;
                           await Navigator.of(context).pushNamed(
                             AppRoutes.cancelBookingResult,
@@ -145,16 +175,36 @@ class _TripSummaryCard extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(Icons.calendar_month_rounded, color: Colors.white),
+            child: const Icon(
+              Icons.calendar_month_rounded,
+              color: Colors.white,
+            ),
           ),
           SizedBox(width: 14 * responsive.widthScale),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tr('$count lịch đặt sắp tới', '$count upcoming bookings'), style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
+                Text(
+                  tr('$count lịch đặt sắp tới', '$count upcoming bookings'),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 SizedBox(height: 5 * responsive.scale),
-                Text(tr('Xem chi tiết, đổi kế hoạch hoặc hủy đặt phòng khi cần.', 'View details, change plans, or cancel your booking when needed.'), style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, height: 1.35)),
+                Text(
+                  tr(
+                    'Xem chi tiết, đổi kế hoạch hoặc hủy đặt phòng khi cần.',
+                    'View details, change plans, or cancel your booking when needed.',
+                  ),
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13 * responsive.scale,
+                    height: 1.35,
+                  ),
+                ),
               ],
             ),
           ),

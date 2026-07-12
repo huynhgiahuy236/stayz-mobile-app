@@ -30,15 +30,25 @@ class _FavoritesPageState extends State<FavoritesPage> {
       await ApiStayzRepository.instance.removeFavorite(summary.hotel.id);
       if (!mounted) return;
       setState(() {
-        _favoritesFuture = ApiStayzRepository.instance.getFavoriteHotelSummaries();
+        _favoritesFuture = ApiStayzRepository.instance
+            .getFavoriteHotelSummaries();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.'))),
+        SnackBar(
+          content: Text(tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.')),
+        ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Vui lòng đăng nhập để cập nhật yêu thích.', 'Please sign in to update your saved list.'))),
+        SnackBar(
+          content: Text(
+            tr(
+              'Vui lòng đăng nhập để cập nhật yêu thích.',
+              'Please sign in to update your saved list.',
+            ),
+          ),
+        ),
       );
     }
   }
@@ -57,9 +67,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
               title: tr('Danh sách đã lưu', 'Saved list'),
               subtitle: tr('Đã lưu', 'Saved'),
               trailing: IconButton.filledTonal(
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.search),
                 icon: const Icon(Icons.add_rounded),
-                style: IconButton.styleFrom(backgroundColor: AppTheme.primarySoft, foregroundColor: AppTheme.primary),
+                style: IconButton.styleFrom(
+                  backgroundColor: AppTheme.primarySoft,
+                  foregroundColor: AppTheme.primary,
+                ),
               ),
             ),
             Padding(
@@ -77,8 +91,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 builder: (context, snapshot) {
                   final hotels = snapshot.data ?? const <HotelSummary>[];
 
-                  if (hotels.isEmpty && snapshot.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  if (hotels.isEmpty &&
+                      snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    );
                   }
 
                   if (hotels.isEmpty) {
@@ -94,21 +111,26 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       24 * responsive.scale,
                     ),
                     itemCount: hotels.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 16 * responsive.scale),
+                    separatorBuilder: (_, __) =>
+                        SizedBox(height: 16 * responsive.scale),
                     itemBuilder: (context, index) {
                       final summary = hotels[index];
                       return FavoriteHotelCard(
                         name: summary.hotel.name,
-                        location: '${summary.city.name}, ${summary.city.region}',
-                        price: summary.hasPrice ? StayzFormatters.compactVnd(summary.lowestPrice) : tr('Liên hệ', 'Contact'),
+                        location:
+                            '${summary.city.name}, ${summary.city.region}',
+                        price: summary.hasPrice
+                            ? StayzFormatters.compactVnd(summary.lowestPrice)
+                            : tr('Liên hệ', 'Contact'),
                         // Chua co danh gia thi khong hien so, thay vi bia mot con so.
-                        rating: summary.hasRating ? summary.rating!.toStringAsFixed(1) : null,
+                        rating: summary.hasRating
+                            ? summary.rating!.toStringAsFixed(1)
+                            : null,
                         imageUrl: summary.hotel.imageUrls.firstOrNull,
                         colors: _favoriteColors[index % _favoriteColors.length],
-                        onTap: () => Navigator.of(context).pushNamed(
-                          AppRoutes.roomDetail,
-                          arguments: summary,
-                        ),
+                        onTap: () => Navigator.of(
+                          context,
+                        ).pushNamed(AppRoutes.hotelDetail, arguments: summary),
                         onBook: () => Navigator.of(context).pushNamed(
                           AppRoutes.roomSelection,
                           arguments: RoomSelectionArgs(hotel: summary),
@@ -157,9 +179,26 @@ class _SavedHero extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tr('Bộ sưu tập cho chuyến đi', 'Collection for your trip'), style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900)),
+                Text(
+                  tr('Bộ sưu tập cho chuyến đi', 'Collection for your trip'),
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 16 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 SizedBox(height: 5 * responsive.scale),
-                Text(tr('Chạm vào khách sạn để xem phòng và đặt lịch.', 'Tap a hotel to view rooms and book.'), style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.35)),
+                Text(
+                  tr(
+                    'Chạm vào khách sạn để xem phòng và đặt lịch.',
+                    'Tap a hotel to view rooms and book.',
+                  ),
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 13 * responsive.scale,
+                    height: 1.35,
+                  ),
+                ),
               ],
             ),
           ),
@@ -182,14 +221,36 @@ class _EmptySavedState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.favorite_border_rounded, color: AppTheme.primary, size: 52 * responsive.scale),
+            Icon(
+              Icons.favorite_border_rounded,
+              color: AppTheme.primary,
+              size: 52 * responsive.scale,
+            ),
             SizedBox(height: 16 * responsive.scale),
-            Text(tr('Chưa có nơi lưu', 'No saved places'), style: TextStyle(color: AppTheme.ink, fontSize: 22 * responsive.scale, fontWeight: FontWeight.w900)),
+            Text(
+              tr('Chưa có nơi lưu', 'No saved places'),
+              style: TextStyle(
+                color: AppTheme.ink,
+                fontSize: 22 * responsive.scale,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
             SizedBox(height: 8 * responsive.scale),
-            Text(tr('Khám phá khách sạn và lưu lại lựa chọn phù hợp.', 'Explore hotels and save the ones you like.'), textAlign: TextAlign.center, style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale)),
+            Text(
+              tr(
+                'Khám phá khách sạn và lưu lại lựa chọn phù hợp.',
+                'Explore hotels and save the ones you like.',
+              ),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.muted,
+                fontSize: 14 * responsive.scale,
+              ),
+            ),
             SizedBox(height: 18 * responsive.scale),
             FilledButton(
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.search),
               child: Text(tr('Tìm khách sạn', 'Find hotels')),
             ),
           ],

@@ -50,7 +50,7 @@ class AdminReviewsTable extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppTheme.gold.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -209,7 +209,7 @@ class _SmallAction extends StatelessWidget {
       color: color ?? AppTheme.muted,
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
   );

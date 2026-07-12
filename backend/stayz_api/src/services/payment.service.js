@@ -2,8 +2,15 @@ const payOS = require("../config/payos.config");
 const { BadRequestException } = require("../helpers/error.helper");
 const bookingModel = require("../models/bookings.model");
 const paymentsModel = require("../models/payments.model");
-const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL } = require("../constants/app.constant");
+const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL, VIETQR_BANK_BIN, VIETQR_ACCOUNT_NUMBER, VIETQR_ACCOUNT_NAME } = require("../constants/app.constant");
 const { calculatePaymentQuote } = require("../utils/paymentQuote.util");
+
+const buildVietQrImageUrl = ({ amount, description }) => {
+  if (!VIETQR_BANK_BIN || !VIETQR_ACCOUNT_NUMBER) return "";
+  const account = VIETQR_ACCOUNT_NUMBER.replace(/\s/g, "");
+  const params = new URLSearchParams({ amount: String(Math.round(amount)), addInfo: description, accountName: VIETQR_ACCOUNT_NAME || "" });
+  return `https://img.vietqr.io/image/${encodeURIComponent(VIETQR_BANK_BIN)}-${encodeURIComponent(account)}-compact2.png?${params}`;
+};
 
 const paymentService = {
   getAll: async () =>
@@ -43,10 +50,14 @@ const paymentService = {
       if (!existingPayment.qr_code && existingPayment.payment_link_id) {
         const current = await payOS.paymentRequests.get(existingPayment.payment_link_id);
         existingPayment.qr_code = current.qrCode;
-        existingPayment.bank_bin = current.bin;
-        existingPayment.account_number = current.accountNumber;
-        existingPayment.account_name = current.accountName;
-        existingPayment.transfer_description = current.description;
+        existingPayment.bank_bin = current.bin || VIETQR_BANK_BIN;
+        existingPayment.account_number = current.accountNumber || VIETQR_ACCOUNT_NUMBER?.replace(/\s/g, "");
+        existingPayment.account_name = current.accountName || VIETQR_ACCOUNT_NAME;
+        existingPayment.transfer_description = current.description || `STAYZ${existingPayment.order_code}`;
+        existingPayment.qr_image_url = buildVietQrImageUrl({
+          amount: existingPayment.amount,
+          description: existingPayment.transfer_description,
+        });
         existingPayment.currency = current.currency || "VND";
         await existingPayment.save();
       }
@@ -58,6 +69,7 @@ const paymentService = {
 
     const paymentQuote = calculatePaymentQuote(booking.payment_plan, booking.total_price);
     const description = `Thanh toan StayZ`;
+    const transferDescription = `STAYZ${orderCode}`;
     // Tạo request data theo chuẩn PayOS
     const requestData = {
       orderCode,
@@ -79,10 +91,11 @@ const paymentService = {
       payment_link_id: paymentLinkRes.paymentLinkId,
       checkout_url: paymentLinkRes.checkoutUrl,
       qr_code: paymentLinkRes.qrCode,
-      bank_bin: paymentLinkRes.bin,
-      account_number: paymentLinkRes.accountNumber,
-      account_name: paymentLinkRes.accountName,
-      transfer_description: paymentLinkRes.description,
+      qr_image_url: buildVietQrImageUrl({ amount: paymentQuote.payNow, description: transferDescription }),
+      bank_bin: paymentLinkRes.bin || VIETQR_BANK_BIN,
+      account_number: paymentLinkRes.accountNumber || VIETQR_ACCOUNT_NUMBER?.replace(/\s/g, ""),
+      account_name: paymentLinkRes.accountName || VIETQR_ACCOUNT_NAME,
+      transfer_description: paymentLinkRes.description || transferDescription,
       currency: paymentLinkRes.currency || "VND",
       status: "pending",
     });

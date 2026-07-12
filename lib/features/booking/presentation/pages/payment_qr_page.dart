@@ -41,7 +41,10 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
     final value = ModalRoute.of(context)?.settings.arguments;
     _args = value is PayOSPaymentArgs ? value : null;
     if (_args != null) {
-      _poller = Timer.periodic(const Duration(seconds: 3), (_) => _refreshStatus());
+      _poller = Timer.periodic(
+        const Duration(seconds: 3),
+        (_) => _refreshStatus(),
+      );
     }
   }
 
@@ -56,16 +59,24 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
     if (args == null || _opening) return;
     setState(() => _opening = true);
     final uri = Uri.tryParse(args.checkoutUrl);
-    final opened = uri != null && await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final opened =
+        uri != null &&
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      _showMessage(tr('Không mở được ứng dụng ngân hàng. Bạn vẫn có thể lưu hoặc quét mã QR.', 'Could not open a banking app. You can still save or scan the QR code.'));
+      _showMessage(
+        tr(
+          'Không mở được ứng dụng ngân hàng. Bạn vẫn có thể lưu hoặc quét mã QR.',
+          'Could not open a banking app. You can still save or scan the QR code.',
+        ),
+      );
     }
     if (mounted) setState(() => _opening = false);
   }
 
   Future<void> _shareQr() async {
     final args = _args;
-    final boundary = _qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final boundary =
+        _qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (args == null || boundary == null || _sharing) return;
     setState(() => _sharing = true);
     try {
@@ -73,14 +84,26 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
       if (data == null) throw StateError('Could not encode QR image.');
       await Share.shareXFiles(
-        [XFile.fromData(data.buffer.asUint8List(), mimeType: 'image/png', name: 'stayz-vietqr.png')],
+        [
+          XFile.fromData(
+            data.buffer.asUint8List(),
+            mimeType: 'image/png',
+            name: 'stayz-vietqr.png',
+          ),
+        ],
         text: tr(
           'Thanh toán StayZ ${StayzFormatters.fullVnd(args.amount)}. Nội dung: ${args.transferDescription}',
           'StayZ payment ${StayzFormatters.fullVnd(args.amount)}. Reference: ${args.transferDescription}',
         ),
       );
     } catch (_) {
-      if (mounted) _showMessage(tr('Không thể chia sẻ mã QR lúc này.', 'Could not share the QR code right now.'));
+      if (mounted)
+        _showMessage(
+          tr(
+            'Không thể chia sẻ mã QR lúc này.',
+            'Could not share the QR code right now.',
+          ),
+        );
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
@@ -91,25 +114,43 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
     if (args == null || _status == 'PAID' || _checking) return;
     if (mounted) setState(() => _checking = true);
     try {
-      final payment = await ApiStayzRepository.instance.getPayOSPayment(args.summary.booking.id);
+      final payment = await ApiStayzRepository.instance.getPayOSPayment(
+        args.summary.booking.id,
+      );
       final next = payment?['status']?.toString() ?? 'pending';
       if (!mounted) return;
       setState(() => _status = next);
       if (next == 'PAID') {
         _poller?.cancel();
-        final bookings = await ApiStayzRepository.instance.getBookingSummaries();
-        final updated = bookings.where((item) => item.booking.id == args.summary.booking.id).firstOrNull ?? args.summary;
+        final bookings = await ApiStayzRepository.instance
+            .getBookingSummaries();
+        final updated =
+            bookings
+                .where((item) => item.booking.id == args.summary.booking.id)
+                .firstOrNull ??
+            args.summary;
         if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed(AppRoutes.bookingConfirmation, arguments: BookingSummaryArgs(summary: updated));
+        Navigator.of(context).pushReplacementNamed(
+          AppRoutes.bookingConfirmation,
+          arguments: BookingSummaryArgs(summary: updated),
+        );
       }
     } catch (_) {
-      if (mounted) _showMessage(tr('Chưa thể kiểm tra trạng thái. StayZ sẽ tiếp tục thử lại.', 'Could not check yet. StayZ will keep trying.'));
+      if (mounted)
+        _showMessage(
+          tr(
+            'Chưa thể kiểm tra trạng thái. StayZ sẽ tiếp tục thử lại.',
+            'Could not check yet. StayZ will keep trying.',
+          ),
+        );
     } finally {
       if (mounted) setState(() => _checking = false);
     }
   }
 
-  void _showMessage(String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  void _showMessage(String message) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +161,10 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
         body: StayzEmptyView(
           icon: Icons.payment_outlined,
           title: tr('Thiếu thông tin thanh toán', 'Missing payment details'),
-          message: tr('Vui lòng quay lại và tạo thanh toán mới.', 'Please go back and create a new payment.'),
+          message: tr(
+            'Vui lòng quay lại và tạo thanh toán mới.',
+            'Please go back and create a new payment.',
+          ),
         ),
       );
     }
@@ -130,48 +174,158 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
       body: SafeArea(
         child: Column(
           children: [
-            BookingTopBar(title: tr('Thanh toán PayOS', 'PayOS payment'), fallbackRoute: AppRoutes.home),
+            BookingTopBar(
+              title: tr('Thanh toán PayOS', 'PayOS payment'),
+              fallbackRoute: AppRoutes.home,
+            ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 18, 24, 32),
                 children: [
-                  Text(tr('Quét VietQR để thanh toán', 'Scan VietQR to pay'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.ink)),
+                  Center(
+                    child: Image.asset(
+                      'assets/images/payos.jpg',
+                      width: 132,
+                      height: 54,
+                      fit: BoxFit.contain,
+                      semanticLabel: 'PayOS',
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    tr('Quét VietQR để thanh toán', 'Scan VietQR to pay'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.ink,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text(tr('Mã được tạo riêng cho booking này và tự hết hạn theo PayOS.', 'This code is generated for this booking and expires with PayOS.'), textAlign: TextAlign.center, style: const TextStyle(color: AppTheme.muted, height: 1.4)),
+                  Text(
+                    tr(
+                      'Mã được tạo riêng cho booking này và tự hết hạn theo PayOS.',
+                      'This code is generated for this booking and expires with PayOS.',
+                    ),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppTheme.muted, height: 1.4),
+                  ),
                   const SizedBox(height: 20),
                   RepaintBoundary(
                     key: _qrKey,
                     child: Container(
                       padding: const EdgeInsets.all(22),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.line), boxShadow: AppTheme.softShadow),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: AppTheme.line),
+                        boxShadow: AppTheme.softShadow,
+                      ),
                       child: Column(
                         children: [
-                          QrImageView(data: args.qrCode, version: QrVersions.auto, size: 230, eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: AppTheme.ink), dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: AppTheme.ink)),
+                          if (args.qrImageUrl.isNotEmpty)
+                            Image.network(
+                              args.qrImageUrl,
+                              width: 270,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.qr_code_2_rounded,
+                                size: 180,
+                                color: AppTheme.muted,
+                              ),
+                            )
+                          else
+                            QrImageView(
+                              data: args.qrCode,
+                              version: QrVersions.auto,
+                              size: 230,
+                              eyeStyle: const QrEyeStyle(
+                                eyeShape: QrEyeShape.square,
+                                color: AppTheme.ink,
+                              ),
+                              dataModuleStyle: const QrDataModuleStyle(
+                                dataModuleShape: QrDataModuleShape.square,
+                                color: AppTheme.ink,
+                              ),
+                            ),
                           const SizedBox(height: 14),
-                          Text(StayzFormatters.fullVnd(args.amount), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.accent)),
+                          Text(
+                            StayzFormatters.fullVnd(args.amount),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.accent,
+                            ),
+                          ),
                           if (args.transferDescription.isNotEmpty) ...[
                             const SizedBox(height: 6),
-                            Text(args.transferDescription, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.ink)),
+                            Text(
+                              args.transferDescription,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.ink,
+                              ),
+                            ),
                           ],
                         ],
                       ),
                     ),
                   ),
-                  if (args.accountName.isNotEmpty || args.accountNumber.isNotEmpty) ...[
+                  if (args.accountName.isNotEmpty ||
+                      args.accountNumber.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _BankInfo(args: args),
                   ],
                   const SizedBox(height: 18),
-                  FilledButton.icon(onPressed: _opening ? null : _openBankApp, icon: const Icon(Icons.account_balance_rounded), label: Text(_opening ? tr('Đang mở...', 'Opening...') : tr('Mở ứng dụng ngân hàng', 'Open banking app'))),
+                  FilledButton.icon(
+                    onPressed: _opening ? null : _openBankApp,
+                    icon: const Icon(Icons.account_balance_rounded),
+                    label: Text(
+                      _opening
+                          ? tr('Đang mở...', 'Opening...')
+                          : tr('Mở trang thanh toán', 'Open payment page'),
+                    ),
+                  ),
                   const SizedBox(height: 10),
-                  OutlinedButton.icon(onPressed: _sharing ? null : _shareQr, icon: const Icon(Icons.ios_share_rounded), label: Text(_sharing ? tr('Đang chuẩn bị...', 'Preparing...') : tr('Lưu / chia sẻ mã QR', 'Save / share QR'))),
+                  OutlinedButton.icon(
+                    onPressed: _sharing ? null : _shareQr,
+                    icon: const Icon(Icons.ios_share_rounded),
+                    label: Text(
+                      _sharing
+                          ? tr('Đang chuẩn bị...', 'Preparing...')
+                          : tr('Lưu / chia sẻ mã QR', 'Save / share QR'),
+                    ),
+                  ),
                   const SizedBox(height: 10),
-                  OutlinedButton.icon(onPressed: _checking ? null : _refreshStatus, icon: const Icon(Icons.sync_rounded), label: Text(_checking ? tr('Đang kiểm tra...', 'Checking...') : tr('Kiểm tra thanh toán', 'Check payment'))),
+                  OutlinedButton.icon(
+                    onPressed: _checking ? null : _refreshStatus,
+                    icon: const Icon(Icons.sync_rounded),
+                    label: Text(
+                      _checking
+                          ? tr('Đang kiểm tra...', 'Checking...')
+                          : tr('Kiểm tra thanh toán', 'Check payment'),
+                    ),
+                  ),
                   const SizedBox(height: 14),
                   Text(
-                    _status == 'CANCELLED' ? tr('Giao dịch đã bị hủy.', 'The payment was cancelled.') : tr('StayZ chỉ xác nhận sau khi webhook PayOS báo đã thanh toán.', 'StayZ confirms only after a valid PayOS webhook reports payment.'),
+                    _status == 'CANCELLED'
+                        ? tr(
+                            'Giao dịch đã bị hủy.',
+                            'The payment was cancelled.',
+                          )
+                        : tr(
+                            'StayZ chỉ xác nhận sau khi webhook PayOS báo đã thanh toán.',
+                            'StayZ confirms only after a valid PayOS webhook reports payment.',
+                          ),
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: _status == 'CANCELLED' ? AppTheme.danger : AppTheme.muted, fontSize: 12.5, height: 1.4),
+                    style: TextStyle(
+                      color: _status == 'CANCELLED'
+                          ? AppTheme.danger
+                          : AppTheme.muted,
+                      fontSize: 12.5,
+                      height: 1.4,
+                    ),
                   ),
                 ],
               ),
@@ -191,11 +345,16 @@ class _BankInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppTheme.primarySoft.withValues(alpha: 0.45), borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(
+        color: AppTheme.primarySoft.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: Column(
         children: [
-          if (args.accountName.isNotEmpty) _line(tr('Chủ tài khoản', 'Account name'), args.accountName),
-          if (args.accountNumber.isNotEmpty) _line(tr('Số tài khoản', 'Account number'), args.accountNumber),
+          if (args.accountName.isNotEmpty)
+            _line(tr('Chủ tài khoản', 'Account name'), args.accountName),
+          if (args.accountNumber.isNotEmpty)
+            _line(tr('Số tài khoản', 'Account number'), args.accountNumber),
           if (args.bankBin.isNotEmpty) _line('BIN', args.bankBin),
         ],
       ),
@@ -203,7 +362,23 @@ class _BankInfo extends StatelessWidget {
   }
 
   Widget _line(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Row(children: [Expanded(child: Text(label, style: const TextStyle(color: AppTheme.muted))), Flexible(child: Text(value, textAlign: TextAlign.right, style: const TextStyle(color: AppTheme.ink, fontWeight: FontWeight.w800)))]),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(label, style: const TextStyle(color: AppTheme.muted)),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              color: AppTheme.ink,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

@@ -20,6 +20,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // `getInitialLink()` can return the Google callback that launched the app
+  // again when a new LoginPage is created after logout. Keep successful
+  // callbacks for this app process so an old JWT cannot be replayed.
+  static final Set<int> _handledGoogleCallbacks = <int>{};
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -49,7 +54,9 @@ class _LoginPageState extends State<LoginPage> {
     );
     if (!opened && mounted) {
       setState(() => _googleLoading = false);
-      _showMessage(tr('Không mở được đăng nhập Google.', 'Could not open Google sign-in.'));
+      _showMessage(
+        tr('Không mở được đăng nhập Google.', 'Could not open Google sign-in.'),
+      );
     }
   }
 
@@ -62,11 +69,14 @@ class _LoginPageState extends State<LoginPage> {
           if (mounted) setState(() => _googleLoading = false);
         },
       );
-      appLinks.getInitialLink().then((uri) {
-        if (uri != null) _handleGoogleCallback(uri);
-      }).catchError((_) {
-        if (mounted) setState(() => _googleLoading = false);
-      });
+      appLinks
+          .getInitialLink()
+          .then((uri) {
+            if (uri != null) _handleGoogleCallback(uri);
+          })
+          .catchError((_) {
+            if (mounted) setState(() => _googleLoading = false);
+          });
     } on MissingPluginException {
       _linkSubscription = null;
     } catch (_) {
@@ -76,12 +86,22 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleGoogleCallback(Uri uri) async {
     if (uri.scheme != 'stayz' || uri.host != 'auth') return;
+    final callbackKey = uri.toString().hashCode;
+    if (!_handledGoogleCallbacks.add(callbackKey)) return;
     try {
       await AuthService.instance.completeGoogleLogin(uri);
       if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
     } on ApiException catch (error) {
+      // A failed callback may be retried; only successful callbacks must stay
+      // consumed to prevent login again after logout.
+      _handledGoogleCallbacks.remove(callbackKey);
       if (mounted) _showMessage(error.message);
+    } catch (_) {
+      _handledGoogleCallbacks.remove(callbackKey);
+      rethrow;
     } finally {
       if (mounted) setState(() => _googleLoading = false);
     }
@@ -134,17 +154,18 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           SizedBox(height: (responsive.isCompact ? 2 : 20) * responsive.scale),
           const AuthTopBar(showLogo: true),
-          SizedBox(height: (responsive.isCompact ? 12 : 26) * responsive.scale),
+          SizedBox(height: (responsive.isCompact ? 8 : 18) * responsive.scale),
           AuthTitleBlock(
-            title: tr('Chào mừng trở lại', 'Welcome back'),
+            title: tr('Chào mừng', 'Welcome'),
             subtitle: tr(
-              'Đăng nhập để tiếp tục hành trình StayZ của bạn.',
-              'Sign in to continue your StayZ journey.',
+              'Nhập thông tin để đăng nhập vào tài khoản StayZ.',
+              'Enter your details to sign in to StayZ.',
             ),
+            centered: true,
           ),
           SizedBox(height: (responsive.isCompact ? 16 : 26) * responsive.scale),
           AuthField(
-            label: 'EMAIL',
+            label: tr('Địa chỉ email', 'Email address'),
             hint: 'example@email.com',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -152,7 +173,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: (responsive.isCompact ? 12 : 18) * responsive.scale),
           AuthField(
-            label: tr('MẬT KHẨU', 'PASSWORD'),
+            label: tr('Mật khẩu', 'Password'),
             hint: tr('Mật khẩu', 'Password'),
             obscure: true,
             textInputAction: TextInputAction.done,
@@ -189,7 +210,10 @@ class _LoginPageState extends State<LoginPage> {
           ...[
             AuthDivider(label: tr('hoặc', 'or')),
             SizedBox(height: 16 * responsive.scale),
-            _GoogleButton(loading: _googleLoading, onPressed: _startGoogleLogin),
+            _GoogleButton(
+              loading: _googleLoading,
+              onPressed: _startGoogleLogin,
+            ),
           ],
           SizedBox(height: (responsive.isCompact ? 20 : 36) * responsive.scale),
           AuthInlineLink(

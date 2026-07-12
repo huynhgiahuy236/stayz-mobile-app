@@ -332,7 +332,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(tr('Xác nhận thao tác', 'Confirm action')),
         content: Text(message),
         actions: [
@@ -358,7 +358,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildDashboard(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FB),
+      backgroundColor: AppTheme.surface,
       body: SafeArea(
         child: FutureBuilder<AdminSnapshot>(
           future: _future,
@@ -422,9 +422,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.fromLTRB(
                               wide ? 24 : 16,
-                              8,
+                              12,
                               wide ? 24 : 16,
-                              28,
+                              32,
                             ),
                             child: _content(data),
                           ),

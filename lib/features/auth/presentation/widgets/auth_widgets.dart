@@ -36,7 +36,7 @@ class AuthResponsive {
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
     required this.child,
-    this.bottomIndicator = true,
+    this.bottomIndicator = false,
     super.key,
   });
 
@@ -46,18 +46,9 @@ class AuthScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.cream,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: 1.2,
-            colors: [
-              Color(0xFFFAF6F0),
-              AppTheme.cream,
-            ],
-          ),
-        ),
+      backgroundColor: Colors.white,
+      body: ColoredBox(
+        color: Colors.white,
         child: SafeArea(
           child: Stack(
             children: [
@@ -97,24 +88,17 @@ class AuthScrollBody extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
         responsive.horizontalPadding,
-        38 * responsive.scale,
+        24 * responsive.scale,
         responsive.horizontalPadding,
         bottomPadding * responsive.scale,
       ),
-      child: Column(
-        crossAxisAlignment: crossAxisAlignment,
-        children: children,
-      ),
+      child: Column(crossAxisAlignment: crossAxisAlignment, children: children),
     );
   }
 }
 
 class AuthLogo extends StatelessWidget {
-  const AuthLogo({
-    this.centered = false,
-    this.large = false,
-    super.key,
-  });
+  const AuthLogo({this.centered = false, this.large = false, super.key});
 
   final bool centered;
   final bool large;
@@ -146,11 +130,7 @@ class AuthLogo extends StatelessWidget {
 }
 
 class AuthTopBar extends StatelessWidget {
-  const AuthTopBar({
-    this.title,
-    this.showLogo = true,
-    super.key,
-  });
+  const AuthTopBar({this.title, this.showLogo = true, super.key});
 
   final String? title;
   final bool showLogo;
@@ -163,55 +143,61 @@ class AuthTopBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         responsive.horizontalPadding,
-        20 * responsive.scale,
+        12 * responsive.scale,
         responsive.horizontalPadding,
         0,
       ),
       child: SizedBox(
-        height: 54 * responsive.scale,
-        child: Row(
+        height: 52 * responsive.scale,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            IconButton(
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.8),
-                  border: Border.all(
-                    color: AppTheme.neutral200.withValues(alpha: 0.5),
-                    width: 1.5,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                onPressed: () => Navigator.of(context).maybePop(),
+                icon: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    border: Border.all(color: AppTheme.line),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: AppTheme.accentDark,
+                    size: 20 * responsive.scale,
                   ),
                 ),
-                child: Icon(
-                  Icons.arrow_back,
-                  color: AppTheme.accentDark,
-                  size: 20 * responsive.scale,
+                padding: EdgeInsets.zero,
+                tooltip: tr('Quay lại', 'Back'),
+                // 48dp la nguong toi thieu tren Android; 44dp truoc day chua dat.
+                constraints: const BoxConstraints.tightFor(
+                  width: 48,
+                  height: 48,
                 ),
               ),
-              padding: EdgeInsets.zero,
-              tooltip: tr('Quay lại', 'Back'),
-              // 48dp la nguong toi thieu tren Android; 44dp truoc day chua dat.
-              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
             ),
-            if (title != null) ...[
-              SizedBox(width: 18 * responsive.widthScale),
-              Expanded(
-                child: Text(
-                  title!,
-                  style: textTheme.titleLarge?.copyWith(
-                    color: AppTheme.ink,
-                    fontSize: 25 * responsive.scale,
-                    fontWeight: FontWeight.w700,
-                  ),
+            if (title != null)
+              Text(
+                title!,
+                style: textTheme.titleLarge?.copyWith(
+                  color: AppTheme.ink,
+                  fontSize: 18 * responsive.scale,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Inter',
                 ),
-              ),
-            ] else
-              const Spacer(),
-            if (showLogo)
-              AuthLogo(
-                centered: false,
-                large: title == null,
+              )
+            else if (showLogo)
+              const AuthLogo(centered: true),
+            if (showLogo && title != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Image.asset(
+                  'assets/images/stayz_app_logo.png',
+                  width: 38,
+                  height: 38,
+                ),
               ),
           ],
         ),
@@ -240,16 +226,18 @@ class AuthTitleBlock extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Column(
-      crossAxisAlignment:
-          centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: centered
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           title,
           textAlign: centered ? TextAlign.center : TextAlign.start,
           style: textTheme.displayLarge?.copyWith(
             color: accentTitle ? AppTheme.accent : AppTheme.ink,
-            fontSize: (centered ? 33 : 36) * responsive.scale,
-            fontWeight: FontWeight.w400,
+            fontSize: 26 * responsive.scale,
+            fontWeight: FontWeight.w800,
+            fontFamily: 'Inter',
             height: 1.16,
           ),
         ),
@@ -260,7 +248,7 @@ class AuthTitleBlock extends StatelessWidget {
             textAlign: centered ? TextAlign.center : TextAlign.start,
             style: textTheme.bodyLarge?.copyWith(
               color: AppTheme.neutral500,
-              fontSize: 17 * responsive.scale,
+              fontSize: 14 * responsive.scale,
               height: 1.45,
             ),
           ),
@@ -317,10 +305,10 @@ class _AuthFieldState extends State<AuthField> {
             color: AppTheme.neutral500,
             fontSize: 13 * responsive.scale,
             fontWeight: FontWeight.w600,
-            letterSpacing: 2,
+            letterSpacing: 0,
           ),
         ),
-        SizedBox(height: 10 * responsive.scale),
+        SizedBox(height: 8 * responsive.scale),
         SizedBox(
           height: 56 * responsive.scale,
           child: TextField(
@@ -352,26 +340,32 @@ class _AuthFieldState extends State<AuthField> {
                     ),
               suffixIcon: widget.obscure
                   ? IconButton(
-                      onPressed: () => setState(() => _obscureText = !_obscureText),
+                      onPressed: () =>
+                          setState(() => _obscureText = !_obscureText),
                       icon: Icon(
-                        _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _obscureText
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: AppTheme.neutral500,
                         size: 22 * responsive.scale,
                       ),
                     )
                   : null,
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.9),
+              fillColor: Colors.white,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 18 * responsive.scale,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppTheme.neutral200),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppTheme.accent,
+                  width: 1.5,
+                ),
               ),
             ),
           ),
@@ -408,11 +402,13 @@ class AuthPrimaryButton extends StatelessWidget {
       child: FilledButton(
         onPressed: loading ? null : onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: AppTheme.accent,
-          foregroundColor: AppTheme.cream,
+          backgroundColor: AppTheme.primary,
+          foregroundColor: Colors.white,
           disabledBackgroundColor: AppTheme.accent.withValues(alpha: 0.42),
           disabledForegroundColor: Colors.white70,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: loading
             ? Row(
@@ -421,7 +417,10 @@ class AuthPrimaryButton extends StatelessWidget {
                   const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   ),
                   SizedBox(width: 12 * responsive.scale),
                   Text(
@@ -437,7 +436,7 @@ class AuthPrimaryButton extends StatelessWidget {
             : Text(
                 label,
                 style: textTheme.labelLarge?.copyWith(
-                  color: AppTheme.cream,
+                  color: Colors.white,
                   fontSize: 17 * responsive.scale,
                   fontWeight: FontWeight.w700,
                 ),
@@ -542,11 +541,7 @@ class AuthHomeIndicator extends StatelessWidget {
 }
 
 class AuthCheckbox extends StatefulWidget {
-  const AuthCheckbox({
-    required this.value,
-    required this.onChanged,
-    super.key,
-  });
+  const AuthCheckbox({required this.value, required this.onChanged, super.key});
 
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -568,7 +563,9 @@ class _AuthCheckboxState extends State<AuthCheckbox> {
         width: 22 * responsive.scale,
         height: 22 * responsive.scale,
         decoration: BoxDecoration(
-          color: widget.value ? AppTheme.accent : Colors.white.withValues(alpha: 0.8),
+          color: widget.value
+              ? AppTheme.accent
+              : Colors.white.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: widget.value ? AppTheme.accent : AppTheme.neutral200,
@@ -654,13 +651,35 @@ class _GoogleLogoPainter extends CustomPainter {
 
     final pathInner = Path()..addOval(rectInner);
 
-    canvas.drawPath(Path.combine(PathOperation.difference, pathRed, pathInner), red);
-    canvas.drawPath(Path.combine(PathOperation.difference, pathYellow, pathInner), yellow);
-    canvas.drawPath(Path.combine(PathOperation.difference, pathGreen, pathInner), green);
+    canvas.drawPath(
+      Path.combine(PathOperation.difference, pathRed, pathInner),
+      red,
+    );
+    canvas.drawPath(
+      Path.combine(PathOperation.difference, pathYellow, pathInner),
+      yellow,
+    );
+    canvas.drawPath(
+      Path.combine(PathOperation.difference, pathGreen, pathInner),
+      green,
+    );
 
-    final barRect = Rect.fromLTRB(center.dx, center.dy - w / 10, center.dx + rOuter, center.dy + w / 10);
-    final pathBlueWithBar = Path.combine(PathOperation.union, pathBlue, Path()..addRect(barRect));
-    final pathBlueFinal = Path.combine(PathOperation.difference, pathBlueWithBar, pathInner);
+    final barRect = Rect.fromLTRB(
+      center.dx,
+      center.dy - w / 10,
+      center.dx + rOuter,
+      center.dy + w / 10,
+    );
+    final pathBlueWithBar = Path.combine(
+      PathOperation.union,
+      pathBlue,
+      Path()..addRect(barRect),
+    );
+    final pathBlueFinal = Path.combine(
+      PathOperation.difference,
+      pathBlueWithBar,
+      pathInner,
+    );
 
     canvas.drawPath(pathBlueFinal, blue);
   }
@@ -668,4 +687,3 @@ class _GoogleLogoPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

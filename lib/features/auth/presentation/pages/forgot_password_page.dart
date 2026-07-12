@@ -42,9 +42,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Nếu email tồn tại, mã xác thực đã được gửi.', 'If the email exists, a verification code has been sent.'))),
+        SnackBar(
+          content: Text(
+            tr(
+              'Nếu email tồn tại, mã xác thực đã được gửi.',
+              'If the email exists, a verification code has been sent.',
+            ),
+          ),
+        ),
       );
-      await Navigator.of(context).pushNamed(AppRoutes.otp, arguments: OtpArgs(email: email));
+      await Navigator.of(
+        context,
+      ).pushNamed(AppRoutes.otp, arguments: OtpArgs(email: email));
     } on ApiException catch (error) {
       if (mounted) _showMessage(error.message);
     } finally {
@@ -53,7 +62,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -74,14 +85,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SizedBox(height: 32 * responsive.scale),
                 AuthTitleBlock(
                   title: tr('Quên mật khẩu', 'Forgot password'),
-                  subtitle: tr('Nhập email tài khoản, chúng tôi sẽ gửi mã xác thực gồm 6 chữ số.', 'Enter your account email and we will send a 6-digit verification code.'),
+                  subtitle: tr(
+                    'Nhập email tài khoản, chúng tôi sẽ gửi mã xác thực gồm 6 chữ số.',
+                    'Enter your account email and we will send a 6-digit verification code.',
+                  ),
                   centered: true,
                 ),
                 SizedBox(height: 32 * responsive.scale),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: AuthField(
-                    label: 'EMAIL',
+                    label: tr('Địa chỉ email', 'Email address'),
                     hint: 'example@email.com',
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
@@ -90,7 +104,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 SizedBox(height: 20 * responsive.scale),
                 AuthPrimaryButton(
-                  label: _isLoading ? tr('Đang gửi mã...', 'Sending...') : tr('Gửi mã xác thực', 'Send verification code'),
+                  label: _isLoading
+                      ? tr('Đang gửi mã...', 'Sending...')
+                      : tr('Gửi mã xác thực', 'Send verification code'),
                   // `null` de nut that su bi vo hieu hoa khi dang tai,
                   // thay vi giu mau day du nhung bam khong an gi.
                   onPressed: _isLoading ? null : _sendCode,
@@ -99,7 +115,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SizedBox(height: 28 * responsive.scale),
                 TextButton.icon(
                   // Truoc day nut nay dieu huong sang... form thong tin khach san.
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
                   icon: const Icon(Icons.support_agent_outlined),
                   label: Text(tr('Trung tâm hỗ trợ', 'Help center')),
                   style: TextButton.styleFrom(foregroundColor: AppTheme.accent),
@@ -126,7 +143,10 @@ class _ResetIcon extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.accent.withValues(alpha: 0.06),
         shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.15), width: 1.5),
+        border: Border.all(
+          color: AppTheme.accent.withValues(alpha: 0.15),
+          width: 1.5,
+        ),
       ),
       child: Center(
         child: Container(
@@ -143,7 +163,11 @@ class _ResetIcon extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(Icons.lock_reset, color: AppTheme.accent, size: 32 * responsive.scale),
+          child: Icon(
+            Icons.lock_reset,
+            color: AppTheme.accent,
+            size: 32 * responsive.scale,
+          ),
         ),
       ),
     );

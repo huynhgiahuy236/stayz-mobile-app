@@ -13,7 +13,7 @@ class AddPaymentMethodPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: AppTheme.surface,
       bottomNavigationBar: Padding(
         padding: EdgeInsets.fromLTRB(
           responsive.horizontalPadding,
@@ -24,7 +24,7 @@ class AddPaymentMethodPage extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: ProfilePrimaryButton(
-            label: tr('Lưu phương thức', 'Save payment method'),
+            label: tr('Quay lại', 'Go back'),
             onTap: () => Navigator.of(context).maybePop(),
           ),
         ),
@@ -66,19 +66,35 @@ class AddPaymentMethodPage extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.all(responsive.horizontalPadding),
                 children: [
-                  ProfileSectionLabel(label: tr('Chọn loại thanh toán', 'Choose payment type')),
+                  ProfileSectionLabel(
+                    label: tr('Chọn loại thanh toán', 'Choose payment type'),
+                  ),
                   SizedBox(height: 20 * responsive.scale),
-                  _PaymentTypeTile(icon: Icons.credit_card, title: tr('Thẻ tín dụng/Ghi nợ', 'Credit/Debit card'), subtitle: 'Visa, Mastercard, JCB'),
+                  _PaymentTypeTile(
+                    icon: Icons.credit_card,
+                    title: tr('Thẻ tín dụng/Ghi nợ', 'Credit/Debit card'),
+                    subtitle: 'Visa, Mastercard, JCB',
+                  ),
                   SizedBox(height: 52 * responsive.scale),
-                  _PaymentTypeTile(icon: Icons.account_balance_wallet_outlined, title: tr('Ví điện tử', 'E-wallet'), subtitle: 'MoMo, ZaloPay, ShopeePay'),
+                  _PaymentTypeTile(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: tr('Ví điện tử', 'E-wallet'),
+                    subtitle: 'MoMo, ZaloPay, ShopeePay',
+                  ),
                   SizedBox(height: 20 * responsive.scale),
-                  _PaymentTypeTile(icon: Icons.account_balance, title: tr('Chuyển khoản ngân hàng', 'Bank transfer'), subtitle: 'Internet Banking / QR Code'),
+                  _PaymentTypeTile(
+                    icon: Icons.account_balance,
+                    title: tr('Chuyển khoản ngân hàng', 'Bank transfer'),
+                    subtitle: 'Internet Banking / QR Code',
+                  ),
                   SizedBox(height: 34 * responsive.scale),
                   Container(
                     height: 190 * responsive.scale,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: const LinearGradient(colors: [Color(0xFF1F1712), Color(0xFF8A1E25)]),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1F1712), Color(0xFF8A1E25)],
+                      ),
                     ),
                   ),
                 ],
@@ -118,20 +134,41 @@ class _PaymentTypeTile extends StatelessWidget {
           CircleAvatar(
             radius: 24 * responsive.scale,
             backgroundColor: const Color(0xFFF4E8E4),
-            child: Icon(icon, color: AppTheme.accentDark, size: 24 * responsive.scale),
+            child: Icon(
+              icon,
+              color: AppTheme.accentDark,
+              size: 24 * responsive.scale,
+            ),
           ),
           SizedBox(width: 20 * responsive.widthScale),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: AppTheme.ink, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 18 * responsive.scale,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 SizedBox(height: 6 * responsive.scale),
-                Text(subtitle, style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 13 * responsive.scale)),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 13 * responsive.scale,
+                  ),
+                ),
               ],
             ),
           ),
-          Icon(Icons.chevron_right, color: AppTheme.neutral500, size: 26 * responsive.scale),
+          const Icon(
+            Icons.info_outline_rounded,
+            color: AppTheme.muted,
+            size: 22,
+          ),
         ],
       ),
     );

@@ -58,10 +58,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
         homeAddress: _address.text,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr('Đã cập nhật hồ sơ.', 'Profile updated.'))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr('Đã cập nhật hồ sơ.', 'Profile updated.'))),
+      );
       Navigator.of(context).pop(true);
     } on ApiException catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -79,8 +85,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: FutureBuilder<StayzUser?>(
                 future: _profile,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
-                  if (snapshot.hasError) return StayzErrorView(error: snapshot.error, onRetry: () => setState(() => _profile = _load()));
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return StayzErrorView(
+                      error: snapshot.error,
+                      onRetry: () => setState(() {
+                        _profile = _load();
+                      }),
+                    );
+                  }
                   return Form(
                     key: _formKey,
                     child: ListView(
@@ -88,26 +105,62 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       children: [
                         TextFormField(
                           controller: _name,
-                          decoration: InputDecoration(labelText: tr('Họ và tên', 'Full name')),
-                          validator: (value) => value == null || value.trim().isEmpty ? tr('Vui lòng nhập họ tên.', 'Full name is required.') : null,
+                          decoration: InputDecoration(
+                            labelText: tr('Họ và tên', 'Full name'),
+                          ),
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                              ? tr(
+                                  'Vui lòng nhập họ tên.',
+                                  'Full name is required.',
+                                )
+                              : null,
                         ),
                         const SizedBox(height: 20),
-                        TextFormField(controller: _phone, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: tr('Số điện thoại', 'Phone number'))),
+                        TextFormField(
+                          controller: _phone,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            labelText: tr('Số điện thoại', 'Phone number'),
+                          ),
+                        ),
                         const SizedBox(height: 20),
                         DropdownButtonFormField<String>(
                           initialValue: _gender.isEmpty ? null : _gender,
-                          decoration: InputDecoration(labelText: tr('Giới tính', 'Gender')),
+                          decoration: InputDecoration(
+                            labelText: tr('Giới tính', 'Gender'),
+                          ),
                           items: [
-                            DropdownMenuItem(value: 'male', child: Text(tr('Nam', 'Male'))),
-                            DropdownMenuItem(value: 'female', child: Text(tr('Nữ', 'Female'))),
-                            DropdownMenuItem(value: 'other', child: Text(tr('Khác', 'Other'))),
+                            DropdownMenuItem(
+                              value: 'male',
+                              child: Text(tr('Nam', 'Male')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'female',
+                              child: Text(tr('Nữ', 'Female')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'other',
+                              child: Text(tr('Khác', 'Other')),
+                            ),
                           ],
                           onChanged: (value) => _gender = value ?? '',
                         ),
                         const SizedBox(height: 20),
-                        TextFormField(controller: _address, maxLines: 3, decoration: InputDecoration(labelText: tr('Địa chỉ', 'Address'))),
+                        TextFormField(
+                          controller: _address,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: tr('Địa chỉ', 'Address'),
+                          ),
+                        ),
                         const SizedBox(height: 36),
-                        ProfilePrimaryButton(label: _saving ? tr('Đang lưu...', 'Saving...') : tr('Lưu thay đổi', 'Save changes'), onTap: _saving ? null : _save),
+                        ProfilePrimaryButton(
+                          label: _saving
+                              ? tr('Đang lưu...', 'Saving...')
+                              : tr('Lưu thay đổi', 'Save changes'),
+                          onTap: _saving ? null : _save,
+                        ),
                       ],
                     ),
                   );

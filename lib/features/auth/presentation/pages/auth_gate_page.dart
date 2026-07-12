@@ -21,14 +21,17 @@ class _AuthGatePageState extends State<AuthGatePage> {
     final auth = AuthService.instance;
     final hasSeenOnboarding = await auth.hasSeenOnboarding();
     final isAuthenticated = await auth.isAuthenticated();
+    final role = isAuthenticated ? await auth.userRole() : null;
 
     if (!mounted) return;
 
     final route = !hasSeenOnboarding
         ? AppRoutes.onboarding
         : isAuthenticated
-            ? AppRoutes.home
-            : AppRoutes.login;
+        ? role == 'admin'
+              ? AppRoutes.admin
+              : AppRoutes.home
+        : AppRoutes.login;
     Navigator.of(context).pushReplacementNamed(route);
   }
 
@@ -36,9 +39,7 @@ class _AuthGatePageState extends State<AuthGatePage> {
   Widget build(BuildContext context) {
     return const Scaffold(
       backgroundColor: AppTheme.cream,
-      body: Center(
-        child: CircularProgressIndicator(color: AppTheme.accent),
-      ),
+      body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
     );
   }
 }

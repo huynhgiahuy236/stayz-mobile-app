@@ -95,8 +95,10 @@ class _HomePageState extends State<HomePage> {
   Future<BookingSummary?> _loadUpcomingBooking() async {
     try {
       final bookings = await ApiStayzRepository.instance.getBookingSummaries();
-      final upcoming = bookings.where((item) => item.booking.isUpcoming).toList()
-        ..sort((a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate));
+      final upcoming =
+          bookings.where((item) => item.booking.isUpcoming).toList()..sort(
+            (a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate),
+          );
       return upcoming.firstOrNull;
     } catch (_) {
       // Chua dang nhap hoac mat mang: an the thay vi hien du lieu gia.
@@ -137,7 +139,9 @@ class _HomePageState extends State<HomePage> {
       StayzAlert.show(
         context,
         type: wasFavorite ? StayzAlertType.info : StayzAlertType.success,
-        message: wasFavorite ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.') : tr('Đã thêm vào yêu thích.', 'Added to saved.'),
+        message: wasFavorite
+            ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.')
+            : tr('Đã thêm vào yêu thích.', 'Added to saved.'),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -149,19 +153,29 @@ class _HomePageState extends State<HomePage> {
       StayzAlert.show(
         context,
         type: StayzAlertType.error,
-        message: error.isUnauthorized ? tr('Vui lòng đăng nhập để lưu yêu thích.', 'Please sign in to save favorites.') : error.message,
+        message: error.isUnauthorized
+            ? tr(
+                'Vui lòng đăng nhập để lưu yêu thích.',
+                'Please sign in to save favorites.',
+              )
+            : error.message,
       );
     }
   }
 
   Future<void> _openFilters() async {
-    final result = await Navigator.of(context).pushNamed(AppRoutes.filter, arguments: const SearchFilters());
+    final result = await Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.filter, arguments: const SearchFilters());
     if (result is SearchFilters && mounted) {
       Navigator.of(context).pushNamed(AppRoutes.search, arguments: result);
     }
   }
 
-  Future<void> _openSearchWith(SearchFilters filters, {HomeQuickFilter? quickFilter}) async {
+  Future<void> _openSearchWith(
+    SearchFilters filters, {
+    HomeQuickFilter? quickFilter,
+  }) async {
     if (quickFilter != null) setState(() => _selectedQuickFilter = quickFilter);
     await Navigator.of(context).pushNamed(AppRoutes.search, arguments: filters);
   }
@@ -190,39 +204,62 @@ class _HomePageState extends State<HomePage> {
 
             // Truoc day loi mang bi nuot: man hinh im lang hien du lieu du phong.
             if (snapshot.hasError && !loading) {
-              return StayzErrorView(
-                error: snapshot.error,
-                onRetry: _refresh,
-              );
+              return StayzErrorView(error: snapshot.error, onRetry: _refresh);
             }
 
-            final featured = hotels.where((item) => item.hotel.status == 'featured').toList();
+            final featured = hotels
+                .where((item) => item.hotel.status == 'featured')
+                .toList();
             // Carousel "noi bat" hien nhieu hon (toi 8).
-            final topPicks = (featured.isNotEmpty ? featured : hotels).take(8).toList();
+            final topPicks = (featured.isNotEmpty ? featured : hotels)
+                .take(8)
+                .toList();
             // "Goi y khac" hien tat ca khach san con lai, khong gioi han 3 nhu truoc.
             final topIds = topPicks.map((item) => item.hotel.id).toSet();
-            final nearby = hotels.where((item) => !topIds.contains(item.hotel.id)).toList();
+            final nearby = hotels
+                .where((item) => !topIds.contains(item.hotel.id))
+                .toList();
 
             return RefreshIndicator(
               onRefresh: _refresh,
               child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 18 * responsive.scale, responsive.horizontalPadding, 0),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.horizontalPadding,
+                        18 * responsive.scale,
+                        responsive.horizontalPadding,
+                        0,
+                      ),
                       child: const StayZLogoRow(),
                     ),
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 26 * responsive.scale, responsive.horizontalPadding, 0),
-                      child: _HomeHero(featured: topPicks.firstOrNull, loading: loading),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.horizontalPadding,
+                        26 * responsive.scale,
+                        responsive.horizontalPadding,
+                        0,
+                      ),
+                      child: _HomeHero(
+                        featured: topPicks.firstOrNull,
+                        loading: loading,
+                      ),
                     ),
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 22 * responsive.scale, responsive.horizontalPadding, 0),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.horizontalPadding,
+                        22 * responsive.scale,
+                        responsive.horizontalPadding,
+                        0,
+                      ),
                       child: SearchBox(
                         onTap: () => _openSearchWith(const SearchFilters()),
                         onFilterTap: _openFilters,
@@ -231,14 +268,21 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 18 * responsive.scale, 0, 0),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.horizontalPadding,
+                        18 * responsive.scale,
+                        0,
+                        0,
+                      ),
                       child: SizedBox(
                         height: 48 * responsive.scale,
                         child: ListView.separated(
                           physics: const BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemCount: HomeQuickFilter.values.length,
-                          padding: EdgeInsets.only(right: responsive.horizontalPadding),
+                          padding: EdgeInsets.only(
+                            right: responsive.horizontalPadding,
+                          ),
                           separatorBuilder: (_, _) => const SizedBox(width: 10),
                           itemBuilder: (context, index) {
                             final filter = HomeQuickFilter.values[index];
@@ -260,34 +304,55 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 30 * responsive.scale, responsive.horizontalPadding, 14 * responsive.scale),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.horizontalPadding,
+                        30 * responsive.scale,
+                        responsive.horizontalPadding,
+                        14 * responsive.scale,
+                      ),
                       child: SectionLabel(
                         title: tr('Khách sạn nổi bật', 'Featured hotels'),
                         action: tr('Xem tất cả', 'See all'),
-                        onAction: () => _openSearchWith(const SearchFilters(isPreferred: true)),
+                        onAction: () => _openSearchWith(
+                          const SearchFilters(isPreferred: true),
+                        ),
                       ),
                     ),
                   ),
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 286 * responsive.scale,
+                      height: 304 * responsive.scale,
                       child: loading
-                          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.primary,
+                              ),
+                            )
                           : topPicks.isEmpty
-                              ? StayzEmptyView(
-                                  icon: Icons.hotel_outlined,
-                                  title: tr('Chưa có khách sạn nào', 'No hotels yet'),
-                                  message: tr('Dữ liệu khách sạn hiện đang trống.', 'No hotel data available.'),
-                                  compact: true,
-                                )
-                              : ListView.separated(
-                                  physics: const BouncingScrollPhysics(),
-                                  padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: topPicks.length,
-                                  separatorBuilder: (_, _) => const SizedBox(width: 14),
-                                  itemBuilder: (context, index) => _hotelCard(topPicks[index], index),
-                                ),
+                          ? StayzEmptyView(
+                              icon: Icons.hotel_outlined,
+                              title: tr(
+                                'Chưa có khách sạn nào',
+                                'No hotels yet',
+                              ),
+                              message: tr(
+                                'Dữ liệu khách sạn hiện đang trống.',
+                                'No hotel data available.',
+                              ),
+                              compact: true,
+                            )
+                          : ListView.separated(
+                              physics: const BouncingScrollPhysics(),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: responsive.horizontalPadding,
+                              ),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: topPicks.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(width: 14),
+                              itemBuilder: (context, index) =>
+                                  _hotelCard(topPicks[index], index),
+                            ),
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -301,26 +366,44 @@ class _HomePageState extends State<HomePage> {
                         return Column(
                           children: [
                             Padding(
-                              padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 30 * responsive.scale, responsive.horizontalPadding, 14 * responsive.scale),
+                              padding: EdgeInsets.fromLTRB(
+                                responsive.horizontalPadding,
+                                30 * responsive.scale,
+                                responsive.horizontalPadding,
+                                14 * responsive.scale,
+                              ),
                               child: SectionLabel(
-                                title: tr('Lịch trình tiếp theo', 'Your next trip'),
+                                title: tr(
+                                  'Lịch trình tiếp theo',
+                                  'Your next trip',
+                                ),
                                 action: tr('Quản lý', 'Manage'),
-                                onAction: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+                                onAction: () => Navigator.of(
+                                  context,
+                                ).pushNamed(AppRoutes.myBookings),
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: responsive.horizontalPadding,
+                              ),
                               child: BookingPreviewCard(
                                 name: upcoming.hotel.name,
                                 location: upcoming.city.name,
                                 date:
                                     '${StayzFormatters.shortDate(upcoming.booking.checkInDate)} - ${StayzFormatters.shortDate(upcoming.booking.checkOutDate)}',
-                                total: StayzFormatters.compactVnd(upcoming.booking.totalAmount),
-                                imageUrl: upcoming.room.imageUrls.firstOrNull ?? upcoming.hotel.imageUrls.firstOrNull,
+                                total: StayzFormatters.compactVnd(
+                                  upcoming.booking.totalAmount,
+                                ),
+                                imageUrl:
+                                    upcoming.room.imageUrls.firstOrNull ??
+                                    upcoming.hotel.imageUrls.firstOrNull,
                                 colors: _homeHotelColors[1],
                                 onTap: () => Navigator.of(context).pushNamed(
                                   AppRoutes.upcomingBookingDetail,
-                                  arguments: BookingSummaryArgs(summary: upcoming),
+                                  arguments: BookingSummaryArgs(
+                                    summary: upcoming,
+                                  ),
                                 ),
                               ),
                             ),
@@ -332,8 +415,15 @@ class _HomePageState extends State<HomePage> {
                   if (nearby.isNotEmpty) ...[
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(responsive.horizontalPadding, 30 * responsive.scale, responsive.horizontalPadding, 14 * responsive.scale),
-                        child: SectionLabel(title: tr('Gợi ý khác cho bạn', 'More for you')),
+                        padding: EdgeInsets.fromLTRB(
+                          responsive.horizontalPadding,
+                          30 * responsive.scale,
+                          responsive.horizontalPadding,
+                          14 * responsive.scale,
+                        ),
+                        child: SectionLabel(
+                          title: tr('Gợi ý khác cho bạn', 'More for you'),
+                        ),
                       ),
                     ),
                     SliverList.builder(
@@ -345,11 +435,17 @@ class _HomePageState extends State<HomePage> {
                           responsive.horizontalPadding,
                           0,
                         ),
-                        child: _hotelCard(nearby[index], index + 2, fullWidth: true),
+                        child: _hotelCard(
+                          nearby[index],
+                          index + 2,
+                          fullWidth: true,
+                        ),
                       ),
                     ),
                   ],
-                  SliverToBoxAdapter(child: SizedBox(height: 28 * responsive.scale)),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 28 * responsive.scale),
+                  ),
                 ],
               ),
             );
@@ -363,15 +459,21 @@ class _HomePageState extends State<HomePage> {
     return HotelCard(
       fullWidth: fullWidth,
       name: summary.hotel.name,
-      location: fullWidth ? '${summary.city.name}, ${summary.city.region}' : summary.city.name,
-      price: summary.hasPrice ? '${StayzFormatters.compactVnd(summary.lowestPrice)}${tr(' / đêm', ' / night')}' : tr('Chưa có phòng', 'No rooms'),
+      location: fullWidth
+          ? '${summary.city.name}, ${summary.city.region}'
+          : summary.city.name,
+      price: summary.hasPrice
+          ? '${StayzFormatters.compactVnd(summary.lowestPrice)}${tr(' / đêm', ' / night')}'
+          : tr('Chưa có phòng', 'No rooms'),
       imageUrl: summary.hotel.imageUrls.firstOrNull,
       isFavorite: _loadedFavorites && _favoriteIds.contains(summary.hotel.id),
       onFavoriteTap: () => _toggleFavorite(summary),
       rating: summary.rating,
       reviewCount: summary.reviewCount,
       colors: _homeHotelColors[index % _homeHotelColors.length],
-      onTap: () => Navigator.of(context).pushNamed(AppRoutes.roomDetail, arguments: summary),
+      onTap: () => Navigator.of(
+        context,
+      ).pushNamed(AppRoutes.roomDetail, arguments: summary),
     );
   }
 }
@@ -397,7 +499,10 @@ class _HomeHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10 * responsive.widthScale, vertical: 6 * responsive.scale),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10 * responsive.widthScale,
+              vertical: 6 * responsive.scale,
+            ),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(999),
@@ -414,7 +519,10 @@ class _HomeHero extends StatelessWidget {
           ),
           SizedBox(height: 16 * responsive.scale),
           Text(
-            tr('Tìm phòng đẹp,\nđặt lịch gọn trong vài chạm.', 'Find great stays,\nbook in a few taps.'),
+            tr(
+              'Tìm phòng đẹp,\nđặt lịch gọn trong vài chạm.',
+              'Find great stays,\nbook in a few taps.',
+            ),
             style: TextStyle(
               color: Colors.white,
               fontSize: 28 * responsive.scale,
@@ -425,10 +533,19 @@ class _HomeHero extends StatelessWidget {
           SizedBox(height: 16 * responsive.scale),
           Text(
             loading
-                ? tr('Đang tải gợi ý tốt nhất cho bạn...', 'Loading the best picks for you...')
+                ? tr(
+                    'Đang tải gợi ý tốt nhất cho bạn...',
+                    'Loading the best picks for you...',
+                  )
                 : featured == null
-                    ? tr('Hãy tìm nơi lưu trú phù hợp với bạn.', 'Find a stay that suits you.')
-                    : tr('Gợi ý hôm nay: ${featured!.hotel.name}', 'Today\'s pick: ${featured!.hotel.name}'),
+                ? tr(
+                    'Hãy tìm nơi lưu trú phù hợp với bạn.',
+                    'Find a stay that suits you.',
+                  )
+                : tr(
+                    'Gợi ý hôm nay: ${featured!.hotel.name}',
+                    'Today\'s pick: ${featured!.hotel.name}',
+                  ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -443,21 +560,30 @@ class _HomeHero extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.search, arguments: const SearchFilters()),
+                  onPressed: () => Navigator.of(context).pushNamed(
+                    AppRoutes.search,
+                    arguments: const SearchFilters(),
+                  ),
                   icon: const Icon(Icons.search_rounded),
                   label: Text(tr('Tìm phòng', 'Search stays')),
-                  style: FilledButton.styleFrom(backgroundColor: AppTheme.primary),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                  ),
                 ),
               ),
               SizedBox(width: 12 * responsive.widthScale),
               IconButton.filledTonal(
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.favorites),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.favorites),
                 icon: const Icon(Icons.favorite_rounded),
                 tooltip: tr('Khách sạn yêu thích', 'Favorite hotels'),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white.withValues(alpha: 0.12),
                   foregroundColor: Colors.white,
-                  minimumSize: Size(52 * responsive.scale, 52 * responsive.scale),
+                  minimumSize: Size(
+                    52 * responsive.scale,
+                    52 * responsive.scale,
+                  ),
                 ),
               ),
             ],

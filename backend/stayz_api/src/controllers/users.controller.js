@@ -63,6 +63,15 @@ const userController = {
       next(err);
     }
   },
+  createByAdmin: async (req, res, next) => {
+    try {
+      const data = await userService.createByAdmin(req.body);
+      const response = responseSuccess(data, "Tạo tài khoản thành công", 201);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   login: async (req, res, next) => {
     const user = req.body;
     try {

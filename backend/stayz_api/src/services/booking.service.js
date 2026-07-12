@@ -349,7 +349,7 @@ const bookingService = {
     const now = new Date();
     const editDeadline = new Date(booking.check_in);
     editDeadline.setHours(editDeadline.getHours() - EDIT_LOCK_HOURS);
-    if (now > editDeadline) {
+    if (user?.role !== "admin" && now > editDeadline) {
       throw new BadRequestException("Chi duoc chinh sua booking truoc check-in it nhat 24 gio");
     }
 

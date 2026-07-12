@@ -31,10 +31,22 @@ const allowedOrigins = new Set([
   "http://localhost:3000",
 ].filter(Boolean));
 
+function isLocalDevOrigin(origin) {
+  try {
+    const { hostname, protocol } = new URL(origin);
+    return (
+      (protocol === "http:" || protocol === "https:") &&
+      ["localhost", "127.0.0.1", "::1"].includes(hostname)
+    );
+  } catch (_error) {
+    return false;
+  }
+}
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin) || isLocalDevOrigin(origin)) {
         callback(null, true);
         return;
       }

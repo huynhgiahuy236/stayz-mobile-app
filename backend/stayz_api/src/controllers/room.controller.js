@@ -52,6 +52,24 @@ const roomController = {
       next(err);
     }
   },
+  uploadMainImageCloud: async (req, res, next) => {
+    try {
+      const data = await roomService.uploadMainImageCloud(req.params.id, req.file);
+      const response = responseSuccess(data, "Tải ảnh phòng lên Cloudinary thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+  uploadGalleryCloud: async (req, res, next) => {
+    try {
+      const data = await roomService.uploadGalleryCloud(req.params.id, req.files);
+      const response = responseSuccess(data, "Tải thư viện ảnh phòng lên Cloudinary thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = roomController;

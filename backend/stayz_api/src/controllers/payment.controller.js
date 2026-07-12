@@ -2,6 +2,15 @@ const { responseSuccess } = require("../helpers/response.helper");
 const paymentService = require("../services/payment.service");
 
 const paymentController = {
+  getAll: async (_req, res, next) => {
+    try {
+      const data = await paymentService.getAll();
+      const response = responseSuccess(data, "Lấy danh sách giao dịch thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   // POST /payment/create/:bookingId
   createPayment: async (req, res, next) => {
     try {
@@ -34,6 +43,15 @@ const paymentController = {
       const { bookingId } = req.params;
       const data = await paymentService.cancelPaymentLink(bookingId, userId);
       const response = responseSuccess(data, "Đã hủy giao dịch thanh toán", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+  cancelPaymentByAdmin: async (req, res, next) => {
+    try {
+      const data = await paymentService.cancelPaymentByAdmin(req.params.paymentId);
+      const response = responseSuccess(data, "Đã huỷ giao dịch PayOS", 200);
       res.status(response.code).json(response);
     } catch (err) {
       next(err);

@@ -323,6 +323,16 @@ const propertiesService = {
   },
   delete: async (id) => {
     const properties = await propertiesModel.findById(id);
+    if (properties?.main_image_public_id) {
+      await cloudinary.uploader.destroy(properties.main_image_public_id);
+    }
+    if (properties?.gallery_images?.length) {
+      await Promise.all(
+        properties.gallery_images
+          .filter((image) => image.public_id)
+          .map((image) => cloudinary.uploader.destroy(image.public_id)),
+      );
+    }
     const result = await propertiesModel.findByIdAndDelete(id);
 
     // Xóa cache sau khi xóa

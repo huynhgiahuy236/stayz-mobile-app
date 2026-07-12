@@ -43,8 +43,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
     try {
       await AuthService.instance.login(email: email, password: password);
+      final role = await AuthService.instance.userRole();
       if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        role == 'admin' ? AppRoutes.admin : AppRoutes.home,
+        (route) => false,
+      );
     } on ApiException catch (error) {
       // Thong diep da duoc dich san; khong con in URL va body loi ra man hinh.
       if (mounted) _showMessage(error.message);
@@ -54,7 +58,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -70,7 +76,10 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: (responsive.isCompact ? 12 : 26) * responsive.scale),
           AuthTitleBlock(
             title: tr('Chào mừng trở lại', 'Welcome back'),
-            subtitle: tr('Đăng nhập để tiếp tục hành trình StayZ của bạn.', 'Sign in to continue your StayZ journey.'),
+            subtitle: tr(
+              'Đăng nhập để tiếp tục hành trình StayZ của bạn.',
+              'Sign in to continue your StayZ journey.',
+            ),
           ),
           SizedBox(height: (responsive.isCompact ? 16 : 26) * responsive.scale),
           AuthField(
@@ -92,7 +101,11 @@ class _LoginPageState extends State<LoginPage> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: _isLoading ? null : () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+              onPressed: _isLoading
+                  ? null
+                  : () => Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.forgotPassword),
               child: Text(
                 tr('Quên mật khẩu?', 'Forgot password?'),
                 style: TextStyle(
@@ -105,7 +118,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: (responsive.isCompact ? 8 : 18) * responsive.scale),
           AuthPrimaryButton(
-            label: _isLoading ? tr('Đang đăng nhập...', 'Signing in...') : tr('Đăng nhập', 'Sign in'),
+            label: _isLoading
+                ? tr('Đang đăng nhập...', 'Signing in...')
+                : tr('Đăng nhập', 'Sign in'),
             onPressed: _isLoading ? null : _login,
             loading: _isLoading,
           ),
@@ -119,7 +134,9 @@ class _LoginPageState extends State<LoginPage> {
           AuthInlineLink(
             text: tr('Chưa có tài khoản?', 'No account yet?'),
             actionText: tr('Đăng ký', 'Register'),
-            onTap: _isLoading ? () {} : () => Navigator.of(context).pushNamed(AppRoutes.register),
+            onTap: _isLoading
+                ? () {}
+                : () => Navigator.of(context).pushNamed(AppRoutes.register),
           ),
         ],
       ),

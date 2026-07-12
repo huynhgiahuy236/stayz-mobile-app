@@ -33,8 +33,10 @@ const bookingController = {
   },
   create: async (req, res, next) => {
     try {
-      // user_id luon lay tu token, khong bao gio tu body.
-      const newBooking = { ...req.body, user_id: req.user.userId };
+      const newBooking = {
+        ...req.body,
+        user_id: isAdmin(req) && req.body.user_id ? req.body.user_id : req.user.userId,
+      };
       const data = await bookingService.create(newBooking);
       const response = responseSuccess(data, "Tạo booking thành công", 200);
       res.status(response.code).json(response);

@@ -15,6 +15,7 @@ class AuthService {
   static const _userIdKey = 'authUserId';
   static const _userEmailKey = 'authUserEmail';
   static const _userNameKey = 'authUserName';
+  static const _userRoleKey = 'authUserRole';
 
   final ApiService api;
 
@@ -57,6 +58,12 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString(_userNameKey);
     return name == null || name.isEmpty ? null : name;
+  }
+
+  Future<String?> userRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    final role = prefs.getString(_userRoleKey);
+    return role == null || role.isEmpty ? null : role;
   }
 
   /// Doc truong `exp` cua JWT ma khong can thu vien ngoai.
@@ -110,33 +117,34 @@ class AuthService {
   }) async {
     await api.post(
       '/users/verify-register-otp',
-      body: {
-        'email': email.trim().toLowerCase(),
-        'code': code.trim(),
-      },
+      body: {'email': email.trim().toLowerCase(), 'code': code.trim()},
     );
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     final data = await api.post(
       '/users/login',
-      body: {
-        'email': email.trim().toLowerCase(),
-        'password': password,
-      },
+      body: {'email': email.trim().toLowerCase(), 'password': password},
     );
 
     if (data is! Map<String, dynamic>) {
-      throw ApiException(tr('Máy chủ trả về dữ liệu đăng nhập không hợp lệ.', 'The server returned an invalid sign-in response.'));
+      throw ApiException(
+        tr(
+          'Máy chủ trả về dữ liệu đăng nhập không hợp lệ.',
+          'The server returned an invalid sign-in response.',
+        ),
+      );
     }
 
     final token = data['accessToken']?.toString() ?? '';
     final user = data['user'];
     if (token.isEmpty || user is! Map<String, dynamic>) {
-      throw ApiException(tr('Đăng nhập không thành công. Vui lòng thử lại.', 'Sign-in failed. Please try again.'));
+      throw ApiException(
+        tr(
+          'Đăng nhập không thành công. Vui lòng thử lại.',
+          'Sign-in failed. Please try again.',
+        ),
+      );
     }
 
     // Doi tai khoan: du lieu cua nguoi truoc phai bien mat.
@@ -147,6 +155,10 @@ class AuthService {
     await prefs.setString(_userIdKey, user['_id']?.toString() ?? '');
     await prefs.setString(_userEmailKey, user['email']?.toString() ?? '');
     await prefs.setString(_userNameKey, user['full_name']?.toString() ?? '');
+    await prefs.setString(
+      _userRoleKey,
+      (user['role']?.toString() ?? 'user').toLowerCase(),
+    );
   }
 
   /// Buoc 1: gui ma OTP 6 chu so toi email.
@@ -164,10 +176,7 @@ class AuthService {
   }) async {
     await api.post(
       '/users/verify-reset-code',
-      body: {
-        'email': email.trim().toLowerCase(),
-        'code': code.trim(),
-      },
+      body: {'email': email.trim().toLowerCase(), 'code': code.trim()},
     );
   }
 
@@ -196,5 +205,6 @@ class AuthService {
     await prefs.remove(_userIdKey);
     await prefs.remove(_userEmailKey);
     await prefs.remove(_userNameKey);
+    await prefs.remove(_userRoleKey);
   }
 }

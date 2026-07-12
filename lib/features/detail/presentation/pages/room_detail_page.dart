@@ -41,7 +41,9 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
 
     if (_summary != null) {
       // Tai mot lan trong vong doi, khong goi lai trong build().
-      _reviewsFuture = ApiStayzRepository.instance.getReviewsByHotelId(_summary!.hotel.id);
+      _reviewsFuture = ApiStayzRepository.instance.getReviewsByHotelId(
+        _summary!.hotel.id,
+      );
       _loadFavoriteState(_summary!.hotel.id);
     }
   }
@@ -70,13 +72,28 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(wasFavorite ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.') : tr('Đã thêm vào yêu thích.', 'Added to saved.'))),
+        SnackBar(
+          content: Text(
+            wasFavorite
+                ? tr('Đã bỏ khỏi yêu thích.', 'Removed from saved.')
+                : tr('Đã thêm vào yêu thích.', 'Added to saved.'),
+          ),
+        ),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
       setState(() => _isFavorite = wasFavorite);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.isUnauthorized ? tr('Vui lòng đăng nhập để lưu yêu thích.', 'Please sign in to save favorites.') : error.message)),
+        SnackBar(
+          content: Text(
+            error.isUnauthorized
+                ? tr(
+                    'Vui lòng đăng nhập để lưu yêu thích.',
+                    'Please sign in to save favorites.',
+                  )
+                : error.message,
+          ),
+        ),
       );
     }
   }
@@ -92,20 +109,29 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       StayzAlert.show(
         context,
         type: StayzAlertType.error,
-        message: error.isUnauthorized ? tr('Vui lòng đăng nhập để đánh giá.', 'Please sign in to review.') : error.message,
+        message: error.isUnauthorized
+            ? tr('Vui lòng đăng nhập để đánh giá.', 'Please sign in to review.')
+            : error.message,
       );
       return;
     }
 
     final completed = bookings
-        .where((b) => b.hotel.id == summary.hotel.id && b.booking.normalizedStatus == 'completed')
+        .where(
+          (b) =>
+              b.hotel.id == summary.hotel.id &&
+              b.booking.normalizedStatus == 'completed',
+        )
         .toList();
     if (completed.isEmpty) {
       if (!mounted) return;
       StayzAlert.show(
         context,
         type: StayzAlertType.warning,
-        message: tr('Bạn cần hoàn tất một chuyến ở đây mới đánh giá được.', 'You can review only after completing a stay here.'),
+        message: tr(
+          'Bạn cần hoàn tất một chuyến ở đây mới đánh giá được.',
+          'You can review only after completing a stay here.',
+        ),
       );
       return;
     }
@@ -128,11 +154,23 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       );
       if (!mounted) return;
       // Tai lai danh sach danh gia de thay danh gia vua gui.
-      setState(() => _reviewsFuture = ApiStayzRepository.instance.getReviewsByHotelId(summary.hotel.id));
-      StayzAlert.show(context, type: StayzAlertType.success, message: tr('Cảm ơn bạn đã đánh giá!', 'Thanks for your review!'));
+      setState(() {
+        _reviewsFuture = ApiStayzRepository.instance.getReviewsByHotelId(
+          summary.hotel.id,
+        );
+      });
+      StayzAlert.show(
+        context,
+        type: StayzAlertType.success,
+        message: tr('Cảm ơn bạn đã đánh giá!', 'Thanks for your review!'),
+      );
     } on ApiException catch (error) {
       if (!mounted) return;
-      StayzAlert.show(context, type: StayzAlertType.error, message: error.message);
+      StayzAlert.show(
+        context,
+        type: StayzAlertType.error,
+        message: error.message,
+      );
     }
   }
 
@@ -150,9 +188,14 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
         body: StayzEmptyView(
           icon: Icons.hotel_outlined,
           title: tr('Thiếu thông tin khách sạn', 'Missing hotel info'),
-          message: tr('Không nhận được dữ liệu khách sạn. Hãy quay lại và chọn từ danh sách.', 'No hotel data received. Please go back and pick from the list.'),
+          message: tr(
+            'Không nhận được dữ liệu khách sạn. Hãy quay lại và chọn từ danh sách.',
+            'No hotel data received. Please go back and pick from the list.',
+          ),
           actionLabel: tr('Về trang chủ', 'Go home'),
-          onAction: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+          onAction: () => Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
         ),
       );
     }
@@ -175,7 +218,10 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
             foregroundColor: Colors.white,
             leading: Padding(
               padding: const EdgeInsets.all(6),
-              child: DetailCircleButton(icon: Icons.arrow_back, onTap: () => Navigator.of(context).maybePop()),
+              child: DetailCircleButton(
+                icon: Icons.arrow_back,
+                onTap: () => Navigator.of(context).maybePop(),
+              ),
             ),
             actions: [
               Padding(
@@ -183,7 +229,9 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                 child: DetailCircleButton(
                   icon: _isFavorite ? Icons.favorite : Icons.favorite_border,
                   onTap: _toggleFavorite,
-                  semanticLabel: _isFavorite ? tr('Bỏ khỏi yêu thích', 'Remove from saved') : tr('Thêm vào yêu thích', 'Add to saved'),
+                  semanticLabel: _isFavorite
+                      ? tr('Bỏ khỏi yêu thích', 'Remove from saved')
+                      : tr('Thêm vào yêu thích', 'Add to saved'),
                 ),
               ),
               const SizedBox(width: 4),
@@ -192,7 +240,8 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
               background: _HotelGallery(
                 images: images,
                 index: _galleryIndex,
-                onIndexChanged: (value) => setState(() => _galleryIndex = value),
+                onIndexChanged: (value) =>
+                    setState(() => _galleryIndex = value),
               ),
             ),
           ),
@@ -212,24 +261,47 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                 SizedBox(height: 12 * responsive.scale),
                 if (hotel.description.isEmpty)
                   Text(
-                    tr('Chưa có mô tả cho nơi lưu trú này.', 'No description for this stay yet.'),
-                    style: TextStyle(color: AppTheme.muted, fontSize: 13.5 * responsive.scale),
+                    tr(
+                      'Chưa có mô tả cho nơi lưu trú này.',
+                      'No description for this stay yet.',
+                    ),
+                    style: TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 13.5 * responsive.scale,
+                    ),
                   )
                 else ...[
                   Text(
                     hotel.description,
                     maxLines: _descriptionExpanded ? null : 4,
-                    overflow: _descriptionExpanded ? null : TextOverflow.ellipsis,
-                    style: TextStyle(color: AppTheme.ink, fontSize: 14 * responsive.scale, height: 1.7),
+                    overflow: _descriptionExpanded
+                        ? null
+                        : TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppTheme.ink,
+                      fontSize: 14 * responsive.scale,
+                      height: 1.7,
+                    ),
                   ),
                   if (hotel.description.length > 160)
                     Align(
                       alignment: Alignment.centerLeft,
                       // Truoc day day la mot Text tinh voi chu 'v' thua, khong bam duoc.
                       child: TextButton.icon(
-                        onPressed: () => setState(() => _descriptionExpanded = !_descriptionExpanded),
-                        icon: Icon(_descriptionExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 18),
-                        label: Text(_descriptionExpanded ? tr('Thu gọn', 'Collapse') : tr('Xem thêm', 'See more')),
+                        onPressed: () => setState(
+                          () => _descriptionExpanded = !_descriptionExpanded,
+                        ),
+                        icon: Icon(
+                          _descriptionExpanded
+                              ? Icons.expand_less_rounded
+                              : Icons.expand_more_rounded,
+                          size: 18,
+                        ),
+                        label: Text(
+                          _descriptionExpanded
+                              ? tr('Thu gọn', 'Collapse')
+                              : tr('Xem thêm', 'See more'),
+                        ),
                       ),
                     ),
                 ],
@@ -239,12 +311,19 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                   width: double.infinity,
                   height: 48 * responsive.scale,
                   child: FilledButton.icon(
-                    onPressed: () => showAiChatSheet(context, aiContext: AiChatContext.forHotel(summary)),
+                    onPressed: () => showAiChatSheet(
+                      context,
+                      aiContext: AiChatContext.forHotel(summary),
+                    ),
                     icon: const Icon(Icons.auto_awesome_rounded),
-                    label: Text(tr('Hỏi AI về khách sạn này', 'Ask AI about this hotel')),
+                    label: Text(
+                      tr('Hỏi AI về khách sạn này', 'Ask AI about this hotel'),
+                    ),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.accentDark,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
@@ -256,8 +335,14 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                 // (Ho boi / Wifi / Spa / Gym) hien cho moi khach san.
                 if (amenities.isEmpty)
                   Text(
-                    tr('Khách sạn chưa cập nhật tiện ích.', 'No amenities listed yet.'),
-                    style: TextStyle(color: AppTheme.muted, fontSize: 13.5 * responsive.scale),
+                    tr(
+                      'Khách sạn chưa cập nhật tiện ích.',
+                      'No amenities listed yet.',
+                    ),
+                    style: TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 13.5 * responsive.scale,
+                    ),
                   )
                 else
                   GridView.count(
@@ -270,7 +355,9 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                     children: [
                       for (final slug in amenities)
                         AmenityTile(
-                          icon: StayzTaxonomy.amenityTerm(slug).icon ?? Icons.check_circle_outline_rounded,
+                          icon:
+                              StayzTaxonomy.amenityTerm(slug).icon ??
+                              Icons.check_circle_outline_rounded,
                           label: StayzTaxonomy.amenityTerm(slug).label,
                         ),
                     ],
@@ -305,7 +392,11 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
 /// Truoc day day la mot gradient co dinh cong 4 o mau gia va bo dem '+12',
 /// trong khi `hotel.imageUrls` co anh that nhung khong duoc dung o dau ca.
 class _HotelGallery extends StatefulWidget {
-  const _HotelGallery({required this.images, required this.index, required this.onIndexChanged});
+  const _HotelGallery({
+    required this.images,
+    required this.index,
+    required this.onIndexChanged,
+  });
 
   final List<String> images;
   final int index;
@@ -316,7 +407,9 @@ class _HotelGallery extends StatefulWidget {
 }
 
 class _HotelGalleryState extends State<_HotelGallery> {
-  late final PageController _controller = PageController(initialPage: widget.index);
+  late final PageController _controller = PageController(
+    initialPage: widget.index,
+  );
 
   @override
   void dispose() {
@@ -329,7 +422,13 @@ class _HotelGalleryState extends State<_HotelGallery> {
     if (widget.images.isEmpty) {
       return Container(
         color: AppTheme.ink,
-        child: const Center(child: Icon(Icons.image_not_supported_outlined, color: Colors.white38, size: 42)),
+        child: const Center(
+          child: Icon(
+            Icons.image_not_supported_outlined,
+            color: Colors.white38,
+            size: 42,
+          ),
+        ),
       );
     }
 
@@ -346,7 +445,10 @@ class _HotelGalleryState extends State<_HotelGallery> {
             imageUrl: widget.images[index],
             width: size.width,
             height: 280,
-            semanticLabel: tr('Ảnh khách sạn ${index + 1}', 'Hotel photo ${index + 1}'),
+            semanticLabel: tr(
+              'Ảnh khách sạn ${index + 1}',
+              'Hotel photo ${index + 1}',
+            ),
           ),
         ),
         // Lam toi phan tren de nut back va nut tim luon doc duoc tren moi anh.
@@ -357,7 +459,11 @@ class _HotelGalleryState extends State<_HotelGallery> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.black.withValues(alpha: 0.35), Colors.transparent, Colors.black.withValues(alpha: 0.20)],
+                  colors: [
+                    Colors.black.withValues(alpha: 0.35),
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.20),
+                  ],
                   stops: const [0, 0.4, 1],
                 ),
               ),
@@ -412,19 +518,31 @@ class _HotelHeaderCard extends StatelessWidget {
         children: [
           Text(
             summary.hotel.name,
-            style: TextStyle(color: AppTheme.ink, fontSize: 21 * responsive.scale, fontWeight: FontWeight.w800, height: 1.25),
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 21 * responsive.scale,
+              fontWeight: FontWeight.w800,
+              height: 1.25,
+            ),
           ),
           SizedBox(height: 10 * responsive.scale),
           Row(
             children: [
-              Icon(Icons.location_on_outlined, color: AppTheme.primary, size: 16 * responsive.scale),
+              Icon(
+                Icons.location_on_outlined,
+                color: AppTheme.primary,
+                size: 16 * responsive.scale,
+              ),
               SizedBox(width: 5 * responsive.widthScale),
               Expanded(
                 child: Text(
                   '${summary.city.name}, ${summary.city.region}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale),
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 12.5 * responsive.scale,
+                  ),
                 ),
               ),
             ],
@@ -437,14 +555,25 @@ class _HotelHeaderCard extends StatelessWidget {
             children: [
               // Sao ve dung theo diem, khong con la 5 ngoi sao rong bat chap.
               if (summary.hasRating)
-                _RatingRow(rating: summary.rating!, reviewCount: summary.reviewCount)
+                _RatingRow(
+                  rating: summary.rating!,
+                  reviewCount: summary.reviewCount,
+                )
               else
                 Text(
                   tr('Chưa có đánh giá', 'No rating'),
-                  style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale),
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 12.5 * responsive.scale,
+                  ),
                 ),
               _Pill(
-                label: summary.isSoldOut ? tr('Hết phòng', 'Sold out') : tr('${summary.availableRooms} phòng trống', '${summary.availableRooms} rooms left'),
+                label: summary.isSoldOut
+                    ? tr('Hết phòng', 'Sold out')
+                    : tr(
+                        '${summary.availableRooms} phòng trống',
+                        '${summary.availableRooms} rooms left',
+                      ),
                 color: summary.isSoldOut ? AppTheme.danger : AppTheme.success,
               ),
             ],
@@ -453,13 +582,31 @@ class _HotelHeaderCard extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: tr('từ ', 'from '), style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale)),
                 TextSpan(
-                  text: summary.hasPrice ? StayzFormatters.fullVnd(summary.lowestPrice) : tr('Liên hệ', 'Contact'),
-                  style: TextStyle(color: AppTheme.accent, fontSize: 20 * responsive.scale, fontWeight: FontWeight.w900),
+                  text: tr('từ ', 'from '),
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 12 * responsive.scale,
+                  ),
+                ),
+                TextSpan(
+                  text: summary.hasPrice
+                      ? StayzFormatters.fullVnd(summary.lowestPrice)
+                      : tr('Liên hệ', 'Contact'),
+                  style: TextStyle(
+                    color: AppTheme.accent,
+                    fontSize: 20 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 if (summary.hasPrice)
-                  TextSpan(text: tr(' / đêm', ' / night'), style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale)),
+                  TextSpan(
+                    text: tr(' / đêm', ' / night'),
+                    style: TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 12 * responsive.scale,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -478,7 +625,10 @@ class _RatingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: tr('Đánh giá ${rating.toStringAsFixed(1)} trên 5 từ $reviewCount lượt', 'Rating ${rating.toStringAsFixed(1)} out of 5 from $reviewCount reviews'),
+      label: tr(
+        'Đánh giá ${rating.toStringAsFixed(1)} trên 5 từ $reviewCount lượt',
+        'Rating ${rating.toStringAsFixed(1)} out of 5 from $reviewCount reviews',
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -487,18 +637,25 @@ class _RatingRow extends StatelessWidget {
               rating >= i
                   ? Icons.star_rounded
                   : rating >= i - 0.5
-                      ? Icons.star_half_rounded
-                      : Icons.star_border_rounded,
+                  ? Icons.star_half_rounded
+                  : Icons.star_border_rounded,
               color: AppTheme.gold,
               size: 17,
             ),
           const SizedBox(width: 6),
           Text(
             rating.toStringAsFixed(1),
-            style: const TextStyle(color: AppTheme.ink, fontSize: 13.5, fontWeight: FontWeight.w800),
+            style: const TextStyle(
+              color: AppTheme.ink,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(width: 4),
-          Text('($reviewCount)', style: const TextStyle(color: AppTheme.muted, fontSize: 12.5)),
+          Text(
+            '($reviewCount)',
+            style: const TextStyle(color: AppTheme.muted, fontSize: 12.5),
+          ),
         ],
       ),
     );
@@ -521,14 +678,22 @@ class _Pill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700),
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
 }
 
 class _ReviewsSection extends StatelessWidget {
-  const _ReviewsSection({required this.summary, required this.reviewsFuture, required this.onWriteReview});
+  const _ReviewsSection({
+    required this.summary,
+    required this.reviewsFuture,
+    required this.onWriteReview,
+  });
 
   final HotelSummary summary;
   final Future<List<Review>>? reviewsFuture;
@@ -556,12 +721,24 @@ class _ReviewsSection extends StatelessWidget {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: (reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length).toStringAsFixed(1),
-                            style: TextStyle(color: AppTheme.ink, fontSize: 26 * responsive.scale, fontWeight: FontWeight.w800),
+                            text:
+                                (reviews
+                                            .map((r) => r.rating)
+                                            .reduce((a, b) => a + b) /
+                                        reviews.length)
+                                    .toStringAsFixed(1),
+                            style: TextStyle(
+                              color: AppTheme.ink,
+                              fontSize: 26 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                           TextSpan(
                             text: ' /5 (${reviews.length})',
-                            style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale),
+                            style: TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 13 * responsive.scale,
+                            ),
                           ),
                         ],
                       ),
@@ -584,23 +761,41 @@ class _ReviewsSection extends StatelessWidget {
             ),
             SizedBox(height: 14 * responsive.scale),
             if (loading)
-              const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: CircularProgressIndicator(),
+                ),
+              )
             else if (snapshot.hasError)
               Text(
                 tr('Không tải được đánh giá.', 'Could not load reviews.'),
-                style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale),
+                style: TextStyle(
+                  color: AppTheme.muted,
+                  fontSize: 13 * responsive.scale,
+                ),
               )
             else if (reviews.isEmpty)
               Text(
-                tr('Chưa có đánh giá nào cho nơi lưu trú này.', 'No reviews yet.'),
-                style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale),
+                tr(
+                  'Chưa có đánh giá nào cho nơi lưu trú này.',
+                  'No reviews yet.',
+                ),
+                style: TextStyle(
+                  color: AppTheme.muted,
+                  fontSize: 13 * responsive.scale,
+                ),
               )
             else
-              ...reviews.take(5).map(
+              ...reviews
+                  .take(5)
+                  .map(
                     (review) => Padding(
                       padding: EdgeInsets.only(bottom: 12 * responsive.scale),
                       child: ReviewCard(
-                        name: review.userName.isEmpty ? tr('Khách StayZ', 'StayZ guest') : review.userName,
+                        name: review.userName.isEmpty
+                            ? tr('Khách StayZ', 'StayZ guest')
+                            : review.userName,
                         date: StayzFormatters.shortDate(review.createdAt),
                         body: review.comment,
                         rating: review.rating,
@@ -614,7 +809,6 @@ class _ReviewsSection extends StatelessWidget {
     );
   }
 }
-
 
 /// Ket qua tu man soan danh gia.
 class _ReviewInput {
@@ -647,7 +841,11 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
     final comment = _controller.text.trim();
     if (comment.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Vui lòng nhập nhận xét.', 'Please enter a comment.'))),
+        SnackBar(
+          content: Text(
+            tr('Vui lòng nhập nhận xét.', 'Please enter a comment.'),
+          ),
+        ),
       );
       return;
     }
@@ -676,15 +874,25 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                 child: Container(
                   width: 44,
                   height: 4,
-                  decoration: BoxDecoration(color: AppTheme.line, borderRadius: BorderRadius.circular(999)),
+                  decoration: BoxDecoration(
+                    color: AppTheme.line,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                tr('Đánh giá ${widget.hotelName}', 'Review ${widget.hotelName}'),
+                tr(
+                  'Đánh giá ${widget.hotelName}',
+                  'Review ${widget.hotelName}',
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: AppTheme.ink, fontSize: 17, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  color: AppTheme.ink,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 16),
               Row(
@@ -694,7 +902,9 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                     IconButton(
                       onPressed: () => setState(() => _rating = i),
                       icon: Icon(
-                        i <= _rating ? Icons.star_rounded : Icons.star_border_rounded,
+                        i <= _rating
+                            ? Icons.star_rounded
+                            : Icons.star_border_rounded,
                         color: AppTheme.gold,
                         size: 38,
                       ),
@@ -709,8 +919,13 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                 maxLines: 5,
                 maxLength: 500,
                 decoration: InputDecoration(
-                  hintText: tr('Chia sẻ trải nghiệm của bạn...', 'Share your experience...'),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  hintText: tr(
+                    'Chia sẻ trải nghiệm của bạn...',
+                    'Share your experience...',
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -719,7 +934,9 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                 height: 50,
                 child: FilledButton(
                   onPressed: _submit,
-                  style: FilledButton.styleFrom(backgroundColor: AppTheme.primary),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                  ),
                   child: Text(tr('Gửi đánh giá', 'Submit review')),
                 ),
               ),

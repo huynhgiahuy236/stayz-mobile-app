@@ -6,6 +6,18 @@ const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL } = require("../constants/app.constan
 const { calculatePaymentQuote } = require("../utils/paymentQuote.util");
 
 const paymentService = {
+  getAll: async () =>
+    paymentsModel
+      .find()
+      .populate("user_id", "full_name email")
+      .populate({
+        path: "booking_id",
+        populate: [
+          { path: "property_id", select: "title" },
+          { path: "room_id", select: "name" },
+        ],
+      })
+      .sort({ createdAt: -1 }),
   // Tạo liên kết thanh toán PayOS từ một Booking
   createPaymentLink: async (bookingId, userId) => {
     if (!payOS) {
@@ -130,6 +142,23 @@ const paymentService = {
     payment.status = "CANCELLED";
     await payment.save();
 
+    return payment;
+  },
+  cancelPaymentByAdmin: async (paymentId) => {
+    const payment = await paymentsModel.findById(paymentId);
+    if (!payment) throw new BadRequestException("Không tìm thấy giao dịch");
+    if (payment.status !== "pending") {
+      throw new BadRequestException("Chỉ có thể huỷ giao dịch đang chờ thanh toán");
+    }
+    if (payOS && payment.payment_link_id) {
+      try {
+        await payOS.paymentRequests.cancel(payment.payment_link_id, "Cancelled by StayZ admin");
+      } catch (err) {
+        console.warn("PayOS SDK cancel link error:", err.message);
+      }
+    }
+    payment.status = "CANCELLED";
+    await payment.save();
     return payment;
   },
 };

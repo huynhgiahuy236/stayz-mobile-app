@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns").promises;
 const {
   SMTP_HOST,
   SMTP_PORT,
@@ -32,7 +33,7 @@ const getMailerConfig = () => {
 };
 
 const sendPasswordResetCodeEmail = async ({ to, code }) => {
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
 
   await transporter.sendMail({
     from: SMTP_FROM,
@@ -53,14 +54,32 @@ const sendPasswordResetCodeEmail = async ({ to, code }) => {
   });
 };
 
-let sharedTransporter;
-const getTransporter = () => {
-  sharedTransporter ??= nodemailer.createTransport(getMailerConfig());
-  return sharedTransporter;
+let sharedTransporterPromise;
+const getTransporter = async () => {
+  sharedTransporterPromise ??= dns
+    .lookup(SMTP_HOST, { family: 4 })
+    .then(({ address }) => {
+    if (!address) {
+      throw new Error(`Khong tim thay dia chi IPv4 cho ${SMTP_HOST}`);
+    }
+
+    const config = getMailerConfig();
+    return nodemailer.createTransport({
+      ...config,
+      // Render co the phan giai smtp.gmail.com sang IPv6 du khong co duong
+      // IPv6 ra ngoai. Ket noi truc tiep IPv4 nhung giu servername de TLS
+      // van xac minh dung chung chi cua smtp.gmail.com.
+      host: address,
+      tls: {
+        servername: SMTP_HOST,
+      },
+    });
+  });
+  return sharedTransporterPromise;
 };
 
 const sendRegisterCodeEmail = async ({ to, code }) => {
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
 
   await transporter.sendMail({
     from: SMTP_FROM,

@@ -18,6 +18,10 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   int _profileRevision = 0;
+  late final Future<bool> _isAdminFuture = AuthService.instance
+      .userRole()
+      .then((role) => role == 'admin')
+      .catchError((_) => false);
 
   Future<void> _pickLanguage(BuildContext context) async {
     await showModalBottomSheet<void>(
@@ -122,6 +126,33 @@ class _SettingsPageState extends State<SettingsPage> {
                       .pushNamed(AppRoutes.paymentMethods),
                 ),
               ],
+            ),
+            FutureBuilder<bool>(
+              future: _isAdminFuture,
+              builder: (context, snapshot) {
+                if (snapshot.data != true) return const SizedBox.shrink();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 24 * responsive.scale),
+                    ProfileSectionLabel(
+                      label: tr('Quản trị', 'Administration'),
+                    ),
+                    SizedBox(height: 12 * responsive.scale),
+                    ProfileMenuCard(
+                      children: [
+                        ProfileMenuTile(
+                          icon: Icons.admin_panel_settings_outlined,
+                          label: tr('Trung tâm quản trị', 'Admin center'),
+                          onTap: () => Navigator.of(context).pushNamed(
+                            AppRoutes.admin,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
             SizedBox(height: 24 * responsive.scale),
             ProfileSectionLabel(label: tr('Ứng dụng', 'App')),

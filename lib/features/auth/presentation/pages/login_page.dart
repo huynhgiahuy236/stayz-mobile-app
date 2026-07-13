@@ -131,10 +131,9 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
     try {
       await AuthService.instance.login(email: email, password: password);
-      final role = await AuthService.instance.userRole();
       if (!mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil(
-        role == 'admin' ? AppRoutes.admin : AppRoutes.home,
+        AppRoutes.home,
         (route) => false,
       );
     } on ApiException catch (error) {

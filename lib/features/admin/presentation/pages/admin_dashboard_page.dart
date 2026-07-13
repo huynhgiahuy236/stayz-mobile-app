@@ -65,22 +65,24 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     await next;
   }
 
-  Future<void> _runAction(String key, Future<void> Function() action) async {
-    if (_busyKey != null) return;
+  Future<bool> _runAction(String key, Future<void> Function() action) async {
+    if (_busyKey != null) return false;
     setState(() => _busyKey = key);
     try {
       await action();
-      if (!mounted) return;
+      if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(tr('Đã lưu thay đổi.', 'Changes saved.'))),
       );
       await _refresh();
+      return true;
     } on ApiException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(error.message)));
       }
+      return false;
     } finally {
       if (mounted) setState(() => _busyKey = null);
     }
@@ -95,7 +97,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   void _goHome() {
-    Navigator.of(context).pushNamed(AppRoutes.home);
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      navigator.pushNamedAndRemoveUntil(AppRoutes.settings, (route) => false);
+    }
   }
 
   Future<void> _changeBookingStatus(AdminBooking booking, String status) async {
@@ -147,7 +154,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       builder: (context) => RoomFormDialog(room: room, hotels: hotels),
     );
     if (input == null) return;
-    await _runAction(
+    final saved = await _runAction(
       room == null ? 'room:create' : 'room:${room.id}',
       () async {
         final id = await _repository.saveRoom(input, id: room?.id);
@@ -160,6 +167,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         }
       },
     );
+    if (saved && mounted) {
+      _searchControllers[AdminSection.rooms]!.clear();
+      setState(() => _section = AdminSection.rooms);
+    }
   }
 
   Future<void> _editUser({AdminUser? user}) async {

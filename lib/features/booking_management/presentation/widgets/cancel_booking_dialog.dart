@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/data/payment_policy.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 /// Hoi lai truoc khi huy don, hien ro so tien hoan theo ma tran.
@@ -19,13 +20,13 @@ Future<bool> confirmCancelBooking(BuildContext context, BookingSummary summary) 
     context: context,
     builder: (context) => AlertDialog(
       icon: const Icon(Icons.warning_amber_rounded, color: AppTheme.danger, size: 32),
-      title: const Text('Hủy đặt phòng?'),
+      title: Text(tr('Hủy đặt phòng?', 'Cancel booking?')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bạn sắp hủy đơn tại ${summary.hotel.name}.',
+            tr('Bạn sắp hủy đơn tại ${summary.hotel.name}.', 'You are about to cancel your booking at ${summary.hotel.name}.'),
             style: const TextStyle(color: AppTheme.ink, fontSize: 14.5, height: 1.5),
           ),
           const SizedBox(height: 14),
@@ -42,7 +43,7 @@ Future<bool> confirmCancelBooking(BuildContext context, BookingSummary summary) 
                   children: [
                     Expanded(
                       child: Text(
-                        refund > 0 ? 'Hoàn tiền dự kiến ($rate%)' : 'Không hoàn tiền',
+                        refund > 0 ? tr('Hoàn tiền dự kiến ($rate%)', 'Estimated refund ($rate%)') : tr('Không hoàn tiền', 'Non-refundable'),
                         style: const TextStyle(color: AppTheme.ink, fontSize: 13.5, fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -57,9 +58,9 @@ Future<bool> confirmCancelBooking(BuildContext context, BookingSummary summary) 
                   ],
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Thao tác này không thể hoàn tác. Mức hoàn áp dụng theo chính sách hủy.',
-                  style: TextStyle(color: AppTheme.muted, fontSize: 12, height: 1.4),
+                Text(
+                  tr('Thao tác này không thể hoàn tác. Mức hoàn áp dụng theo chính sách hủy.', 'This action cannot be undone. The refund follows the cancellation policy.'),
+                  style: const TextStyle(color: AppTheme.muted, fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -69,12 +70,12 @@ Future<bool> confirmCancelBooking(BuildContext context, BookingSummary summary) 
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Giữ đơn'),
+          child: Text(tr('Giữ đơn', 'Keep booking')),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: FilledButton.styleFrom(backgroundColor: AppTheme.danger, minimumSize: const Size(0, 44)),
-          child: const Text('Hủy đơn'),
+          child: Text(tr('Hủy đơn', 'Cancel booking')),
         ),
       ],
     ),

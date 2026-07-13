@@ -283,6 +283,8 @@ class UpcomingBookingCard extends StatelessWidget {
     required this.onCancel,
     this.onPay,
     this.pendingPayment = false,
+    this.paymentExpired = false,
+    this.paymentBusy = false,
     this.imageUrl,
     super.key,
   });
@@ -297,6 +299,8 @@ class UpcomingBookingCard extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback? onPay;
   final bool pendingPayment;
+  final bool paymentExpired;
+  final bool paymentBusy;
   final String? imageUrl;
 
   @override
@@ -332,8 +336,17 @@ class UpcomingBookingCard extends StatelessWidget {
                   top: 12 * responsive.scale,
                   right: 12 * responsive.widthScale,
                   child: BookingStatusPill(
-                    label: pendingPayment ? tr('Chờ thanh toán', 'Pending payment') : tr('Sắp tới', 'Upcoming'),
-                    color: pendingPayment ? const Color(0xFFFFE8B0) : AppTheme.primarySoft,
+                    label: paymentExpired
+                        ? tr('Đã hết hạn', 'Payment expired')
+                        : pendingPayment
+                        ? tr('Chờ thanh toán', 'Pending payment')
+                        : tr('Sắp tới', 'Upcoming'),
+                    color: paymentExpired
+                        ? AppTheme.danger.withValues(alpha: 0.14)
+                        : pendingPayment
+                        ? const Color(0xFFFFE8B0)
+                        : AppTheme.primarySoft,
+                    textColor: paymentExpired ? AppTheme.danger : null,
                   ),
                 ),
               ],
@@ -380,7 +393,14 @@ class UpcomingBookingCard extends StatelessWidget {
                     SizedBox(width: 10 * responsive.widthScale),
                     Expanded(
                       child: pendingPayment && onPay != null
-                          ? BookingSoftButton(label: tr('Thanh toán', 'Pay now'), onTap: onPay!)
+                          ? BookingSoftButton(
+                              label: paymentBusy
+                                  ? tr('Đang tạo mã...', 'Creating...')
+                                  : paymentExpired
+                                  ? tr('Tạo mã mới', 'New payment code')
+                                  : tr('Thanh toán', 'Pay now'),
+                              onTap: paymentBusy ? null : onPay!,
+                            )
                           : BookingOutlineButton(label: tr('Hủy lịch', 'Cancel'), onTap: onCancel),
                     ),
                   ],

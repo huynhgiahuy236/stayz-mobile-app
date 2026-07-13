@@ -259,7 +259,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
 
                 DetailSectionTitle(title: tr('Giới thiệu', 'About')),
                 SizedBox(height: 12 * responsive.scale),
-                if (hotel.description.isEmpty)
+                if (hotel.localizedDescription.isEmpty)
                   Text(
                     tr(
                       'Chưa có mô tả cho nơi lưu trú này.',
@@ -272,7 +272,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                   )
                 else ...[
                   Text(
-                    hotel.description,
+                    hotel.localizedDescription,
                     maxLines: _descriptionExpanded ? null : 4,
                     overflow: _descriptionExpanded
                         ? null
@@ -283,7 +283,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                       height: 1.7,
                     ),
                   ),
-                  if (hotel.description.length > 160)
+                  if (hotel.localizedDescription.length > 160)
                     Align(
                       alignment: Alignment.centerLeft,
                       // Truoc day day la mot Text tinh voi chu 'v' thua, khong bam duoc.

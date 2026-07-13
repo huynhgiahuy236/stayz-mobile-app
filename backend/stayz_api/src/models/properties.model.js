@@ -27,6 +27,9 @@ const propertySchema = new mongoose.Schema(
     },
     base_price: Number,
     description: String,
+    // English copy is stored separately so the API never guesses or
+    // machine-translates factual hotel information at display time.
+    description_en: { type: String, default: "", trim: true },
 
     // Chuoi da bo dau, chu thuong: dung cho tim kiem khong dau va go sai chinh ta.
     search_index: {

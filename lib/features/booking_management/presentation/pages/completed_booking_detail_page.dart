@@ -7,6 +7,7 @@ import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 
 class CompletedBookingDetailPage extends StatelessWidget {
   const CompletedBookingDetailPage({super.key});
@@ -19,10 +20,10 @@ class CompletedBookingDetailPage extends StatelessWidget {
     final summary = args?.summary;
 
     if (summary == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppTheme.cream,
-        bottomNavigationBar: StayZBottomNav(activeTab: HomeTab.bookings),
-        body: SafeArea(child: Center(child: Text('Missing booking detail.'))),
+        bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
+        body: SafeArea(child: Center(child: Text(tr('Thiếu thông tin đặt phòng.', 'Missing booking detail.')))),
       );
     }
 
@@ -36,7 +37,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Chi tiết đặt phòng',
+              title: tr('Chi tiết đặt phòng', 'Booking details'),
               fallbackRoute: AppRoutes.completedBookings,
               trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
             ),
@@ -47,14 +48,14 @@ class CompletedBookingDetailPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const BookingStatusPill(
-                        label: 'Đã hoàn thành',
+                      BookingStatusPill(
+                          label: tr('Đã hoàn thành', 'Completed'),
                         color: AppTheme.ink,
                         textColor: Colors.white,
                       ),
                       const Spacer(),
                       Text(
-                        'MÃ: ${_bookingCode(summary.booking.id)}',
+                          tr('MÃ: ${_bookingCode(summary.booking.id)}', 'CODE: ${_bookingCode(summary.booking.id)}'),
                         style: TextStyle(color: AppTheme.ink, fontSize: 14 * responsive.scale, letterSpacing: 1.3),
                       ),
                     ],
@@ -96,35 +97,35 @@ class CompletedBookingDetailPage extends StatelessWidget {
                     ),
                   SizedBox(height: 36 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Thông tin lưu trú',
+                    title: tr('Thông tin lưu trú', 'Stay information'),
                     children: [
-                      DetailLine(label: 'Nhận phòng', value: StayzFormatters.shortDate(summary.booking.checkInDate)),
-                      DetailLine(label: 'Trả phòng', value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
-                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights} đêm'),
+                      DetailLine(label: tr('Nhận phòng', 'Check-in'), value: StayzFormatters.shortDate(summary.booking.checkInDate)),
+                      DetailLine(label: tr('Trả phòng', 'Check-out'), value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
+                      DetailLine(label: tr('Số đêm', 'Nights'), value: tr('${summary.booking.nights} đêm', '${summary.booking.nights} nights')),
                       DetailLine(
-                        label: 'Khách lưu trú',
-                        value: '${summary.booking.guests.adults + summary.booking.guests.children} khách',
+                        label: tr('Khách lưu trú', 'Guests'),
+                        value: tr('${summary.booking.guests.adults + summary.booking.guests.children} khách', '${summary.booking.guests.adults + summary.booking.guests.children} guests'),
                       ),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiết phòng',
+                    title: tr('Chi tiết phòng', 'Room details'),
                     children: [
-                      DetailLine(label: 'Khách sạn', value: summary.hotel.name),
-                      DetailLine(label: 'Loại phòng', value: summary.room.name),
-                      DetailLine(label: 'Giá mỗi đêm', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(label: tr('Khách sạn', 'Hotel'), value: summary.hotel.name),
+                      DetailLine(label: tr('Loại phòng', 'Room type'), value: summary.room.name),
+                      DetailLine(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiết thanh toán',
+                    title: tr('Chi tiết thanh toán', 'Payment details'),
                     children: [
-                      DetailLine(label: 'Tiền phòng', value: StayzFormatters.fullVnd(summary.booking.totalAmount)),
-                      const DetailLine(label: 'Phí dịch vụ & Thuế', value: 'Đã bao gồm'),
+                      DetailLine(label: tr('Tiền phòng', 'Room charge'), value: StayzFormatters.fullVnd(summary.booking.totalAmount)),
+                      DetailLine(label: tr('Phí dịch vụ & Thuế', 'Service fee & taxes'), value: tr('Đã bao gồm', 'Included')),
                       const Divider(),
                       DetailLine(
-                        label: 'Tổng cộng',
+                        label: tr('Tổng cộng', 'Total'),
                         value: StayzFormatters.fullVnd(summary.booking.totalAmount),
                         total: true,
                       ),
@@ -143,7 +144,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: Text(
-                        'Đánh giá dịch vụ',
+                    tr('Đánh giá dịch vụ', 'Review your stay'),
                         style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800),
                       ),
                     ),

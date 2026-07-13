@@ -51,7 +51,11 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: surface,
-      fontFamily: 'Inter',
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+      visualDensity: VisualDensity.standard,
+      focusColor: primarySoft,
+      hoverColor: primarySoft.withValues(alpha: 0.55),
+      splashFactory: InkSparkle.splashFactory,
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         backgroundColor: surface,
@@ -59,6 +63,25 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
       ),
       dividerTheme: const DividerThemeData(color: line, thickness: 1),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
+      ),
+      tooltipTheme: TooltipThemeData(
+        waitDuration: const Duration(milliseconds: 500),
+        showDuration: const Duration(seconds: 4),
+        textStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+        decoration: BoxDecoration(
+          color: ink,
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: primary,
@@ -109,14 +132,12 @@ class AppTheme {
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
-          fontFamily: 'Noto Serif JP',
           fontSize: 48,
           height: 1.1,
           color: ink,
           fontWeight: FontWeight.w300,
         ),
         headlineMedium: TextStyle(
-          fontFamily: 'Noto Serif JP',
           fontSize: 34,
           height: 1.15,
           color: ink,
@@ -145,6 +166,24 @@ class AppTheme {
           color: cream,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+  }
+
+  static ThemeData get highContrast {
+    final base = light;
+    return base.copyWith(
+      colorScheme: base.colorScheme.copyWith(
+        primary: primaryDark,
+        onPrimary: Colors.white,
+        surface: Colors.white,
+        onSurface: const Color(0xFF061725),
+        error: const Color(0xFFB3261E),
+      ),
+      scaffoldBackgroundColor: Colors.white,
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFF56758D),
+        thickness: 1.5,
       ),
     );
   }

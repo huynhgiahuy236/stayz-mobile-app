@@ -374,8 +374,12 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: SectionLabel(
                                 title: tr(
-                                  'Lịch trình tiếp theo',
-                                  'Your next trip',
+                                  upcoming.booking.isPaymentPending
+                                      ? 'Đặt phòng chờ thanh toán'
+                                      : 'Lịch trình tiếp theo',
+                                  upcoming.booking.isPaymentPending
+                                      ? 'Booking awaiting payment'
+                                      : 'Your next trip',
                                 ),
                                 action: tr('Quản lý', 'Manage'),
                                 onAction: () => Navigator.of(
@@ -395,6 +399,11 @@ class _HomePageState extends State<HomePage> {
                                 total: StayzFormatters.compactVnd(
                                   upcoming.booking.totalAmount,
                                 ),
+                                status: upcoming.booking.isPaymentExpired
+                                    ? tr('Đã hết hạn', 'Expired')
+                                    : upcoming.booking.isPaymentPending
+                                        ? tr('Chờ thanh toán', 'Pending payment')
+                                        : tr('Sắp đến', 'Upcoming'),
                                 imageUrl:
                                     upcoming.room.imageUrls.firstOrNull ??
                                     upcoming.hotel.imageUrls.firstOrNull,

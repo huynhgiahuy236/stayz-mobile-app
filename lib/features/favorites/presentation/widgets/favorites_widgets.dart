@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class FavoriteHotelCard extends StatelessWidget {
@@ -180,7 +181,7 @@ class FavoriteHotelCard extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text: ' / đêm',
+                  text: tr(' / đêm', ' / night'),
                             style: TextStyle(
                               color: AppTheme.muted,
                               fontSize: 12 * responsive.scale,
@@ -196,14 +197,14 @@ class FavoriteHotelCard extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: onTap,
-                            child: const Text('Chi tiết'),
+              child: Text(tr('Chi tiết', 'Details')),
                           ),
                         ),
                         SizedBox(width: 10 * responsive.widthScale),
                         Expanded(
                           child: FilledButton(
                             onPressed: onBook,
-                            child: const Text('Xem phòng'),
+              child: Text(tr('Xem phòng', 'View rooms')),
                           ),
                         ),
                       ],

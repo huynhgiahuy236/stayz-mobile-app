@@ -4,6 +4,7 @@ import 'package:capstone_mobile/features/booking_management/presentation/widgets
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class ReviewPage extends StatefulWidget {
@@ -28,16 +29,16 @@ class _ReviewPageState extends State<ReviewPage> {
     final summary = args?.summary;
     if (summary == null) return;
     if (!summary.booking.isCompleted) {
-      _showMessage('Chỉ có thể đánh giá booking đã hoàn thành.');
+      _showMessage(tr('Chỉ có thể đánh giá booking đã hoàn thành.', 'Only completed bookings can be reviewed.'));
       return;
     }
     if (_rating < 1) {
-      _showMessage('Vui lòng chọn số sao.');
+      _showMessage(tr('Vui lòng chọn số sao.', 'Please select a star rating.'));
       return;
     }
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      _showMessage('Vui lòng nhập nội dung đánh giá.');
+      _showMessage(tr('Vui lòng nhập nội dung đánh giá.', 'Please enter your review.'));
       return;
     }
 
@@ -50,7 +51,7 @@ class _ReviewPageState extends State<ReviewPage> {
         comment: comment,
       );
       if (!mounted) return;
-      _showMessage('Đã gửi đánh giá.');
+      _showMessage(tr('Đã gửi đánh giá.', 'Review submitted.'));
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.completedBookings, (route) => false);
     } catch (error) {
       if (!mounted) return;
@@ -76,7 +77,7 @@ class _ReviewPageState extends State<ReviewPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const BookingManageHeader(title: 'Đánh giá', trailing: SizedBox.shrink()),
+            BookingManageHeader(title: tr('Đánh giá', 'Review'), trailing: const SizedBox.shrink()),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -108,7 +109,7 @@ class _ReviewPageState extends State<ReviewPage> {
                         Expanded(
                           child: Text(
                             summary == null
-                                ? 'Không có booking để đánh giá'
+                                ? tr('Không có booking để đánh giá', 'No booking to review')
                                 : '${summary.hotel.name}\n${summary.city.name}, ${summary.city.region}',
                             style: TextStyle(color: AppTheme.ink, fontSize: 21 * responsive.scale, height: 1.45),
                           ),
@@ -120,12 +121,12 @@ class _ReviewPageState extends State<ReviewPage> {
                   if (!canReview)
                     _InfoBox(
                       message: summary == null
-                          ? 'Hãy mở màn đánh giá từ một booking đã hoàn thành.'
-                          : 'Booking này chưa hoàn thành nên chưa thể đánh giá.',
+                          ? tr('Hãy mở màn đánh giá từ một booking đã hoàn thành.', 'Open this page from a completed booking.')
+                          : tr('Booking này chưa hoàn thành nên chưa thể đánh giá.', 'This booking is not complete and cannot be reviewed yet.'),
                     ),
                   SizedBox(height: canReview ? 0 : 28 * responsive.scale),
                   Text(
-                    'TRẢI NGHIỆM CỦA BẠN THẾ NÀO?',
+                    tr('TRẢI NGHIỆM CỦA BẠN THẾ NÀO?', 'HOW WAS YOUR EXPERIENCE?'),
                     style: TextStyle(
                       color: const Color(0xFF5A3F3F),
                       fontSize: 18 * responsive.scale,
@@ -149,7 +150,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   ),
                   SizedBox(height: 58 * responsive.scale),
                   Text(
-                    'VIẾT NHẬN XÉT CỦA BẠN',
+                    tr('VIẾT NHẬN XÉT CỦA BẠN', 'WRITE YOUR REVIEW'),
                     style: TextStyle(
                       color: const Color(0xFF5A3F3F),
                       fontSize: 18 * responsive.scale,
@@ -162,7 +163,7 @@ class _ReviewPageState extends State<ReviewPage> {
                     enabled: canReview && !_isSubmitting,
                     maxLines: 6,
                     decoration: InputDecoration(
-                      hintText: 'Chia sẻ cảm nhận của bạn về kỳ nghỉ này...',
+                      hintText: tr('Chia sẻ cảm nhận của bạn về kỳ nghỉ này...', 'Share your thoughts about this stay...'),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -185,14 +186,14 @@ class _ReviewPageState extends State<ReviewPage> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: Text(
-                        _isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá',
+                        _isSubmitting ? tr('Đang gửi...', 'Submitting...') : tr('Gửi đánh giá', 'Submit review'),
                         style: TextStyle(color: Colors.white, fontSize: 20 * responsive.scale),
                       ),
                     ),
                   ),
                   SizedBox(height: 28 * responsive.scale),
                   Text(
-                    'Đánh giá chỉ được lưu khi booking đã hoàn thành.',
+                    tr('Đánh giá chỉ được lưu khi booking đã hoàn thành.', 'Reviews are accepted only for completed bookings.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTheme.neutral500,

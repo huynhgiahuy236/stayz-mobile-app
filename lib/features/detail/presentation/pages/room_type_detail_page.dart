@@ -142,6 +142,7 @@ class RoomTypeDetailPage extends StatelessWidget {
                       ),
                       _InfoChip(
                         icon: Icons.square_foot_outlined,
+                        // l10n-ignore: SI area unit is language invariant.
                         label: '${room.sizeSqm}m²',
                       ),
                       _InfoChip(icon: Icons.bed_outlined, label: room.bedType),
@@ -162,12 +163,12 @@ class RoomTypeDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    room.description.isEmpty
+                    room.localizedDescription.isEmpty
                         ? tr(
                             'Phòng chưa có mô tả chi tiết.',
                             'No detailed room description yet.',
                           )
-                        : room.description,
+                        : room.localizedDescription,
                     style: const TextStyle(
                       color: AppTheme.muted,
                       fontSize: 14,

@@ -1,3 +1,5 @@
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+
 class StayzUser {
   const StayzUser({
     required this.id,
@@ -101,6 +103,7 @@ class Hotel {
     required this.cityId,
     required this.name,
     required this.description,
+    this.descriptionEn = '',
     required this.address,
     required this.latitude,
     required this.longitude,
@@ -118,6 +121,7 @@ class Hotel {
       cityId: json['cityId'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
+      descriptionEn: json['description_en'] as String? ?? '',
       address: json['address'] as String,
       latitude: _double(json['latitude']),
       longitude: _double(json['longitude']),
@@ -134,6 +138,12 @@ class Hotel {
   final String cityId;
   final String name;
   final String description;
+  final String descriptionEn;
+  String get localizedDescription => AppLocale.instance.isVietnamese
+      ? description
+      : (descriptionEn.trim().isNotEmpty
+          ? descriptionEn
+          : tr('Chưa có mô tả.', 'English description is not available yet.'));
   final String address;
   final double latitude;
   final double longitude;
@@ -153,6 +163,7 @@ class Room {
     required this.hotelId,
     required this.name,
     required this.description,
+    this.descriptionEn = '',
     required this.roomType,
     required this.capacityAdults,
     required this.capacityChildren,
@@ -173,6 +184,7 @@ class Room {
       hotelId: json['hotelId'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
+      descriptionEn: json['description_en'] as String? ?? '',
       roomType: json['roomType'] as String,
       capacityAdults: json['capacityAdults'] as int,
       capacityChildren: json['capacityChildren'] as int,
@@ -192,6 +204,12 @@ class Room {
   final String hotelId;
   final String name;
   final String description;
+  final String descriptionEn;
+  String get localizedDescription => AppLocale.instance.isVietnamese
+      ? description
+      : (descriptionEn.trim().isNotEmpty
+          ? descriptionEn
+          : tr('Chưa có mô tả.', 'English description is not available yet.'));
   final String roomType;
   final int capacityAdults;
   final int capacityChildren;
@@ -243,6 +261,7 @@ class Booking {
     this.remainingAtHotel,
     this.refundAmount,
     this.refundRate,
+    this.paymentExpiresAt,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -260,6 +279,9 @@ class Booking {
       paymentStatus: json['paymentStatus'] as String,
       specialRequest: json['specialRequest'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      paymentExpiresAt: json['paymentExpiresAt'] == null
+          ? null
+          : DateTime.parse(json['paymentExpiresAt'] as String),
     );
   }
 
@@ -284,6 +306,15 @@ class Booking {
   final num? remainingAtHotel;
   final num? refundAmount;
   final num? refundRate;
+  final DateTime? paymentExpiresAt;
+
+  bool get isPaymentPending =>
+      normalizedStatus == 'pending' || paymentStatus.toLowerCase() == 'pending';
+
+  bool get isPaymentExpired =>
+      isPaymentPending &&
+      paymentExpiresAt != null &&
+      !paymentExpiresAt!.isAfter(DateTime.now());
 
   static String normalizeStatus(String value) {
     final normalized = value.trim().toLowerCase().replaceAll('-', '_').replaceAll(' ', '_');
@@ -308,7 +339,7 @@ class Booking {
   bool get isUpcoming => !isCompleted && (normalizedStatus == 'pending' || normalizedStatus == 'confirmed');
   bool get isCompleted {
     if (isCancelled) return false;
-    return normalizedStatus == 'completed' || checkOutDate.isBefore(DateTime.now());
+    return normalizedStatus == 'completed';
   }
 
   Booking copyWith({
@@ -330,6 +361,7 @@ class Booking {
     num? remainingAtHotel,
     num? refundAmount,
     num? refundRate,
+    DateTime? paymentExpiresAt,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -350,6 +382,7 @@ class Booking {
       remainingAtHotel: remainingAtHotel ?? this.remainingAtHotel,
       refundAmount: refundAmount ?? this.refundAmount,
       refundRate: refundRate ?? this.refundRate,
+      paymentExpiresAt: paymentExpiresAt ?? this.paymentExpiresAt,
     );
   }
 }

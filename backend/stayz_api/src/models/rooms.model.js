@@ -25,6 +25,11 @@ const roomSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    description_en: {
+      type: String,
+      default: "",
+      trim: true,
+    },
 
     // Giá hiện tại sau khi giảm
     price: {

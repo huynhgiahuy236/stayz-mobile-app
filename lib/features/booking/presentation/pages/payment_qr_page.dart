@@ -23,21 +23,36 @@ class PaymentQrPage extends StatefulWidget {
   State<PaymentQrPage> createState() => _PaymentQrPageState();
 }
 
-class _PaymentQrPageState extends State<PaymentQrPage> {
+class _PaymentQrPageState extends State<PaymentQrPage>
+    with WidgetsBindingObserver {
   final _qrKey = GlobalKey();
   PayOSPaymentArgs? _args;
   Timer? _poller;
+  Timer? _clock;
   bool _initialized = false;
   bool _opening = false;
   bool _sharing = false;
   bool _checking = false;
   String _status = 'pending';
 
+  DateTime? get _expiresAt => _args?.expiresAt;
+
+  Duration get _remaining {
+    final expiresAt = _expiresAt;
+    if (expiresAt == null) return Duration.zero;
+    final value = expiresAt.difference(DateTime.now());
+    return value.isNegative ? Duration.zero : value;
+  }
+
+  bool get _expired =>
+      _status != 'PAID' && _expiresAt != null && _remaining == Duration.zero;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_initialized) return;
     _initialized = true;
+    WidgetsBinding.instance.addObserver(this);
     final value = ModalRoute.of(context)?.settings.arguments;
     _args = value is PayOSPaymentArgs ? value : null;
     if (_args != null) {
@@ -45,18 +60,33 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
         const Duration(seconds: 3),
         (_) => _refreshStatus(),
       );
+      _clock = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        setState(() {
+          if (_expired && _status == 'pending') _status = 'EXPIRED';
+        });
+      });
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshStatus(showFailure: false);
     }
   }
 
   @override
   void dispose() {
     _poller?.cancel();
+    _clock?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   Future<void> _openBankApp() async {
     final args = _args;
-    if (args == null || _opening) return;
+    if (args == null || _opening || _expired) return;
     setState(() => _opening = true);
     final uri = Uri.tryParse(args.checkoutUrl);
     final opened =
@@ -109,7 +139,7 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
     }
   }
 
-  Future<void> _refreshStatus() async {
+  Future<void> _refreshStatus({bool showFailure = true}) async {
     final args = _args;
     if (args == null || _status == 'PAID' || _checking) return;
     if (mounted) setState(() => _checking = true);
@@ -136,7 +166,7 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
         );
       }
     } catch (_) {
-      if (mounted)
+      if (mounted && showFailure)
         _showMessage(
           tr(
             'Chưa thể kiểm tra trạng thái. StayZ sẽ tiếp tục thử lại.',
@@ -151,6 +181,35 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
   void _showMessage(String message) => ScaffoldMessenger.of(
     context,
   ).showSnackBar(SnackBar(content: Text(message)));
+
+  Future<bool> _confirmLeavePayment() async {
+    if (_status == 'PAID' || _status == 'CANCELLED' || _expired) return true;
+    return await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(
+              tr('Thanh toán chưa hoàn tất', 'Payment not completed'),
+            ),
+            content: Text(
+              tr(
+                'Booking vẫn được giữ ở trạng thái chờ thanh toán. Bạn có thể tiếp tục thanh toán trong mục Đặt phòng trước khi mã hết hạn.',
+                'Your booking will remain pending. You can continue payment from Trips before the code expires.',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(tr('Ở lại', 'Stay')),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(tr('Thanh toán sau', 'Pay later')),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,11 +228,19 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppTheme.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (await _confirmLeavePayment() && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.surface,
+        body: SafeArea(
+          child: Column(
+            children: [
             BookingTopBar(
               title: tr('Thanh toán PayOS', 'PayOS payment'),
               fallbackRoute: AppRoutes.home,
@@ -211,6 +278,11 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
                     style: const TextStyle(color: AppTheme.muted, height: 1.4),
                   ),
                   const SizedBox(height: 20),
+                  _PaymentExpiryBanner(
+                    remaining: _remaining,
+                    expired: _expired,
+                  ),
+                  const SizedBox(height: 18),
                   RepaintBoundary(
                     key: _qrKey,
                     child: Container(
@@ -279,7 +351,7 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
                   ],
                   const SizedBox(height: 18),
                   FilledButton.icon(
-                    onPressed: _opening ? null : _openBankApp,
+                    onPressed: _opening || _expired ? null : _openBankApp,
                     icon: const Icon(Icons.account_balance_rounded),
                     label: Text(
                       _opening
@@ -289,7 +361,7 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
-                    onPressed: _sharing ? null : _shareQr,
+                    onPressed: _sharing || _expired ? null : _shareQr,
                     icon: const Icon(Icons.ios_share_rounded),
                     label: Text(
                       _sharing
@@ -309,7 +381,12 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    _status == 'CANCELLED'
+                    _expired
+                        ? tr(
+                            'Mã thanh toán đã hết hạn. Hãy quay lại mục Đặt phòng để tạo mã mới.',
+                            'This payment code has expired. Return to Trips to create a new one.',
+                          )
+                        : _status == 'CANCELLED'
                         ? tr(
                             'Giao dịch đã bị hủy.',
                             'The payment was cancelled.',
@@ -320,7 +397,7 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
                           ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: _status == 'CANCELLED'
+                      color: _status == 'CANCELLED' || _expired
                           ? AppTheme.danger
                           : AppTheme.muted,
                       fontSize: 12.5,
@@ -330,7 +407,8 @@ class _PaymentQrPageState extends State<PaymentQrPage> {
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -381,4 +459,60 @@ class _BankInfo extends StatelessWidget {
       ],
     ),
   );
+}
+
+class _PaymentExpiryBanner extends StatelessWidget {
+  const _PaymentExpiryBanner({required this.remaining, required this.expired});
+
+  final Duration remaining;
+  final bool expired;
+
+  @override
+  Widget build(BuildContext context) {
+    final minutes = remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return Semantics(
+      liveRegion: true,
+      label: expired
+          ? tr('Mã thanh toán đã hết hạn', 'Payment code expired')
+          : tr(
+              'Còn $minutes phút $seconds giây',
+              '$minutes minutes $seconds seconds remaining',
+            ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: expired
+              ? AppTheme.danger.withValues(alpha: 0.10)
+              : const Color(0xFFFFE8B0).withValues(alpha: 0.65),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              expired ? Icons.timer_off_outlined : Icons.timer_outlined,
+              color: expired ? AppTheme.danger : AppTheme.ink,
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                expired
+                    ? tr('Mã thanh toán đã hết hạn', 'Payment code expired')
+                    : tr(
+                        'Thời gian còn lại: $minutes:$seconds',
+                        'Time remaining: $minutes:$seconds',
+                      ),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: expired ? AppTheme.danger : AppTheme.ink,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

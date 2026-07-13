@@ -7,6 +7,8 @@ import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
 
 class CancelledBookingDetailPage extends StatelessWidget {
   const CancelledBookingDetailPage({super.key});
@@ -19,10 +21,10 @@ class CancelledBookingDetailPage extends StatelessWidget {
     final summary = args?.summary;
 
     if (summary == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppTheme.cream,
-        bottomNavigationBar: StayZBottomNav(activeTab: HomeTab.bookings),
-        body: SafeArea(child: Center(child: Text('Missing booking detail.'))),
+        bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
+        body: SafeArea(child: Center(child: Text(tr('Thiếu thông tin đặt phòng.', 'Missing booking detail.')))),
       );
     }
 
@@ -36,7 +38,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Chi tiết đặt phòng',
+              title: tr('Chi tiết đặt phòng', 'Booking details'),
               fallbackRoute: AppRoutes.cancelledBookings,
               trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
             ),
@@ -74,7 +76,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const BookingStatusPill(label: 'Đã hủy', color: Color(0xFFFFD8D5)),
+                    BookingStatusPill(label: tr('Đã hủy', 'Cancelled'), color: const Color(0xFFFFD8D5)),
                     ],
                   ),
                   SizedBox(height: 10 * responsive.scale),
@@ -94,38 +96,38 @@ class CancelledBookingDetailPage extends StatelessWidget {
                   ),
                   SizedBox(height: 28 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Mã đặt phòng: ${_bookingCode(summary.booking.id)}',
+                    title: tr('Mã đặt phòng: ${_bookingCode(summary.booking.id)}', 'Booking code: ${_bookingCode(summary.booking.id)}'),
                     children: [
-                      DetailLine(label: 'Khách sạn', value: summary.hotel.name),
-                      DetailLine(label: 'Loại phòng', value: summary.room.name),
+                      DetailLine(label: tr('Khách sạn', 'Hotel'), value: summary.hotel.name),
+                      DetailLine(label: tr('Loại phòng', 'Room type'), value: summary.room.name),
                       const Divider(),
                       DetailLine(
-                        label: 'Nhận phòng - Trả phòng',
+                        label: tr('Nhận phòng - Trả phòng', 'Check-in - Check-out'),
                         value: '${StayzFormatters.shortDate(summary.booking.checkInDate)} - ${StayzFormatters.shortDate(summary.booking.checkOutDate)}',
                       ),
-                      DetailLine(label: 'Thời gian', value: '${summary.booking.nights} đêm'),
+                      DetailLine(label: tr('Thời gian', 'Duration'), value: tr('${summary.booking.nights} đêm', '${summary.booking.nights} nights')),
                       DetailLine(
-                        label: 'Khách lưu trú',
-                        value: '${summary.booking.guests.adults} người lớn, ${summary.booking.guests.children} trẻ em',
+                        label: tr('Khách lưu trú', 'Guests'),
+                        value: tr('${summary.booking.guests.adults} người lớn, ${summary.booking.guests.children} trẻ em', '${summary.booking.guests.adults} adults, ${summary.booking.guests.children} children'),
                       ),
-                      DetailLine(label: 'Trạng thái', value: summary.booking.status),
+                      DetailLine(label: tr('Trạng thái', 'Status'), value: StayzTaxonomy.bookingStatusLabel(summary.booking.status)),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiết thanh toán',
+                    title: tr('Chi tiết thanh toán', 'Payment details'),
                     children: [
-                      DetailLine(label: 'Giá mỗi đêm', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
-                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights}'),
-                      const DetailLine(label: 'Phí dịch vụ', value: 'Đã bao gồm'),
+                      DetailLine(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(label: tr('Số đêm', 'Nights'), value: '${summary.booking.nights}'),
+                      DetailLine(label: tr('Phí dịch vụ', 'Service fee'), value: tr('Đã bao gồm', 'Included')),
                       const Divider(),
                       DetailLine(
-                        label: 'Tổng cộng',
+                        label: tr('Tổng cộng', 'Total'),
                         value: StayzFormatters.fullVnd(summary.booking.totalAmount),
                         total: true,
                       ),
                       const Divider(),
-                      DetailLine(label: 'Thanh toán', value: summary.booking.paymentStatus),
+                      DetailLine(label: tr('Thanh toán', 'Payment'), value: StayzTaxonomy.paymentStatusLabel(summary.booking.paymentStatus)),
                     ],
                   ),
                   SizedBox(height: 34 * responsive.scale),
@@ -138,14 +140,14 @@ class CancelledBookingDetailPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                       ),
                       child: Text(
-                        'Đặt phòng khác',
+                      tr('Đặt phòng khác', 'Book another room'),
                         style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800),
                       ),
                     ),
                   ),
                   SizedBox(height: 14 * responsive.scale),
                   BookingOutlineButton(
-                    label: 'Liên hệ hỗ trợ',
+                    label: tr('Liên hệ hỗ trợ', 'Contact support'),
                     onTap: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
                   ),
                 ],

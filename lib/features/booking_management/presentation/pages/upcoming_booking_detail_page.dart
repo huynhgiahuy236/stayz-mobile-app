@@ -5,12 +5,42 @@ import 'package:capstone_mobile/features/booking/presentation/widgets/booking_se
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
+import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
 
-class UpcomingBookingDetailPage extends StatelessWidget {
+class UpcomingBookingDetailPage extends StatefulWidget {
   const UpcomingBookingDetailPage({super.key});
+
+  @override
+  State<UpcomingBookingDetailPage> createState() => _UpcomingBookingDetailPageState();
+}
+
+class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
+  bool _openingPayment = false;
+
+  Future<void> _continuePayment(BookingSummaryArgs args) async {
+    if (_openingPayment) return;
+    setState(() => _openingPayment = true);
+    try {
+      final summary = args.summary;
+      final payment = await ApiStayzRepository.instance.createPayOSPayment(summary.booking.id);
+      final paymentArgs = PayOSPaymentArgs.fromPayment(
+        summary: summary,
+        payment: payment,
+        fallbackAmount: summary.booking.totalAmount,
+      );
+      if (!mounted) return;
+      await Navigator.of(context).pushNamed(AppRoutes.paymentQr, arguments: paymentArgs);
+    } on ApiException catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _openingPayment = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +50,10 @@ class UpcomingBookingDetailPage extends StatelessWidget {
     final summary = args?.summary;
 
     if (summary == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppTheme.cream,
         bottomNavigationBar: StayZBottomNav(activeTab: HomeTab.bookings),
-        body: SafeArea(child: Center(child: Text('Missing booking detail.'))),
+        body: SafeArea(child: Center(child: Text(tr('Thiếu thông tin đặt phòng.', 'Missing booking detail.')))),
       );
     }
 
@@ -37,7 +67,7 @@ class UpcomingBookingDetailPage extends StatelessWidget {
         child: Column(
           children: [
             BookingTopBar(
-              title: 'Chi tiết đặt phòng',
+              title: tr('Chi tiết đặt phòng', 'Booking details'),
               fallbackRoute: AppRoutes.myBookings,
               
             ),
@@ -67,10 +97,14 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                       Positioned(
                         top: 18 * responsive.scale,
                         left: 18 * responsive.widthScale,
-                        child: const BookingStatusPill(
-                          label: 'Sắp đến',
-                          color: Color(0xFF9BF0BF),
-                          textColor: Color(0xFF055C3A),
+                        child: BookingStatusPill(
+                          label: summary.booking.isPaymentExpired
+                              ? tr('Đã hết hạn thanh toán', 'Payment expired')
+                              : summary.booking.isPaymentPending
+                                  ? tr('Chờ thanh toán', 'Pending payment')
+                                  : tr('Sắp đến', 'Upcoming'),
+                          color: summary.booking.isPaymentPending ? const Color(0xFFFFE0A3) : const Color(0xFF9BF0BF),
+                          textColor: summary.booking.isPaymentPending ? const Color(0xFF7A4800) : const Color(0xFF055C3A),
                         ),
                       ),
                     ],
@@ -101,40 +135,40 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   ),
                   SizedBox(height: 34 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Thông tin đặt phòng',
+                    title: tr('Thông tin đặt phòng', 'Booking information'),
                     children: [
-                      DetailLine(label: 'Mã đặt phòng', value: _bookingCode(summary.booking.id)),
+                      DetailLine(label: tr('Mã đặt phòng', 'Booking code'), value: _bookingCode(summary.booking.id)),
                       const Divider(),
-                      DetailLine(label: 'Khách sạn', value: summary.hotel.name),
-                      DetailLine(label: 'Loại phòng', value: summary.room.name),
+                      DetailLine(label: tr('Khách sạn', 'Hotel'), value: summary.hotel.name),
+                      DetailLine(label: tr('Loại phòng', 'Room type'), value: summary.room.name),
                       const Divider(),
                       DetailLine(label: 'Check-in', value: StayzFormatters.shortDate(summary.booking.checkInDate)),
                       DetailLine(label: 'Check-out', value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
-                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights} đêm'),
+                      DetailLine(label: tr('Số đêm', 'Nights'), value: tr('${summary.booking.nights} đêm', '${summary.booking.nights} nights')),
                       const Divider(),
                       DetailLine(
-                        label: 'Số khách',
-                        value: '${summary.booking.guests.adults} người lớn, ${summary.booking.guests.children} trẻ em',
+                        label: tr('Số khách', 'Guests'),
+                        value: tr('${summary.booking.guests.adults} người lớn, ${summary.booking.guests.children} trẻ em', '${summary.booking.guests.adults} adults, ${summary.booking.guests.children} children'),
                       ),
-                      DetailLine(label: 'Trạng thái', value: summary.booking.status),
+                      DetailLine(label: tr('Trạng thái', 'Status'), value: StayzTaxonomy.bookingStatusLabel(summary.booking.status)),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
-                    title: 'Chi tiết thanh toán',
+                    title: tr('Chi tiết thanh toán', 'Payment details'),
                     children: [
-                      DetailLine(label: 'Giá mỗi đêm', value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
-                      DetailLine(label: 'Số đêm', value: '${summary.booking.nights}'),
-                      const DetailLine(label: 'Thuế và phí', value: 'Đã bao gồm'),
+                      DetailLine(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(label: tr('Số đêm', 'Nights'), value: '${summary.booking.nights}'),
+                      DetailLine(label: tr('Thuế và phí', 'Taxes and fees'), value: tr('Đã bao gồm', 'Included')),
                       const Divider(),
                       DetailLine(
-                        label: 'Tổng thanh toán',
+                        label: tr('Tổng thanh toán', 'Total'),
                         value: StayzFormatters.fullVnd(summary.booking.totalAmount),
                         total: true,
                       ),
                       const Divider(),
                       Text(
-                        'Trạng thái thanh toán: ${summary.booking.paymentStatus}',
+                        '${tr('Trạng thái thanh toán', 'Payment status')}: ${StayzTaxonomy.paymentStatusLabel(summary.booking.paymentStatus)}',
                         style: TextStyle(color: const Color(0xFF6B5348), fontSize: 14 * responsive.scale, height: 1.4),
                       ),
                     ],
@@ -142,7 +176,7 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   if (summary.booking.specialRequest != null && summary.booking.specialRequest!.trim().isNotEmpty) ...[
                     SizedBox(height: 20 * responsive.scale),
                     BookingDetailPanel(
-                      title: 'Ghi chú',
+                      title: tr('Ghi chú', 'Notes'),
                       children: [
                         Text(
                           summary.booking.specialRequest!,
@@ -155,7 +189,9 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: OutlinedButton(
-                      onPressed: () async {
+                      onPressed: summary.booking.isPaymentPending
+                          ? (_openingPayment || summary.booking.isPaymentExpired ? null : () => _continuePayment(args!))
+                          : () async {
                         final confirmed = await confirmCancelBooking(context, summary);
                         if (!confirmed || !context.mounted) return;
                         await Navigator.of(context).pushNamed(
@@ -167,12 +203,21 @@ class UpcomingBookingDetailPage extends StatelessWidget {
                         side: const BorderSide(color: AppTheme.accentDark),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text('Hủy đặt phòng', style: TextStyle(color: AppTheme.accentDark, fontSize: 18 * responsive.scale)),
+                      child: Text(
+                        summary.booking.isPaymentPending
+                            ? (_openingPayment ? tr('Đang mở thanh toán...', 'Opening payment...') : tr('Thanh toán ngay', 'Pay now'))
+                            : tr('Hủy đặt phòng', 'Cancel booking'),
+                        style: TextStyle(color: AppTheme.accentDark, fontSize: 18 * responsive.scale),
+                      ),
                     ),
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   Text(
-                    'Chính sách hủy được áp dụng theo điều kiện của khách sạn.',
+                    summary.booking.isPaymentExpired
+                        ? tr('Mã thanh toán đã hết hạn. Hãy vào Đặt phòng của tôi để tạo lại.', 'The payment code has expired. Open My bookings to create a new one.')
+                        : summary.booking.isPaymentPending
+                            ? tr('Đặt phòng chỉ được xác nhận sau khi thanh toán thành công.', 'Your booking is confirmed only after successful payment.')
+                            : tr('Chính sách hủy được áp dụng theo điều kiện của khách sạn.', 'The hotel cancellation policy applies.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppTheme.neutral500, fontSize: 14 * responsive.scale, height: 1.4),
                   ),
@@ -201,9 +246,9 @@ class _ThreeItemNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final items = [
-      (Icons.event_available_outlined, 'Reservations'),
-      (Icons.history, 'History'),
-      (Icons.person_outline, 'Account'),
+      (Icons.event_available_outlined, tr('Đặt phòng', 'Reservations')),
+      (Icons.history, tr('Lịch sử', 'History')),
+      (Icons.person_outline, tr('Tài khoản', 'Account')),
     ];
 
     return Container(

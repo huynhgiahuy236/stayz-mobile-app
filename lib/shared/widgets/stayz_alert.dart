@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 enum StayzAlertType { success, info, warning, error }
@@ -71,6 +72,10 @@ class _AlertBannerState extends State<_AlertBanner> with SingleTickerProviderSta
 
   Future<void> _dismiss() async {
     if (!mounted) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      widget.onDismissed();
+      return;
+    }
     await _controller.reverse();
     widget.onDismissed();
   }
@@ -105,43 +110,69 @@ class _AlertBannerState extends State<_AlertBanner> with SingleTickerProviderSta
       right: 14,
       child: SlideTransition(
         position: _slide,
-        child: Material(
-          color: Colors.transparent,
-          child: GestureDetector(
-            onTap: _dismiss,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: s.bg,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 20, offset: const Offset(0, 8)),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(s.icon, color: s.fg, size: 26),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.title != null) ...[
-                          Text(
-                            widget.title!,
-                            style: TextStyle(color: s.fg, fontSize: 14.5, fontWeight: FontWeight.w900),
-                          ),
-                          const SizedBox(height: 2),
-                        ],
-                        Text(
-                          widget.message,
-                          style: TextStyle(color: s.fg.withValues(alpha: 0.95), fontSize: 13, height: 1.35),
-                        ),
-                      ],
-                    ),
+        child: Semantics(
+          liveRegion: true,
+          container: true,
+          button: true,
+          label: [widget.title, widget.message].whereType<String>().join('. '),
+          hint: context.l10n.text('Chạm hai lần để đóng', 'Double tap to dismiss'),
+          onTap: _dismiss,
+          child: ExcludeSemantics(
+            child: Material(
+              color: Colors.transparent,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _dismiss,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
-                ],
+                  decoration: BoxDecoration(
+                    color: s.bg,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(s.icon, color: s.fg, size: 26),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (widget.title != null) ...[
+                              Text(
+                                widget.title!,
+                                style: TextStyle(
+                                  color: s.fg,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                            ],
+                            Text(
+                              widget.message,
+                              style: TextStyle(
+                                color: s.fg.withValues(alpha: 0.95),
+                                fontSize: 13,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

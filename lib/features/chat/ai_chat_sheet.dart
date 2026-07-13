@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
@@ -238,7 +239,7 @@ class _AiChatSheetState extends State<_AiChatSheet> {
 
   /// Thong diep loi than thien: ApiException da co san message tieng Viet,
   /// cac loi khac thi bao chung chung thay vi in nguyen exception.
-  String _msg(Object error) => error is ApiException ? error.message : 'Vui lòng thử lại.';
+  String _msg(Object error) => error is ApiException ? error.message : tr('Vui lòng thử lại.', 'Please try again.');
 
   Future<void> _openRoomSelection(AiSuggestion suggestion) async {
     if (_navigating) return;
@@ -317,10 +318,10 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                     child: Icon(Icons.auto_awesome_rounded),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'StayZ AI',
-                      style: TextStyle(
+              tr('StayZ AI', 'StayZ AI'),
+                      style: const TextStyle(
                         color: AppTheme.ink,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -341,8 +342,8 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                 itemCount: _messages.length + (_sending ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (_sending && index == _messages.length) {
-                    return const _AiBubble(
-                      message: AiChatMessage(content: 'Đang đọc dữ liệu và trả lời...', fromUser: false),
+                    return _AiBubble(
+          message: AiChatMessage(content: tr('Đang đọc dữ liệu và trả lời...', 'Reading the data and preparing an answer...'), fromUser: false),
                     );
                   }
                   final message = _messages[index];
@@ -377,7 +378,7 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
                       decoration: InputDecoration(
-                        hintText: 'Hỏi về khách sạn, phòng, giá...',
+                    hintText: tr('Hỏi về khách sạn, phòng, giá...', 'Ask about hotels, rooms, prices...'),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -506,7 +507,7 @@ class _SuggestionCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    city.isEmpty ? 'Viet Nam' : city,
+                    city.isEmpty ? tr('Việt Nam', 'Vietnam') : city,
                     style: const TextStyle(color: AppTheme.ink, fontSize: 13),
                   ),
                 ),
@@ -542,7 +543,7 @@ class _SuggestionCard extends StatelessWidget {
                 if (suggestion.pricePerNight != null)
                   Expanded(
                     child: Text(
-                      '${StayzFormatters.fullVnd(suggestion.pricePerNight!)}/đêm',
+                    tr('${StayzFormatters.fullVnd(suggestion.pricePerNight!)}/đêm', '${StayzFormatters.fullVnd(suggestion.pricePerNight!)}/night'),
                       style: const TextStyle(color: AppTheme.accentDark, fontSize: 15, fontWeight: FontWeight.w900),
                     ),
                   )
@@ -556,7 +557,7 @@ class _SuggestionCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('Chọn phòng'),
+              child: Text(tr('Chọn phòng', 'Select room')),
                 ),
               ],
             ),

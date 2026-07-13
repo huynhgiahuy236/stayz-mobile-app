@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/services/api_service.dart' show ApiException;
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 /// Trang thai rong / loi / dang tai dung chung cho moi man hinh.
@@ -62,10 +63,19 @@ class StayzErrorView extends StatelessWidget {
     return _StateScaffold(
       icon: offline ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
       iconColor: AppTheme.danger,
-      title: offline ? 'Không có kết nối' : 'Không tải được dữ liệu',
+      title: offline
+          ? context.l10n.text('Không có kết nối', 'No connection')
+          : context.l10n.text('Không tải được dữ liệu', 'Could not load data'),
       // Chi hien thong diep da duoc dich; khong bao gio in nguyen exception.
-      message: apiError?.message ?? 'Đã có lỗi xảy ra. Vui lòng thử lại.',
-      actionLabel: onRetry == null ? null : 'Thử lại',
+      message:
+          apiError?.message ??
+          context.l10n.text(
+            'Đã có lỗi xảy ra. Vui lòng thử lại.',
+            'Something went wrong. Please try again.',
+          ),
+      actionLabel: onRetry == null
+          ? null
+          : context.l10n.text('Thử lại', 'Try again'),
       onAction: onRetry,
       compact: compact,
     );
@@ -97,16 +107,26 @@ class _StateScaffold extends StatelessWidget {
     // noi dung can cuon thay vi tran khoi khung.
     return LayoutBuilder(
       builder: (context, constraints) {
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight.isFinite ? constraints.maxHeight : 0),
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 28, vertical: compact ? 16 : 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+        return Semantics(
+          liveRegion: true,
+          container: true,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight.isFinite
+                    ? constraints.maxHeight
+                    : 0,
+              ),
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: compact ? 16 : 32,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                     Container(
                       width: compact ? 56 : 84,
                       height: compact ? 56 : 84,
@@ -148,7 +168,8 @@ class _StateScaffold extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

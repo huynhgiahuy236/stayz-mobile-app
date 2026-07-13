@@ -8,10 +8,59 @@ import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
 
-class MyBookingsPage extends StatelessWidget {
+class MyBookingsPage extends StatefulWidget {
   const MyBookingsPage({super.key});
+
+  @override
+  State<MyBookingsPage> createState() => _MyBookingsPageState();
+}
+
+class _MyBookingsPageState extends State<MyBookingsPage> {
+  late Future<List<BookingSummary>> _bookingsFuture = _loadBookings();
+  final Set<String> _openingPayments = <String>{};
+
+  Future<List<BookingSummary>> _loadBookings() =>
+      ApiStayzRepository.instance.getBookingSummaries();
+
+  void _refreshBookings() {
+    setState(() => _bookingsFuture = _loadBookings());
+  }
+
+  Future<void> _continuePayment(BookingSummary summary) async {
+    final bookingId = summary.booking.id;
+    if (_openingPayments.contains(bookingId)) return;
+    setState(() => _openingPayments.add(bookingId));
+    try {
+      final payment = await ApiStayzRepository.instance.createPayOSPayment(
+        bookingId,
+      );
+      final paymentArgs = PayOSPaymentArgs.fromPayment(
+        summary: summary,
+        payment: payment,
+        fallbackAmount: summary.booking.totalAmount,
+      );
+      if (paymentArgs.qrCode.isEmpty && paymentArgs.qrImageUrl.isEmpty) {
+        throw const ApiException('VietQR is missing.');
+      }
+      if (!mounted) return;
+      await Navigator.of(context).pushNamed(
+        AppRoutes.paymentQr,
+        arguments: paymentArgs,
+      );
+      if (mounted) _refreshBookings();
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } finally {
+      if (mounted) setState(() => _openingPayments.remove(bookingId));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +83,14 @@ class MyBookingsPage extends StatelessWidget {
             ),
             Expanded(
               child: FutureBuilder<List<BookingSummary>>(
-                future: ApiStayzRepository.instance.getBookingSummaries(),
+                future: _bookingsFuture,
                 builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return StayzErrorView(
+                      error: snapshot.error,
+                      onRetry: _refreshBookings,
+                    );
+                  }
                   final bookings = (snapshot.data ?? const <BookingSummary>[])
                       .where((summary) => summary.booking.isUpcoming)
                       .toList();
@@ -95,33 +150,12 @@ class MyBookingsPage extends StatelessWidget {
                         colors:
                             _bookingColors[(index - 1) % _bookingColors.length],
                         pendingPayment:
-                            summary.booking.normalizedStatus == 'pending' ||
-                            summary.booking.paymentStatus == 'pending',
-                        onPay: () async {
-                          try {
-                            final payment = await ApiStayzRepository.instance
-                                .createPayOSPayment(summary.booking.id);
-                            final paymentArgs = PayOSPaymentArgs.fromPayment(
-                              summary: summary,
-                              payment: payment,
-                              fallbackAmount: summary.booking.totalAmount,
-                            );
-                            if (paymentArgs.qrCode.isEmpty &&
-                                paymentArgs.qrImageUrl.isEmpty)
-                              throw const ApiException('VietQR is missing.');
-                            if (!context.mounted) return;
-                            Navigator.of(context).pushNamed(
-                              AppRoutes.paymentQr,
-                              arguments: paymentArgs,
-                            );
-                          } on ApiException catch (error) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(error.message)),
-                              );
-                            }
-                          }
-                        },
+                            summary.booking.isPaymentPending,
+                        paymentExpired: summary.booking.isPaymentExpired,
+                        paymentBusy: _openingPayments.contains(
+                          summary.booking.id,
+                        ),
+                        onPay: () => _continuePayment(summary),
                         onDetail: () => Navigator.of(context).pushNamed(
                           AppRoutes.upcomingBookingDetail,
                           arguments: BookingSummaryArgs(summary: summary),

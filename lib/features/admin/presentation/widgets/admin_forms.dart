@@ -18,6 +18,7 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
   late final TextEditingController _slug;
   late final TextEditingController _address;
   late final TextEditingController _description;
+  late final TextEditingController _descriptionEn;
   late final TextEditingController _basePrice;
   late final TextEditingController _imageUrl;
   late final TextEditingController _maxStayDays;
@@ -35,6 +36,7 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
     _slug = TextEditingController(text: hotel?.slug ?? '');
     _address = TextEditingController(text: hotel?.address ?? '');
     _description = TextEditingController(text: hotel?.description ?? '');
+    _descriptionEn = TextEditingController(text: hotel?.descriptionEn ?? '');
     _basePrice = TextEditingController(
       text: hotel == null ? '' : '${hotel.basePrice.round()}',
     );
@@ -51,6 +53,7 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
     _slug.dispose();
     _address.dispose();
     _description.dispose();
+    _descriptionEn.dispose();
     _basePrice.dispose();
     _imageUrl.dispose();
     _maxStayDays.dispose();
@@ -159,7 +162,13 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
                 const SizedBox(height: 10),
                 AdminTextField(
                   controller: _description,
-                  label: tr('Mô tả', 'Description'),
+                  label: tr('Mô tả tiếng Việt', 'Vietnamese description'),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 10),
+                AdminTextField(
+                  controller: _descriptionEn,
+                  label: tr('Mô tả tiếng Anh', 'English description'),
                   maxLines: 3,
                 ),
                 SwitchListTile(
@@ -216,6 +225,7 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
         city: _city,
         type: _type,
         description: _description.text.trim(),
+        descriptionEn: _descriptionEn.text.trim(),
         basePrice: num.tryParse(_basePrice.text.trim()) ?? 0,
         imageUrl: _imageUrl.text.trim(),
         maxStayDays: int.tryParse(_maxStayDays.text.trim()) ?? 30,
@@ -249,6 +259,7 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _name;
   late final TextEditingController _description;
+  late final TextEditingController _descriptionEn;
   late final TextEditingController _originalPrice;
   late final TextEditingController _discount;
   late final TextEditingController _capacity;
@@ -274,6 +285,7 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
     _active = room?.isActive ?? true;
     _name = TextEditingController(text: room?.name ?? '');
     _description = TextEditingController(text: room?.description ?? '');
+    _descriptionEn = TextEditingController(text: room?.descriptionEn ?? '');
     _originalPrice = TextEditingController(
       text: room == null ? '' : '${room.originalPrice.round()}',
     );
@@ -296,6 +308,7 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
   void dispose() {
     _name.dispose();
     _description.dispose();
+    _descriptionEn.dispose();
     _originalPrice.dispose();
     _discount.dispose();
     _capacity.dispose();
@@ -447,7 +460,13 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
                 const SizedBox(height: 10),
                 AdminTextField(
                   controller: _description,
-                  label: tr('Mô tả', 'Description'),
+                  label: tr('Mô tả tiếng Việt', 'Vietnamese description'),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 10),
+                AdminTextField(
+                  controller: _descriptionEn,
+                  label: tr('Mô tả tiếng Anh', 'English description'),
                   maxLines: 3,
                 ),
                 SwitchListTile(
@@ -482,6 +501,7 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
         name: _name.text.trim(),
         roomType: _roomType,
         description: _description.text.trim(),
+        descriptionEn: _descriptionEn.text.trim(),
         originalPrice: num.tryParse(_originalPrice.text.trim()) ?? 0,
         discountPercent: num.tryParse(_discount.text.trim()) ?? 0,
         capacity: int.tryParse(_capacity.text.trim()) ?? 1,

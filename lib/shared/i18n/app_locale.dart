@@ -1,9 +1,48 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppLanguage { vi, en }
+
+class StayzLocalizations {
+  const StayzLocalizations(this.locale);
+
+  final Locale locale;
+
+  static const supportedLocales = <Locale>[Locale('vi'), Locale('en')];
+
+  static const LocalizationsDelegate<StayzLocalizations> delegate =
+      _StayzLocalizationsDelegate();
+
+  static StayzLocalizations of(BuildContext context) =>
+      Localizations.of<StayzLocalizations>(context, StayzLocalizations) ??
+      StayzLocalizations(AppLocale.instance.locale);
+
+  bool get isVietnamese => locale.languageCode == 'vi';
+
+  String text(String vi, String en) =>
+      repairMojibake(isVietnamese ? vi : en);
+}
+
+class _StayzLocalizationsDelegate
+    extends LocalizationsDelegate<StayzLocalizations> {
+  const _StayzLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) =>
+      StayzLocalizations.supportedLocales.any(
+        (supported) => supported.languageCode == locale.languageCode,
+      );
+
+  @override
+  Future<StayzLocalizations> load(Locale locale) =>
+      SynchronousFuture<StayzLocalizations>(StayzLocalizations(locale));
+
+  @override
+  bool shouldReload(_StayzLocalizationsDelegate old) => false;
+}
 
 class AppLocale extends ChangeNotifier {
   AppLocale._();
@@ -16,6 +55,10 @@ class AppLocale extends ChangeNotifier {
   bool get isVietnamese => _language == AppLanguage.vi;
   Locale get locale => isVietnamese ? const Locale('vi') : const Locale('en');
   String get label => isVietnamese ? 'Tiếng Việt' : 'English';
+  String get flag => isVietnamese ? '🇻🇳' : '🇬🇧';
+
+  static String flagFor(AppLanguage language) =>
+      language == AppLanguage.vi ? '🇻🇳' : '🇬🇧';
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,7 +74,11 @@ class AppLocale extends ChangeNotifier {
     await prefs.setString(_prefsKey, language == AppLanguage.en ? 'en' : 'vi');
   }
 
-  String t(String vi, String en) => repairMojibake(isVietnamese ? vi : en);
+  String t(String vi, String en) => StayzLocalizations(locale).text(vi, en);
+}
+
+extension StayzLocalizationContext on BuildContext {
+  StayzLocalizations get l10n => StayzLocalizations.of(this);
 }
 
 /// Repairs the common legacy case where UTF-8 Vietnamese was decoded as

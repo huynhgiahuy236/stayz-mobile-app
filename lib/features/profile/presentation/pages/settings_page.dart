@@ -6,6 +6,7 @@ import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -16,6 +17,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  int _profileRevision = 0;
 
   Future<void> _pickLanguage(BuildContext context) async {
     await showModalBottomSheet<void>(
@@ -87,7 +89,10 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             const StayZLogoRow(),
             SizedBox(height: 22 * responsive.scale),
-            _ProfileHeroReal(responsive: responsive),
+            _ProfileHeroReal(
+              key: ValueKey(_profileRevision),
+              responsive: responsive,
+            ),
             SizedBox(height: 18 * responsive.scale),
             const _ProfileStats(),
             SizedBox(height: 26 * responsive.scale),
@@ -100,7 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   label: tr('Thông tin cá nhân', 'Personal information'),
                   onTap: () async {
                     await Navigator.of(context).pushNamed(AppRoutes.profileForm);
-                    if (mounted) setState(() {});
+                    if (mounted) setState(() => _profileRevision++);
                   },
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
@@ -108,6 +113,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.lock_outline_rounded,
                   label: tr('Đổi mật khẩu', 'Change password'),
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                ),
+                const Divider(height: 1, indent: 72, endIndent: 20),
+                ProfileMenuTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: tr('Phương thức thanh toán', 'Payment methods'),
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(AppRoutes.paymentMethods),
                 ),
               ],
             ),
@@ -136,7 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ProfileMenuTile(
                   icon: Icons.help_outline_rounded,
                   label: tr('Trung tâm hỗ trợ', 'Help center'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
+                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.helpCenter),
                 ),
               ],
             ),
@@ -194,20 +206,22 @@ class _ProfileStats extends StatefulWidget {
 }
 
 class _ProfileStatsState extends State<_ProfileStats> {
-  late final Future<List<int>> _future = _load();
+  late Future<List<int>> _future = _load();
 
   Future<List<int>> _load() async {
-    Future<int> count(Future<List<Object>> Function() fetch) async {
-      try {
-        return (await fetch()).length;
-      } catch (_) {
-        return 0;
-      }
-    }
+    final values = await Future.wait<int>([
+      ApiStayzRepository.instance
+          .getBookingSummaries()
+          .then((items) => items.length),
+      ApiStayzRepository.instance
+          .getFavoriteHotelIds()
+          .then((items) => items.length),
+    ]);
+    return values;
+  }
 
-    final trips = await count(() => ApiStayzRepository.instance.getBookingSummaries());
-    final saved = await count(() async => (await ApiStayzRepository.instance.getFavoriteHotelIds()).toList());
-    return [trips, saved];
+  void _retry() {
+    setState(() => _future = _load());
   }
 
   @override
@@ -215,6 +229,16 @@ class _ProfileStatsState extends State<_ProfileStats> {
     return FutureBuilder<List<int>>(
       future: _future,
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return SizedBox(
+            height: 150,
+            child: StayzErrorView(
+              error: snapshot.error,
+              onRetry: _retry,
+              compact: true,
+            ),
+          );
+        }
         final trips = snapshot.data?[0];
         final saved = snapshot.data?[1];
         return Row(
@@ -229,23 +253,62 @@ class _ProfileStatsState extends State<_ProfileStats> {
   }
 }
 
-class _ProfileHeroReal extends StatelessWidget {
-  const _ProfileHeroReal({required this.responsive});
+class _ProfileHeroReal extends StatefulWidget {
+  const _ProfileHeroReal({required this.responsive, super.key});
 
   final HomeResponsive responsive;
 
   @override
+  State<_ProfileHeroReal> createState() => _ProfileHeroRealState();
+}
+
+class _ProfileHeroRealState extends State<_ProfileHeroReal> {
+  late Future<StayzUser?> _future = ApiStayzRepository.instance.getProfile();
+
+  void _retry() {
+    setState(() => _future = ApiStayzRepository.instance.getProfile());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<StayzUser?>(
-      future: ApiStayzRepository.instance.getProfile(),
+      future: _future,
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return SizedBox(
+            height: 190,
+            child: StayzErrorView(
+              error: snapshot.error,
+              onRetry: _retry,
+              compact: true,
+            ),
+          );
+        }
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox(
+            height: 160,
+            child: Center(
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            ),
+          );
+        }
         final user = snapshot.data;
-        final displayName = user?.fullName.isNotEmpty == true ? user!.fullName : 'StayZ Guest';
-        final email = user?.email.isNotEmpty == true ? user!.email : 'guest@stayz.vn';
+        if (user == null) {
+          return SizedBox(
+            height: 190,
+            child: StayzErrorView(
+              error: StateError('Profile data is unavailable.'),
+              onRetry: _retry,
+              compact: true,
+            ),
+          );
+        }
+        final displayName = user.fullName;
+        final email = user.email;
         final initials = _initials(displayName);
 
         return Container(
-          padding: EdgeInsets.all(18 * responsive.scale),
+          padding: EdgeInsets.all(18 * widget.responsive.scale),
           decoration: BoxDecoration(
             color: AppTheme.ink,
             borderRadius: BorderRadius.circular(24),
@@ -255,38 +318,41 @@ class _ProfileHeroReal extends StatelessWidget {
               Stack(
                 children: [
                   CircleAvatar(
-                    radius: 38 * responsive.scale,
+                    radius: 38 * widget.responsive.scale,
                     backgroundColor: AppTheme.primary,
-                    child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 22 * responsive.scale, fontWeight: FontWeight.w900)),
+                    child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 22 * widget.responsive.scale, fontWeight: FontWeight.w900)),
                   ),
                   Positioned(
                     right: 0,
                     bottom: 0,
                     child: CircleAvatar(
-                      radius: 13 * responsive.scale,
+                      radius: 13 * widget.responsive.scale,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.edit_rounded, color: AppTheme.primary, size: 15 * responsive.scale),
+                      child: Icon(Icons.edit_rounded, color: AppTheme.primary, size: 15 * widget.responsive.scale),
                     ),
                   ),
                 ],
               ),
-              SizedBox(width: 16 * responsive.widthScale),
+              SizedBox(width: 16 * widget.responsive.widthScale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 21 * responsive.scale, fontWeight: FontWeight.w900)),
-                    SizedBox(height: 5 * responsive.scale),
-                    Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w600)),
-                    SizedBox(height: 12 * responsive.scale),
+                    Text(displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 21 * widget.responsive.scale, fontWeight: FontWeight.w900)),
+                    SizedBox(height: 5 * widget.responsive.scale),
+                    Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * widget.responsive.scale, fontWeight: FontWeight.w600)),
+                    SizedBox(height: 12 * widget.responsive.scale),
                     OutlinedButton.icon(
-                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.editProfile),
+                      onPressed: () async {
+                        await Navigator.of(context).pushNamed(AppRoutes.editProfile);
+                        if (mounted) _retry();
+                      },
                       icon: const Icon(Icons.tune_rounded, size: 18),
                       label: Text(tr('Chỉnh hồ sơ', 'Edit profile')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: BorderSide(color: Colors.white.withValues(alpha: 0.32)),
-                        minimumSize: Size(0, 42 * responsive.scale),
+                        minimumSize: Size(0, 48 * widget.responsive.scale),
                       ),
                     ),
                   ],

@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
 
   Set<String> _favoriteIds = const <String>{};
   bool _loadedFavorites = false;
+  Object? _favoritesError;
   HomeQuickFilter _selectedQuickFilter = HomeQuickFilter.all;
 
   @override
@@ -93,31 +94,42 @@ class _HomePageState extends State<HomePage> {
   /// Chuyen di sap toi THAT cua nguoi dung. Truoc day the nay bia ra mot
   /// chuyen di tu khach san dau danh sach voi ngay cung '12 - 14/07'.
   Future<BookingSummary?> _loadUpcomingBooking() async {
-    try {
-      final bookings = await ApiStayzRepository.instance.getBookingSummaries();
-      final upcoming =
-          bookings.where((item) => item.booking.isUpcoming).toList()..sort(
-            (a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate),
-          );
-      return upcoming.firstOrNull;
-    } catch (_) {
-      // Chua dang nhap hoac mat mang: an the thay vi hien du lieu gia.
-      return null;
-    }
+    final bookings = await ApiStayzRepository.instance.getBookingSummaries();
+    final upcoming =
+        bookings.where((item) => item.booking.isUpcoming).toList()..sort(
+          (a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate),
+        );
+    return upcoming.firstOrNull;
   }
 
   Future<void> _loadFavorites() async {
+    if (mounted) {
+      setState(() {
+        _loadedFavorites = false;
+        _favoritesError = null;
+      });
+    }
     try {
       final ids = await ApiStayzRepository.instance.getFavoriteHotelIds();
       if (mounted) {
         setState(() {
           _favoriteIds = ids;
           _loadedFavorites = true;
+          _favoritesError = null;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _loadedFavorites = true);
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _loadedFavorites = true;
+          _favoritesError = error;
+        });
+      }
     }
+  }
+
+  void _retryUpcoming() {
+    setState(() => _upcomingFuture = _loadUpcomingBooking());
   }
 
   Future<void> _toggleFavorite(HotelSummary summary) async {
@@ -359,6 +371,16 @@ class _HomePageState extends State<HomePage> {
                     child: FutureBuilder<BookingSummary?>(
                       future: _upcomingFuture,
                       builder: (context, bookingSnapshot) {
+                        if (bookingSnapshot.hasError) {
+                          return SizedBox(
+                            height: 190 * responsive.scale,
+                            child: StayzErrorView(
+                              error: bookingSnapshot.error,
+                              onRetry: _retryUpcoming,
+                              compact: true,
+                            ),
+                          );
+                        }
                         final upcoming = bookingSnapshot.data;
                         // Khong co chuyen di that thi khong hien muc nay.
                         if (upcoming == null) return const SizedBox.shrink();
@@ -421,6 +443,40 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
+                  if (_loadedFavorites && _favoritesError != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          responsive.horizontalPadding,
+                          18 * responsive.scale,
+                          responsive.horizontalPadding,
+                          0,
+                        ),
+                        child: Semantics(
+                          liveRegion: true,
+                          child: Material(
+                            color: AppTheme.danger.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(14),
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.favorite_border_rounded,
+                                color: AppTheme.danger,
+                              ),
+                              title: Text(
+                                tr(
+                                  'Không tải được trạng thái yêu thích.',
+                                  'Could not load saved status.',
+                                ),
+                              ),
+                              trailing: TextButton(
+                                onPressed: _loadFavorites,
+                                child: Text(tr('Thử lại', 'Retry')),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   if (nearby.isNotEmpty) ...[
                     SliverToBoxAdapter(
                       child: Padding(

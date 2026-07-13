@@ -4,6 +4,7 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class AuthGatePage extends StatefulWidget {
@@ -14,6 +15,9 @@ class AuthGatePage extends StatefulWidget {
 }
 
 class _AuthGatePageState extends State<AuthGatePage> {
+  Object? _error;
+  bool _loading = true;
+
   @override
   void initState() {
     super.initState();
@@ -24,28 +28,89 @@ class _AuthGatePageState extends State<AuthGatePage> {
   }
 
   Future<void> _resolveStartRoute() async {
-    final auth = AuthService.instance;
-    final hasSeenOnboarding = await auth.hasSeenOnboarding();
-    final isAuthenticated = await auth.isAuthenticated();
-    final role = isAuthenticated ? await auth.userRole() : null;
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
 
-    if (!mounted) return;
+    try {
+      final auth = AuthService.instance;
+      final values = await Future.wait<Object?>([
+        auth.hasSeenOnboarding(),
+        auth.isAuthenticated(),
+      ]).timeout(const Duration(seconds: 12));
+      final hasSeenOnboarding = values[0] as bool;
+      final isAuthenticated = values[1] as bool;
+      final role = isAuthenticated
+          ? await auth.userRole().timeout(const Duration(seconds: 5))
+          : null;
 
-    final route = !hasSeenOnboarding
-        ? AppRoutes.onboarding
-        : isAuthenticated
-        ? role == 'admin'
-              ? AppRoutes.admin
-              : AppRoutes.home
-        : AppRoutes.login;
-    Navigator.of(context).pushReplacementNamed(route);
+      if (!mounted) return;
+
+      final route = !hasSeenOnboarding
+          ? AppRoutes.onboarding
+          : isAuthenticated
+          ? role == 'admin'
+                ? AppRoutes.admin
+                : AppRoutes.home
+          : AppRoutes.login;
+      Navigator.of(context).pushReplacementNamed(route);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = error;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+      body: SafeArea(
+        child: Center(
+          child: _loading && _error == null
+              ? const CircularProgressIndicator(color: AppTheme.accent)
+              : Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.sync_problem_rounded,
+                        size: 56,
+                        color: AppTheme.primary,
+                        semanticLabel: tr('Lỗi khởi động', 'Startup error'),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        tr(
+                          'Không thể khởi động StayZ lúc này.',
+                          'StayZ could not start right now.',
+                        ),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 20),
+                      FilledButton.icon(
+                        onPressed: _resolveStartRoute,
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(tr('Thử lại', 'Try again')),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => Navigator.of(context)
+                            .pushReplacementNamed(AppRoutes.login),
+                        child: Text(tr('Về trang đăng nhập', 'Go to sign in')),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }

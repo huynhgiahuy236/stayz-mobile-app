@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    email: String,
+    email: { type: String, required: true, unique: true },
     password: String,
     full_name: String,
     phone_number: {
@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema(
     },
   },
   { timestamps: true },
+);
+
+userSchema.index(
+  { phone_number: 1 },
+  { unique: true, partialFilterExpression: { phone_number: { $type: "string", $gt: "" } } },
 );
 
 module.exports = mongoose.model("User", userSchema);

@@ -29,6 +29,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   ResetPasswordArgs? _args;
   bool _initialized = false;
   bool _isLoading = false;
+  String? _passwordError;
+  String? _confirmPasswordError;
 
   @override
   void didChangeDependencies() {
@@ -61,15 +63,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
     final newPassword = _newPasswordController.text;
     final passwordError = AuthValidators.password(newPassword);
+    final confirmError = AuthValidators.confirmPassword(
+      newPassword,
+      _confirmPasswordController.text,
+    );
+    setState(() {
+      _passwordError = passwordError;
+      _confirmPasswordError = confirmError;
+    });
     if (passwordError != null) {
       _showMessage(passwordError);
       return;
     }
 
-    final confirmError = AuthValidators.confirmPassword(
-      newPassword,
-      _confirmPasswordController.text,
-    );
     if (confirmError != null) {
       _showMessage(confirmError);
       return;
@@ -218,9 +224,22 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 ] else ...[
                   AuthField(
                     label: tr('Mật khẩu mới', 'New password'),
-                    hint: tr('Ít nhất 6 ký tự', 'At least 6 characters'),
+                    hint: tr(
+                      'Từ 8 ký tự, có hoa, thường, số và ký tự đặc biệt',
+                      '8+ characters with upper, lower, number and symbol',
+                    ),
                     obscure: true,
                     controller: _newPasswordController,
+                    errorText: _passwordError,
+                    onChanged: (_) => setState(() {
+                      _passwordError = AuthValidators.password(_newPasswordController.text);
+                      if (_confirmPasswordController.text.isNotEmpty) {
+                        _confirmPasswordError = AuthValidators.confirmPassword(
+                          _newPasswordController.text,
+                          _confirmPasswordController.text,
+                        );
+                      }
+                    }),
                     textInputAction: TextInputAction.next,
                   ),
                   SizedBox(height: 20 * responsive.scale),
@@ -232,6 +251,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     ),
                     obscure: true,
                     controller: _confirmPasswordController,
+                    errorText: _confirmPasswordError,
+                    onChanged: (_) => setState(
+                      () => _confirmPasswordError = AuthValidators.confirmPassword(
+                        _newPasswordController.text,
+                        _confirmPasswordController.text,
+                      ),
+                    ),
                     textInputAction: TextInputAction.done,
                   ),
                   SizedBox(height: 32 * responsive.scale),

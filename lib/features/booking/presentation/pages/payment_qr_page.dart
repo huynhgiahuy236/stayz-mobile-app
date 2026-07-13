@@ -33,6 +33,7 @@ class _PaymentQrPageState extends State<PaymentQrPage>
   bool _opening = false;
   bool _sharing = false;
   bool _checking = false;
+  bool _navigating = false;
   String _status = 'pending';
 
   DateTime? get _expiresAt => _args?.expiresAt;
@@ -56,29 +57,47 @@ class _PaymentQrPageState extends State<PaymentQrPage>
     final value = ModalRoute.of(context)?.settings.arguments;
     _args = value is PayOSPaymentArgs ? value : null;
     if (_args != null) {
-      _poller = Timer.periodic(
-        const Duration(seconds: 3),
-        (_) => _refreshStatus(),
-      );
+      _startPolling();
       _clock = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
         setState(() {
-          if (_expired && _status == 'pending') _status = 'EXPIRED';
+          if (_expired && _status.toUpperCase() == 'PENDING') {
+            _status = 'EXPIRED';
+            _stopPolling();
+          }
         });
       });
     }
+  }
+
+  void _startPolling() {
+    if (_poller?.isActive == true || _expired || _navigating) return;
+    _poller = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => _refreshStatus(showFailure: false),
+    );
+  }
+
+  void _stopPolling() {
+    _poller?.cancel();
+    _poller = null;
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refreshStatus(showFailure: false);
+      _startPolling();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      _stopPolling();
     }
   }
 
   @override
   void dispose() {
-    _poller?.cancel();
+    _stopPolling();
     _clock?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -141,29 +160,38 @@ class _PaymentQrPageState extends State<PaymentQrPage>
 
   Future<void> _refreshStatus({bool showFailure = true}) async {
     final args = _args;
-    if (args == null || _status == 'PAID' || _checking) return;
+    if (args == null || _status == 'PAID' || _checking || _navigating) return;
     if (mounted) setState(() => _checking = true);
     try {
       final payment = await ApiStayzRepository.instance.getPayOSPayment(
         args.summary.booking.id,
       );
-      final next = payment?['status']?.toString() ?? 'pending';
+      final next = (payment?['status']?.toString() ?? 'pending').toUpperCase();
       if (!mounted) return;
       setState(() => _status = next);
       if (next == 'PAID') {
-        _poller?.cancel();
-        final bookings = await ApiStayzRepository.instance
-            .getBookingSummaries();
-        final updated =
-            bookings
-                .where((item) => item.booking.id == args.summary.booking.id)
-                .firstOrNull ??
-            args.summary;
+        _stopPolling();
+        var updated = args.summary;
+        try {
+          final bookings = await ApiStayzRepository.instance
+              .getBookingSummaries();
+          updated =
+              bookings
+                  .where((item) => item.booking.id == args.summary.booking.id)
+                  .firstOrNull ??
+              args.summary;
+        } catch (_) {
+          // Payment is already authoritative; confirmation can use the
+          // current summary and refresh later from Trips.
+        }
         if (!mounted) return;
+        _navigating = true;
         Navigator.of(context).pushReplacementNamed(
           AppRoutes.bookingConfirmation,
           arguments: BookingSummaryArgs(summary: updated),
         );
+      } else if (next == 'CANCELLED') {
+        _stopPolling();
       }
     } catch (_) {
       if (mounted && showFailure)
@@ -283,30 +311,26 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                     expired: _expired,
                   ),
                   const SizedBox(height: 18),
-                  RepaintBoundary(
-                    key: _qrKey,
-                    child: Container(
-                      padding: const EdgeInsets.all(22),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: AppTheme.line),
-                        boxShadow: AppTheme.softShadow,
-                      ),
-                      child: Column(
-                        children: [
-                          if (args.qrImageUrl.isNotEmpty)
-                            Image.network(
-                              args.qrImageUrl,
-                              width: 270,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.qr_code_2_rounded,
-                                size: 180,
-                                color: AppTheme.muted,
-                              ),
-                            )
-                          else
+                  Semantics(
+                    container: true,
+                    image: true,
+                    label: tr(
+                      'Mã VietQR thanh toán ${StayzFormatters.fullVnd(args.amount)}, nội dung ${args.transferDescription}',
+                      'VietQR payment code for ${StayzFormatters.fullVnd(args.amount)}, reference ${args.transferDescription}',
+                    ),
+                    child: RepaintBoundary(
+                      key: _qrKey,
+                      child: Container(
+                        padding: const EdgeInsets.all(22),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: AppTheme.line),
+                          boxShadow: AppTheme.softShadow,
+                        ),
+                        child: Column(
+                          children: [
+                          if (args.qrCode.isNotEmpty)
                             QrImageView(
                               data: args.qrCode,
                               version: QrVersions.auto,
@@ -319,6 +343,23 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                                 dataModuleShape: QrDataModuleShape.square,
                                 color: AppTheme.ink,
                               ),
+                            )
+                          else if (args.qrImageUrl.isNotEmpty)
+                            Image.network(
+                              args.qrImageUrl,
+                              width: 270,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.qr_code_2_rounded,
+                                size: 180,
+                                color: AppTheme.muted,
+                              ),
+                            )
+                          else
+                            const Icon(
+                              Icons.qr_code_2_rounded,
+                              size: 180,
+                              color: AppTheme.muted,
                             ),
                           const SizedBox(height: 14),
                           Text(
@@ -340,7 +381,8 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                               ),
                             ),
                           ],
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// Loi API da duoc dich sang ngon ngu nguoi dung doc duoc.
@@ -30,9 +29,7 @@ class ApiService {
 
   static const String _defaultBaseUrl = String.fromEnvironment(
     'STAYZ_API_BASE_URL',
-    defaultValue: kIsWeb
-        ? 'http://localhost:3000/api'
-        : 'http://10.0.2.2:3000/api',
+    defaultValue: 'https://stayz-api.onrender.com/api',
   );
 
   /// Khong co gioi han nao thi backend treo se lam app quay vo tan.
@@ -219,6 +216,8 @@ class ApiService {
     final serverMessage = decoded is Map<String, dynamic>
         ? decoded['message']?.toString()
         : null;
+    final localizedServerMessage = _localizedServerMessage(serverMessage);
+    if (localizedServerMessage != null) return localizedServerMessage;
     if (AppLocale.instance.isVietnamese &&
         serverMessage != null &&
         serverMessage.trim().isNotEmpty) {
@@ -262,5 +261,32 @@ class ApiService {
                 'Something went wrong. Please try again.',
               );
     }
+  }
+
+  String? _localizedServerMessage(String? message) {
+    switch (message?.trim().toLowerCase()) {
+      case 'email da ton tai':
+        return tr('Email này đã được sử dụng.', 'This email is already in use.');
+      case 'so dien thoai da ton tai':
+        return tr('Số điện thoại này đã được sử dụng.', 'This phone number is already in use.');
+      case 'email khong dung dinh dang':
+        return tr('Email không đúng định dạng.', 'Enter a valid email address.');
+      case 'ho ten chi duoc chua chu cai, khong chua so':
+        return tr(
+          'Họ tên chỉ được chứa chữ cái, không chứa số.',
+          'Full name can only contain letters, not numbers.',
+        );
+      case 'so dien thoai viet nam khong hop le':
+        return tr(
+          'Số điện thoại Việt Nam không hợp lệ.',
+          'Enter a valid Vietnamese phone number.',
+        );
+      case 'mat khau phai co it nhat 8 ky tu, gom chu hoa, chu thuong, so va ky tu dac biet':
+        return tr(
+          'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
+          'Password must have at least 8 characters, including uppercase, lowercase, a number and a special character.',
+        );
+    }
+    return null;
   }
 }

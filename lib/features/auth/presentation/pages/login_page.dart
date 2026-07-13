@@ -29,6 +29,8 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _googleLoading = false;
+  String? _emailError;
+  String? _passwordError;
   StreamSubscription<Uri>? _linkSubscription;
 
   @override
@@ -112,12 +114,17 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text;
 
     final emailError = AuthValidators.email(email);
+    final passwordError = AuthValidators.requiredPassword(password);
+    setState(() {
+      _emailError = emailError;
+      _passwordError = passwordError;
+    });
     if (emailError != null) {
       _showMessage(emailError);
       return;
     }
-    if (password.isEmpty) {
-      _showMessage(tr('Vui lòng nhập mật khẩu.', 'Password is required.'));
+    if (passwordError != null) {
+      _showMessage(passwordError);
       return;
     }
 
@@ -174,6 +181,10 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   controller: _emailController,
+                  errorText: _emailError,
+                  onChanged: (_) => setState(
+                    () => _emailError = AuthValidators.email(_emailController.text),
+                  ),
                 ),
                 SizedBox(
                   height: (responsive.isCompact ? 12 : 18) * responsive.scale,
@@ -184,6 +195,10 @@ class _LoginPageState extends State<LoginPage> {
                   obscure: true,
                   textInputAction: TextInputAction.done,
                   controller: _passwordController,
+                  errorText: _passwordError,
+                  onChanged: (_) => setState(
+                    () => _passwordError = AuthValidators.requiredPassword(_passwordController.text),
+                  ),
                 ),
                 SizedBox(height: 10 * responsive.scale),
                 Align(

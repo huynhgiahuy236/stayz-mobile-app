@@ -1,6 +1,13 @@
 const reviewsModel = require("../models/reviews.model");
 const bookingModel = require("../models/bookings.model");
-const { BadRequestException } = require("../helpers/error.helper");
+const { BadRequestException, ForbiddenException } = require("../helpers/error.helper");
+
+const assertReviewOwnership = (review, user) => {
+  const isOwner = review.user_id?.toString() === user?.userId?.toString();
+  if (!isOwner && user?.role !== "admin") {
+    throw new ForbiddenException("Ban khong co quyen thay doi danh gia nay");
+  }
+};
 
 const reviewService = {
   getAll: async (propertyId) => {
@@ -10,7 +17,7 @@ const reviewService = {
     }
     return await reviewsModel
       .find(query)
-      .populate("user_id", "avatar full_name email role")
+      .populate("user_id", "avatar full_name role")
       .populate("property_id", "title slug city user_id");
   },
   create: async (data) => {
@@ -49,21 +56,33 @@ const reviewService = {
     });
     return review;
   },
-  update: async (id, data) => {
+  update: async (id, data, user) => {
     const { rating, comment } = data;
     const review = await reviewsModel.findById(id);
     if (!review) return null;
 
-    review.rating = rating;
-    review.comment = comment;
+    assertReviewOwnership(review, user);
+
+    if (rating != null) {
+      const safeRating = Number(rating);
+      if (!Number.isFinite(safeRating) || safeRating < 1 || safeRating > 5) {
+        throw new BadRequestException("Rating phai tu 1 den 5 sao");
+      }
+      review.rating = safeRating;
+    }
+
+    if (comment != null) review.comment = String(comment).trim();
     await review.save();
 
     return await reviewsModel
       .findById(id)
-      .populate("user_id", "avatar full_name email role")
+      .populate("user_id", "avatar full_name role")
       .populate("property_id", "title slug city user_id");
   },
-  delete: async (id) => {
+  delete: async (id, user) => {
+    const review = await reviewsModel.findById(id);
+    if (!review) return null;
+    assertReviewOwnership(review, user);
     return await reviewsModel.findByIdAndDelete(id);
   },
 };

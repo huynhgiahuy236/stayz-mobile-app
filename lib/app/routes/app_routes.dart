@@ -26,6 +26,8 @@ import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart'
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_intro_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/help_center_page.dart';
+import 'package:capstone_mobile/features/profile/presentation/pages/payment_methods_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/profile_form_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/settings_page.dart';
 import 'package:capstone_mobile/features/search/presentation/pages/empty_search_page.dart';
@@ -71,6 +73,8 @@ class AppRoutes {
   static const settings = '/settings';
   static const profileForm = '/profile-form';
   static const editProfile = '/edit-profile';
+  static const helpCenter = '/help-center';
+  static const paymentMethods = '/payment-methods';
 
   static Map<String, WidgetBuilder> get routes => {
     authGate: (_) => const AuthGatePage(),
@@ -107,5 +111,7 @@ class AppRoutes {
     settings: (_) => const SettingsPage(),
     profileForm: (_) => const ProfileFormPage(),
     editProfile: (_) => const EditProfilePage(),
+    helpCenter: (_) => const HelpCenterPage(),
+    paymentMethods: (_) => const PaymentMethodsPage(),
   };
 }

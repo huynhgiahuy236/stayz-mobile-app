@@ -7,6 +7,7 @@ import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -23,6 +24,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
   void initState() {
     super.initState();
     _favoritesFuture = ApiStayzRepository.instance.getFavoriteHotelSummaries();
+  }
+
+  void _retry() {
+    setState(() {
+      _favoritesFuture = ApiStayzRepository.instance
+          .getFavoriteHotelSummaries();
+    });
   }
 
   Future<void> _removeFavorite(HotelSummary summary) async {
@@ -70,6 +78,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 onPressed: () =>
                     Navigator.of(context).pushNamed(AppRoutes.search),
                 icon: const Icon(Icons.add_rounded),
+                tooltip: tr('Tìm thêm khách sạn', 'Find more hotels'),
                 style: IconButton.styleFrom(
                   backgroundColor: AppTheme.primarySoft,
                   foregroundColor: AppTheme.primary,
@@ -95,6 +104,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       snapshot.connectionState != ConnectionState.done) {
                     return const Center(
                       child: CircularProgressIndicator(color: AppTheme.primary),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return StayzErrorView(
+                      error: snapshot.error,
+                      onRetry: _retry,
                     );
                   }
 

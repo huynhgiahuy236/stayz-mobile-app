@@ -6,6 +6,7 @@ import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/data/auth_validators.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -28,6 +29,24 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _registrationSucceeded = false;
   int _step = 0;
   String _otpMethod = 'email';
+  String? _nameError;
+  String? _emailError;
+  String? _phoneError;
+  String? _passwordError;
+  String? _otpError;
+
+  void _validateAccountFields() {
+    setState(() {
+      _nameError = AuthValidators.fullName(_nameController.text);
+      _emailError = AuthValidators.email(_emailController.text);
+      _phoneError = AuthValidators.phone(_phoneController.text);
+      _passwordError = AuthValidators.password(_passwordController.text);
+    });
+  }
+
+  void _validateOtpField() {
+    setState(() => _otpError = AuthValidators.otpCode(_otpController.text));
+  }
 
   @override
   void dispose() {
@@ -74,6 +93,9 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } on ApiException catch (error) {
       if (mounted) {
+        if (error.statusCode == 409) {
+          setState(() => _emailError = error.message);
+        }
         _showMessage(
           error.statusCode == 404
               ? tr(
@@ -94,11 +116,10 @@ class _RegisterPageState extends State<RegisterPage> {
     final validationError =
         AuthValidators.fullName(_nameController.text.trim()) ??
         AuthValidators.email(_emailController.text.trim()) ??
-        (_phoneController.text.trim().isEmpty
-            ? null
-            : AuthValidators.phone(_phoneController.text.trim())) ??
+        AuthValidators.phone(_phoneController.text.trim()) ??
         AuthValidators.password(_passwordController.text);
     if (validationError != null) {
+      _validateAccountFields();
       _showMessage(validationError);
       return;
     }
@@ -119,6 +140,10 @@ class _RegisterPageState extends State<RegisterPage> {
     final email = _emailController.text.trim();
     final emailError = AuthValidators.email(email);
     final otpError = AuthValidators.otpCode(_otpController.text);
+    setState(() {
+      _emailError = emailError;
+      _otpError = otpError;
+    });
     if (emailError != null || otpError != null) {
       _showMessage(emailError ?? otpError!);
       return;
@@ -136,7 +161,21 @@ class _RegisterPageState extends State<RegisterPage> {
         tr('Xác thực OTP thành công.', 'OTP verified successfully.'),
       );
     } catch (error) {
-      if (mounted) _showMessage(_messageFromError(error));
+      if (mounted) {
+        final message = _messageFromError(error);
+        if (error is ApiException && error.statusCode == 409) {
+          setState(() {
+            if (message.toLowerCase().contains('phone') ||
+                message.toLowerCase().contains('thoai')) {
+              _phoneError = message;
+            } else {
+              _emailError = message;
+            }
+            _step = 0;
+          });
+        }
+        _showMessage(message);
+      }
     } finally {
       if (mounted) setState(() => _isOtpLoading = false);
     }
@@ -152,13 +191,15 @@ class _RegisterPageState extends State<RegisterPage> {
     final validationError =
         AuthValidators.fullName(fullName) ??
         AuthValidators.email(email) ??
-        (phone.isEmpty ? null : AuthValidators.phone(phone)) ??
+        AuthValidators.phone(phone) ??
         AuthValidators.password(password);
     if (validationError != null) {
+      _validateAccountFields();
       _showMessage(validationError);
       return;
     }
     final otpError = AuthValidators.otpCode(_otpController.text);
+    setState(() => _otpError = otpError);
     if (otpError != null || !_otpVerified) {
       _showMessage(
         otpError ??
@@ -308,6 +349,10 @@ class _RegisterPageState extends State<RegisterPage> {
       label: tr('Họ và tên', 'Full name'),
       hint: tr('Nhập họ và tên', 'Enter your name'),
       controller: _nameController,
+      errorText: _nameError,
+      onChanged: (_) => setState(
+        () => _nameError = AuthValidators.fullName(_nameController.text),
+      ),
       textInputAction: TextInputAction.next,
     ),
     const SizedBox(height: 16),
@@ -316,6 +361,10 @@ class _RegisterPageState extends State<RegisterPage> {
       hint: 'name@example.com',
       keyboardType: TextInputType.emailAddress,
       controller: _emailController,
+      errorText: _emailError,
+      onChanged: (_) => setState(
+        () => _emailError = AuthValidators.email(_emailController.text),
+      ),
       textInputAction: TextInputAction.next,
     ),
     const SizedBox(height: 16),
@@ -324,14 +373,27 @@ class _RegisterPageState extends State<RegisterPage> {
       hint: '0901 234 567',
       keyboardType: TextInputType.phone,
       controller: _phoneController,
+      errorText: _phoneError,
+      onChanged: (_) => setState(
+        () => _phoneError = AuthValidators.phone(_phoneController.text),
+      ),
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      maxLength: 10,
       textInputAction: TextInputAction.next,
     ),
     const SizedBox(height: 16),
     AuthField(
       label: tr('Mật khẩu', 'Password'),
-      hint: tr('Ít nhất 6 ký tự', 'At least 6 characters'),
+      hint: tr(
+        'Từ 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt',
+        '8+ characters with upper, lower, number and symbol',
+      ),
       obscure: true,
       controller: _passwordController,
+      errorText: _passwordError,
+      onChanged: (_) => setState(
+        () => _passwordError = AuthValidators.password(_passwordController.text),
+      ),
       textInputAction: TextInputAction.done,
     ),
     const SizedBox(height: 16),
@@ -385,6 +447,13 @@ class _RegisterPageState extends State<RegisterPage> {
       hint: '123456',
       keyboardType: TextInputType.number,
       controller: _otpController,
+      errorText: _otpError,
+      onChanged: (_) {
+        _otpVerified = false;
+        _validateOtpField();
+      },
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      maxLength: 6,
       textInputAction: TextInputAction.done,
     ),
     const SizedBox(height: 14),

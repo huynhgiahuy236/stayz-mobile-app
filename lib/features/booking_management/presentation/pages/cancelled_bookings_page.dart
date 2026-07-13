@@ -76,10 +76,34 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
                     ),
                     itemCount: bookings.length,
                     separatorBuilder: (_, __) => SizedBox(height: 18 * responsive.scale),
-                    itemBuilder: (context, index) => _CancelledBookingCard(
-                      summary: bookings[index],
-                      colors: _cancelledColors[index % _cancelledColors.length],
-                    ),
+                    itemBuilder: (context, index) {
+                      final summary = bookings[index];
+                      return InkWell(
+                        onTap: () => Navigator.of(context).pushNamed(
+                          AppRoutes.cancelledBookingDetail,
+                          arguments: BookingSummaryArgs(summary: summary),
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        child: UpcomingBookingCard(
+                          name: summary.hotel.name,
+                          location: '${summary.city.name}, ${summary.city.region}',
+                          code: 'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
+                          checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
+                          checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
+                          imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
+                          colors: _cancelledColors[index % _cancelledColors.length],
+                          statusLabel: tr('Đã hủy', 'Cancelled'),
+                          statusColor: const Color(0xFFFFD8D5),
+                          statusTextColor: AppTheme.danger,
+                          secondaryLabel: tr('Tìm chỗ ở khác', 'Find another stay'),
+                          onDetail: () => Navigator.of(context).pushNamed(
+                            AppRoutes.cancelledBookingDetail,
+                            arguments: BookingSummaryArgs(summary: summary),
+                          ),
+                          onCancel: () => Navigator.of(context).pushNamed(AppRoutes.search),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

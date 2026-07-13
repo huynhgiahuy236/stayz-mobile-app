@@ -180,9 +180,34 @@ class ApiStayzRepository implements StayzRepository {
   @override
   Future<StayzUser?> getProfile() async {
     final userId = await AuthService.instance.userId();
-    if (userId == null) return null;
+    if (userId == null) {
+      throw ApiException(
+        tr(
+          'Vui lòng đăng nhập lại để xem hồ sơ.',
+          'Please sign in again to view your profile.',
+        ),
+        statusCode: 401,
+      );
+    }
     final data = await api.get('/users/getById/$userId');
-    return data is Map<String, dynamic> ? _userFromApi(data) : null;
+    if (data is! Map<String, dynamic>) {
+      throw ApiException(
+        tr(
+          'Dữ liệu hồ sơ trả về không hợp lệ.',
+          'The profile response is invalid.',
+        ),
+      );
+    }
+    final user = _userFromApi(data);
+    if (user.id.isEmpty || user.email.isEmpty) {
+      throw ApiException(
+        tr(
+          'Hồ sơ tài khoản đang thiếu dữ liệu bắt buộc.',
+          'The account profile is missing required data.',
+        ),
+      );
+    }
+    return user;
   }
 
   @override
@@ -546,8 +571,8 @@ class ApiStayzRepository implements StayzRepository {
     final avatar = json['avatar'];
     return StayzUser(
       id: _id(json),
-      fullName: _string(json['full_name'], fallback: 'StayZ Guest'),
-      email: _string(json['email'], fallback: 'guest@stayz.vn'),
+      fullName: _string(json['full_name']),
+      email: _string(json['email']),
       phone: _string(json['phone_number']),
       gender: _string(json['gender']),
       homeAddress: _string(json['home_address']),

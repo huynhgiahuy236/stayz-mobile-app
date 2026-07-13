@@ -30,7 +30,7 @@ const reviewController = {
     const reviewId = req.params.id;
     const payload = req.body;
     try {
-      const data = await reviewService.update(reviewId, payload);
+      const data = await reviewService.update(reviewId, payload, req.user);
       const response = responseSuccess(data, "Cập nhật thành công", 200);
       res.status(response.code).json(response);
     } catch (err) {
@@ -40,7 +40,7 @@ const reviewController = {
   delete: async (req, res, next) => {
     const reviewId = req.params.id;
     try {
-      const data = await reviewService.delete(reviewId);
+      const data = await reviewService.delete(reviewId, req.user);
       const response = responseSuccess(data, "Xóa thành công", 200);
       res.status(response.code).json(response);
     } catch (err) {

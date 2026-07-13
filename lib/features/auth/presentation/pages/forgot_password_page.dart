@@ -18,6 +18,7 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _emailController = TextEditingController();
   bool _isLoading = false;
+  String? _emailError;
 
   @override
   void dispose() {
@@ -31,6 +32,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final email = _emailController.text.trim();
 
     final error = AuthValidators.email(email);
+    setState(() => _emailError = error);
     if (error != null) {
       _showMessage(error);
       return;
@@ -102,6 +104,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     hint: 'example@email.com',
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
+                    errorText: _emailError,
+                    onChanged: (_) => setState(
+                      () => _emailError = AuthValidators.email(_emailController.text),
+                    ),
                     textInputAction: TextInputAction.done,
                   ),
                 ),
@@ -119,7 +125,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 TextButton.icon(
                   // Truoc day nut nay dieu huong sang... form thong tin khach san.
                   onPressed: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.hotelInfoForm),
+                      Navigator.of(context).pushNamed(AppRoutes.helpCenter),
                   icon: const Icon(Icons.support_agent_outlined),
                   label: Text(tr('Trung tâm hỗ trợ', 'Help center')),
                   style: TextButton.styleFrom(foregroundColor: AppTheme.accent),

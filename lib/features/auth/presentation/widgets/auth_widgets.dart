@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AuthResponsive {
   const AuthResponsive._({
@@ -282,6 +283,10 @@ class AuthField extends StatefulWidget {
     this.keyboardType,
     this.controller,
     this.textInputAction,
+    this.errorText,
+    this.onChanged,
+    this.inputFormatters,
+    this.maxLength,
     super.key,
   });
 
@@ -292,6 +297,10 @@ class AuthField extends StatefulWidget {
   final TextInputType? keyboardType;
   final TextEditingController? controller;
   final TextInputAction? textInputAction;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
 
   @override
   State<AuthField> createState() => _AuthFieldState();
@@ -324,19 +333,23 @@ class _AuthFieldState extends State<AuthField> {
           ),
         ),
         SizedBox(height: 8 * responsive.scale),
-        SizedBox(
-          height: 56 * responsive.scale,
-          child: TextField(
+        TextField(
             controller: widget.controller,
             obscureText: _obscureText,
             keyboardType: widget.keyboardType,
             textInputAction: widget.textInputAction,
+            onChanged: widget.onChanged,
+            inputFormatters: widget.inputFormatters,
+            maxLength: widget.maxLength,
             style: textTheme.bodyLarge?.copyWith(
               color: AppTheme.ink,
               fontSize: 16 * responsive.scale,
             ),
             decoration: InputDecoration(
               hintText: widget.hint,
+              errorText: widget.errorText,
+              errorMaxLines: 2,
+              counterText: '',
               hintStyle: textTheme.bodyLarge?.copyWith(
                 color: AppTheme.neutral500.withValues(alpha: 0.4),
                 fontSize: 16 * responsive.scale,
@@ -382,9 +395,16 @@ class _AuthFieldState extends State<AuthField> {
                   width: 1.5,
                 ),
               ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppTheme.danger),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppTheme.danger, width: 1.5),
+              ),
             ),
           ),
-        ),
       ],
     );
   }

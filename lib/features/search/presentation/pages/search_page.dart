@@ -392,7 +392,10 @@ class _SearchBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+              AppRoutes.home,
+              (route) => false,
+            ),
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: tr('Quay lại', 'Back'),
             color: AppTheme.ink,

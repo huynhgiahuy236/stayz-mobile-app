@@ -39,6 +39,7 @@ class ProfileHeader extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
             icon: const Icon(Icons.arrow_back),
             color: AppTheme.accentDark,
+            tooltip: tr('Quay lại', 'Back'),
           ),
           SizedBox(width: 10 * responsive.widthScale),
           Expanded(
@@ -140,35 +141,41 @@ class ProfileMenuTile extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
     final color = danger ? const Color(0xFFD00000) : AppTheme.accentDark;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 18 * responsive.widthScale,
-          vertical: 18 * responsive.scale,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 27 * responsive.scale),
-            SizedBox(width: 22 * responsive.widthScale),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: danger ? color : AppTheme.ink,
-                  fontSize: 19 * responsive.scale,
-                  fontWeight: FontWeight.w500,
+    return Semantics(
+      button: onTap != null,
+      enabled: onTap != null,
+      label: label,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 18 * responsive.widthScale,
+            vertical: 18 * responsive.scale,
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 27 * responsive.scale),
+              SizedBox(width: 22 * responsive.widthScale),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: danger ? color : AppTheme.ink,
+                    fontSize: 19 * responsive.scale,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-            ),
-            trailing ??
-                Icon(
-                  Icons.chevron_right,
-                  color: AppTheme.neutral500,
-                  size: 28 * responsive.scale,
-                ),
-          ],
+              trailing ??
+                  Icon(
+                    Icons.chevron_right,
+                    color: AppTheme.neutral500,
+                    size: 28 * responsive.scale,
+                  ),
+            ],
+          ),
         ),
       ),
     );

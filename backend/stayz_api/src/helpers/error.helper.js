@@ -48,10 +48,17 @@ class ConflictException extends Error {
     this.code = 409;
   }
 }
+class ServiceUnavailableException extends Error {
+  constructor(message = "Service unavailable") {
+    super(message);
+    this.code = 503;
+  }
+}
 module.exports = {
   handleError,
   BadRequestException,
   ForbiddenException,
   UnauthorizedError,
   ConflictException,
+  ServiceUnavailableException,
 };

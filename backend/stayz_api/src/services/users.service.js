@@ -17,6 +17,9 @@ const redis = require("../config/redis.config");
 const { SECRET } = require("../constants/app.constant");
 
 const RESET_CODE_EXPIRES_IN_MINUTES = 10;
+const EMAIL_PATTERN = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)+$/;
+const NAME_PATTERN = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ỹĐđ]+(?:[ '\-][A-Za-zÀ-ÖØ-öø-ÿĀ-ỹĐđ]+)*$/;
+const VIETNAMESE_PHONE_PATTERN = /^(?:03[2-9]|05[25689]|07[06-9]|08[1-9]|09[0-9])\d{7}$/;
 
 const buildResetCodeHash = (email, code) => {
   return crypto
@@ -229,30 +232,66 @@ const userService = {
     if (!email?.trim() || !password || !full_name?.trim()) {
       throw new BadRequestException("Thieu email, mat khau hoac ho ten");
     }
-    if (String(password).length < 6) {
-      throw new BadRequestException("Mat khau phai co it nhat 6 ky tu");
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = full_name.trim();
+    const normalizedPhone = String(phone_number).trim();
+    const normalizedPassword = String(password);
+    if (normalizedEmail.includes("..") || !EMAIL_PATTERN.test(normalizedEmail)) {
+      throw new BadRequestException("Email khong dung dinh dang");
+    }
+    if (!NAME_PATTERN.test(normalizedName)) {
+      throw new BadRequestException("Ho ten chi duoc chua chu cai, khong chua so");
+    }
+    if (!VIETNAMESE_PHONE_PATTERN.test(normalizedPhone)) {
+      throw new BadRequestException("So dien thoai Viet Nam khong hop le");
+    }
+    if (
+      normalizedPassword.length < 8 ||
+      !/[a-z]/.test(normalizedPassword) ||
+      !/[A-Z]/.test(normalizedPassword) ||
+      !/\d/.test(normalizedPassword) ||
+      !/[^A-Za-z0-9\s]/.test(normalizedPassword) ||
+      /\s/.test(normalizedPassword)
+    ) {
+      throw new BadRequestException(
+        "Mat khau phai co it nhat 8 ky tu, gom chu hoa, chu thuong, so va ky tu dac biet",
+      );
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
     const { normalizedEmail: verifiedEmail } = await assertRegisterCode(normalizedEmail, register_code);
 
     const existing = await usersModel.findOne({ email: normalizedEmail });
     if (existing) {
       throw new ConflictException("Email da ton tai");
     }
+    const existingPhone = await usersModel.findOne({ phone_number: normalizedPhone });
+    if (existingPhone) {
+      throw new ConflictException("So dien thoai da ton tai");
+    }
     const hasedPassword = await bcrypt.hash(password, 10);
     const safeRole = ["admin", "user"].includes(role) ? role : "user";
 
-    const user = await usersModel.create({
-      email: verifiedEmail,
-      password: hasedPassword,
-      full_name,
-      phone_number,
-      gender,
-      home_address,
-      avatar,
-      role: safeRole,
-    });
+    let user;
+    try {
+      user = await usersModel.create({
+        email: verifiedEmail,
+        password: hasedPassword,
+        full_name: normalizedName,
+        phone_number: normalizedPhone,
+        gender,
+        home_address,
+        avatar,
+        role: safeRole,
+      });
+    } catch (error) {
+      if (error?.code === 11000) {
+        const duplicateField = Object.keys(error.keyPattern || {})[0];
+        throw new ConflictException(
+          duplicateField === "phone_number" ? "So dien thoai da ton tai" : "Email da ton tai",
+        );
+      }
+      throw error;
+    }
     await redis.del(`register-otp:${verifiedEmail}`);
     return sanitizeUser(user);
   },

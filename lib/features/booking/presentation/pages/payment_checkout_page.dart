@@ -21,11 +21,19 @@ class PaymentCheckoutPage extends StatefulWidget {
 class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   bool _creatingPayment = false;
   PaymentPlan _selectedPlan = PaymentPlan.deposit30;
+  PayOSPaymentArgs? _activePayment;
 
-  /// Sang man QR gia voi phuong an + so tien da chon. Booking chi duoc tao
-  /// SAU khi QR "thanh toan thanh cong" (10s), khong tao ngay tai day.
+  /// Tao booking pending va payment mot lan, sau do tai su dung cung ma QR
+  /// neu nguoi dung quay lai checkout trong cung phien man hinh.
   Future<void> _goToPayment(BookingDraft draft) async {
     if (_creatingPayment) return;
+    final activePayment = _activePayment;
+    if (activePayment != null) {
+      await Navigator.of(
+        context,
+      ).pushNamed(AppRoutes.paymentQr, arguments: activePayment);
+      return;
+    }
     final quote = PaymentPolicy.quote(_selectedPlan, draft.totalAmount);
     final payableDraft = draft.copyWith(
       paymentMethod: 'PayOS',
@@ -61,7 +69,8 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
       if (paymentArgs.qrCode.isEmpty && paymentArgs.qrImageUrl.isEmpty)
         throw const ApiException('VietQR is missing.');
       if (!mounted) return;
-      Navigator.of(
+      _activePayment = paymentArgs;
+      await Navigator.of(
         context,
       ).pushNamed(AppRoutes.paymentQr, arguments: paymentArgs);
     } on ApiException catch (error) {
@@ -550,12 +559,15 @@ class _BookingInfoRow extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: AppTheme.ink,
-              fontSize: 14 * responsive.scale,
-              fontWeight: FontWeight.w700,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                color: AppTheme.ink,
+                fontSize: 14 * responsive.scale,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

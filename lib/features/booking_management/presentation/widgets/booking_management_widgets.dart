@@ -286,6 +286,11 @@ class UpcomingBookingCard extends StatelessWidget {
     this.paymentExpired = false,
     this.paymentBusy = false,
     this.imageUrl,
+    this.statusLabel,
+    this.statusColor,
+    this.statusTextColor,
+    this.detailLabel,
+    this.secondaryLabel,
     super.key,
   });
 
@@ -302,6 +307,11 @@ class UpcomingBookingCard extends StatelessWidget {
   final bool paymentExpired;
   final bool paymentBusy;
   final String? imageUrl;
+  final String? statusLabel;
+  final Color? statusColor;
+  final Color? statusTextColor;
+  final String? detailLabel;
+  final String? secondaryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -336,17 +346,17 @@ class UpcomingBookingCard extends StatelessWidget {
                   top: 12 * responsive.scale,
                   right: 12 * responsive.widthScale,
                   child: BookingStatusPill(
-                    label: paymentExpired
+                    label: statusLabel ?? (paymentExpired
                         ? tr('Đã hết hạn', 'Payment expired')
                         : pendingPayment
                         ? tr('Chờ thanh toán', 'Pending payment')
-                        : tr('Sắp tới', 'Upcoming'),
-                    color: paymentExpired
+                        : tr('Sắp tới', 'Upcoming')),
+                    color: statusColor ?? (paymentExpired
                         ? AppTheme.danger.withValues(alpha: 0.14)
                         : pendingPayment
                         ? const Color(0xFFFFE8B0)
-                        : AppTheme.primarySoft,
-                    textColor: paymentExpired ? AppTheme.danger : null,
+                        : AppTheme.primarySoft),
+                    textColor: statusTextColor ?? (paymentExpired ? AppTheme.danger : null),
                   ),
                 ),
               ],
@@ -389,7 +399,7 @@ class UpcomingBookingCard extends StatelessWidget {
                 SizedBox(height: 18 * responsive.scale),
                 Row(
                   children: [
-                    Expanded(child: BookingSoftButton(label: tr('Chi tiết', 'Details'), onTap: onDetail)),
+                    Expanded(child: BookingSoftButton(label: detailLabel ?? tr('Chi tiết', 'Details'), onTap: onDetail)),
                     SizedBox(width: 10 * responsive.widthScale),
                     Expanded(
                       child: pendingPayment && onPay != null
@@ -401,7 +411,7 @@ class UpcomingBookingCard extends StatelessWidget {
                                   : tr('Thanh toán', 'Pay now'),
                               onTap: paymentBusy ? null : onPay!,
                             )
-                          : BookingOutlineButton(label: tr('Hủy lịch', 'Cancel'), onTap: onCancel),
+                          : BookingOutlineButton(label: secondaryLabel ?? tr('Hủy lịch', 'Cancel'), onTap: onCancel),
                     ),
                   ],
                 ),

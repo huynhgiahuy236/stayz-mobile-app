@@ -95,14 +95,20 @@ class CompletedBookingsPage extends StatelessWidget {
                             arguments: BookingSummaryArgs(summary: summary),
                           ),
                           borderRadius: BorderRadius.circular(16),
-                          child: HistoryBookingCard(
+                          child: UpcomingBookingCard(
                             name: summary.hotel.name,
-                            date: '${StayzFormatters.shortDate(summary.booking.checkInDate)} - ${StayzFormatters.shortDate(summary.booking.checkOutDate)}',
-                            price: StayzFormatters.compactVnd(summary.booking.totalAmount),
+                            location: '${summary.city.name}, ${summary.city.region}',
+                            code: 'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
+                            checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
+                            checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
                             imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
                             colors: _completedColors[index % _completedColors.length],
-                            // "Đặt lại": mở lại đúng khách sạn đã ở, kèm số khách cũ.
-                            onSecondary: () => Navigator.of(context).pushNamed(
+                            statusLabel: tr('Đã hoàn thành', 'Completed'),
+                            statusColor: const Color(0xFFBDF4D4),
+                            statusTextColor: const Color(0xFF096A43),
+                            detailLabel: tr('Đánh giá', 'Review'),
+                            secondaryLabel: tr('Đặt lại', 'Rebook'),
+                            onCancel: () => Navigator.of(context).pushNamed(
                               AppRoutes.roomSelection,
                               arguments: RoomSelectionArgs(
                                 hotel: HotelSummary(
@@ -115,7 +121,7 @@ class CompletedBookingsPage extends StatelessWidget {
                                 children: summary.booking.guests.children,
                               ),
                             ),
-                            onPrimary: () => Navigator.of(context).pushNamed(
+                            onDetail: () => Navigator.of(context).pushNamed(
                               AppRoutes.review,
                               arguments: BookingSummaryArgs(summary: summary),
                             ),

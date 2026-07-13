@@ -343,6 +343,12 @@ class AdminHeader extends StatelessWidget {
     final controls = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _HeaderIcon(
+          icon: Icons.arrow_back_rounded,
+          tooltip: tr('Quay lại trang Tôi', 'Back to profile'),
+          onPressed: onHome,
+        ),
+        const SizedBox(width: 6),
         _LanguageButton(),
         if (wide) ...[
           const SizedBox(width: 6),

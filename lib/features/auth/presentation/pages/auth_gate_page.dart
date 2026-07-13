@@ -43,18 +43,12 @@ class _AuthGatePageState extends State<AuthGatePage> {
       ]).timeout(const Duration(seconds: 12));
       final hasSeenOnboarding = values[0] as bool;
       final isAuthenticated = values[1] as bool;
-      final role = isAuthenticated
-          ? await auth.userRole().timeout(const Duration(seconds: 5))
-          : null;
-
       if (!mounted) return;
 
       final route = !hasSeenOnboarding
           ? AppRoutes.onboarding
           : isAuthenticated
-          ? role == 'admin'
-                ? AppRoutes.admin
-                : AppRoutes.home
+          ? AppRoutes.home
           : AppRoutes.login;
       Navigator.of(context).pushReplacementNamed(route);
     } catch (error) {

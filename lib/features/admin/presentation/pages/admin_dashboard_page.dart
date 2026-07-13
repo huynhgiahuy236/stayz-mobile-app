@@ -10,6 +10,7 @@ import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -19,6 +20,7 @@ class AdminDashboardPage extends StatefulWidget {
 }
 
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  static const _lastSectionKey = 'admin_last_section';
   final AdminRepository _repository = const AdminRepository();
   final Map<AdminSection, TextEditingController> _searchControllers = {
     for (final section in AdminSection.values) section: TextEditingController(),
@@ -39,6 +41,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     for (final controller in _searchControllers.values) {
       controller.addListener(_onSearchChanged);
     }
+    _restoreLastSection();
+  }
+
+  Future<void> _restoreLastSection() async {
+    final preferences = await SharedPreferences.getInstance();
+    final saved = preferences.getString(_lastSectionKey);
+    final section = AdminSection.values.where((item) => item.name == saved).firstOrNull;
+    if (section != null && mounted) setState(() => _section = section);
+  }
+
+  Future<void> _selectSection(AdminSection section, {bool clearSearch = false}) async {
+    if (clearSearch) _searchControllers[section]!.clear();
+    if (mounted) setState(() => _section = section);
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(_lastSectionKey, section.name);
   }
 
   @override
@@ -119,7 +136,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       builder: (context) => HotelFormDialog(hotel: hotel),
     );
     if (input == null) return;
-    await _runAction(
+    final saved = await _runAction(
       hotel == null ? 'hotel:create' : 'hotel:${hotel.id}',
       () async {
         final id = await _repository.saveHotel(input, id: hotel?.id);
@@ -132,6 +149,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         }
       },
     );
+    if (saved) await _selectSection(AdminSection.hotels, clearSearch: true);
   }
 
   Future<void> _editRoom({AdminRoom? room}) async {
@@ -168,8 +186,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       },
     );
     if (saved && mounted) {
-      _searchControllers[AdminSection.rooms]!.clear();
-      setState(() => _section = AdminSection.rooms);
+      await _selectSection(AdminSection.rooms, clearSearch: true);
     }
   }
 
@@ -179,7 +196,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       builder: (_) => UserFormDialog(user: user),
     );
     if (input == null) return;
-    await _runAction(
+    final saved = await _runAction(
       user == null ? 'user:create' : 'user:${user.id}',
       () async {
         final id = await _repository.saveUser(input, id: user?.id);
@@ -192,6 +209,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         }
       },
     );
+    if (saved) await _selectSection(AdminSection.users, clearSearch: true);
   }
 
   Future<void> _deleteUser(AdminUser user) async {
@@ -235,10 +253,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       ),
     );
     if (input == null) return;
-    await _runAction(
+    final saved = await _runAction(
       booking == null ? 'booking:create' : 'booking:${booking.id}',
       () => _repository.saveBooking(input, id: booking?.id),
     );
+    if (saved) await _selectSection(AdminSection.bookings, clearSearch: true);
   }
 
   Future<void> _deleteBooking(AdminBooking booking) async {
@@ -398,7 +417,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 if (wide)
                   AdminSideNav(
                     selected: _section,
-                    onSelect: (section) => setState(() => _section = section),
+                    onSelect: _selectSection,
                     onHome: _goHome,
                   ),
                 Expanded(
@@ -423,8 +442,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       if (!wide)
                         AdminTopTabs(
                           selected: _section,
-                          onSelect: (section) =>
-                              setState(() => _section = section),
+                          onSelect: _selectSection,
                         ),
                       Expanded(
                         child: RefreshIndicator(

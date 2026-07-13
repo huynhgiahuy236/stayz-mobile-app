@@ -133,7 +133,6 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final currentRoute = ModalRoute.of(context)?.settings.name;
     final content = AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOutCubic,
@@ -173,7 +172,7 @@ class _NavItem extends StatelessWidget {
         button: true,
         label: label,
         child: InkWell(
-          onTap: active || currentRoute == routeName ? null : () => Navigator.of(context).pushReplacementNamed(routeName),
+          onTap: () => Navigator.of(context).pushReplacementNamed(routeName),
           borderRadius: BorderRadius.circular(18),
           child: Center(child: content),
         ),

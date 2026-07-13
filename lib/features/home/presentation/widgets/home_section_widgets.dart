@@ -549,7 +549,7 @@ class HotelCard extends StatelessWidget {
                           right: 4 * responsive.scale,
                           child: Semantics(
                             button: true,
-                            label: isFavorite ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích',
+          label: isFavorite ? tr('Bỏ khỏi yêu thích', 'Remove from favorites') : tr('Thêm vào yêu thích', 'Add to favorites'),
                             child: InkResponse(
                               onTap: onFavoriteTap,
                               radius: 24,
@@ -643,6 +643,7 @@ class BookingPreviewCard extends StatelessWidget {
     required this.location,
     required this.date,
     required this.total,
+    required this.status,
     required this.colors,
     this.imageUrl,
     this.onTap,
@@ -653,6 +654,7 @@ class BookingPreviewCard extends StatelessWidget {
   final String location;
   final String date;
   final String total;
+  final String status;
   final List<Color> colors;
   final String? imageUrl;
   final VoidCallback? onTap;
@@ -694,11 +696,20 @@ class BookingPreviewCard extends StatelessWidget {
                     Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
                     SizedBox(height: 6 * responsive.scale),
                     Text(location, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale)),
+                    SizedBox(height: 7 * responsive.scale),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(99)),
+                        child: Text(status, style: TextStyle(color: Colors.white, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w800)),
+                      ),
+                    ),
                     SizedBox(height: 12 * responsive.scale),
                     Row(
                       children: [
-                        Expanded(child: _DarkMeta(label: 'Ngày', value: date)),
-                        _DarkMeta(label: 'Tổng', value: total, alignEnd: true),
+                        Expanded(child: _DarkMeta(label: tr('Ngày', 'Dates'), value: date)),
+                        _DarkMeta(label: tr('Tổng', 'Total'), value: total, alignEnd: true),
                       ],
                     ),
                   ],
@@ -919,7 +930,7 @@ class _RatingBadge extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Semantics(
-      label: 'Đánh giá $value trên 5, $reviewCount lượt',
+      label: tr('Đánh giá $value trên 5, $reviewCount lượt', '$value out of 5, $reviewCount reviews'),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8 * responsive.widthScale, vertical: 5 * responsive.scale),
         decoration: BoxDecoration(

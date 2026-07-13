@@ -225,6 +225,7 @@ class AuthTitleBlock extends StatelessWidget {
     this.subtitle,
     this.centered = false,
     this.accentTitle = false,
+    this.titleFontSize,
     super.key,
   });
 
@@ -232,6 +233,7 @@ class AuthTitleBlock extends StatelessWidget {
   final String? subtitle;
   final bool centered;
   final bool accentTitle;
+  final double? titleFontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -249,9 +251,8 @@ class AuthTitleBlock extends StatelessWidget {
             textAlign: centered ? TextAlign.center : TextAlign.start,
             style: textTheme.displayLarge?.copyWith(
               color: accentTitle ? AppTheme.accent : AppTheme.ink,
-              fontSize: 26 * responsive.scale,
+              fontSize: (titleFontSize ?? 26) * responsive.scale,
               fontWeight: FontWeight.w800,
-              fontFamily: 'Inter',
               height: 1.16,
             ),
           ),

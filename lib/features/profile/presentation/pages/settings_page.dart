@@ -41,6 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               _LanguageOption(
+                flag: AppLocale.flagFor(AppLanguage.vi),
                 label: 'Tiếng Việt',
                 selected: AppLocale.instance.language == AppLanguage.vi,
                 onTap: () async {
@@ -50,6 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
               _LanguageOption(
+                flag: AppLocale.flagFor(AppLanguage.en),
                 label: 'English',
                 selected: AppLocale.instance.language == AppLanguage.en,
                 onTap: () async {
@@ -107,12 +109,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   label: tr('Đổi mật khẩu', 'Change password'),
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
                 ),
-                const Divider(height: 1, indent: 72, endIndent: 20),
-                ProfileMenuTile(
-                  icon: Icons.credit_card_rounded,
-                  label: tr('Phương thức thanh toán', 'Payment methods'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.paymentMethods),
-                ),
               ],
             ),
             SizedBox(height: 24 * responsive.scale),
@@ -127,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        AppLocale.instance.label,
+                        '${AppLocale.instance.flag} ${AppLocale.instance.label}',
                         style: const TextStyle(color: AppTheme.muted, fontSize: 14, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 4),
@@ -167,8 +163,9 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _LanguageOption extends StatelessWidget {
-  const _LanguageOption({required this.label, required this.selected, required this.onTap});
+  const _LanguageOption({required this.flag, required this.label, required this.selected, required this.onTap});
 
+  final String flag;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -176,6 +173,10 @@ class _LanguageOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: Semantics(
+        label: tr('Cờ của ngôn ngữ $label', '$label language flag'),
+        child: ExcludeSemantics(child: Text(flag, style: const TextStyle(fontSize: 24))),
+      ),
       title: Text(label, style: const TextStyle(color: AppTheme.ink, fontSize: 15, fontWeight: FontWeight.w700)),
       trailing: selected ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
       onTap: onTap,

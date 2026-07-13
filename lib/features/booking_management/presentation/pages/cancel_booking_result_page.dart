@@ -8,6 +8,7 @@ import 'package:capstone_mobile/shared/widgets/stayz_alert.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class CancelBookingResultPage extends StatefulWidget {
@@ -75,10 +76,10 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
       StayzAlert.show(
         context,
         type: StayzAlertType.success,
-        title: 'Đã hủy đặt phòng',
+        title: tr('Đã hủy đặt phòng', 'Booking cancelled'),
         message: refund > 0
-            ? 'Yêu cầu hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) đang chờ xử lý thủ công.'
-            : 'Không có khoản hoàn theo chính sách hủy.',
+            ? tr('Yêu cầu hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) đang chờ xử lý thủ công.', 'Your ${StayzFormatters.fullVnd(refund)} refund request ($rate%) is awaiting manual processing.')
+            : tr('Không có khoản hoàn theo chính sách hủy.', 'No refund is due under the cancellation policy.'),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -118,7 +119,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   ),
                   Expanded(
                     child: Text(
-                      'Huy dat phong',
+                      tr('Hủy đặt phòng', 'Cancel booking'),
                       textAlign: TextAlign.center,
                       style: textTheme.headlineMedium?.copyWith(
                         color: AppTheme.accentDark,
@@ -159,7 +160,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   SizedBox(height: 44 * responsive.scale),
                   Text(
                     hasError
-                        ? 'Không thể hủy đặt phòng'
+                        ? tr('Không thể hủy đặt phòng', 'Unable to cancel booking')
                         : _isCancelling
                             ? 'Đang hủy đặt phòng'
                             : 'Đã hủy đặt phòng',
@@ -192,20 +193,20 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     child: Column(
                       children: [
                         _ResultLine(
-                          label: 'TRẠNG THÁI',
+                          label: tr('TRẠNG THÁI', 'STATUS'),
                           value: _isCancelling
-                              ? 'Đang xử lý'
+                              ? tr('Đang xử lý', 'Processing')
                               : StayzTaxonomy.bookingStatusLabel(summary?.booking.normalizedStatus ?? 'cancelled'),
                         ),
                         const Divider(),
                         if (!_isCancelling && summary != null && (summary.booking.refundAmount ?? 0) > 0) ...[
                           _ResultLine(
-                            label: 'HOÀN TIỀN (${summary.booking.refundRate?.round() ?? 0}%)',
+                            label: tr('HOÀN TIỀN (${summary.booking.refundRate?.round() ?? 0}%)', 'REFUND (${summary.booking.refundRate?.round() ?? 0}%)'),
                             value: StayzFormatters.fullVnd(summary.booking.refundAmount ?? 0),
                           ),
                           const Divider(),
                         ],
-                        _ResultLine(label: 'MÃ ĐẶT PHÒNG', value: _bookingCode(summary)),
+                        _ResultLine(label: tr('MÃ ĐẶT PHÒNG', 'BOOKING CODE'), value: _bookingCode(summary)),
                       ],
                     ),
                   ),
@@ -219,7 +220,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   ],
                   SizedBox(height: 38 * responsive.scale),
                   _ResultButton(
-                    label: 'Xem đơn đã hủy',
+                    label: tr('Xem đơn đã hủy', 'View cancelled booking'),
                     filled: true,
                     onTap: _isCancelling || hasError
                         ? null
@@ -230,7 +231,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   _ResultButton(
-                    label: hasError ? 'Thử lại' : 'Tìm phòng khác',
+                    label: hasError ? tr('Thử lại', 'Try again') : tr('Tìm phòng khác', 'Find another room'),
                     onTap: hasError
                         ? () => _cancelBooking(_summary)
                         : () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.search, (route) => false),

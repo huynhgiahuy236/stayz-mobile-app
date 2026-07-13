@@ -126,6 +126,7 @@ class PayOSPaymentArgs {
     this.accountNumber = '',
     this.accountName = '',
     this.transferDescription = '',
+    this.expiresAt,
   });
 
   final BookingSummary summary;
@@ -137,6 +138,7 @@ class PayOSPaymentArgs {
   final String accountNumber;
   final String accountName;
   final String transferDescription;
+  final DateTime? expiresAt;
 
   factory PayOSPaymentArgs.fromPayment({
     required BookingSummary summary,
@@ -161,6 +163,7 @@ class PayOSPaymentArgs {
         ? payment['transfer_description'].toString()
         : 'STAYZ$orderCode';
     final backendQrImage = payment['qr_image_url']?.toString() ?? '';
+    final createdAt = DateTime.tryParse(payment['createdAt']?.toString() ?? '');
     final fallbackQrImage = Uri.https(
       'img.vietqr.io',
       '/image/$bankBin-$accountNumber-compact2.png',
@@ -181,6 +184,9 @@ class PayOSPaymentArgs {
       accountNumber: accountNumber,
       accountName: accountName,
       transferDescription: transferDescription,
+      expiresAt:
+          createdAt?.add(const Duration(minutes: 15)) ??
+          summary.booking.paymentExpiresAt,
     );
   }
 }

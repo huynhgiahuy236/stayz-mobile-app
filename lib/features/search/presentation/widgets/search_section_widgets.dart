@@ -129,8 +129,8 @@ class SearchHotelCard extends StatelessWidget {
                       child: Semantics(
                         button: true,
                         label: favorite
-                            ? 'Bỏ khỏi yêu thích'
-                            : 'Thêm vào yêu thích',
+            ? tr('Bỏ khỏi yêu thích', 'Remove from favorites')
+            : tr('Thêm vào yêu thích', 'Add to favorites'),
                         child: InkResponse(
                           onTap: onFavoriteTap,
                           radius: 24,

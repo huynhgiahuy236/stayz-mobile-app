@@ -456,12 +456,14 @@ class _LanguageButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _LanguageOption(
-              label: 'VI',
+              // l10n-ignore: ISO language code with its universally recognized flag.
+              label: '${AppLocale.flagFor(AppLanguage.vi)} VI',
               selected: AppLocale.instance.language == AppLanguage.vi,
               onTap: () => AppLocale.instance.setLanguage(AppLanguage.vi),
             ),
             _LanguageOption(
-              label: 'EN',
+              // l10n-ignore: ISO language code with its universally recognized flag.
+              label: '${AppLocale.flagFor(AppLanguage.en)} EN',
               selected: AppLocale.instance.language == AppLanguage.en,
               onTap: () => AppLocale.instance.setLanguage(AppLanguage.en),
             ),

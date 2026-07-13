@@ -1,6 +1,6 @@
 {
-    "name": "capstone_mobile",
-    "short_name": "capstone_mobile",
+    "name": "StayZ",
+    "short_name": "StayZ",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

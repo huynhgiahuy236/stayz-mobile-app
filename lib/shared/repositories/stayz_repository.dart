@@ -573,6 +573,7 @@ class ApiStayzRepository implements StayzRepository {
       cityId: _string(json['city'], fallback: 'da-lat'),
       name: _string(json['title'], fallback: 'StayZ Hotel'),
       description: _string(json['description'], fallback: 'Khach san StayZ'),
+      descriptionEn: _string(json['description_en']),
       address: _string(json['address']),
       latitude: _num(json['latitude']).toDouble(),
       longitude: _num(json['longitude']).toDouble(),
@@ -606,6 +607,7 @@ class ApiStayzRepository implements StayzRepository {
       hotelId: hotelId,
       name: _string(json['name'], fallback: 'StayZ Room'),
       description: _string(json['description']),
+      descriptionEn: _string(json['description_en']),
       roomType: _string(json['room_type'], fallback: 'standard_room'),
       capacityAdults: capacity,
       capacityChildren: capacity > 2 ? capacity - 2 : 0,
@@ -657,6 +659,9 @@ class ApiStayzRepository implements StayzRepository {
       remainingAtHotel: json['remaining_at_hotel'] == null ? null : _num(json['remaining_at_hotel']),
       refundAmount: json['refund_amount'] == null ? null : _num(json['refund_amount']),
       refundRate: json['refund_rate'] == null ? null : _num(json['refund_rate']),
+      paymentExpiresAt: json['payment_expires_at'] == null
+          ? null
+          : _date(json['payment_expires_at']),
     );
 
     return BookingSummary(

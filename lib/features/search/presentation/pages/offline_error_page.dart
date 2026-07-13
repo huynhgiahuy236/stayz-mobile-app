@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/search/presentation/widgets/search_section_widgets.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 /// Man hinh mat ket noi dang toan trang.
@@ -18,9 +19,9 @@ class OfflineErrorPage extends StatelessWidget {
     return SearchStateScaffold(
       showHeader: false,
       icon: Icons.cloud_off_outlined,
-      title: 'Không có kết nối Internet',
-      body: 'Vui lòng kiểm tra lại kết nối mạng của bạn rồi thử lại.',
-      primaryLabel: 'Thử lại',
+      title: tr('Không có kết nối Internet', 'No Internet connection'),
+      body: tr('Vui lòng kiểm tra lại kết nối mạng của bạn rồi thử lại.', 'Check your network connection and try again.'),
+      primaryLabel: tr('Thử lại', 'Try again'),
       // Quay lai man truoc de no tu tai lai; neu khong con gi de quay lai thi ve trang chu.
       onPrimary: () {
         final navigator = Navigator.of(context);
@@ -30,7 +31,7 @@ class OfflineErrorPage extends StatelessWidget {
           navigator.pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
         }
       },
-      secondaryLabel: 'Về trang chủ',
+      secondaryLabel: tr('Về trang chủ', 'Back to home'),
       onSecondary: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -39,7 +40,7 @@ class OfflineErrorPage extends StatelessWidget {
           SizedBox(width: 8 * responsive.widthScale),
           Flexible(
             child: Text(
-              'Mã lỗi: ERR_DISCONNECTED_STAYZ',
+          tr('Mã lỗi: ERR_DISCONNECTED_STAYZ', 'Error code: ERR_DISCONNECTED_STAYZ'),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               // Truoc day chu nay o alpha 0.6 tren nen kem, khong dat chuan tuong phan.

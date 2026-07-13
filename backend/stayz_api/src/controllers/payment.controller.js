@@ -28,7 +28,10 @@ const paymentController = {
   getPaymentDetails: async (req, res, next) => {
     try {
       const { bookingId } = req.params;
-      const data = await paymentService.getPaymentByBooking(bookingId);
+      const data = await paymentService.getPaymentByBooking(
+        bookingId,
+        req.user.userId,
+      );
       const response = responseSuccess(data, "Lấy thông tin thanh toán thành công", 200);
       res.status(response.code).json(response);
     } catch (err) {

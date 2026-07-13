@@ -162,7 +162,8 @@ class _LoginPageState extends State<LoginPage> {
                     'Nhập thông tin để đăng nhập vào tài khoản StayZ.',
                     'Enter your details to sign in to StayZ.',
                   ),
-                  centered: true,
+                  accentTitle: true,
+                  titleFontSize: responsive.isCompact ? 34 : 38,
                 ),
                 SizedBox(
                   height: (responsive.isCompact ? 16 : 26) * responsive.scale,

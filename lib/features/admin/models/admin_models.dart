@@ -135,6 +135,7 @@ class AdminHotel {
     required this.type,
     required this.address,
     required this.description,
+    required this.descriptionEn,
     required this.basePrice,
     required this.imageUrl,
     required this.isPreferred,
@@ -154,6 +155,7 @@ class AdminHotel {
       type: _string(json['type'], fallback: 'hotel'),
       address: _string(json['address']),
       description: _string(json['description']),
+      descriptionEn: _string(json['description_en']),
       basePrice: _num(json['base_price'] ?? json['min_price']),
       imageUrl: api.resolveAssetUrl(_string(json['main_image_url'])),
       isPreferred: _bool(json['is_preferred']),
@@ -169,6 +171,7 @@ class AdminHotel {
   final String type;
   final String address;
   final String description;
+  final String descriptionEn;
   final num basePrice;
   final String imageUrl;
   final bool isPreferred;
@@ -185,6 +188,7 @@ class AdminRoom {
     required this.hotelTitle,
     required this.name,
     required this.description,
+    required this.descriptionEn,
     required this.roomType,
     required this.pricePerNight,
     required this.originalPrice,
@@ -214,6 +218,7 @@ class AdminRoom {
       ),
       name: _string(json['name'], fallback: tr('Phòng StayZ', 'StayZ room')),
       description: _string(json['description']),
+      descriptionEn: _string(json['description_en']),
       roomType: _string(json['room_type'], fallback: 'standard_room'),
       pricePerNight: _num(json['price'] ?? json['price_per_night']),
       originalPrice: _num(json['original_price'] ?? json['price']),
@@ -233,6 +238,7 @@ class AdminRoom {
   final String hotelTitle;
   final String name;
   final String description;
+  final String descriptionEn;
   final String roomType;
   final num pricePerNight;
   final num originalPrice;
@@ -493,6 +499,7 @@ class AdminHotelInput {
     required this.city,
     required this.type,
     required this.description,
+    required this.descriptionEn,
     required this.basePrice,
     required this.imageUrl,
     required this.maxStayDays,
@@ -507,6 +514,7 @@ class AdminHotelInput {
   final String city;
   final String type;
   final String description;
+  final String descriptionEn;
   final num basePrice;
   final String imageUrl;
   final int maxStayDays;
@@ -525,6 +533,7 @@ class AdminHotelInput {
     'type': type,
     'base_price': basePrice,
     'description': description,
+    'description_en': descriptionEn,
     'main_image_url': imageUrl,
     'is_preferred': isPreferred,
     'max_stay_days': maxStayDays,
@@ -537,6 +546,7 @@ class AdminRoomInput {
     required this.name,
     required this.roomType,
     required this.description,
+    required this.descriptionEn,
     required this.originalPrice,
     required this.discountPercent,
     required this.capacity,
@@ -554,6 +564,7 @@ class AdminRoomInput {
   final String name;
   final String roomType;
   final String description;
+  final String descriptionEn;
   final num originalPrice;
   final num discountPercent;
   final int capacity;
@@ -571,6 +582,7 @@ class AdminRoomInput {
     'name': name,
     'room_type': roomType,
     'description': description,
+    'description_en': descriptionEn,
     'original_price': originalPrice,
     'discount_percent': discountPercent,
     'capacity': capacity,

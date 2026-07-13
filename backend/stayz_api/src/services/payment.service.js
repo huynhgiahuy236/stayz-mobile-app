@@ -45,23 +45,50 @@ const paymentService = {
       throw new BadRequestException("Booking này đã được thanh toán rồi");
     }
 
-    const existingPayment = await paymentsModel.findOne({ booking_id: bookingId });
+    const existingPayment = await paymentsModel
+      .findOne({ booking_id: bookingId })
+      .sort({ createdAt: -1 });
     if (existingPayment) {
-      if (!existingPayment.qr_code && existingPayment.payment_link_id) {
-        const current = await payOS.paymentRequests.get(existingPayment.payment_link_id);
-        existingPayment.qr_code = current.qrCode;
-        existingPayment.bank_bin = current.bin || VIETQR_BANK_BIN;
-        existingPayment.account_number = current.accountNumber || VIETQR_ACCOUNT_NUMBER?.replace(/\s/g, "");
-        existingPayment.account_name = current.accountName || VIETQR_ACCOUNT_NAME;
-        existingPayment.transfer_description = current.description || `STAYZ${existingPayment.order_code}`;
-        existingPayment.qr_image_url = buildVietQrImageUrl({
-          amount: existingPayment.amount,
-          description: existingPayment.transfer_description,
-        });
-        existingPayment.currency = current.currency || "VND";
-        await existingPayment.save();
+      const expiresAt = new Date(
+        existingPayment.createdAt.getTime() + 15 * 60 * 1000,
+      );
+      const canReuse =
+        existingPayment.status === "PAID" ||
+        (existingPayment.status === "pending" && expiresAt > new Date());
+
+      if (!canReuse) {
+        if (
+          existingPayment.status === "pending" &&
+          existingPayment.payment_link_id
+        ) {
+          try {
+            await payOS.paymentRequests.cancel(
+              existingPayment.payment_link_id,
+              "Expired StayZ payment",
+            );
+          } catch (err) {
+            console.warn("PayOS expired link cleanup error:", err.message);
+          }
+          existingPayment.status = "CANCELLED";
+          await existingPayment.save();
+        }
+      } else {
+        if (!existingPayment.qr_code && existingPayment.payment_link_id) {
+          const current = await payOS.paymentRequests.get(existingPayment.payment_link_id);
+          existingPayment.qr_code = current.qrCode;
+          existingPayment.bank_bin = current.bin || VIETQR_BANK_BIN;
+          existingPayment.account_number = current.accountNumber || VIETQR_ACCOUNT_NUMBER?.replace(/\s/g, "");
+          existingPayment.account_name = current.accountName || VIETQR_ACCOUNT_NAME;
+          existingPayment.transfer_description = current.description || `STAYZ${existingPayment.order_code}`;
+          existingPayment.qr_image_url = buildVietQrImageUrl({
+            amount: existingPayment.amount,
+            description: existingPayment.transfer_description,
+          });
+          existingPayment.currency = current.currency || "VND";
+          await existingPayment.save();
+        }
+        return existingPayment;
       }
-      return existingPayment;
     }
 
     // Tạo mã đơn hàng ngẫu nhiên duy nhất (PayOS yêu cầu định dạng số)
@@ -99,6 +126,11 @@ const paymentService = {
       currency: paymentLinkRes.currency || "VND",
       status: "pending",
     });
+
+    booking.payment_expires_at = new Date(Date.now() + 15 * 60 * 1000);
+    booking.payment_status = "pending";
+    booking.status = "pending";
+    await booking.save();
 
     return payment;
   },
@@ -147,8 +179,14 @@ const paymentService = {
   },
 
   // Lấy chi tiết thông tin thanh toán cho booking
-  getPaymentByBooking: async (bookingId) => {
-    return await paymentsModel.findOne({ booking_id: bookingId });
+  getPaymentByBooking: async (bookingId, userId) => {
+    const payment = await paymentsModel
+      .findOne({ booking_id: bookingId })
+      .sort({ createdAt: -1 });
+    if (payment && payment.user_id.toString() !== userId.toString()) {
+      throw new BadRequestException("Bạn không được phép xem giao dịch này");
+    }
+    return payment;
   },
 
   // Hủy thanh toán / Link thanh toán

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
 class StayZNetworkImage extends StatelessWidget {
@@ -42,6 +43,7 @@ class StayZNetworkImage extends StatelessWidget {
       cacheHeight: cacheHeight,
       filterQuality: FilterQuality.medium,
       semanticLabel: semanticLabel,
+      excludeFromSemantics: semanticLabel == null || semanticLabel!.isEmpty,
       // Giu nguyen kich thuoc trong khi tai, thay vi co ve 0 lam layout nhay.
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
         if (wasSynchronouslyLoaded || frame != null) return child;
@@ -52,11 +54,19 @@ class StayZNetworkImage extends StatelessWidget {
         return _Placeholder(width: width, height: height, child: const _Shimmer());
       },
       // Anh hong phai nhin ra duoc la anh hong, khong the bien mat im lang.
-      errorBuilder: (context, error, stackTrace) => _Placeholder(
-        width: width,
-        height: height,
-        child: const Center(
-          child: Icon(Icons.image_not_supported_outlined, color: AppTheme.muted, size: 26),
+      errorBuilder: (context, error, stackTrace) => Semantics(
+        label: semanticLabel == null
+            ? null
+            : '${semanticLabel!}. ${context.l10n.text('Không tải được ảnh', 'Image unavailable')}',
+        image: true,
+        child: ExcludeSemantics(
+          child: _Placeholder(
+            width: width,
+            height: height,
+            child: const Center(
+              child: Icon(Icons.image_not_supported_outlined, color: AppTheme.muted, size: 26),
+            ),
+          ),
         ),
       ),
     );

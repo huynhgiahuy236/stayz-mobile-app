@@ -108,6 +108,13 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                             : user.homeAddress,
                         large: true,
                       ),
+                      SizedBox(height: 24 * responsive.scale),
+                      ProfileInputField(
+                        label: tr('Ngày sinh', 'Date of birth'),
+                        value: user.dateOfBirth.isEmpty
+                            ? tr('Chưa cập nhật', 'Not provided')
+                            : user.dateOfBirth.split('T').first,
+                      ),
                       SizedBox(height: 36 * responsive.scale),
                       ProfilePrimaryButton(
                         label: tr('Chỉnh sửa hồ sơ', 'Edit profile'),

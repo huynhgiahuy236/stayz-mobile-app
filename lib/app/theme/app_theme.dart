@@ -25,6 +25,13 @@ class AppTheme {
   static const neutral800 = Color(0xFF12314D);
   static const success = Color(0xFF17875A);
   static const danger = Color(0xFFD34B3F);
+  static const notificationPendingBorder = Color(0xFFF0B84B);
+  static const notificationPendingText = Color(0xFF9A6500);
+  static const notificationSuccessBorder = Color(0xFF61C996);
+  static const notificationSuccessText = Color(0xFF147A4C);
+  static const notificationDangerBorder = Color(0xFFE46B62);
+  static const notificationDangerText = Color(0xFFB93832);
+  static const notificationInfoBorder = Colors.white;
   static const double cardRadius = 18;
   static const double controlRadius = 16;
   static const double dialogRadius = 20;

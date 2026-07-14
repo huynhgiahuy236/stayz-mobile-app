@@ -419,8 +419,12 @@ class _HomePageState extends State<HomePage> {
                                 date:
                                     '${StayzFormatters.shortDate(upcoming.booking.checkInDate)} - ${StayzFormatters.shortDate(upcoming.booking.checkOutDate)}',
                                 total: StayzFormatters.compactVnd(
-                                  upcoming.booking.totalAmount,
+                                  (upcoming.booking.amountPaid ?? 0) > 0
+                                      ? upcoming.booking.amountPaid!
+                                      : upcoming.booking.totalAmount,
                                 ),
+                                deposit30: upcoming.booking.paymentPlan == 'deposit_30',
+                                paymentRecorded: (upcoming.booking.amountPaid ?? 0) > 0,
                                 status: upcoming.booking.isPaymentExpired
                                     ? tr('Đã hết hạn', 'Expired')
                                     : upcoming.booking.isPaymentPending

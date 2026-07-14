@@ -267,12 +267,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
       separatorBuilder: (_, _) => SizedBox(height: 14 * responsive.scale),
       itemBuilder: (context, index) {
         final item = _items[index];
-        final iconData = _notificationIcon(item.type);
+        final visual = _notificationVisual(item);
         final selected = _selected.contains(item.id);
 
         final card = NotificationCard(
-          icon: iconData.$1,
-          iconColor: iconData.$2,
+          icon: visual.icon,
+          iconColor: visual.foreground,
+          borderColor: visual.border,
+          statusLabel: visual.label,
           title: item.title,
           body: item.message,
           time: _notificationTime(item.createdAt),
@@ -340,13 +342,53 @@ class _CircleIconButton extends StatelessWidget {
   }
 }
 
-(IconData, Color) _notificationIcon(String type) {
-  return switch (type) {
-    'booking_status' => (Icons.event_available_outlined, AppTheme.accent),
-    'promotion' => (Icons.local_offer_outlined, Color(0xFFC08A18)),
-    'system' => (Icons.info_outline_rounded, AppTheme.primary),
-    _ => (Icons.notifications_none_outlined, AppTheme.neutral500),
-  };
+({IconData icon, Color border, Color foreground, String label}) _notificationVisual(StayzNotification item) {
+  final content = '${item.title} ${item.message}'.toLowerCase();
+
+  if (content.contains('hủy') ||
+      content.contains('cancel') ||
+      content.contains('hết hạn') ||
+      content.contains('expired')) {
+    return (
+      icon: Icons.cancel_outlined,
+      border: AppTheme.notificationDangerBorder,
+      foreground: AppTheme.notificationDangerText,
+      label: tr('Đã hủy', 'Cancelled'),
+    );
+  }
+
+  if (content.contains('xác nhận') ||
+      content.contains('confirmed') ||
+      content.contains('hoàn thành') ||
+      content.contains('complete')) {
+    return (
+      icon: Icons.check_circle_outline_rounded,
+      border: AppTheme.notificationSuccessBorder,
+      foreground: AppTheme.notificationSuccessText,
+      label: tr('Thành công', 'Success'),
+    );
+  }
+
+  if (content.contains('chờ') ||
+      content.contains('await') ||
+      content.contains('xử lý') ||
+      content.contains('processing') ||
+      content.contains('thanh toán') ||
+      content.contains('payment')) {
+    return (
+      icon: Icons.schedule_rounded,
+      border: AppTheme.notificationPendingBorder,
+      foreground: AppTheme.notificationPendingText,
+      label: tr('Chờ xử lý', 'Pending'),
+    );
+  }
+
+  return (
+    icon: item.type == 'promotion' ? Icons.local_offer_outlined : Icons.info_outline_rounded,
+    border: AppTheme.notificationInfoBorder,
+    foreground: item.type == 'promotion' ? AppTheme.notificationPendingText : AppTheme.accentDark,
+    label: item.type == 'promotion' ? tr('Ưu đãi', 'Offer') : tr('Thông tin', 'Information'),
+  );
 }
 
 String _notificationTime(DateTime createdAt) {

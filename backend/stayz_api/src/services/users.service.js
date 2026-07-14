@@ -153,6 +153,7 @@ const userService = {
       phone_number = "",
       gender = "",
       home_address = "",
+      date_of_birth,
       role,
       password,
       avatar,
@@ -162,6 +163,9 @@ const userService = {
     user.phone_number = phone_number;
     user.gender = gender;
     user.home_address = home_address;
+    if (date_of_birth !== undefined) {
+      user.date_of_birth = date_of_birth ? new Date(date_of_birth) : null;
+    }
     if (role && ["admin", "user"].includes(role)) {
       user.role = role;
     }
@@ -315,11 +319,7 @@ const userService = {
     try {
       await sendRegisterCodeEmail({ to: normalizedEmail, code });
     } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.warn(`[REGISTER OTP] Khong gui duoc email toi ${normalizedEmail}. Ma dang ky: ${code}`);
-      } else {
-        console.error("Gui email OTP dang ky that bai:", error.message);
-      }
+      console.error("Gui email OTP dang ky that bai:", error.message);
       await redis.del(`register-otp:${normalizedEmail}`);
       throw new BadRequestException("Khong the gui email OTP. Vui long thu lai sau");
     }
@@ -431,14 +431,7 @@ const userService = {
     try {
       await sendPasswordResetCodeEmail({ to: normalizedEmail, code });
     } catch (error) {
-      // SMTP hong khong duoc lam sap ca luong quen mat khau. O moi truong
-      // phat trien, in ma ra console de con thu duoc. Tuyet doi khong tra
-      // ma ve cho client - do la lo hong chiem tai khoan.
-      if (process.env.NODE_ENV !== "production") {
-        console.warn(`[OTP] Khong gui duoc email toi ${normalizedEmail}. Ma dat lai mat khau: ${code}`);
-      } else {
-        console.error("Gui email OTP that bai:", error.message);
-      }
+      console.error("Gui email OTP that bai:", error.message);
       await redis.del(`otp:${normalizedEmail}`);
       throw new BadRequestException("Khong the gui email OTP. Vui long thu lai sau");
     }

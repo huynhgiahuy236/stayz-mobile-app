@@ -162,9 +162,14 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                       DetailLine(label: tr('Thuế và phí', 'Taxes and fees'), value: tr('Đã bao gồm', 'Included')),
                       const Divider(),
                       DetailLine(
-                        label: tr('Tổng thanh toán', 'Total'),
-                        value: StayzFormatters.fullVnd(summary.booking.totalAmount),
+                        label: summary.booking.paymentPlan == 'deposit_30'
+                            ? tr('Đã thanh toán (30%)', 'Amount paid (30%)')
+                            : tr('Đã thanh toán', 'Amount paid'),
+                        value: StayzFormatters.fullVnd(summary.booking.amountPaid ?? summary.booking.totalAmount),
                         total: true,
+                        valueColor: summary.booking.paymentPlan == 'deposit_30'
+                            ? const Color(0xFFC08A18)
+                            : const Color(0xFF159A61),
                       ),
                       const Divider(),
                       Text(

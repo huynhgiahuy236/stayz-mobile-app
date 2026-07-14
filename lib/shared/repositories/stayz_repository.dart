@@ -118,7 +118,9 @@ abstract class StayzRepository {
     required String phone,
     required String gender,
     required String homeAddress,
+    required String dateOfBirth,
   });
+  Future<String> uploadProfileAvatar({required List<int> bytes, required String filename});
   Future<List<City>> getCities();
   Future<List<Amenity>> getAmenities();
   Future<List<Hotel>> getHotels();
@@ -216,6 +218,7 @@ class ApiStayzRepository implements StayzRepository {
     required String phone,
     required String gender,
     required String homeAddress,
+    required String dateOfBirth,
   }) async {
     final userId = await AuthService.instance.userId();
     final token = await AuthService.instance.accessToken();
@@ -230,12 +233,32 @@ class ApiStayzRepository implements StayzRepository {
         'phone_number': phone.trim(),
         'gender': gender,
         'home_address': homeAddress.trim(),
+        'date_of_birth': dateOfBirth.trim(),
       },
     );
     if (data is! Map<String, dynamic>) {
       throw ApiException(tr('Dữ liệu hồ sơ trả về không hợp lệ.', 'The profile response is invalid.'));
     }
     return _userFromApi(data);
+  }
+
+  @override
+  Future<String> uploadProfileAvatar({required List<int> bytes, required String filename}) async {
+    final token = await _requireToken();
+    final data = await api.multipart(
+      '/users/avatar/cloud',
+      method: 'PATCH',
+      field: 'avatar',
+      bytes: bytes,
+      filename: filename,
+      bearerToken: token,
+    );
+    final avatar = data is Map<String, dynamic> ? data['avatar'] : null;
+    final url = avatar is Map ? _string(avatar['url']) : '';
+    if (url.isEmpty) {
+      throw ApiException(tr('Máy chủ không trả về ảnh đại diện.', 'The server did not return an avatar.'));
+    }
+    return api.resolveAssetUrl(url);
   }
 
   @override
@@ -554,17 +577,44 @@ class ApiStayzRepository implements StayzRepository {
 
   StayzNotification _notificationFromApi(Map<String, dynamic> json) {
     final user = json['user_id'];
+    final vietnameseTitle = repairMojibake(_string(json['title']));
+    final vietnameseBody = repairMojibake(_string(json['body']));
     return StayzNotification(
       id: _id(json),
       userId: user is Map<String, dynamic> ? _id(user) : _string(user),
       type: _string(json['type'], fallback: 'system'),
-      title: _string(json['title']),
-      message: _string(json['body']),
+      title: AppLocale.instance.isVietnamese
+          ? vietnameseTitle
+          : _notificationEnglishTitle(vietnameseTitle, _string(json['title_en'])),
+      message: AppLocale.instance.isVietnamese
+          ? vietnameseBody
+          : _notificationEnglishBody(vietnameseBody, _string(json['body_en'])),
       referenceType: _string(json['ref_type']),
       referenceId: _string(json['ref_id']),
       status: _bool(json['is_read']) ? 'read' : 'unread',
       createdAt: _date(json['createdAt']),
     );
+  }
+
+  String _notificationEnglishTitle(String vietnamese, String english) {
+    if (english.isNotEmpty) return english;
+    if (vietnamese.contains('chờ thanh toán')) return 'Booking awaiting payment';
+    if (vietnamese.contains('được xác nhận')) return 'Booking confirmed! 🎉';
+    if (vietnamese.contains('chuyến đi vui vẻ')) return 'We hope you enjoyed your stay! ✈️';
+    if (vietnamese.contains('Đã hủy')) return 'Booking cancelled';
+    if (vietnamese.contains('chờ xác nhận')) return 'Booking awaiting confirmation ⏳';
+    return vietnamese;
+  }
+
+  String _notificationEnglishBody(String vietnamese, String english) {
+    if (english.isNotEmpty) return english;
+    final bookingCode = RegExp(r'Booking #[^\s.]+').firstMatch(vietnamese)?.group(0) ?? 'Your booking';
+    if (vietnamese.contains('giữ trong 15 phút')) return '$bookingCode is held for 15 minutes. Please complete the PayOS payment.';
+    if (vietnamese.contains('xác nhận thành công')) return '$bookingCode has been confirmed successfully.';
+    if (vietnamese.contains('đã hoàn thành')) return '$bookingCode is complete. Please leave a review!';
+    if (vietnamese.contains('đã hủy')) return '$bookingCode has been cancelled. Check the booking details for refund information.';
+    if (vietnamese.contains('đang được xử lý')) return '$bookingCode is being processed.';
+    return vietnamese;
   }
 
   StayzUser _userFromApi(Map<String, dynamic> json) {
@@ -576,10 +626,10 @@ class ApiStayzRepository implements StayzRepository {
       phone: _string(json['phone_number']),
       gender: _string(json['gender']),
       homeAddress: _string(json['home_address']),
-      avatarUrl: avatar is Map ? _string(avatar['url']) : '',
+      avatarUrl: avatar is Map ? api.resolveAssetUrl(_string(avatar['url'])) : '',
       role: _string(json['role'], fallback: 'user'),
       status: 'active',
-      dateOfBirth: '',
+      dateOfBirth: _string(json['date_of_birth']),
       createdAt: _date(json['createdAt']),
       updatedAt: _date(json['updatedAt']),
     );

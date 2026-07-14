@@ -95,6 +95,10 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
                           statusLabel: tr('Đã hủy', 'Cancelled'),
                           statusColor: const Color(0xFFFFD8D5),
                           statusTextColor: AppTheme.danger,
+                          paymentAmount: (summary.booking.amountPaid ?? 0) > 0
+                              ? StayzFormatters.compactVnd(summary.booking.amountPaid!)
+                              : null,
+                          deposit30: summary.booking.paymentPlan == 'deposit_30',
                           secondaryLabel: tr('Tìm chỗ ở khác', 'Find another stay'),
                           onDetail: () => Navigator.of(context).pushNamed(
                             AppRoutes.cancelledBookingDetail,

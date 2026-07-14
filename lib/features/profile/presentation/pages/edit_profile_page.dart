@@ -5,6 +5,7 @@ import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -18,9 +19,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _name = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
+  final _dateOfBirth = TextEditingController();
   late Future<StayzUser?> _profile;
   String _gender = '';
   bool _saving = false;
+  bool _uploadingAvatar = false;
+  String _avatarUrl = '';
 
   @override
   void initState() {
@@ -35,6 +39,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _phone.text = user.phone;
       _address.text = user.homeAddress;
       _gender = user.gender;
+      _dateOfBirth.text = user.dateOfBirth.split('T').first;
+      _avatarUrl = user.avatarUrl;
     }
     return user;
   }
@@ -44,6 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _name.dispose();
     _phone.dispose();
     _address.dispose();
+    _dateOfBirth.dispose();
     super.dispose();
   }
 
@@ -56,6 +63,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         phone: _phone.text,
         gender: _gender,
         homeAddress: _address.text,
+        dateOfBirth: _dateOfBirth.text,
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,6 +78,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     } finally {
       if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _pickAvatar() async {
+    if (_uploadingAvatar) return;
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    final file = result?.files.singleOrNull;
+    if (file == null || file.bytes == null) return;
+    setState(() => _uploadingAvatar = true);
+    try {
+      final url = await ApiStayzRepository.instance.uploadProfileAvatar(
+        bytes: file.bytes!,
+        filename: file.name,
+      );
+      if (!mounted) return;
+      setState(() => _avatarUrl = url);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr('Đã cập nhật ảnh đại diện.', 'Avatar updated.'))),
+      );
+    } on ApiException catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    final initial = DateTime.tryParse(_dateOfBirth.text) ?? DateTime(2000);
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (selected != null) {
+      _dateOfBirth.text = selected.toIso8601String().split('T').first;
     }
   }
 
@@ -103,6 +147,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: ListView(
                       padding: const EdgeInsets.all(24),
                       children: [
+                        Center(
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 58,
+                                backgroundColor: AppTheme.neutral200,
+                                backgroundImage: _avatarUrl.isEmpty ? null : NetworkImage(_avatarUrl),
+                                child: _avatarUrl.isEmpty ? const Icon(Icons.person, size: 58, color: AppTheme.accentDark) : null,
+                              ),
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: IconButton.filled(
+                                  onPressed: _uploadingAvatar ? null : _pickAvatar,
+                                  tooltip: tr('Tải ảnh đại diện', 'Upload avatar'),
+                                  icon: _uploadingAvatar
+                                      ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                      : const Icon(Icons.photo_camera_outlined),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 28),
                         TextFormField(
                           controller: _name,
                           decoration: InputDecoration(
@@ -152,6 +220,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           maxLines: 3,
                           decoration: InputDecoration(
                             labelText: tr('Địa chỉ', 'Address'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _dateOfBirth,
+                          readOnly: true,
+                          onTap: _pickDateOfBirth,
+                          decoration: InputDecoration(
+                            labelText: tr('Ngày sinh', 'Date of birth'),
+                            suffixIcon: const Icon(Icons.calendar_month_outlined),
                           ),
                         ),
                         const SizedBox(height: 36),

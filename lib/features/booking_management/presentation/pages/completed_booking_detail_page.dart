@@ -123,11 +123,21 @@ class CompletedBookingDetailPage extends StatelessWidget {
                     children: [
                       DetailLine(label: tr('Tiền phòng', 'Room charge'), value: StayzFormatters.fullVnd(summary.booking.totalAmount)),
                       DetailLine(label: tr('Phí dịch vụ & Thuế', 'Service fee & taxes'), value: tr('Đã bao gồm', 'Included')),
+                      if ((summary.booking.remainingAtHotel ?? 0) > 0)
+                        DetailLine(
+                          label: tr('Còn lại trả tại khách sạn', 'Due at property'),
+                          value: StayzFormatters.fullVnd(summary.booking.remainingAtHotel!),
+                        ),
                       const Divider(),
                       DetailLine(
-                        label: tr('Tổng cộng', 'Total'),
-                        value: StayzFormatters.fullVnd(summary.booking.totalAmount),
+                        label: summary.booking.paymentPlan == 'deposit_30'
+                            ? tr('Đã thanh toán (30%)', 'Amount paid (30%)')
+                            : tr('Đã thanh toán', 'Amount paid'),
+                        value: StayzFormatters.fullVnd(summary.booking.amountPaid ?? summary.booking.totalAmount),
                         total: true,
+                        valueColor: summary.booking.paymentPlan == 'deposit_30'
+                            ? const Color(0xFFC08A18)
+                            : const Color(0xFF159A61),
                       ),
                     ],
                   ),

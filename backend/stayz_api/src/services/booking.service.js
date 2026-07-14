@@ -234,6 +234,8 @@ const bookingService = {
         type: "booking_status",
         title: "Booking đang chờ thanh toán",
         body: `Booking #${booking._id} đã được giữ trong 15 phút. Vui lòng hoàn tất thanh toán PayOS.`,
+        titleEn: "Booking awaiting payment",
+        bodyEn: `Booking #${booking._id} is held for 15 minutes. Please complete the PayOS payment.`,
         refId: booking._id,
         refType: "Booking",
       }).catch(() => {}); // fire-and-forget, khong chan response
@@ -318,10 +320,10 @@ const bookingService = {
 
     // Tự động tạo thông báo cho user khi trạng thái booking thay đổi
     const statusMessages = {
-      confirmed: { title: "Booking đã được xác nhận! 🎉", body: `Booking #${booking._id} của bạn đã được xác nhận thành công.` },
-      completed:  { title: "Chúc bạn có chuyến đi vui vẻ! ✈️", body: `Booking #${booking._id} đã hoàn thành. Hãy để lại đánh giá của bạn nhé!` },
-      cancelled:  { title: "Đã hủy đặt phòng", body: cancelBody },
-      pending:    { title: "Booking đang chờ xác nhận ⏳", body: `Booking #${booking._id} đang được xử lý.` },
+      confirmed: { title: "Booking đã được xác nhận! 🎉", body: `Booking #${booking._id} của bạn đã được xác nhận thành công.`, titleEn: "Booking confirmed! 🎉", bodyEn: `Booking #${booking._id} has been confirmed successfully.` },
+      completed:  { title: "Chúc bạn có chuyến đi vui vẻ! ✈️", body: `Booking #${booking._id} đã hoàn thành. Hãy để lại đánh giá của bạn nhé!`, titleEn: "We hope you enjoyed your stay! ✈️", bodyEn: `Booking #${booking._id} is complete. Please leave a review!` },
+      cancelled:  { title: "Đã hủy đặt phòng", body: cancelBody, titleEn: "Booking cancelled", bodyEn: `Booking #${booking._id} has been cancelled. Check the booking details for refund information.` },
+      pending:    { title: "Booking đang chờ xác nhận ⏳", body: `Booking #${booking._id} đang được xử lý.`, titleEn: "Booking awaiting confirmation ⏳", bodyEn: `Booking #${booking._id} is being processed.` },
     };
     const msg = statusMessages[status];
     if (msg) {
@@ -330,6 +332,8 @@ const bookingService = {
         type: "booking_status",
         title: msg.title,
         body: msg.body,
+        titleEn: msg.titleEn,
+        bodyEn: msg.bodyEn,
         refId: booking._id,
         refType: "Booking",
       }).catch(() => {}); // fire-and-forget, không block response

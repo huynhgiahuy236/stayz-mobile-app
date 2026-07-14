@@ -291,6 +291,8 @@ class UpcomingBookingCard extends StatelessWidget {
     this.statusTextColor,
     this.detailLabel,
     this.secondaryLabel,
+    this.paymentAmount,
+    this.deposit30 = false,
     super.key,
   });
 
@@ -312,6 +314,8 @@ class UpcomingBookingCard extends StatelessWidget {
   final Color? statusTextColor;
   final String? detailLabel;
   final String? secondaryLabel;
+  final String? paymentAmount;
+  final bool deposit30;
 
   @override
   Widget build(BuildContext context) {
@@ -389,6 +393,23 @@ class UpcomingBookingCard extends StatelessWidget {
                   ],
                 ),
                 Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                if (paymentAmount != null) ...[
+                  Row(
+                    children: [
+                      Text(tr('Đã thanh toán', 'Amount paid'), style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700)),
+                      const Spacer(),
+                      Text(
+                        '$paymentAmount${deposit30 ? ' (30%)' : ''}',
+                        style: TextStyle(
+                          color: deposit30 ? const Color(0xFFC08A18) : const Color(0xFF159A61),
+                          fontSize: 17 * responsive.scale,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                ],
                 Row(
                   children: [
                     Expanded(child: _MetaBlock(label: tr('Nhận phòng', 'Check-in'), value: checkIn)),
@@ -717,12 +738,14 @@ class DetailLine extends StatelessWidget {
     required this.label,
     required this.value,
     this.total = false,
+    this.valueColor,
     super.key,
   });
 
   final String label;
   final String value;
   final bool total;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -746,7 +769,7 @@ class DetailLine extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: total ? AppTheme.accentDark : AppTheme.ink,
+              color: valueColor ?? (total ? AppTheme.accentDark : AppTheme.ink),
               fontSize: (total ? 20 : 16) * responsive.scale,
               fontWeight: FontWeight.w900,
               letterSpacing: total ? 1 : 0,

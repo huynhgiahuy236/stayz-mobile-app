@@ -351,7 +351,10 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                   CircleAvatar(
                     radius: 38 * widget.responsive.scale,
                     backgroundColor: AppTheme.primary,
-                    child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 22 * widget.responsive.scale, fontWeight: FontWeight.w900)),
+                    backgroundImage: user.avatarUrl.isEmpty ? null : NetworkImage(user.avatarUrl),
+                    child: user.avatarUrl.isEmpty
+                        ? Text(initials, style: TextStyle(color: Colors.white, fontSize: 22 * widget.responsive.scale, fontWeight: FontWeight.w900))
+                        : null,
                   ),
                   Positioned(
                     right: 0,

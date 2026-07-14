@@ -1,0 +1,12 @@
+$kind: http-request
+name: New Request
+url: http://localhost:3000/api/users/request-register-otp
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"huynhgiahuy236@gmail.com\"\r
+
+    }\r\n"
+order: 1784036029715

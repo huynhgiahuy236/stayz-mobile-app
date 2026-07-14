@@ -644,6 +644,8 @@ class BookingPreviewCard extends StatelessWidget {
     required this.total,
     required this.status,
     required this.colors,
+    this.deposit30 = false,
+    this.paymentRecorded = false,
     this.imageUrl,
     this.onTap,
     super.key,
@@ -655,6 +657,8 @@ class BookingPreviewCard extends StatelessWidget {
   final String total;
   final String status;
   final List<Color> colors;
+  final bool deposit30;
+  final bool paymentRecorded;
   final String? imageUrl;
   final VoidCallback? onTap;
 
@@ -708,7 +712,17 @@ class BookingPreviewCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(child: _DarkMeta(label: tr('Ngày', 'Dates'), value: date)),
-                        _DarkMeta(label: tr('Tổng', 'Total'), value: total, alignEnd: true),
+                        _DarkMeta(
+                          label: paymentRecorded ? tr('Đã trả', 'Paid') : tr('Tổng', 'Total'),
+                          value: total,
+                          alignEnd: true,
+                          valueColor: !paymentRecorded
+                              ? null
+                              : deposit30
+                              ? const Color(0xFFFFC857)
+                              : const Color(0xFF69E6A6),
+                          badge: paymentRecorded && deposit30 ? '30%' : null,
+                        ),
                       ],
                     ),
                   ],
@@ -729,6 +743,8 @@ class NotificationCard extends StatelessWidget {
     required this.title,
     required this.body,
     required this.time,
+    required this.borderColor,
+    required this.statusLabel,
     this.unread = false,
     super.key,
   });
@@ -738,6 +754,8 @@ class NotificationCard extends StatelessWidget {
   final String title;
   final String body;
   final String time;
+  final Color borderColor;
+  final String statusLabel;
   final bool unread;
 
   @override
@@ -749,7 +767,10 @@ class NotificationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: unread ? AppTheme.primary.withValues(alpha: 0.35) : AppTheme.line),
+        border: Border.all(
+          color: borderColor,
+          width: unread ? 1.8 : 1.2,
+        ),
         boxShadow: unread ? AppTheme.softShadow : null,
       ),
       child: Row(
@@ -781,7 +802,24 @@ class NotificationCard extends StatelessWidget {
                 SizedBox(height: 6 * responsive.scale),
                 Text(body, style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.35)),
                 SizedBox(height: 8 * responsive.scale),
-                Text(time, style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700)),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: borderColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(99),
+                        border: Border.all(color: borderColor.withValues(alpha: 0.45)),
+                      ),
+                      child: Text(
+                        statusLabel,
+                        style: TextStyle(color: iconColor, fontSize: 10.5 * responsive.scale, fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(time, style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700)),
+                  ],
+                ),
               ],
             ),
           ),
@@ -978,11 +1016,13 @@ class _GlassIcon extends StatelessWidget {
 }
 
 class _DarkMeta extends StatelessWidget {
-  const _DarkMeta({required this.label, required this.value, this.alignEnd = false});
+  const _DarkMeta({required this.label, required this.value, this.alignEnd = false, this.valueColor, this.badge});
 
   final String label;
   final String value;
   final bool alignEnd;
+  final Color? valueColor;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -993,7 +1033,16 @@ class _DarkMeta extends StatelessWidget {
       children: [
         Text(label.toUpperCase(), style: TextStyle(color: Colors.white54, fontSize: 10 * responsive.scale, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
         SizedBox(height: 4 * responsive.scale),
-        Text(value, style: TextStyle(color: Colors.white, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w900)),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(value, style: TextStyle(color: valueColor ?? Colors.white, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w900)),
+            if (badge != null) ...[
+              const SizedBox(width: 5),
+              Text('($badge)', style: TextStyle(color: valueColor, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w900)),
+            ],
+          ],
+        ),
       ],
     );
   }

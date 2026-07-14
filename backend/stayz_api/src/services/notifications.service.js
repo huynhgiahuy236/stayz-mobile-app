@@ -67,12 +67,14 @@ const notificationsService = {
   },
 
   // [Internal] Tạo thông báo — dùng nội bộ khi booking thay đổi
-  createInternal: async ({ userId, type, title, body, refId = null, refType = null }) => {
+  createInternal: async ({ userId, type, title, body, titleEn = "", bodyEn = "", refId = null, refType = null }) => {
     return await notificationsModel.create({
       user_id: userId,
       type,
       title,
       body,
+      title_en: titleEn,
+      body_en: bodyEn,
       ref_id: refId,
       ref_type: refType,
     });

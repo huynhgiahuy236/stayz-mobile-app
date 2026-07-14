@@ -20,6 +20,8 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    title_en: { type: String, default: "" },
+    body_en: { type: String, default: "" },
     // Dữ liệu tham chiếu đến booking hoặc property liên quan
     ref_id: {
       type: mongoose.Schema.Types.ObjectId,

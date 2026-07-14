@@ -10,11 +10,10 @@ const {
   PAYOS_API_KEY,
   PAYOS_CHECKSUM_KEY,
   PAYOS_CLIENT_ID,
-  SMTP_FROM,
-  SMTP_HOST,
-  SMTP_PASS,
-  SMTP_PORT,
-  SMTP_USER,
+  GMAIL_CLIENT_ID,
+  GMAIL_CLIENT_SECRET,
+  GMAIL_REFRESH_TOKEN,
+  GMAIL_SENDER_EMAIL,
 } = require("./src/constants/app.constant");
 const { handleError } = require("./src/helpers/error.helper");
 const passport = require("passport");
@@ -77,13 +76,11 @@ app.get("/health", (_req, res) => {
       checksum_key_length: PAYOS_CHECKSUM_KEY?.length || 0,
     },
     redis: redis.health(),
-    smtp: {
-      host: Boolean(SMTP_HOST),
-      port: Boolean(SMTP_PORT),
-      user: Boolean(SMTP_USER),
-      pass: Boolean(SMTP_PASS),
-      pass_length: SMTP_PASS?.replace(/\s/g, "").length || 0,
-      from: Boolean(SMTP_FROM),
+    gmail: {
+      client_id: Boolean(GMAIL_CLIENT_ID),
+      client_secret: Boolean(GMAIL_CLIENT_SECRET),
+      refresh_token: Boolean(GMAIL_REFRESH_TOKEN),
+      sender_email: Boolean(GMAIL_SENDER_EMAIL),
     },
   };
 

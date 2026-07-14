@@ -106,6 +106,8 @@ class CompletedBookingsPage extends StatelessWidget {
                             statusLabel: tr('Đã hoàn thành', 'Completed'),
                             statusColor: const Color(0xFFBDF4D4),
                             statusTextColor: const Color(0xFF096A43),
+                            paymentAmount: StayzFormatters.compactVnd(summary.booking.amountPaid ?? summary.booking.totalAmount),
+                            deposit30: summary.booking.paymentPlan == 'deposit_30',
                             detailLabel: tr('Đánh giá', 'Review'),
                             secondaryLabel: tr('Đặt lại', 'Rebook'),
                             onCancel: () => Navigator.of(context).pushNamed(

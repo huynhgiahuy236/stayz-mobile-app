@@ -152,6 +152,10 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                         pendingPayment:
                             summary.booking.isPaymentPending,
                         paymentExpired: summary.booking.isPaymentExpired,
+                        paymentAmount: (summary.booking.amountPaid ?? 0) > 0
+                            ? StayzFormatters.compactVnd(summary.booking.amountPaid!)
+                            : null,
+                        deposit30: summary.booking.paymentPlan == 'deposit_30',
                         paymentBusy: _openingPayments.contains(
                           summary.booking.id,
                         ),

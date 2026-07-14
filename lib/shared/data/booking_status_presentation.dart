@@ -81,10 +81,7 @@ BookingStatusPresentation bookingStatusPresentation(Booking booking) {
       label: tr('Đã nhận phòng', 'Checked in'),
       background: AppTheme.notificationConfirmedBorder.withValues(alpha: 0.32),
       foreground: AppTheme.notificationConfirmedText,
-      description: tr(
-        'Admin đã xác nhận khách có đến nhận phòng.',
-        'An admin confirmed that the guest checked in.',
-      ),
+      description: tr('Đã hoàn tất thanh toán.', 'Payment has been completed.'),
     );
   }
   if (booking.attendanceStatus == 'no_show') {

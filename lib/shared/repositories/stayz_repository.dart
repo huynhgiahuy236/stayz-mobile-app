@@ -142,7 +142,10 @@ abstract class StayzRepository {
   });
   Future<List<BookingSummary>> getBookingSummaries({String? userId});
   Future<BookingSummary?> createBooking(BookingDraft draft);
-  Future<Map<String, dynamic>> createPayOSPayment(String bookingId);
+  Future<Map<String, dynamic>> createPayOSPayment(
+    String bookingId, {
+    String? paymentPlan,
+  });
   Future<Map<String, dynamic>?> getPayOSPayment(String bookingId);
   Future<BookingSummary?> updateBookingStatus(
     String bookingId,
@@ -539,11 +542,17 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> createPayOSPayment(String bookingId) async {
+  Future<Map<String, dynamic>> createPayOSPayment(
+    String bookingId, {
+    String? paymentPlan,
+  }) async {
     final token = await _requireToken();
     final data = await api.post(
       '/payment/create/$bookingId',
       bearerToken: token,
+      body: paymentPlan == null
+          ? const <String, dynamic>{}
+          : <String, dynamic>{'payment_plan': paymentPlan},
     );
     if (data is! Map<String, dynamic>)
       throw const ApiException('Invalid PayOS response.');

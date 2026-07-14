@@ -7,6 +7,7 @@ import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class BookingConfirmationPage extends StatelessWidget {
   const BookingConfirmationPage({super.key});
@@ -27,19 +28,24 @@ class BookingConfirmationPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(
                 responsive.horizontalPadding,
-                18 * responsive.scale,
+                10 * responsive.scale,
                 responsive.horizontalPadding,
-                26 * responsive.scale,
+                10 * responsive.scale,
               ),
               child: Row(
                 children: [
                   // Truoc day day la mot Icon tinh: trong nhu nut dong nhung bam khong duoc.
                   IconButton(
-                    onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
                     icon: const Icon(Icons.close),
                     color: AppTheme.accentDark,
                     tooltip: tr('Đóng và về trang chủ', 'Close and go home'),
-                    constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+                    constraints: const BoxConstraints.tightFor(
+                      width: 48,
+                      height: 48,
+                    ),
                   ),
                   Expanded(
                     child: Text(
@@ -47,7 +53,7 @@ class BookingConfirmationPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppTheme.ink,
-                        fontSize: 22 * responsive.scale,
+                        fontSize: 20 * responsive.scale,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -61,81 +67,58 @@ class BookingConfirmationPage extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
                   responsive.horizontalPadding,
-                  42 * responsive.scale,
+                  18 * responsive.scale,
                   responsive.horizontalPadding,
-                  34 * responsive.scale,
+                  24 * responsive.scale,
                 ),
                 children: [
                   CircleAvatar(
-                    radius: 54 * responsive.scale,
-                    backgroundColor: const Color(0xFFEADDD8),
-                    child: Icon(Icons.check_circle_outline, color: AppTheme.ink, size: 58 * responsive.scale),
+                    radius: 38 * responsive.scale,
+                    backgroundColor: AppTheme.primarySoft,
+                    child: Icon(
+                      Icons.check_rounded,
+                      color: AppTheme.primary,
+                      size: 44 * responsive.scale,
+                    ),
                   ),
-                  SizedBox(height: 34 * responsive.scale),
+                  SizedBox(height: 18 * responsive.scale),
                   Text(
                     tr('Đặt phòng thành công!', 'Booking successful!'),
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.ink,
-                      fontSize: 33 * responsive.scale,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 28 * responsive.scale,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 18 * responsive.scale),
+                  SizedBox(height: 8 * responsive.scale),
                   Text(
-                    tr('Chúc bạn có một chuyến đi tuyệt vời.', 'Wishing you a wonderful trip.'),
+                    tr(
+                      'Thông tin đặt phòng đã được lưu trong Chuyến đi của tôi.',
+                      'Your booking is now available in My trips.',
+                    ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: const Color(0xFF5A3F3F),
-                      fontSize: 18 * responsive.scale,
+                      color: AppTheme.muted,
+                      fontSize: 15 * responsive.scale,
+                      height: 1.4,
                     ),
                   ),
-                  SizedBox(height: 58 * responsive.scale),
+                  SizedBox(height: 26 * responsive.scale),
                   _ConfirmedTicket(draft: draft, summary: summary),
-                  SizedBox(height: 52 * responsive.scale),
-                  Center(
-                    child: Container(
-                      width: 206 * responsive.widthScale,
-                      padding: EdgeInsets.all(18 * responsive.scale),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.neutral200),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 210 * responsive.widthScale,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE4E8E5),
-                              borderRadius: BorderRadius.circular(4),
-                              gradient: const LinearGradient(colors: [Color(0xFFE9EFEC), Color(0xFFC9D0CC)]),
-                            ),
-                            child: Center(
-                              child: Icon(Icons.qr_code_2, color: AppTheme.neutral500, size: 86 * responsive.scale),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 18 * responsive.scale),
-                  Text(
-                    tr('QUÉT MÃ ĐỂ CHECK-IN', 'SCAN CODE TO CHECK IN'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF5A3F3F),
-                      fontSize: 16 * responsive.scale,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 4,
-                    ),
-                  ),
-                  SizedBox(height: 70 * responsive.scale),
+                  if (summary?.booking.checkInCode.isNotEmpty == true) ...[
+                    SizedBox(height: 14 * responsive.scale),
+                    _CheckInCodeTile(code: summary!.booking.checkInCode),
+                  ],
+                  SizedBox(height: 24 * responsive.scale),
                   BookingPrimaryButton(
                     label: tr('Xem chi tiết booking', 'View booking details'),
                     onTap: () {
                       if (summary == null) {
-                        Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.myBookings, (route) => false);
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.myBookings,
+                          (route) => false,
+                        );
                         return;
                       }
                       Navigator.of(context).pushNamedAndRemoveUntil(
@@ -145,20 +128,26 @@ class BookingConfirmationPage extends StatelessWidget {
                       );
                     },
                   ),
-                  SizedBox(height: 22 * responsive.scale),
+                  SizedBox(height: 12 * responsive.scale),
                   SizedBox(
-                    height: 58 * responsive.scale,
+                    height: 52 * responsive.scale,
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+                      onPressed: () =>
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRoutes.home,
+                            (route) => false,
+                          ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.neutral200),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       child: Text(
                         tr('Về Trang chủ', 'Go home'),
                         style: TextStyle(
                           color: AppTheme.accent,
-                          fontSize: 20 * responsive.scale,
+                          fontSize: 16 * responsive.scale,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -169,6 +158,71 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CheckInCodeTile extends StatelessWidget {
+  const _CheckInCodeTile({required this.code});
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppTheme.neutral200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.symmetric(
+          horizontal: 16 * responsive.widthScale,
+          vertical: 2 * responsive.scale,
+        ),
+        childrenPadding: EdgeInsets.fromLTRB(
+          16 * responsive.widthScale,
+          0,
+          16 * responsive.widthScale,
+          18 * responsive.scale,
+        ),
+        leading: const Icon(Icons.qr_code_2_rounded, color: AppTheme.primary),
+        title: Text(
+          tr('Mã nhận phòng', 'Check-in code'),
+          style: TextStyle(
+            color: AppTheme.ink,
+            fontSize: 15 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        subtitle: Text(
+          tr('Chạm để xem QR', 'Tap to view QR'),
+          style: TextStyle(
+            color: AppTheme.muted,
+            fontSize: 12 * responsive.scale,
+          ),
+        ),
+        children: [
+          QrImageView(
+            data: 'STAYZ-CHECKIN:$code',
+            size: 176 * responsive.widthScale,
+            backgroundColor: Colors.white,
+          ),
+          SizedBox(height: 8 * responsive.scale),
+          Text(
+            code,
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 16 * responsive.scale,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2.5,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -191,18 +245,35 @@ class _ConfirmedTicket extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final hotelName = summary == null
-        ? (draft == null ? tr('Không có dữ liệu đặt phòng', 'No booking data') : '${draft!.hotel.hotel.name}, ${draft!.hotel.city.name}')
+        ? (draft == null
+              ? tr('Không có dữ liệu đặt phòng', 'No booking data')
+              : '${draft!.hotel.hotel.name}, ${draft!.hotel.city.name}')
         : '${summary!.hotel.name}, ${summary!.city.name}';
     final address = summary?.hotel.address ?? draft?.hotel.hotel.address ?? '';
     final checkIn = summary == null
-        ? (draft == null ? '' : '${draft!.hotel.hotel.checkInTime}, ${StayzFormatters.shortDate(draft!.checkInDate)}')
+        ? (draft == null
+              ? ''
+              : '${draft!.hotel.hotel.checkInTime}, ${StayzFormatters.shortDate(draft!.checkInDate)}')
         : '${summary!.hotel.checkInTime}, ${StayzFormatters.shortDate(summary!.booking.checkInDate)}';
     final checkOut = summary == null
-        ? (draft == null ? '' : '${draft!.hotel.hotel.checkOutTime}, ${StayzFormatters.shortDate(draft!.checkOutDate)}')
+        ? (draft == null
+              ? ''
+              : '${draft!.hotel.hotel.checkOutTime}, ${StayzFormatters.shortDate(draft!.checkOutDate)}')
         : '${summary!.hotel.checkOutTime}, ${StayzFormatters.shortDate(summary!.booking.checkOutDate)}';
     final total = summary == null
         ? (draft == null ? '' : StayzFormatters.fullVnd(draft!.totalAmount))
         : StayzFormatters.fullVnd(summary!.booking.totalAmount);
+    final totalValue = summary?.booking.totalAmount ?? draft?.totalAmount ?? 0;
+    final paid = summary?.booking.recordedAmount ?? draft?.amountPaid ?? 0;
+    final isDeposit =
+        (summary?.booking.paymentPlan ?? draft?.paymentPlan) == 'deposit_30';
+    final remaining =
+        summary?.booking.remainingAmount ??
+        draft?.remainingAtHotel ??
+        (isDeposit ? (totalValue - paid).clamp(0, totalValue) : 0);
+    final discount = !isDeposit && paid > 0
+        ? (totalValue - paid).clamp(0, totalValue)
+        : 0;
 
     return Container(
       padding: EdgeInsets.all(24 * responsive.scale),
@@ -236,11 +307,18 @@ class _ConfirmedTicket extends StatelessWidget {
               ),
               Text(
                 _bookingCode,
-                style: TextStyle(color: AppTheme.ink, fontSize: 17 * responsive.scale, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  color: AppTheme.ink,
+                  fontSize: 17 * responsive.scale,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
-          Divider(height: 34 * responsive.scale, color: const Color(0xFFD9B8B8)),
+          Divider(
+            height: 34 * responsive.scale,
+            color: const Color(0xFFD9B8B8),
+          ),
           Text(
             hotelName,
             style: TextStyle(
@@ -252,12 +330,19 @@ class _ConfirmedTicket extends StatelessWidget {
           SizedBox(height: 14 * responsive.scale),
           Row(
             children: [
-              Icon(Icons.location_on_outlined, color: const Color(0xFF5A3F3F), size: 22 * responsive.scale),
+              Icon(
+                Icons.location_on_outlined,
+                color: const Color(0xFF5A3F3F),
+                size: 22 * responsive.scale,
+              ),
               SizedBox(width: 8 * responsive.widthScale),
               Expanded(
                 child: Text(
                   address,
-                  style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale),
+                  style: TextStyle(
+                    color: const Color(0xFF5A3F3F),
+                    fontSize: 17 * responsive.scale,
+                  ),
                 ),
               ),
             ],
@@ -266,10 +351,7 @@ class _ConfirmedTicket extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _TicketMeta(
-                  label: 'CHECK-IN',
-                  value: checkIn,
-                ),
+                child: _TicketMeta(label: 'CHECK-IN', value: checkIn),
               ),
               Expanded(
                 child: _TicketMeta(
@@ -280,12 +362,32 @@ class _ConfirmedTicket extends StatelessWidget {
               ),
             ],
           ),
-          Divider(height: 38 * responsive.scale, color: const Color(0xFFD9B8B8)),
-          PriceLine(
-            label: tr('Tổng cộng', 'Total'),
-            value: total,
-            total: true,
+          Divider(
+            height: 38 * responsive.scale,
+            color: const Color(0xFFD9B8B8),
           ),
+          PriceLine(label: tr('Tổng giá phòng', 'Room total'), value: total),
+          if (discount > 0)
+            PriceLine(
+              label: tr('Giảm 10%', '10% discount'),
+              value: '-${StayzFormatters.fullVnd(discount)}',
+            ),
+          if (paid > 0)
+            PriceLine(
+              label: isDeposit
+                  ? tr('Đã đặt cọc (30%)', 'Deposit paid (30%)')
+                  : tr('Đã thanh toán', 'Amount paid'),
+              value: StayzFormatters.fullVnd(paid),
+              total: true,
+            ),
+          if (isDeposit && remaining > 0)
+            PriceLine(
+              label: tr(
+                'Còn lại tại khách sạn (70%)',
+                'Remaining at property (70%)',
+              ),
+              value: StayzFormatters.fullVnd(remaining),
+            ),
         ],
       ),
     );
@@ -308,7 +410,9 @@ class _TicketMeta extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Column(
-      crossAxisAlignment: alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: alignRight
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
         Text(
           label,
@@ -323,7 +427,11 @@ class _TicketMeta extends StatelessWidget {
         Text(
           value,
           textAlign: alignRight ? TextAlign.right : TextAlign.left,
-          style: TextStyle(color: AppTheme.ink, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: AppTheme.ink,
+            fontSize: 15 * responsive.scale,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );

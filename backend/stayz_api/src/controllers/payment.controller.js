@@ -16,7 +16,11 @@ const paymentController = {
     try {
       const userId = req.user.userId;
       const { bookingId } = req.params;
-      const data = await paymentService.createPaymentLink(bookingId, userId);
+      const data = await paymentService.createPaymentLink(
+        bookingId,
+        userId,
+        req.body?.payment_plan,
+      );
       const response = responseSuccess(data, "Tạo link thanh toán PayOS thành công", 201);
       res.status(response.code).json(response);
     } catch (err) {

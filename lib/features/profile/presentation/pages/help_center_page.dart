@@ -3,9 +3,31 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpCenterPage extends StatelessWidget {
   const HelpCenterPage({super.key});
+
+  static final Uri _zaloSupportUri = Uri.parse('https://zalo.me/0372212378');
+
+  Future<void> _openZaloSupport(BuildContext context) async {
+    final opened = await launchUrl(
+      _zaloSupportUri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            tr(
+              'Không thể mở Zalo. Vui lòng tìm số 0372212378 trên Zalo.',
+              'Could not open Zalo. Please search for 0372212378 in Zalo.',
+            ),
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,19 +62,28 @@ class HelpCenterPage extends StatelessWidget {
                 ProfileMenuTile(
                   icon: Icons.calendar_month_outlined,
                   label: tr('Quản lý đặt phòng', 'Manage bookings'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.myBookings),
                 ),
                 const Divider(height: 1, indent: 72),
                 ProfileMenuTile(
                   icon: Icons.payments_outlined,
                   label: tr('Thanh toán và VietQR', 'Payment and VietQR'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.paymentMethods),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.paymentMethods),
                 ),
                 const Divider(height: 1, indent: 72),
                 ProfileMenuTile(
                   icon: Icons.lock_reset_rounded,
                   label: tr('Khôi phục mật khẩu', 'Recover password'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                ),
+                const Divider(height: 1, indent: 72),
+                ProfileMenuTile(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  label: tr('Liên hệ qua Zalo', 'Contact via Zalo'),
+                  onTap: () => _openZaloSupport(context),
                 ),
               ],
             ),
@@ -82,7 +113,11 @@ class HelpCenterPage extends StatelessWidget {
 }
 
 class _HelpNote extends StatelessWidget {
-  const _HelpNote({required this.icon, required this.title, required this.body});
+  const _HelpNote({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
 
   final IconData icon;
   final String title;
@@ -104,9 +139,18 @@ class _HelpNote extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 6),
-                    Text(body, style: const TextStyle(color: AppTheme.muted, height: 1.45)),
+                    Text(
+                      body,
+                      style: const TextStyle(
+                        color: AppTheme.muted,
+                        height: 1.45,
+                      ),
+                    ),
                   ],
                 ),
               ),

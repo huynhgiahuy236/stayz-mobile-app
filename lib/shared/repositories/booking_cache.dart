@@ -12,16 +12,24 @@ import 'package:capstone_mobile/shared/models/stayz_models.dart';
 class BookingCache {
   BookingCache._();
 
-  static final Map<String, BookingSummary> _overrides = <String, BookingSummary>{};
+  static final Map<String, BookingSummary> _overrides =
+      <String, BookingSummary>{};
 
-  static List<BookingSummary> get all => _overrides.values.toList(growable: false);
+  static List<BookingSummary> get all =>
+      _overrides.values.toList(growable: false);
 
-  static void put(BookingSummary summary) => _overrides[summary.booking.id] = summary;
+  static void put(BookingSummary summary) =>
+      _overrides[summary.booking.id] = summary;
 
   static void clear() => _overrides.clear();
 
   /// Gop cache vao danh sach tu server, chi giu booking cua dung nguoi dung nay.
-  static List<BookingSummary> mergeInto(List<BookingSummary> summaries, {String? userId}) {
+  /// Du lieu server luon la nguon chinh xac hon cache. Cache chi bo sung booking
+  /// vua tao chua kip xuat hien trong danh sach server.
+  static List<BookingSummary> mergeInto(
+    List<BookingSummary> summaries, {
+    String? userId,
+  }) {
     final byId = <String, BookingSummary>{
       for (final summary in summaries) summary.booking.id: summary,
     };
@@ -29,7 +37,11 @@ class BookingCache {
     for (final summary in _overrides.values) {
       final owner = summary.booking.userId;
       if (userId != null && owner.isNotEmpty && owner != userId) continue;
-      byId[summary.booking.id] = summary;
+      byId.putIfAbsent(summary.booking.id, () => summary);
+    }
+
+    for (final summary in summaries) {
+      _overrides[summary.booking.id] = summary;
     }
 
     return byId.values.toList(growable: false);

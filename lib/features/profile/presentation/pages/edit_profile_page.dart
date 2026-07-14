@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -6,6 +8,7 @@ import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image/image.dart' as img;
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -83,25 +86,82 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _pickAvatar() async {
     if (_uploadingAvatar) return;
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     final file = result?.files.singleOrNull;
     if (file == null || file.bytes == null) return;
     setState(() => _uploadingAvatar = true);
     try {
+      final avatarBytes = _prepareAvatar(file.bytes!);
       final url = await ApiStayzRepository.instance.uploadProfileAvatar(
-        bytes: file.bytes!,
-        filename: file.name,
+        bytes: avatarBytes,
+        filename: 'stayz-avatar.jpg',
       );
       if (!mounted) return;
       setState(() => _avatarUrl = url);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Đã cập nhật ảnh đại diện.', 'Avatar updated.'))),
+        SnackBar(
+          content: Text(tr('Đã cập nhật ảnh đại diện.', 'Avatar updated.')),
+        ),
       );
     } on ApiException catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } on FormatException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
     } finally {
       if (mounted) setState(() => _uploadingAvatar = false);
     }
+  }
+
+  List<int> _prepareAvatar(Uint8List source) {
+    const safeUploadBytes = 1800 * 1024;
+    if (source.length <= safeUploadBytes) return source;
+
+    final decoded = img.decodeImage(source);
+    if (decoded == null) {
+      throw FormatException(
+        tr(
+          'Không thể xử lý định dạng ảnh này. Vui lòng chọn ảnh JPG hoặc PNG.',
+          'This image format could not be processed. Please choose a JPG or PNG image.',
+        ),
+      );
+    }
+
+    final oriented = img.bakeOrientation(decoded);
+    for (final preset in const [
+      (size: 1024, quality: 82),
+      (size: 800, quality: 78),
+      (size: 640, quality: 72),
+    ]) {
+      final resized =
+          oriented.width > preset.size || oriented.height > preset.size
+          ? img.copyResize(
+              oriented,
+              width: oriented.width >= oriented.height ? preset.size : null,
+              height: oriented.height > oriented.width ? preset.size : null,
+              interpolation: img.Interpolation.average,
+            )
+          : oriented;
+      final encoded = img.encodeJpg(resized, quality: preset.quality);
+      if (encoded.length <= safeUploadBytes) return encoded;
+    }
+
+    throw FormatException(
+      tr(
+        'Ảnh vẫn quá lớn sau khi tối ưu. Vui lòng chọn ảnh khác.',
+        'The image is still too large after optimization. Please choose another image.',
+      ),
+    );
   }
 
   Future<void> _pickDateOfBirth() async {
@@ -153,17 +213,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               CircleAvatar(
                                 radius: 58,
                                 backgroundColor: AppTheme.neutral200,
-                                backgroundImage: _avatarUrl.isEmpty ? null : NetworkImage(_avatarUrl),
-                                child: _avatarUrl.isEmpty ? const Icon(Icons.person, size: 58, color: AppTheme.accentDark) : null,
+                                backgroundImage: _avatarUrl.isEmpty
+                                    ? null
+                                    : NetworkImage(_avatarUrl),
+                                child: _avatarUrl.isEmpty
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 58,
+                                        color: AppTheme.accentDark,
+                                      )
+                                    : null,
                               ),
                               Positioned(
                                 right: 0,
                                 bottom: 0,
                                 child: IconButton.filled(
-                                  onPressed: _uploadingAvatar ? null : _pickAvatar,
-                                  tooltip: tr('Tải ảnh đại diện', 'Upload avatar'),
+                                  onPressed: _uploadingAvatar
+                                      ? null
+                                      : _pickAvatar,
+                                  tooltip: tr(
+                                    'Tải ảnh đại diện',
+                                    'Upload avatar',
+                                  ),
                                   icon: _uploadingAvatar
-                                      ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                      ? const SizedBox.square(
+                                          dimension: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
                                       : const Icon(Icons.photo_camera_outlined),
                                 ),
                               ),
@@ -229,7 +308,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           onTap: _pickDateOfBirth,
                           decoration: InputDecoration(
                             labelText: tr('Ngày sinh', 'Date of birth'),
-                            suffixIcon: const Icon(Icons.calendar_month_outlined),
+                            suffixIcon: const Icon(
+                              Icons.calendar_month_outlined,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 36),

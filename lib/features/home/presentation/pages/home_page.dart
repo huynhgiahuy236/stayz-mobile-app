@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/chat/ai_chat_sheet.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/booking_status_presentation.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
@@ -95,10 +96,8 @@ class _HomePageState extends State<HomePage> {
   /// chuyen di tu khach san dau danh sach voi ngay cung '12 - 14/07'.
   Future<BookingSummary?> _loadUpcomingBooking() async {
     final bookings = await ApiStayzRepository.instance.getBookingSummaries();
-    final upcoming =
-        bookings.where((item) => item.booking.isUpcoming).toList()..sort(
-          (a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate),
-        );
+    final upcoming = bookings.where((item) => item.booking.isUpcoming).toList()
+      ..sort((a, b) => a.booking.checkInDate.compareTo(b.booking.checkInDate));
     return upcoming.firstOrNull;
   }
 
@@ -384,6 +383,9 @@ class _HomePageState extends State<HomePage> {
                         final upcoming = bookingSnapshot.data;
                         // Khong co chuyen di that thi khong hien muc nay.
                         if (upcoming == null) return const SizedBox.shrink();
+                        final status = bookingStatusPresentation(
+                          upcoming.booking,
+                        );
 
                         return Column(
                           children: [
@@ -423,13 +425,15 @@ class _HomePageState extends State<HomePage> {
                                       ? upcoming.booking.amountPaid!
                                       : upcoming.booking.totalAmount,
                                 ),
-                                deposit30: upcoming.booking.paymentPlan == 'deposit_30',
-                                paymentRecorded: (upcoming.booking.amountPaid ?? 0) > 0,
-                                status: upcoming.booking.isPaymentExpired
-                                    ? tr('Đã hết hạn', 'Expired')
-                                    : upcoming.booking.isPaymentPending
-                                        ? tr('Chờ thanh toán', 'Pending payment')
-                                        : tr('Sắp đến', 'Upcoming'),
+                                deposit30:
+                                    upcoming.booking.paymentPlan ==
+                                    'deposit_30',
+                                paymentRecorded:
+                                    (upcoming.booking.amountPaid ?? 0) > 0,
+                                status: status.label,
+                                statusColor: status.background,
+                                statusTextColor: status.foreground,
+                                statusDescription: status.description,
                                 imageUrl:
                                     upcoming.room.imageUrls.firstOrNull ??
                                     upcoming.hotel.imageUrls.firstOrNull,

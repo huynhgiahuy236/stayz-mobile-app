@@ -142,8 +142,11 @@ class Hotel {
   String get localizedDescription => AppLocale.instance.isVietnamese
       ? description
       : (descriptionEn.trim().isNotEmpty
-          ? descriptionEn
-          : tr('Chưa có mô tả.', 'English description is not available yet.'));
+            ? descriptionEn
+            : tr(
+                'Chưa có mô tả.',
+                'English description is not available yet.',
+              ));
   final String address;
   final double latitude;
   final double longitude;
@@ -155,7 +158,9 @@ class Hotel {
   final String status;
 }
 
-double _double(dynamic value) => value is num ? value.toDouble() : double.tryParse(value?.toString() ?? '') ?? 0;
+double _double(dynamic value) => value is num
+    ? value.toDouble()
+    : double.tryParse(value?.toString() ?? '') ?? 0;
 
 class Room {
   const Room({
@@ -208,8 +213,11 @@ class Room {
   String get localizedDescription => AppLocale.instance.isVietnamese
       ? description
       : (descriptionEn.trim().isNotEmpty
-          ? descriptionEn
-          : tr('Chưa có mô tả.', 'English description is not available yet.'));
+            ? descriptionEn
+            : tr(
+                'Chưa có mô tả.',
+                'English description is not available yet.',
+              ));
   final String roomType;
   final int capacityAdults;
   final int capacityChildren;
@@ -225,10 +233,7 @@ class Room {
 }
 
 class BookingGuests {
-  const BookingGuests({
-    required this.adults,
-    required this.children,
-  });
+  const BookingGuests({required this.adults, required this.children});
 
   factory BookingGuests.fromJson(Map<String, dynamic> json) {
     return BookingGuests(
@@ -262,7 +267,13 @@ class Booking {
     this.refundAmount,
     this.refundRate,
     this.paymentExpiresAt,
-  });
+    String? attendanceStatus,
+    String? attendanceNote,
+    String? cancellationReason,
+    this.checkInCode = '',
+  }) : _attendanceStatus = attendanceStatus ?? 'pending',
+       _attendanceNote = attendanceNote ?? '',
+       _cancellationReason = cancellationReason ?? '';
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
@@ -282,6 +293,10 @@ class Booking {
       paymentExpiresAt: json['paymentExpiresAt'] == null
           ? null
           : DateTime.parse(json['paymentExpiresAt'] as String),
+      attendanceStatus: json['attendanceStatus'] as String? ?? 'pending',
+      attendanceNote: json['attendanceNote'] as String? ?? '',
+      cancellationReason: json['cancellationReason'] as String? ?? '',
+      checkInCode: json['checkInCode'] as String? ?? '',
     );
   }
 
@@ -307,9 +322,40 @@ class Booking {
   final num? refundAmount;
   final num? refundRate;
   final DateTime? paymentExpiresAt;
+  final String? _attendanceStatus;
+  final String? _attendanceNote;
+  final String? _cancellationReason;
 
+  String get attendanceStatus => _attendanceStatus ?? 'pending';
+  String get attendanceNote => _attendanceNote ?? '';
+  String get cancellationReason => _cancellationReason ?? '';
+  final String checkInCode;
+
+  bool get hasRecordedPayment => (amountPaid ?? 0) > 0;
+
+  bool get isDepositPayment => paymentPlan == 'deposit_30';
+
+  num get recordedAmount => hasRecordedPayment ? amountPaid! : 0;
+
+  num get remainingAmount {
+    if (!hasRecordedPayment || !isDepositPayment) return 0;
+    return remainingAtHotel ??
+        (totalAmount - recordedAmount).clamp(0, totalAmount);
+  }
+
+  num get amountDueNow {
+    if (hasRecordedPayment) return 0;
+    if (!isDepositPayment) return totalAmount;
+    final backendDeposit = totalAmount - (remainingAtHotel ?? 0);
+    return backendDeposit > 0 ? backendDeposit : totalAmount * 0.3;
+  }
+
+  /// A booking with a recorded deposit is no longer awaiting payment even if
+  /// an older API response still contains `pending` in one of its status fields.
   bool get isPaymentPending =>
-      normalizedStatus == 'pending' || paymentStatus.toLowerCase() == 'pending';
+      !hasRecordedPayment &&
+      (normalizedStatus == 'pending' ||
+          paymentStatus.toLowerCase() == 'pending');
 
   bool get isPaymentExpired =>
       isPaymentPending &&
@@ -317,7 +363,11 @@ class Booking {
       !paymentExpiresAt!.isAfter(DateTime.now());
 
   static String normalizeStatus(String value) {
-    final normalized = value.trim().toLowerCase().replaceAll('-', '_').replaceAll(' ', '_');
+    final normalized = value
+        .trim()
+        .toLowerCase()
+        .replaceAll('-', '_')
+        .replaceAll(' ', '_');
     switch (normalized) {
       case 'canceled':
       case 'cancel':
@@ -336,7 +386,9 @@ class Booking {
 
   String get normalizedStatus => normalizeStatus(status);
   bool get isCancelled => normalizedStatus == 'cancelled';
-  bool get isUpcoming => !isCompleted && (normalizedStatus == 'pending' || normalizedStatus == 'confirmed');
+  bool get isUpcoming =>
+      !isCompleted &&
+      (normalizedStatus == 'pending' || normalizedStatus == 'confirmed');
   bool get isCompleted {
     if (isCancelled) return false;
     return normalizedStatus == 'completed';
@@ -362,6 +414,10 @@ class Booking {
     num? refundAmount,
     num? refundRate,
     DateTime? paymentExpiresAt,
+    String? attendanceStatus,
+    String? attendanceNote,
+    String? cancellationReason,
+    String? checkInCode,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -383,6 +439,10 @@ class Booking {
       refundAmount: refundAmount ?? this.refundAmount,
       refundRate: refundRate ?? this.refundRate,
       paymentExpiresAt: paymentExpiresAt ?? this.paymentExpiresAt,
+      attendanceStatus: attendanceStatus ?? this.attendanceStatus,
+      attendanceNote: attendanceNote ?? this.attendanceNote,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      checkInCode: checkInCode ?? this.checkInCode,
     );
   }
 }
@@ -433,7 +493,9 @@ class Payment {
       method: json['method'] as String,
       status: json['status'] as String,
       transactionCode: json['transactionCode'] as String,
-      paidAt: json['paidAt'] == null ? null : DateTime.parse(json['paidAt'] as String),
+      paidAt: json['paidAt'] == null
+          ? null
+          : DateTime.parse(json['paidAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

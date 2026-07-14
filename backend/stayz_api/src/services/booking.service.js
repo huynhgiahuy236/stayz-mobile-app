@@ -5,6 +5,7 @@ const redis = require("../config/redis.config");
 const { default: Redlock } = require("redlock");
 const notificationsService = require("./notifications.service");
 const { normalizePaymentPlan, calculatePaymentQuote } = require("../utils/paymentQuote.util");
+const crypto = require("node:crypto");
 
 const redlock = new Redlock([redis], {
   retryCount: 3,       // thử lại 3 lần nếu lock đang bị giữ
@@ -21,6 +22,18 @@ const creatableStatus = ["pending", "confirmed"];
 
 // Chu don duoc tu huy. Cac chuyen trang thai con lai thuoc ve admin.
 const guestAllowedStatus = ["cancelled"];
+const attendanceStatuses = ["pending", "checked_in", "no_show"];
+const newCheckInCode = () => crypto.randomBytes(4).toString("hex").toUpperCase();
+
+const ensureCheckInCodes = async (bookings) => {
+  for (const booking of bookings) {
+    if (!booking.check_in_code) {
+      booking.check_in_code = newCheckInCode();
+      await booking.save();
+    }
+  }
+  return bookings;
+};
 
 const isOwner = (booking, user) =>
   String(booking.user_id?._id || booking.user_id) === String(user?.userId);
@@ -67,14 +80,43 @@ const populateBooking = (query) =>
     })
     .populate("room_id");
 
-const autoCompleteExpiredBookings = async (userId = null) => {
+const settleExpiredBookings = async (userId = null) => {
   const now = new Date();
   const query = {
-    status: { $in: ["pending", "confirmed"] },
+    status: "confirmed",
     check_out: { $lt: now },
+    attendance_status: { $in: ["checked_in", "no_show"] },
   };
   if (userId) query.user_id = userId;
-  await bookingModel.updateMany(query, { $set: { status: "completed" } });
+  const bookings = await bookingModel.find(query);
+  for (const booking of bookings) {
+    if (booking.attendance_status === "checked_in") {
+      booking.status = "completed";
+    } else {
+      booking.status = "cancelled";
+      booking.cancellation_reason = "no_show";
+      booking.refund_amount = 0;
+      booking.refund_rate = 0;
+      booking.refund_status = "none";
+    }
+    await booking.save();
+
+    const noShow = booking.attendance_status === "no_show";
+    notificationsService.createInternal({
+      userId: booking.user_id,
+      type: "booking_status",
+      title: noShow ? "Đã hủy do không đến nhận phòng" : "Chuyến đi đã hoàn tất",
+      body: noShow
+        ? `Booking #${booking._id} đã hủy do không đến nhận phòng. Không hoàn tiền theo chính sách.`
+        : `Booking #${booking._id} đã hoàn tất. Hãy để lại đánh giá của bạn nhé!`,
+      titleEn: noShow ? "Cancelled due to no-show" : "Trip completed",
+      bodyEn: noShow
+        ? `Booking #${booking._id} was cancelled because the guest did not check in. No refund applies.`
+        : `Booking #${booking._id} is complete. Please leave a review!`,
+      refId: booking._id,
+      refType: "Booking",
+    }).catch(() => {});
+  }
 };
 
 const getOverlappingBookedRooms = async ({
@@ -129,13 +171,16 @@ const acquireBookingLock = async (lockKey) => {
 };
 
 const bookingService = {
+  settleExpiredBookings: async () => settleExpiredBookings(),
   getAll: async () => {
-    await autoCompleteExpiredBookings();
-    return await populateBooking(bookingModel.find());
+    await settleExpiredBookings();
+    const bookings = await populateBooking(bookingModel.find());
+    return ensureCheckInCodes(bookings);
   },
   getByUserId: async (userId) => {
-    await autoCompleteExpiredBookings(userId);
-    return await populateBooking(bookingModel.find({ user_id: userId }));
+    await settleExpiredBookings(userId);
+    const bookings = await populateBooking(bookingModel.find({ user_id: userId }));
+    return ensureCheckInCodes(bookings);
   },
   create: async (data) => {
     const { user_id, property_id, room_id, check_in, check_out } = data;
@@ -225,6 +270,7 @@ const bookingService = {
         payment_plan: paymentPlan,
         amount_paid: 0,
         remaining_at_hotel: paymentQuote.remaining,
+        check_in_code: newCheckInCode(),
       });
 
       // Tao thong bao khi dat phong. Truoc day chi co thong bao luc doi
@@ -276,6 +322,12 @@ const bookingService = {
     if (booking.status === "completed") {
       throw new BadRequestException("Khong the thay doi booking da hoan tat");
     }
+    if (
+      status === "completed" &&
+      (booking.attendance_status !== "checked_in" || new Date(booking.check_out) > new Date())
+    ) {
+      throw new BadRequestException("Chi hoan tat sau checkout khi khach da nhan phong");
+    }
 
     if (!activeStatus.includes(booking.status) && activeStatus.includes(status)) {
       const bookedRooms = await getOverlappingBookedRooms({
@@ -296,6 +348,7 @@ const bookingService = {
     // Khi huy: luu so tien hoan (fake) do client tinh theo ma tran, danh dau
     // payment_status = refunded neu co hoan.
     if (status === "cancelled") {
+      booking.cancellation_reason = user?.role === "admin" ? "admin_cancelled" : "guest_cancelled";
       const paid = Number(booking.amount_paid) || 0;
       const hours = new Date(booking.check_in).getTime() <= Date.now()
         ? 0
@@ -317,12 +370,16 @@ const bookingService = {
       booking.refund_amount > 0
         ? `Booking #${booking._id} đã hủy. Hoàn ${formatVnd(booking.refund_amount)} (${booking.refund_rate}%) về phương thức thanh toán ban đầu.`
         : `Booking #${booking._id} đã hủy. Không có khoản hoàn theo chính sách.`;
+    const cancelBodyEn =
+      booking.refund_amount > 0
+        ? `Booking #${booking._id} was cancelled. ${formatVnd(booking.refund_amount)} (${booking.refund_rate}%) will be refunded to the original payment method.`
+        : `Booking #${booking._id} was cancelled. No refund applies under the policy.`;
 
     // Tự động tạo thông báo cho user khi trạng thái booking thay đổi
     const statusMessages = {
       confirmed: { title: "Booking đã được xác nhận! 🎉", body: `Booking #${booking._id} của bạn đã được xác nhận thành công.`, titleEn: "Booking confirmed! 🎉", bodyEn: `Booking #${booking._id} has been confirmed successfully.` },
       completed:  { title: "Chúc bạn có chuyến đi vui vẻ! ✈️", body: `Booking #${booking._id} đã hoàn thành. Hãy để lại đánh giá của bạn nhé!`, titleEn: "We hope you enjoyed your stay! ✈️", bodyEn: `Booking #${booking._id} is complete. Please leave a review!` },
-      cancelled:  { title: "Đã hủy đặt phòng", body: cancelBody, titleEn: "Booking cancelled", bodyEn: `Booking #${booking._id} has been cancelled. Check the booking details for refund information.` },
+      cancelled:  { title: "Đã hủy đặt phòng", body: cancelBody, titleEn: "Booking cancelled", bodyEn: cancelBodyEn },
       pending:    { title: "Booking đang chờ xác nhận ⏳", body: `Booking #${booking._id} đang được xử lý.`, titleEn: "Booking awaiting confirmation ⏳", bodyEn: `Booking #${booking._id} is being processed.` },
     };
     const msg = statusMessages[status];
@@ -340,6 +397,58 @@ const bookingService = {
     }
 
     return await populateBooking(bookingModel.findById(booking._id));
+  },
+
+  updateAttendance: async (bookingId, attendanceStatus, note, user) => {
+    if (user?.role !== "admin") {
+      throw new ForbiddenException("Chi admin duoc xac nhan trang thai nhan phong");
+    }
+    if (!attendanceStatuses.includes(attendanceStatus)) {
+      throw new BadRequestException("Trang thai nhan phong khong hop le");
+    }
+
+    const booking = await bookingModel.findById(bookingId);
+    if (!booking) throw new BadRequestException("Booking khong ton tai");
+    if (booking.status === "cancelled" || booking.status === "completed") {
+      throw new BadRequestException("Khong the thay doi booking da ket thuc");
+    }
+    if (booking.status !== "confirmed") {
+      throw new BadRequestException("Booking phai duoc xac nhan thanh toan truoc");
+    }
+
+    booking.attendance_status = attendanceStatus;
+    booking.attendance_note = String(note || "").trim();
+    booking.attendance_confirmed_at = attendanceStatus === "pending" ? null : new Date();
+    booking.attendance_confirmed_by = attendanceStatus === "pending" ? null : user.userId;
+    await booking.save();
+
+    if (attendanceStatus !== "pending") {
+      const checkedIn = attendanceStatus === "checked_in";
+      notificationsService.createInternal({
+        userId: booking.user_id,
+        type: "booking_status",
+        title: checkedIn ? "Đã xác nhận nhận phòng" : "Ghi nhận không đến nhận phòng",
+        body: checkedIn
+          ? `Booking #${booking._id}: khách sạn đã xác nhận bạn nhận phòng.`
+          : `Booking #${booking._id}: khách sạn ghi nhận bạn không đến nhận phòng. Booking sẽ bị hủy sau checkout và không hoàn tiền.`,
+        titleEn: checkedIn ? "Check-in confirmed" : "No-show recorded",
+        bodyEn: checkedIn
+          ? `Booking #${booking._id}: the property confirmed your check-in.`
+          : `Booking #${booking._id}: the property recorded a no-show. The booking will be cancelled after checkout with no refund.`,
+        refId: booking._id,
+        refType: "Booking",
+      }).catch(() => {});
+    }
+    await settleExpiredBookings(String(booking.user_id));
+    return await populateBooking(bookingModel.findById(booking._id));
+  },
+  findByCheckInCode: async (code, user) => {
+    if (user?.role !== "admin") throw new ForbiddenException("Chi admin duoc tra cuu ma nhan phong");
+    const normalized = String(code || "").replace(/^STAYZ-CHECKIN:/i, "").trim().toUpperCase();
+    if (!/^[A-F0-9]{8}$/.test(normalized)) throw new BadRequestException("Ma nhan phong khong hop le");
+    const booking = await populateBooking(bookingModel.findOne({ check_in_code: normalized }));
+    if (!booking) throw new BadRequestException("Khong tim thay booking theo ma nhan phong");
+    return booking;
   },
   update: async (bookingId, data, user) => {
     const booking = await bookingModel.findById(bookingId);
@@ -362,6 +471,12 @@ const bookingService = {
     const nextStatus = data.status || booking.status;
     if (!allStatus.includes(nextStatus)) {
       throw new BadRequestException("Trang thai booking khong hop le");
+    }
+    if (
+      nextStatus === "completed" &&
+      (booking.attendance_status !== "checked_in" || new Date(booking.check_out) > now)
+    ) {
+      throw new BadRequestException("Chi hoan tat sau checkout khi khach da nhan phong");
     }
 
     const currentRoom = await roomsModel.findById(booking.room_id);

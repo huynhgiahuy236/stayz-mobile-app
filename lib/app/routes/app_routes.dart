@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/features/admin/presentation/pages/admin_dashboard_page.dart';
+import 'package:capstone_mobile/features/admin/presentation/pages/admin_check_in_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/auth_gate_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/login_page.dart';
@@ -12,6 +13,7 @@ import 'package:capstone_mobile/features/booking/presentation/pages/payment_qr_p
 import 'package:capstone_mobile/features/booking/presentation/pages/room_selection_real_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/cancel_booking_result_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_booking_detail_page.dart';
+import 'package:capstone_mobile/features/booking_management/presentation/pages/booking_checkin_qr_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/cancelled_bookings_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/completed_booking_detail_page.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/pages/completed_bookings_page.dart';
@@ -41,6 +43,7 @@ class AppRoutes {
 
   static const home = '/';
   static const admin = '/admin';
+  static const adminCheckIn = '/admin/check-in';
   static const authGate = '/auth-gate';
   static const onboarding = '/onboarding';
   static const login = '/login';
@@ -67,6 +70,7 @@ class AppRoutes {
   static const completedBookingDetail = '/completed-booking-detail';
   static const cancelledBookings = '/cancelled-bookings';
   static const cancelledBookingDetail = '/cancelled-booking-detail';
+  static const bookingCheckInQr = '/booking-check-in-qr';
   static const cancelBookingResult = '/cancel-booking-result';
   static const review = '/review';
   static const favorites = '/favorites';
@@ -79,6 +83,7 @@ class AppRoutes {
   static Map<String, WidgetBuilder> get routes => {
     authGate: (_) => const AuthGatePage(),
     admin: (_) => const AdminDashboardPage(),
+    adminCheckIn: (_) => const AdminCheckInPage(),
     home: (_) => const HomePage(),
     onboarding: (_) => const OnboardingIntroPage(),
     login: (_) => const LoginPage(),
@@ -105,6 +110,7 @@ class AppRoutes {
     completedBookingDetail: (_) => const CompletedBookingDetailPage(),
     cancelledBookings: (_) => const CancelledBookingsPage(),
     cancelledBookingDetail: (_) => const CancelledBookingDetailPage(),
+    bookingCheckInQr: (_) => const BookingCheckInQrPage(),
     cancelBookingResult: (_) => const CancelBookingResultPage(),
     review: (_) => const ReviewPage(),
     favorites: (_) => const FavoritesPage(),

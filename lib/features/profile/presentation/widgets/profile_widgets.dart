@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
@@ -18,8 +19,6 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final textTheme = Theme.of(context).textTheme;
-
     return Container(
       padding: EdgeInsets.fromLTRB(
         responsive.horizontalPadding,
@@ -44,21 +43,10 @@ class ProfileHeader extends StatelessWidget {
           SizedBox(width: 10 * responsive.widthScale),
           Expanded(
             child: brand
-                ? RichText(
-                    text: TextSpan(
-                      style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.ink,
-                        fontSize: 28 * responsive.scale,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      children: const [
-                        TextSpan(text: 'Stay'),
-                        TextSpan(
-                          text: 'Z',
-                          style: TextStyle(color: AppTheme.accent),
-                        ),
-                      ],
-                    ),
+                ? StayZBrandLogo(
+                    size: 48 * responsive.scale,
+                    borderRadius: 14,
+                    alignment: Alignment.centerLeft,
                   )
                 : Text(
                     title,
@@ -233,7 +221,7 @@ class ProfileInputField extends StatelessWidget {
                   ),
                 ),
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
         ),

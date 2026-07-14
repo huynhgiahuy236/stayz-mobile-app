@@ -19,6 +19,7 @@ const { handleError } = require("./src/helpers/error.helper");
 const passport = require("passport");
 const { initSocket } = require("./src/config/socket.config");
 const redis = require("./src/config/redis.config");
+const bookingService = require("./src/services/booking.service");
 
 require("./src/config/passport.config");
 
@@ -134,6 +135,9 @@ async function connectMongoWithRetry() {
     await mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 10000 });
     lastMongoError = null;
     console.log("MongoDB connected");
+    await bookingService.settleExpiredBookings().catch((error) => {
+      console.error("Booking settlement failed:", error.message);
+    });
   } catch (error) {
     lastMongoError = error.message;
     console.error("MongoDB connection failed:", error.message);
@@ -152,3 +156,12 @@ server.listen(PORT, () => {
   console.log(`StayZ API online at http://localhost:${PORT}`);
   connectMongoWithRetry();
 });
+
+// Keep stay outcomes current while the service is awake. Read APIs also run
+// the same settlement, so a sleeping Render instance catches up on wake-up.
+setInterval(() => {
+  if (mongoose.connection.readyState !== 1) return;
+  bookingService.settleExpiredBookings().catch((error) => {
+    console.error("Booking settlement failed:", error.message);
+  });
+}, 5 * 60 * 1000).unref();

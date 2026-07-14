@@ -81,6 +81,29 @@ const bookingController = {
       next(err);
     }
   },
+  updateAttendance: async (req, res, next) => {
+    const bookingId = req.params.bookingId;
+    const { attendance_status, note } = req.body;
+    try {
+      const data = await bookingService.updateAttendance(
+        bookingId,
+        attendance_status,
+        note,
+        req.user,
+      );
+      const response = responseSuccess(data, "Cập nhật trạng thái nhận phòng thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
+  findByCheckInCode: async (req, res, next) => {
+    try {
+      const data = await bookingService.findByCheckInCode(req.params.code, req.user);
+      const response = responseSuccess(data, "Tra cứu mã nhận phòng thành công", 200);
+      res.status(response.code).json(response);
+    } catch (err) { next(err); }
+  },
 };
 
 module.exports = bookingController;

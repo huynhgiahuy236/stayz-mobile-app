@@ -4,6 +4,7 @@ import 'package:capstone_mobile/features/booking_management/presentation/widgets
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/booking_status_presentation.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
@@ -46,10 +47,9 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
         throw const ApiException('VietQR is missing.');
       }
       if (!mounted) return;
-      await Navigator.of(context).pushNamed(
-        AppRoutes.paymentQr,
-        arguments: paymentArgs,
-      );
+      await Navigator.of(
+        context,
+      ).pushNamed(AppRoutes.paymentQr, arguments: paymentArgs);
       if (mounted) _refreshBookings();
     } on ApiException catch (error) {
       if (mounted) {
@@ -124,7 +124,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                       24 * responsive.scale,
                     ),
                     itemCount: bookings.length + 1,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         SizedBox(height: 16 * responsive.scale),
                     itemBuilder: (context, index) {
                       if (index == 0) {
@@ -132,6 +132,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                       }
 
                       final summary = bookings[index - 1];
+                      final status = bookingStatusPresentation(summary.booking);
                       return UpcomingBookingCard(
                         name: summary.hotel.name,
                         location:
@@ -149,11 +150,23 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                             summary.hotel.imageUrls.firstOrNull,
                         colors:
                             _bookingColors[(index - 1) % _bookingColors.length],
-                        pendingPayment:
-                            summary.booking.isPaymentPending,
+                        pendingPayment: summary.booking.isPaymentPending,
                         paymentExpired: summary.booking.isPaymentExpired,
-                        paymentAmount: (summary.booking.amountPaid ?? 0) > 0
-                            ? StayzFormatters.compactVnd(summary.booking.amountPaid!)
+                        statusLabel: status.label,
+                        statusColor: status.background,
+                        statusTextColor: status.foreground,
+                        statusDescription: status.description,
+                        paymentAmount: summary.booking.hasRecordedPayment
+                            ? StayzFormatters.compactVnd(
+                                summary.booking.recordedAmount,
+                              )
+                            : null,
+                        remainingAmount:
+                            summary.booking.isDepositPayment &&
+                                summary.booking.hasRecordedPayment
+                            ? StayzFormatters.compactVnd(
+                                summary.booking.remainingAmount,
+                              )
                             : null,
                         deposit30: summary.booking.paymentPlan == 'deposit_30',
                         paymentBusy: _openingPayments.contains(

@@ -27,7 +27,9 @@ class _SettingsPageState extends State<SettingsPage> {
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (sheetContext) {
         return SafeArea(
           child: Column(
@@ -41,7 +43,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(width: 10),
                     Text(
                       tr('Chọn ngôn ngữ', 'Choose language'),
-                      style: const TextStyle(color: AppTheme.ink, fontSize: 16, fontWeight: FontWeight.w800),
+                      style: const TextStyle(
+                        color: AppTheme.ink,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
@@ -108,7 +114,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.person_outline_rounded,
                   label: tr('Thông tin cá nhân', 'Personal information'),
                   onTap: () async {
-                    await Navigator.of(context).pushNamed(AppRoutes.profileForm);
+                    await Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.profileForm);
                     if (mounted) setState(() => _profileRevision++);
                   },
                 ),
@@ -116,14 +124,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 ProfileMenuTile(
                   icon: Icons.lock_outline_rounded,
                   label: tr('Đổi mật khẩu', 'Change password'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(
                   icon: Icons.account_balance_wallet_outlined,
                   label: tr('Phương thức thanh toán', 'Payment methods'),
-                  onTap: () => Navigator.of(context)
-                      .pushNamed(AppRoutes.paymentMethods),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.paymentMethods),
                 ),
               ],
             ),
@@ -144,9 +153,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         ProfileMenuTile(
                           icon: Icons.admin_panel_settings_outlined,
                           label: tr('Trung tâm quản trị', 'Admin center'),
-                          onTap: () => Navigator.of(context).pushNamed(
-                            AppRoutes.admin,
-                          ),
+                          onTap: () =>
+                              Navigator.of(context).pushNamed(AppRoutes.admin),
                         ),
                       ],
                     ),
@@ -167,10 +175,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       Text(
                         '${AppLocale.instance.flag} ${AppLocale.instance.label}',
-                        style: const TextStyle(color: AppTheme.muted, fontSize: 14, fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                          color: AppTheme.muted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.chevron_right_rounded, color: AppTheme.muted),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppTheme.muted,
+                      ),
                     ],
                   ),
                   onTap: () => _pickLanguage(context),
@@ -179,7 +194,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ProfileMenuTile(
                   icon: Icons.help_outline_rounded,
                   label: tr('Trung tâm hỗ trợ', 'Help center'),
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.helpCenter),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.helpCenter),
                 ),
               ],
             ),
@@ -193,7 +209,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   onTap: () async {
                     final navigator = Navigator.of(context);
                     await AuthService.instance.logout();
-                    navigator.pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                    navigator.pushNamedAndRemoveUntil(
+                      AppRoutes.login,
+                      (route) => false,
+                    );
                   },
                 ),
               ],
@@ -206,7 +225,12 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _LanguageOption extends StatelessWidget {
-  const _LanguageOption({required this.flag, required this.label, required this.selected, required this.onTap});
+  const _LanguageOption({
+    required this.flag,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String flag;
   final String label;
@@ -218,10 +242,21 @@ class _LanguageOption extends StatelessWidget {
     return ListTile(
       leading: Semantics(
         label: tr('Cờ của ngôn ngữ $label', '$label language flag'),
-        child: ExcludeSemantics(child: Text(flag, style: const TextStyle(fontSize: 24))),
+        child: ExcludeSemantics(
+          child: Text(flag, style: const TextStyle(fontSize: 24)),
+        ),
       ),
-      title: Text(label, style: const TextStyle(color: AppTheme.ink, fontSize: 15, fontWeight: FontWeight.w700)),
-      trailing: selected ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
+      title: Text(
+        label,
+        style: const TextStyle(
+          color: AppTheme.ink,
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      trailing: selected
+          ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary)
+          : null,
       onTap: onTap,
     );
   }
@@ -241,12 +276,12 @@ class _ProfileStatsState extends State<_ProfileStats> {
 
   Future<List<int>> _load() async {
     final values = await Future.wait<int>([
-      ApiStayzRepository.instance
-          .getBookingSummaries()
-          .then((items) => items.length),
-      ApiStayzRepository.instance
-          .getFavoriteHotelIds()
-          .then((items) => items.length),
+      ApiStayzRepository.instance.getBookingSummaries().then(
+        (items) => items.length,
+      ),
+      ApiStayzRepository.instance.getFavoriteHotelIds().then(
+        (items) => items.length,
+      ),
     ]);
     return values;
   }
@@ -274,9 +309,19 @@ class _ProfileStatsState extends State<_ProfileStats> {
         final saved = snapshot.data?[1];
         return Row(
           children: [
-            Expanded(child: _Stat(value: trips?.toString() ?? '–', label: tr('Chuyến đi', 'Trips'))),
+            Expanded(
+              child: _Stat(
+                value: trips?.toString() ?? '–',
+                label: tr('Chuyến đi', 'Trips'),
+              ),
+            ),
             const SizedBox(width: 10),
-            Expanded(child: _Stat(value: saved?.toString() ?? '–', label: tr('Đã lưu', 'Saved'))),
+            Expanded(
+              child: _Stat(
+                value: saved?.toString() ?? '–',
+                label: tr('Đã lưu', 'Saved'),
+              ),
+            ),
           ],
         );
       },
@@ -298,6 +343,93 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
 
   void _retry() {
     setState(() => _future = ApiStayzRepository.instance.getProfile());
+  }
+
+  Future<void> _openAvatarActions(StayzUser user, String initials) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.visibility_outlined,
+                  color: AppTheme.primaryDark,
+                ),
+                title: Text(tr('Xem ảnh đại diện', 'View profile picture')),
+                onTap: () => Navigator.pop(sheetContext, 'view'),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_camera_outlined,
+                  color: AppTheme.primaryDark,
+                ),
+                title: Text(tr('Sửa ảnh đại diện', 'Edit profile picture')),
+                onTap: () => Navigator.pop(sheetContext, 'edit'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!mounted || action == null) return;
+    if (action == 'edit') {
+      await Navigator.of(context).pushNamed(AppRoutes.editProfile);
+      if (mounted) _retry();
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: user.avatarUrl.isEmpty
+                    ? Container(
+                        width: 280,
+                        height: 280,
+                        color: AppTheme.primary,
+                        alignment: Alignment.center,
+                        child: Text(
+                          initials,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 72,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      )
+                    : Image.network(
+                        user.avatarUrl,
+                        width: 280,
+                        height: 280,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            IconButton.filled(
+              onPressed: () => Navigator.pop(dialogContext),
+              tooltip: tr('Đóng', 'Close'),
+              icon: const Icon(Icons.close_rounded),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -347,22 +479,53 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
           child: Row(
             children: [
               Stack(
+                clipBehavior: Clip.none,
                 children: [
                   CircleAvatar(
                     radius: 38 * widget.responsive.scale,
                     backgroundColor: AppTheme.primary,
-                    backgroundImage: user.avatarUrl.isEmpty ? null : NetworkImage(user.avatarUrl),
+                    backgroundImage: user.avatarUrl.isEmpty
+                        ? null
+                        : NetworkImage(user.avatarUrl),
                     child: user.avatarUrl.isEmpty
-                        ? Text(initials, style: TextStyle(color: Colors.white, fontSize: 22 * widget.responsive.scale, fontWeight: FontWeight.w900))
+                        ? Text(
+                            initials,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22 * widget.responsive.scale,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          )
                         : null,
                   ),
                   Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: CircleAvatar(
-                      radius: 13 * widget.responsive.scale,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.edit_rounded, color: AppTheme.primary, size: 15 * widget.responsive.scale),
+                    right: -8,
+                    bottom: -8,
+                    child: Semantics(
+                      button: true,
+                      label: tr(
+                        'Tùy chọn ảnh đại diện',
+                        'Profile picture options',
+                      ),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _openAvatarActions(user, initials),
+                        child: const SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Center(
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.edit_rounded,
+                                color: AppTheme.primary,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -372,20 +535,42 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 21 * widget.responsive.scale, fontWeight: FontWeight.w900)),
+                    Text(
+                      displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 21 * widget.responsive.scale,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     SizedBox(height: 5 * widget.responsive.scale),
-                    Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * widget.responsive.scale, fontWeight: FontWeight.w600)),
+                    Text(
+                      email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13 * widget.responsive.scale,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     SizedBox(height: 12 * widget.responsive.scale),
                     OutlinedButton.icon(
                       onPressed: () async {
-                        await Navigator.of(context).pushNamed(AppRoutes.editProfile);
+                        await Navigator.of(
+                          context,
+                        ).pushNamed(AppRoutes.editProfile);
                         if (mounted) _retry();
                       },
                       icon: const Icon(Icons.tune_rounded, size: 18),
                       label: Text(tr('Chỉnh hồ sơ', 'Edit profile')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        side: BorderSide(color: Colors.white.withValues(alpha: 0.32)),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.32),
+                        ),
                         minimumSize: Size(0, 48 * widget.responsive.scale),
                       ),
                     ),
@@ -400,7 +585,11 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
   }
 
   String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return 'SZ';
     final first = parts.first[0];
     final second = parts.length > 1 ? parts.last[0] : '';
@@ -409,10 +598,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({
-    required this.value,
-    required this.label,
-  });
+  const _Stat({required this.value, required this.label});
 
   final String value;
   final String label;
@@ -430,9 +616,25 @@ class _Stat extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 20 * responsive.scale, fontWeight: FontWeight.w900)),
+          Text(
+            value,
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 20 * responsive.scale,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
           SizedBox(height: 5 * responsive.scale),
-          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700)),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppTheme.muted,
+              fontSize: 12 * responsive.scale,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );

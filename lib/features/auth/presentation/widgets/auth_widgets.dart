@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 import 'package:flutter/services.dart';
 
 class AuthResponsive {
@@ -107,23 +108,9 @@ class AuthLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = AuthResponsive.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    final logo = RichText(
-      text: TextSpan(
-        style: textTheme.headlineMedium?.copyWith(
-          color: AppTheme.ink,
-          fontSize: (large ? 38 : 30) * responsive.scale,
-          fontWeight: FontWeight.w400,
-          height: 1,
-        ),
-        children: const [
-          TextSpan(text: 'Stay'),
-          TextSpan(
-            text: 'Z',
-            style: TextStyle(color: AppTheme.accent),
-          ),
-        ],
-      ),
+    final logo = StayZBrandLogo(
+      size: (large ? 82 : 44) * responsive.scale,
+      borderRadius: large ? 22 : 16,
     );
 
     return centered ? Center(child: logo) : logo;
@@ -207,11 +194,7 @@ class AuthTopBar extends StatelessWidget {
             if (showLogo && title != null)
               Align(
                 alignment: Alignment.centerRight,
-                child: Image.asset(
-                  'assets/images/stayz_app_logo.png',
-                  width: 38,
-                  height: 38,
-                ),
+                child: const StayZBrandLogo(size: 38, borderRadius: 11),
               ),
           ],
         ),
@@ -334,77 +317,71 @@ class _AuthFieldState extends State<AuthField> {
         ),
         SizedBox(height: 8 * responsive.scale),
         TextField(
-            controller: widget.controller,
-            obscureText: _obscureText,
-            keyboardType: widget.keyboardType,
-            textInputAction: widget.textInputAction,
-            onChanged: widget.onChanged,
-            inputFormatters: widget.inputFormatters,
-            maxLength: widget.maxLength,
-            style: textTheme.bodyLarge?.copyWith(
-              color: AppTheme.ink,
+          controller: widget.controller,
+          obscureText: _obscureText,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          onChanged: widget.onChanged,
+          inputFormatters: widget.inputFormatters,
+          maxLength: widget.maxLength,
+          style: textTheme.bodyLarge?.copyWith(
+            color: AppTheme.ink,
+            fontSize: 16 * responsive.scale,
+          ),
+          decoration: InputDecoration(
+            hintText: widget.hint,
+            errorText: widget.errorText,
+            errorMaxLines: 2,
+            counterText: '',
+            hintStyle: textTheme.bodyLarge?.copyWith(
+              color: AppTheme.neutral500.withValues(alpha: 0.4),
               fontSize: 16 * responsive.scale,
             ),
-            decoration: InputDecoration(
-              hintText: widget.hint,
-              errorText: widget.errorText,
-              errorMaxLines: 2,
-              counterText: '',
-              hintStyle: textTheme.bodyLarge?.copyWith(
-                color: AppTheme.neutral500.withValues(alpha: 0.4),
-                fontSize: 16 * responsive.scale,
-              ),
-              prefixIcon: widget.prefix == null
-                  ? null
-                  : Padding(
-                      padding: EdgeInsets.only(left: 18 * responsive.scale),
-                      child: widget.prefix,
+            prefixIcon: widget.prefix == null
+                ? null
+                : Padding(
+                    padding: EdgeInsets.only(left: 18 * responsive.scale),
+                    child: widget.prefix,
+                  ),
+            prefixIconConstraints: widget.prefix == null
+                ? null
+                : BoxConstraints(minWidth: 74 * responsive.scale, minHeight: 0),
+            suffixIcon: widget.obscure
+                ? IconButton(
+                    onPressed: () =>
+                        setState(() => _obscureText = !_obscureText),
+                    icon: Icon(
+                      _obscureText
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppTheme.neutral500,
+                      size: 22 * responsive.scale,
                     ),
-              prefixIconConstraints: widget.prefix == null
-                  ? null
-                  : BoxConstraints(
-                      minWidth: 74 * responsive.scale,
-                      minHeight: 0,
-                    ),
-              suffixIcon: widget.obscure
-                  ? IconButton(
-                      onPressed: () =>
-                          setState(() => _obscureText = !_obscureText),
-                      icon: Icon(
-                        _obscureText
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        color: AppTheme.neutral500,
-                        size: 22 * responsive.scale,
-                      ),
-                    )
-                  : null,
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 18 * responsive.scale,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppTheme.neutral200),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppTheme.accent,
-                  width: 1.5,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppTheme.danger),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppTheme.danger, width: 1.5),
-              ),
+                  )
+                : null,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 18 * responsive.scale,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.neutral200),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.danger),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.danger, width: 1.5),
             ),
           ),
+        ),
       ],
     );
   }

@@ -32,6 +32,12 @@ class AppTheme {
   static const notificationDangerBorder = Color(0xFFE46B62);
   static const notificationDangerText = Color(0xFFB93832);
   static const notificationInfoBorder = Colors.white;
+  static const notificationConfirmedBorder = Color(0xFF64B5E8);
+  static const notificationConfirmedText = Color(0xFF0A5E96);
+  static const notificationOfferBorder = Color(0xFFB79AE8);
+  static const notificationOfferText = Color(0xFF6741A5);
+  static const depositBorder = Color(0xFFF29B38);
+  static const depositText = Color(0xFF9A4D00);
   static const double cardRadius = 18;
   static const double controlRadius = 16;
   static const double dialogRadius = 20;

@@ -76,7 +76,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
       NotificationsController.instance.refresh();
     } on ApiException catch (error) {
       if (!mounted) return;
-      setState(() => _items = List.of(_items)..insert(index.clamp(0, _items.length), item));
+      setState(
+        () =>
+            _items = List.of(_items)
+              ..insert(index.clamp(0, _items.length), item),
+      );
       _showSnack(error.message);
     }
   }
@@ -94,7 +98,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
         _selectionMode = false;
       });
       NotificationsController.instance.refresh();
-      _showSnack(tr('Đã xoá ${ids.length} thông báo.', 'Deleted ${ids.length} notifications.'));
+      _showSnack(
+        tr(
+          'Đã xoá ${ids.length} thông báo.',
+          'Deleted ${ids.length} notifications.',
+        ),
+      );
     } on ApiException catch (error) {
       _showSnack(error.message);
     } finally {
@@ -131,19 +140,28 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   void _showSnack(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _openNotification(StayzNotification item) {
     if (item.referenceType == 'Booking' && item.referenceId.isNotEmpty) {
-      Navigator.of(context).pushNamed(AppRoutes.myBookings, arguments: item.referenceId);
+      Navigator.of(
+        context,
+      ).pushNamed(AppRoutes.myBookings, arguments: item.referenceId);
       return;
     }
     if (item.referenceType == 'Property' && item.referenceId.isNotEmpty) {
       Navigator.of(context).pushNamed(AppRoutes.search);
       return;
     }
-    _showSnack(tr('Thông báo này không có nội dung điều hướng.', 'This notification has no linked destination.'));
+    _showSnack(
+      tr(
+        'Thông báo này không có nội dung điều hướng.',
+        'This notification has no linked destination.',
+      ),
+    );
   }
 
   @override
@@ -152,14 +170,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
-      bottomNavigationBar: _selectionMode ? null : const StayZBottomNav(activeTab: HomeTab.profile),
+      bottomNavigationBar: _selectionMode
+          ? null
+          : const StayZBottomNav(activeTab: HomeTab.profile),
       body: SafeArea(
         bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(responsive),
-            Divider(color: AppTheme.neutral200.withValues(alpha: 0.7), height: 1),
+            Divider(
+              color: AppTheme.neutral200.withValues(alpha: 0.7),
+              height: 1,
+            ),
             SizedBox(height: 12 * responsive.scale),
             Expanded(child: _buildBody(responsive)),
           ],
@@ -170,10 +193,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ? FloatingActionButton.extended(
               onPressed: _busy ? null : _deleteSelected,
               backgroundColor: AppTheme.danger,
-              icon: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: Colors.white,
+              ),
               label: Text(
                 tr('Xoá (${_selected.length})', 'Delete (${_selected.length})'),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             )
           : null,
@@ -193,7 +222,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
       child: Row(
         children: [
           _CircleIconButton(
-            icon: _selectionMode ? Icons.close_rounded : Icons.arrow_back_rounded,
+            icon: _selectionMode
+                ? Icons.close_rounded
+                : Icons.arrow_back_rounded,
             onTap: () {
               if (_selectionMode) {
                 setState(() {
@@ -208,7 +239,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
           SizedBox(width: 12 * responsive.widthScale),
           Expanded(
             child: Text(
-              _selectionMode ? tr('Đã chọn ${_selected.length}', '${_selected.length} selected') : tr('Thông báo', 'Notifications'),
+              _selectionMode
+                  ? tr(
+                      'Đã chọn ${_selected.length}',
+                      '${_selected.length} selected',
+                    )
+                  : tr('Thông báo', 'Notifications'),
               style: TextStyle(
                 fontFamily: 'Noto Serif JP',
                 color: AppTheme.accentDark,
@@ -220,7 +256,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
           if (_selectionMode)
             TextButton(
               onPressed: _selectAll,
-              child: Text(allSelected ? tr('Bỏ chọn', 'Clear') : tr('Chọn tất cả', 'Select all')),
+              child: Text(
+                allSelected
+                    ? tr('Bỏ chọn', 'Clear')
+                    : tr('Chọn tất cả', 'Select all'),
+              ),
             )
           else if (_items.isNotEmpty) ...[
             _CircleIconButton(
@@ -242,7 +282,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Widget _buildBody(HomeResponsive responsive) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+      return const Center(
+        child: CircularProgressIndicator(color: AppTheme.accent),
+      );
     }
     if (_error != null) {
       return StayzErrorView(error: _error, onRetry: _load);
@@ -251,7 +293,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
       return StayzEmptyView(
         icon: Icons.notifications_none_rounded,
         title: tr('Chưa có thông báo', 'No notifications'),
-        message: tr('Thông báo về đặt phòng và ưu đãi sẽ xuất hiện tại đây.', 'Booking and offer updates will appear here.'),
+        message: tr(
+          'Thông báo về đặt phòng và ưu đãi sẽ xuất hiện tại đây.',
+          'Booking and offer updates will appear here.',
+        ),
       );
     }
 
@@ -305,8 +350,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
           background: Container(
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 24),
-            decoration: BoxDecoration(color: AppTheme.danger, borderRadius: BorderRadius.circular(18)),
-            child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+            decoration: BoxDecoration(
+              color: AppTheme.danger,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.delete_outline_rounded,
+              color: Colors.white,
+            ),
           ),
           onDismissed: (_) => _deleteOne(item),
           child: GestureDetector(
@@ -321,7 +372,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 }
 
 class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({required this.icon, required this.onTap, this.tooltip});
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+    this.tooltip,
+  });
 
   final IconData icon;
   final VoidCallback? onTap;
@@ -342,13 +397,21 @@ class _CircleIconButton extends StatelessWidget {
   }
 }
 
-({IconData icon, Color border, Color foreground, String label}) _notificationVisual(StayzNotification item) {
-  final content = '${item.title} ${item.message}'.toLowerCase();
+({IconData icon, Color border, Color foreground, String label})
+_notificationVisual(StayzNotification item) {
+  final title = item.title.toLowerCase();
+  final content = '$title ${item.message.toLowerCase()}';
 
-  if (content.contains('hủy') ||
-      content.contains('cancel') ||
-      content.contains('hết hạn') ||
-      content.contains('expired')) {
+  if (content.contains('không đến') || content.contains('no-show')) {
+    return (
+      icon: Icons.person_off_outlined,
+      border: AppTheme.notificationDangerBorder,
+      foreground: AppTheme.notificationDangerText,
+      label: tr('Không đến nhận phòng', 'No-show'),
+    );
+  }
+
+  if (content.contains('hủy') || content.contains('cancel')) {
     return (
       icon: Icons.cancel_outlined,
       border: AppTheme.notificationDangerBorder,
@@ -357,44 +420,111 @@ class _CircleIconButton extends StatelessWidget {
     );
   }
 
-  if (content.contains('xác nhận') ||
-      content.contains('confirmed') ||
-      content.contains('hoàn thành') ||
-      content.contains('complete')) {
+  if (content.contains('hết hạn') || content.contains('expired')) {
     return (
-      icon: Icons.check_circle_outline_rounded,
-      border: AppTheme.notificationSuccessBorder,
-      foreground: AppTheme.notificationSuccessText,
-      label: tr('Thành công', 'Success'),
+      icon: Icons.timer_off_outlined,
+      border: AppTheme.notificationDangerBorder,
+      foreground: AppTheme.notificationDangerText,
+      label: tr('Đã hết hạn', 'Expired'),
     );
   }
 
-  if (content.contains('chờ') ||
-      content.contains('await') ||
-      content.contains('xử lý') ||
-      content.contains('processing') ||
-      content.contains('thanh toán') ||
-      content.contains('payment')) {
+  // Check actionable/pending states before success. For example, the English
+  // sentence "complete your payment" must never be classified as completed.
+  if (title.contains('chờ') ||
+      title.contains('await') ||
+      title.contains('pending') ||
+      title.contains('xử lý') ||
+      title.contains('processing')) {
     return (
       icon: Icons.schedule_rounded,
       border: AppTheme.notificationPendingBorder,
       foreground: AppTheme.notificationPendingText,
-      label: tr('Chờ xử lý', 'Pending'),
+      label: content.contains('thanh toán') || content.contains('payment')
+          ? tr('Chờ thanh toán lại', 'Awaiting payment retry')
+          : tr('Chờ xử lý', 'Pending'),
+    );
+  }
+
+  if (title.contains('nhận phòng') || title.contains('check-in')) {
+    return (
+      icon: Icons.login_rounded,
+      border: AppTheme.notificationConfirmedBorder,
+      foreground: AppTheme.notificationConfirmedText,
+      label: tr('Đã nhận phòng', 'Checked in'),
+    );
+  }
+
+  if (content.contains('30%') ||
+      content.contains('đặt cọc') ||
+      content.contains('deposit')) {
+    return (
+      icon: Icons.savings_outlined,
+      border: AppTheme.depositBorder,
+      foreground: AppTheme.depositText,
+      label: tr('Đã cọc 30%', '30% deposit'),
+    );
+  }
+
+  if (content.contains('100%') ||
+      content.contains('toàn bộ') ||
+      content.contains('paid in full')) {
+    return (
+      icon: Icons.check_circle_outline_rounded,
+      border: AppTheme.notificationSuccessBorder,
+      foreground: AppTheme.notificationSuccessText,
+      label: tr('Đã thanh toán đủ', 'Paid in full'),
+    );
+  }
+
+  if (title.contains('xác nhận') || title.contains('confirmed')) {
+    return (
+      icon: Icons.verified_outlined,
+      border: AppTheme.notificationInfoBorder,
+      foreground: AppTheme.ink,
+      label: tr('Đã xác nhận', 'Confirmed'),
+    );
+  }
+
+  if (title.contains('hoàn thành') ||
+      title.contains('completed') ||
+      title.contains('thành công') ||
+      title.contains('successful')) {
+    return (
+      icon: Icons.check_circle_outline_rounded,
+      border: AppTheme.notificationSuccessBorder,
+      foreground: AppTheme.notificationSuccessText,
+      label: tr('Hoàn tất', 'Completed'),
+    );
+  }
+
+  if (item.type == 'promotion') {
+    return (
+      icon: Icons.local_offer_outlined,
+      border: AppTheme.notificationOfferBorder,
+      foreground: AppTheme.notificationOfferText,
+      label: tr('Ưu đãi', 'Offer'),
     );
   }
 
   return (
-    icon: item.type == 'promotion' ? Icons.local_offer_outlined : Icons.info_outline_rounded,
+    icon: Icons.info_outline_rounded,
     border: AppTheme.notificationInfoBorder,
-    foreground: item.type == 'promotion' ? AppTheme.notificationPendingText : AppTheme.accentDark,
-    label: item.type == 'promotion' ? tr('Ưu đãi', 'Offer') : tr('Thông tin', 'Information'),
+    foreground: AppTheme.accentDark,
+    label: tr('Thông tin', 'Information'),
   );
 }
 
 String _notificationTime(DateTime createdAt) {
   final age = DateTime.now().difference(createdAt);
-  if (age.inDays > 0) return tr('${age.inDays} ngày trước', '${age.inDays}d ago');
-  if (age.inHours > 0) return tr('${age.inHours} giờ trước', '${age.inHours}h ago');
-  if (age.inMinutes > 0) return tr('${age.inMinutes} phút trước', '${age.inMinutes}m ago');
+  if (age.inDays > 0) {
+    return tr('${age.inDays} ngày trước', '${age.inDays}d ago');
+  }
+  if (age.inHours > 0) {
+    return tr('${age.inHours} giờ trước', '${age.inHours}h ago');
+  }
+  if (age.inMinutes > 0) {
+    return tr('${age.inMinutes} phút trước', '${age.inMinutes}m ago');
+  }
   return tr('Vừa xong', 'Just now');
 }

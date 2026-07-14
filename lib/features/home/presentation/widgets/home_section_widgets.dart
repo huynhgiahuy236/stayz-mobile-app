@@ -3,6 +3,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/notifications/notifications_controller.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 import 'package:flutter/material.dart';
 
 class HomeResponsive {
@@ -24,7 +25,9 @@ class HomeResponsive {
       widthScale: widthScale,
       heightScale: heightScale,
       scale: widthScale < heightScale ? widthScale : heightScale,
-      horizontalPadding: maxContentPadding > 0 ? maxContentPadding : 20 * widthScale,
+      horizontalPadding: maxContentPadding > 0
+          ? maxContentPadding
+          : 20 * widthScale,
     );
   }
 
@@ -37,10 +40,7 @@ class HomeResponsive {
 enum HomeTab { home, search, saved, bookings, profile }
 
 class StayZBottomNav extends StatelessWidget {
-  const StayZBottomNav({
-    required this.activeTab,
-    super.key,
-  });
+  const StayZBottomNav({required this.activeTab, super.key});
 
   final HomeTab activeTab;
 
@@ -74,7 +74,10 @@ class StayZBottomNav extends StatelessWidget {
               ],
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4 * responsive.widthScale, vertical: 4 * responsive.scale),
+              padding: EdgeInsets.symmetric(
+                horizontal: 4 * responsive.widthScale,
+                vertical: 4 * responsive.scale,
+              ),
               child: Row(
                 children: [
                   _NavItem(
@@ -138,7 +141,10 @@ class _NavItem extends StatelessWidget {
       curve: Curves.easeOutCubic,
       height: 56 * responsive.scale,
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 2 * responsive.widthScale, vertical: 5 * responsive.scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 2 * responsive.widthScale,
+        vertical: 5 * responsive.scale,
+      ),
       decoration: BoxDecoration(
         color: active ? AppTheme.primarySoft : Colors.transparent,
         borderRadius: BorderRadius.circular(18),
@@ -146,7 +152,11 @@ class _NavItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: active ? AppTheme.primary : AppTheme.muted, size: 22 * responsive.scale),
+          Icon(
+            icon,
+            color: active ? AppTheme.primary : AppTheme.muted,
+            size: 22 * responsive.scale,
+          ),
           SizedBox(height: 3 * responsive.scale),
           Flexible(
             child: FittedBox(
@@ -190,27 +200,14 @@ class StayZLogoRow extends StatelessWidget {
 
     return Row(
       children: [
-        Container(
-          width: 46 * responsive.scale,
-          height: 46 * responsive.scale,
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(Icons.hotel_class_rounded, color: Colors.white),
-        ),
-        SizedBox(width: 12 * responsive.widthScale),
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontFamily: 'Noto Serif JP',
-              fontSize: 27 * responsive.scale,
-              fontWeight: FontWeight.w800,
-            ),
-            children: const [
-              TextSpan(text: 'Stay', style: TextStyle(color: AppTheme.ink)),
-              TextSpan(text: 'Z', style: TextStyle(color: AppTheme.primary)),
-            ],
+        StayZBrandLogo(size: 52 * responsive.scale, borderRadius: 16),
+        SizedBox(width: 10 * responsive.widthScale),
+        Text(
+          'StayZ',
+          style: TextStyle(
+            color: AppTheme.ink,
+            fontSize: 25 * responsive.scale,
+            fontWeight: FontWeight.w900,
           ),
         ),
         const Spacer(),
@@ -284,7 +281,7 @@ class StayZScreenHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
@@ -320,7 +317,9 @@ class SectionLabel extends StatelessWidget {
         const Spacer(),
         if (action != null)
           TextButton(
-            onPressed: onAction ?? () => Navigator.of(context).pushNamed(AppRoutes.search),
+            onPressed:
+                onAction ??
+                () => Navigator.of(context).pushNamed(AppRoutes.search),
             child: Text(action!),
           ),
       ],
@@ -329,11 +328,7 @@ class SectionLabel extends StatelessWidget {
 }
 
 class SearchBox extends StatelessWidget {
-  const SearchBox({
-    this.onTap,
-    this.onFilterTap,
-    super.key,
-  });
+  const SearchBox({this.onTap, this.onFilterTap, super.key});
 
   final VoidCallback? onTap;
   final VoidCallback? onFilterTap;
@@ -350,7 +345,10 @@ class SearchBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           constraints: BoxConstraints(minHeight: 60 * responsive.scale),
-          padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale, vertical: 10 * responsive.scale),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16 * responsive.widthScale,
+            vertical: 10 * responsive.scale,
+          ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppTheme.line),
@@ -358,7 +356,11 @@ class SearchBox extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(Icons.search_rounded, size: 24 * responsive.scale, color: AppTheme.primary),
+              Icon(
+                Icons.search_rounded,
+                size: 24 * responsive.scale,
+                color: AppTheme.primary,
+              ),
               SizedBox(width: 12 * responsive.widthScale),
               Expanded(
                 child: Text(
@@ -381,7 +383,11 @@ class SearchBox extends StatelessWidget {
                     color: AppTheme.ink,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(Icons.tune_rounded, color: Colors.white, size: 19 * responsive.scale),
+                  child: Icon(
+                    Icons.tune_rounded,
+                    color: Colors.white,
+                    size: 19 * responsive.scale,
+                  ),
                 ),
               ),
             ],
@@ -424,17 +430,25 @@ class FilterPill extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             constraints: BoxConstraints(minHeight: 42 * responsive.scale),
-            padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16 * responsive.widthScale,
+            ),
             decoration: BoxDecoration(
               color: active ? AppTheme.primary : Colors.white,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: active ? AppTheme.primary : AppTheme.line),
+              border: Border.all(
+                color: active ? AppTheme.primary : AppTheme.line,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, size: 17 * responsive.scale, color: active ? Colors.white : AppTheme.primary),
+                  Icon(
+                    icon,
+                    size: 17 * responsive.scale,
+                    color: active ? Colors.white : AppTheme.primary,
+                  ),
                   SizedBox(width: 7 * responsive.widthScale),
                 ],
                 Text(
@@ -492,7 +506,9 @@ class HotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final width = fullWidth ? null : (compact ? 174 * responsive.widthScale : 254 * responsive.widthScale);
+    final width = fullWidth
+        ? null
+        : (compact ? 174 * responsive.widthScale : 254 * responsive.widthScale);
 
     return SizedBox(
       width: width,
@@ -517,23 +533,32 @@ class HotelCard extends StatelessWidget {
                   // luon can doi du the ngang hay rong het man hinh.
                   aspectRatio: AppTheme.cardImageAspectRatio,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(18),
+                    ),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors)),
+                        CustomPaint(
+                          painter: LuxuryArchitecturalPainter(colors: colors),
+                        ),
                         if (imageUrl != null)
                           StayZNetworkImage(
                             imageUrl: imageUrl!,
                             width: width ?? MediaQuery.sizeOf(context).width,
-                            height: (width ?? MediaQuery.sizeOf(context).width) / AppTheme.cardImageAspectRatio,
+                            height:
+                                (width ?? MediaQuery.sizeOf(context).width) /
+                                AppTheme.cardImageAspectRatio,
                           ),
                         DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.38)],
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.38),
+                              ],
                             ),
                           ),
                         ),
@@ -541,14 +566,22 @@ class HotelCard extends StatelessWidget {
                           Positioned(
                             top: 12 * responsive.scale,
                             left: 12 * responsive.scale,
-                            child: _RatingBadge(value: rating!.toStringAsFixed(1), reviewCount: reviewCount),
+                            child: _RatingBadge(
+                              value: rating!.toStringAsFixed(1),
+                              reviewCount: reviewCount,
+                            ),
                           ),
                         Positioned(
                           top: 4 * responsive.scale,
                           right: 4 * responsive.scale,
                           child: Semantics(
                             button: true,
-          label: isFavorite ? tr('Bỏ khỏi yêu thích', 'Remove from favorites') : tr('Thêm vào yêu thích', 'Add to favorites'),
+                            label: isFavorite
+                                ? tr(
+                                    'Bỏ khỏi yêu thích',
+                                    'Remove from favorites',
+                                  )
+                                : tr('Thêm vào yêu thích', 'Add to favorites'),
                             child: InkResponse(
                               onTap: onFavoriteTap,
                               radius: 24,
@@ -559,7 +592,9 @@ class HotelCard extends StatelessWidget {
                                 height: 48,
                                 child: Center(
                                   child: _GlassIcon(
-                                    icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                    icon: isFavorite
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
                                     active: isFavorite,
                                   ),
                                 ),
@@ -578,7 +613,11 @@ class HotelCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined, size: 14 * responsive.scale, color: AppTheme.primary),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 14 * responsive.scale,
+                            color: AppTheme.primary,
+                          ),
                           SizedBox(width: 5 * responsive.widthScale),
                           Expanded(
                             child: Text(
@@ -621,7 +660,11 @@ class HotelCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Icon(Icons.arrow_forward_rounded, color: AppTheme.ink, size: 20 * responsive.scale),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            color: AppTheme.ink,
+                            size: 20 * responsive.scale,
+                          ),
                         ],
                       ),
                     ],
@@ -646,6 +689,9 @@ class BookingPreviewCard extends StatelessWidget {
     required this.colors,
     this.deposit30 = false,
     this.paymentRecorded = false,
+    this.statusColor,
+    this.statusTextColor,
+    this.statusDescription,
     this.imageUrl,
     this.onTap,
     super.key,
@@ -659,6 +705,9 @@ class BookingPreviewCard extends StatelessWidget {
   final List<Color> colors;
   final bool deposit30;
   final bool paymentRecorded;
+  final Color? statusColor;
+  final Color? statusTextColor;
+  final String? statusDescription;
   final String? imageUrl;
   final VoidCallback? onTap;
 
@@ -671,62 +720,147 @@ class BookingPreviewCard extends StatelessWidget {
       color: AppTheme.ink,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+        onTap:
+            onTap ??
+            () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: EdgeInsets.all(16 * responsive.scale),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: SizedBox(
-                  width: thumbSize,
-                  height: thumbSize,
-                  // Anh khach san that; khong co thi ve gradient + icon.
-                  child: (imageUrl != null && imageUrl!.isNotEmpty)
-                      ? StayZNetworkImage(imageUrl: imageUrl!, width: thumbSize, height: thumbSize)
-                      : DecoratedBox(
-                          decoration: BoxDecoration(gradient: LinearGradient(colors: colors)),
-                          child: const Icon(Icons.confirmation_number_rounded, color: Colors.white),
-                        ),
-                ),
-              ),
-              SizedBox(width: 16 * responsive.widthScale),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
-                    SizedBox(height: 6 * responsive.scale),
-                    Text(location, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 13 * responsive.scale)),
-                    SizedBox(height: 7 * responsive.scale),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(99)),
-                        child: Text(status, style: TextStyle(color: Colors.white, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w800)),
-                      ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: SizedBox(
+                      width: thumbSize,
+                      height: thumbSize,
+                      child: (imageUrl != null && imageUrl!.isNotEmpty)
+                          ? StayZNetworkImage(
+                              imageUrl: imageUrl!,
+                              width: thumbSize,
+                              height: thumbSize,
+                            )
+                          : DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: colors),
+                              ),
+                              child: const Icon(
+                                Icons.confirmation_number_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
-                    SizedBox(height: 12 * responsive.scale),
-                    Row(
+                  ),
+                  SizedBox(width: 14 * responsive.widthScale),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _DarkMeta(label: tr('Ngày', 'Dates'), value: date)),
-                        _DarkMeta(
-                          label: paymentRecorded ? tr('Đã trả', 'Paid') : tr('Tổng', 'Total'),
-                          value: total,
-                          alignEnd: true,
-                          valueColor: !paymentRecorded
-                              ? null
-                              : deposit30
-                              ? const Color(0xFFFFC857)
-                              : const Color(0xFF69E6A6),
-                          badge: paymentRecorded && deposit30 ? '30%' : null,
+                        Text(
+                          name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17 * responsive.scale,
+                            fontWeight: FontWeight.w900,
+                            height: 1.2,
+                          ),
+                        ),
+                        SizedBox(height: 6 * responsive.scale),
+                        Text(
+                          location,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.5 * responsive.scale,
+                          ),
+                        ),
+                        SizedBox(height: 10 * responsive.scale),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(
+                              color: (statusTextColor ?? AppTheme.primaryDark)
+                                  .withValues(alpha: 0.75),
+                            ),
+                          ),
+                          child: Text(
+                            status,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: statusTextColor ?? AppTheme.primaryDark,
+                              fontSize: 10.5 * responsive.scale,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              if (statusDescription != null) ...[
+                SizedBox(height: 14 * responsive.scale),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(12 * responsive.scale),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.14),
+                    ),
+                  ),
+                  child: Text(
+                    statusDescription!,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12 * responsive.scale,
+                      height: 1.35,
+                    ),
+                  ),
                 ),
+              ],
+              Divider(
+                height: 28 * responsive.scale,
+                color: Colors.white.withValues(alpha: 0.16),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: _DarkMeta(label: tr('Ngày', 'Dates'), value: date),
+                  ),
+                  SizedBox(width: 12 * responsive.widthScale),
+                  Expanded(
+                    flex: 2,
+                    child: _DarkMeta(
+                      label: paymentRecorded
+                          ? tr('Đã trả', 'Paid')
+                          : tr('Tổng', 'Total'),
+                      value: total,
+                      alignEnd: true,
+                      valueColor: !paymentRecorded
+                          ? null
+                          : deposit30
+                          ? AppTheme.depositBorder
+                          : const Color(0xFF69E6A6),
+                      badge: paymentRecorded && deposit30 ? '30%' : null,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -767,10 +901,7 @@ class NotificationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: borderColor,
-          width: unread ? 1.8 : 1.2,
-        ),
+        border: Border.all(color: borderColor, width: unread ? 1.8 : 1.2),
         boxShadow: unread ? AppTheme.softShadow : null,
       ),
       child: Row(
@@ -793,31 +924,70 @@ class NotificationCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppTheme.ink, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w900)),
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.ink,
+                          fontSize: 15 * responsive.scale,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ),
                     if (unread)
-                      Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle)),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                   ],
                 ),
                 SizedBox(height: 6 * responsive.scale),
-                Text(body, style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.35)),
+                Text(
+                  body,
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 13 * responsive.scale,
+                    height: 1.35,
+                  ),
+                ),
                 SizedBox(height: 8 * responsive.scale),
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                        color: borderColor.withValues(alpha: 0.12),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(99),
-                        border: Border.all(color: borderColor.withValues(alpha: 0.45)),
+                        border: Border.all(
+                          color: borderColor.withValues(alpha: 0.7),
+                        ),
                       ),
                       child: Text(
                         statusLabel,
-                        style: TextStyle(color: iconColor, fontSize: 10.5 * responsive.scale, fontWeight: FontWeight.w800),
+                        style: TextStyle(
+                          color: iconColor,
+                          fontSize: 10.5 * responsive.scale,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                     const Spacer(),
-                    Text(time, style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w700)),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        color: AppTheme.muted,
+                        fontSize: 12 * responsive.scale,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -845,28 +1015,54 @@ class LuxuryArchitecturalPainter extends CustomPainter {
     canvas.drawRect(rect, bgPaint);
 
     final glowPaint = Paint()..color = Colors.white.withValues(alpha: 0.16);
-    canvas.drawCircle(Offset(size.width * 0.78, size.height * 0.28), size.shortestSide * 0.24, glowPaint);
+    canvas.drawCircle(
+      Offset(size.width * 0.78, size.height * 0.28),
+      size.shortestSide * 0.24,
+      glowPaint,
+    );
 
     final wave = Path()
       ..moveTo(0, size.height * 0.78)
-      ..quadraticBezierTo(size.width * 0.34, size.height * 0.58, size.width * 0.68, size.height * 0.80)
-      ..quadraticBezierTo(size.width * 0.86, size.height * 0.92, size.width, size.height * 0.70)
+      ..quadraticBezierTo(
+        size.width * 0.34,
+        size.height * 0.58,
+        size.width * 0.68,
+        size.height * 0.80,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.86,
+        size.height * 0.92,
+        size.width,
+        size.height * 0.70,
+      )
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
-    canvas.drawPath(wave, Paint()..color = Colors.white.withValues(alpha: 0.12));
+    canvas.drawPath(
+      wave,
+      Paint()..color = Colors.white.withValues(alpha: 0.12),
+    );
 
     final arch = Path()
       ..moveTo(size.width * 0.14, size.height)
       ..lineTo(size.width * 0.14, size.height * 0.52)
-      ..quadraticBezierTo(size.width * 0.28, size.height * 0.22, size.width * 0.42, size.height * 0.52)
+      ..quadraticBezierTo(
+        size.width * 0.28,
+        size.height * 0.22,
+        size.width * 0.42,
+        size.height * 0.52,
+      )
       ..lineTo(size.width * 0.42, size.height)
       ..close();
-    canvas.drawPath(arch, Paint()..color = Colors.white.withValues(alpha: 0.13));
+    canvas.drawPath(
+      arch,
+      Paint()..color = Colors.white.withValues(alpha: 0.13),
+    );
   }
 
   @override
-  bool shouldRepaint(covariant LuxuryArchitecturalPainter oldDelegate) => oldDelegate.colors != colors;
+  bool shouldRepaint(covariant LuxuryArchitecturalPainter oldDelegate) =>
+      oldDelegate.colors != colors;
 }
 
 class TicketDashedDivider extends StatelessWidget {
@@ -903,7 +1099,9 @@ class _NotificationBellState extends State<_NotificationBell> {
   void initState() {
     super.initState();
     // Cap nhat so chua doc moi lan header xuat hien.
-    WidgetsBinding.instance.addPostFrameCallback((_) => NotificationsController.instance.refresh());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => NotificationsController.instance.refresh(),
+    );
   }
 
   @override
@@ -917,7 +1115,9 @@ class _NotificationBellState extends State<_NotificationBell> {
           label: Text(unread > 9 ? '9+' : '$unread'),
           backgroundColor: AppTheme.danger,
           child: _RoundIconButton(
-            icon: unread > 0 ? Icons.notifications_rounded : Icons.notifications_none_rounded,
+            icon: unread > 0
+                ? Icons.notifications_rounded
+                : Icons.notifications_none_rounded,
             onTap: () async {
               await Navigator.of(context).pushNamed(AppRoutes.notifications);
               await NotificationsController.instance.refresh();
@@ -948,7 +1148,10 @@ class _RoundIconButton extends StatelessWidget {
         child: Container(
           width: 44 * responsive.scale,
           height: 44 * responsive.scale,
-          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.line)),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppTheme.line),
+          ),
           child: Icon(icon, color: AppTheme.ink, size: 22 * responsive.scale),
         ),
       ),
@@ -967,9 +1170,15 @@ class _RatingBadge extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Semantics(
-      label: tr('Đánh giá $value trên 5, $reviewCount lượt', '$value out of 5, $reviewCount reviews'),
+      label: tr(
+        'Đánh giá $value trên 5, $reviewCount lượt',
+        '$value out of 5, $reviewCount reviews',
+      ),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8 * responsive.widthScale, vertical: 5 * responsive.scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 8 * responsive.widthScale,
+          vertical: 5 * responsive.scale,
+        ),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(999),
@@ -977,13 +1186,28 @@ class _RatingBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.star_rounded, color: AppTheme.gold, size: 14 * responsive.scale),
+            Icon(
+              Icons.star_rounded,
+              color: AppTheme.gold,
+              size: 14 * responsive.scale,
+            ),
             SizedBox(width: 3 * responsive.widthScale),
-            Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w900)),
+            Text(
+              value,
+              style: TextStyle(
+                color: AppTheme.ink,
+                fontSize: 11 * responsive.scale,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
             SizedBox(width: 3 * responsive.widthScale),
             Text(
               '($reviewCount)',
-              style: TextStyle(color: AppTheme.muted, fontSize: 10 * responsive.scale, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                color: AppTheme.muted,
+                fontSize: 10 * responsive.scale,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
@@ -1010,13 +1234,23 @@ class _GlassIcon extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white.withValues(alpha: 0.38)),
       ),
-      child: Icon(icon, color: active ? AppTheme.primary : Colors.white, size: 19 * responsive.scale),
+      child: Icon(
+        icon,
+        color: active ? AppTheme.primary : Colors.white,
+        size: 19 * responsive.scale,
+      ),
     );
   }
 }
 
 class _DarkMeta extends StatelessWidget {
-  const _DarkMeta({required this.label, required this.value, this.alignEnd = false, this.valueColor, this.badge});
+  const _DarkMeta({
+    required this.label,
+    required this.value,
+    this.alignEnd = false,
+    this.valueColor,
+    this.badge,
+  });
 
   final String label;
   final String value;
@@ -1029,17 +1263,49 @@ class _DarkMeta extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Column(
-      crossAxisAlignment: alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: alignEnd
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: TextStyle(color: Colors.white54, fontSize: 10 * responsive.scale, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: Colors.white54,
+            fontSize: 10 * responsive.scale,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.2,
+          ),
+        ),
         SizedBox(height: 4 * responsive.scale),
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: alignEnd
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           children: [
-            Text(value, style: TextStyle(color: valueColor ?? Colors.white, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w900)),
+            Flexible(
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: alignEnd ? TextAlign.right : TextAlign.left,
+                style: TextStyle(
+                  color: valueColor ?? Colors.white,
+                  fontSize: 13 * responsive.scale,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
             if (badge != null) ...[
               const SizedBox(width: 5),
-              Text('($badge)', style: TextStyle(color: valueColor, fontSize: 11 * responsive.scale, fontWeight: FontWeight.w900)),
+              Text(
+                '($badge)',
+                style: TextStyle(
+                  color: valueColor,
+                  fontSize: 11 * responsive.scale,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ],
           ],
         ),

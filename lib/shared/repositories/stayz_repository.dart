@@ -1,4 +1,5 @@
-import 'package:capstone_mobile/services/api_service.dart' show ApiService, ApiException;
+import 'package:capstone_mobile/services/api_service.dart'
+    show ApiService, ApiException;
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
@@ -120,7 +121,10 @@ abstract class StayzRepository {
     required String homeAddress,
     required String dateOfBirth,
   });
-  Future<String> uploadProfileAvatar({required List<int> bytes, required String filename});
+  Future<String> uploadProfileAvatar({
+    required List<int> bytes,
+    required String filename,
+  });
   Future<List<City>> getCities();
   Future<List<Amenity>> getAmenities();
   Future<List<Hotel>> getHotels();
@@ -131,12 +135,21 @@ abstract class StayzRepository {
   Future<Set<String>> getFavoriteHotelIds();
   Future<void> addFavorite(String hotelId);
   Future<void> removeFavorite(String hotelId);
-  Future<List<Room>> getRoomsByHotelId(String hotelId, {DateTime? checkInDate, DateTime? checkOutDate});
+  Future<List<Room>> getRoomsByHotelId(
+    String hotelId, {
+    DateTime? checkInDate,
+    DateTime? checkOutDate,
+  });
   Future<List<BookingSummary>> getBookingSummaries({String? userId});
   Future<BookingSummary?> createBooking(BookingDraft draft);
   Future<Map<String, dynamic>> createPayOSPayment(String bookingId);
   Future<Map<String, dynamic>?> getPayOSPayment(String bookingId);
-  Future<BookingSummary?> updateBookingStatus(String bookingId, String status, {num? refundAmount, num? refundRate});
+  Future<BookingSummary?> updateBookingStatus(
+    String bookingId,
+    String status, {
+    num? refundAmount,
+    num? refundRate,
+  });
   Future<List<Payment>> getPayments();
   Future<Payment?> getPaymentByBookingId(String bookingId);
   Future<List<Review>> getReviews();
@@ -168,7 +181,9 @@ class ApiStayzRepository implements StayzRepository {
       return data.whereType<Map<String, dynamic>>().toList(growable: false);
     }
     if (data is Map<String, dynamic> && data['data'] is List) {
-      return (data['data'] as List).whereType<Map<String, dynamic>>().toList(growable: false);
+      return (data['data'] as List).whereType<Map<String, dynamic>>().toList(
+        growable: false,
+      );
     }
     return const <Map<String, dynamic>>[];
   }
@@ -223,7 +238,13 @@ class ApiStayzRepository implements StayzRepository {
     final userId = await AuthService.instance.userId();
     final token = await AuthService.instance.accessToken();
     if (userId == null || token == null) {
-      throw ApiException(tr('Vui lòng đăng nhập lại để cập nhật hồ sơ.', 'Please sign in again to update your profile.'), statusCode: 401);
+      throw ApiException(
+        tr(
+          'Vui lòng đăng nhập lại để cập nhật hồ sơ.',
+          'Please sign in again to update your profile.',
+        ),
+        statusCode: 401,
+      );
     }
     final data = await api.patch(
       '/users/update/$userId',
@@ -237,13 +258,21 @@ class ApiStayzRepository implements StayzRepository {
       },
     );
     if (data is! Map<String, dynamic>) {
-      throw ApiException(tr('Dữ liệu hồ sơ trả về không hợp lệ.', 'The profile response is invalid.'));
+      throw ApiException(
+        tr(
+          'Dữ liệu hồ sơ trả về không hợp lệ.',
+          'The profile response is invalid.',
+        ),
+      );
     }
     return _userFromApi(data);
   }
 
   @override
-  Future<String> uploadProfileAvatar({required List<int> bytes, required String filename}) async {
+  Future<String> uploadProfileAvatar({
+    required List<int> bytes,
+    required String filename,
+  }) async {
     final token = await _requireToken();
     final data = await api.multipart(
       '/users/avatar/cloud',
@@ -256,7 +285,12 @@ class ApiStayzRepository implements StayzRepository {
     final avatar = data is Map<String, dynamic> ? data['avatar'] : null;
     final url = avatar is Map ? _string(avatar['url']) : '';
     if (url.isEmpty) {
-      throw ApiException(tr('Máy chủ không trả về ảnh đại diện.', 'The server did not return an avatar.'));
+      throw ApiException(
+        tr(
+          'Máy chủ không trả về ảnh đại diện.',
+          'The server did not return an avatar.',
+        ),
+      );
     }
     return api.resolveAssetUrl(url);
   }
@@ -294,7 +328,10 @@ class ApiStayzRepository implements StayzRepository {
 
   @override
   Future<List<HotelSummary>> searchHotelSummaries(SearchFilters filters) async {
-    final uri = Uri(path: '/properties/search', queryParameters: filters.toQuery());
+    final uri = Uri(
+      path: '/properties/search',
+      queryParameters: filters.toQuery(),
+    );
     final rows = await _list(uri.toString());
     final results = _summariesFromApi(rows);
     final keyword = _searchText(filters.keyword);
@@ -306,7 +343,9 @@ class ApiStayzRepository implements StayzRepository {
     // Hau kiem tren client de tranh truong hop go "vung tau" nhung van hien
     // ca 18 khach san. Cac filter khac van do server quyet dinh vi tap dau vao
     // o day chinh la response da loc cua server.
-    final keywordMatches = results.where((summary) => _matchesKeyword(summary, keyword)).toList(growable: false);
+    final keywordMatches = results
+        .where((summary) => _matchesKeyword(summary, keyword))
+        .toList(growable: false);
     if (keywordMatches.isNotEmpty || filters.activeCount > 0) {
       return keywordMatches;
     }
@@ -315,22 +354,28 @@ class ApiStayzRepository implements StayzRepository {
     // danh sach properties van co du lieu. Khong ap dung khi dang bat bo loc de
     // tranh bo qua dieu kien gia, phong, tien ich.
     final all = await getHotelSummaries();
-    return all.where((summary) => _matchesKeyword(summary, keyword)).toList(growable: false);
+    return all
+        .where((summary) => _matchesKeyword(summary, keyword))
+        .toList(growable: false);
   }
 
   bool _matchesKeyword(HotelSummary summary, String keyword) {
-    final haystack = _searchText([
-      summary.hotel.name,
-      summary.hotel.address,
-      summary.city.name,
-      summary.city.region,
-    ].join(' '));
+    final haystack = _searchText(
+      [
+        summary.hotel.name,
+        summary.hotel.address,
+        summary.city.name,
+        summary.city.region,
+      ].join(' '),
+    );
     return haystack.contains(keyword);
   }
 
   String _searchText(String value) {
-    const accented = 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
-    const plain = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
+    const accented =
+        'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
+    const plain =
+        'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
     var result = value.toLowerCase();
     for (var i = 0; i < accented.length; i++) {
       result = result.replaceAll(accented[i], plain[i]);
@@ -342,22 +387,28 @@ class ApiStayzRepository implements StayzRepository {
   /// cho tung khach san. Truoc day client phai tai toan bo `/room/getAll`
   /// roi tu join, va rating la hang so 4.7.
   List<HotelSummary> _summariesFromApi(List<Map<String, dynamic>> rows) {
-    return rows.map((json) {
-      final hotel = _hotelFromApi(json);
-      final ratingValue = json['rating'];
-      final roomTypes = json['room_types'];
+    return rows
+        .map((json) {
+          final hotel = _hotelFromApi(json);
+          final ratingValue = json['rating'];
+          final roomTypes = json['room_types'];
 
-      return HotelSummary(
-        hotel: hotel,
-        city: _cityFromSlug(hotel.cityId),
-        lowestPrice: _num(json['min_price']),
-        availableRooms: _int(json['available_rooms']),
-        rating: ratingValue is num ? ratingValue.toDouble() : null,
-        reviewCount: _int(json['review_count']),
-        maxCapacity: json['max_capacity'] == null ? null : _int(json['max_capacity']),
-        roomTypes: roomTypes is List ? roomTypes.map((e) => e.toString()).toList(growable: false) : const <String>[],
-      );
-    }).toList(growable: false);
+          return HotelSummary(
+            hotel: hotel,
+            city: _cityFromSlug(hotel.cityId),
+            lowestPrice: _num(json['min_price']),
+            availableRooms: _int(json['available_rooms']),
+            rating: ratingValue is num ? ratingValue.toDouble() : null,
+            reviewCount: _int(json['review_count']),
+            maxCapacity: json['max_capacity'] == null
+                ? null
+                : _int(json['max_capacity']),
+            roomTypes: roomTypes is List
+                ? roomTypes.map((e) => e.toString()).toList(growable: false)
+                : const <String>[],
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -368,7 +419,9 @@ class ApiStayzRepository implements StayzRepository {
     // Lay tu danh sach da enrich thay vi dung property long trong favorites,
     // de the yeu thich cung co rating va gia that nhu moi noi khac.
     final summaries = await getHotelSummaries();
-    return summaries.where((summary) => favoriteIds.contains(summary.hotel.id)).toList(growable: false);
+    return summaries
+        .where((summary) => favoriteIds.contains(summary.hotel.id))
+        .toList(growable: false);
   }
 
   @override
@@ -382,7 +435,11 @@ class ApiStayzRepository implements StayzRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map((row) => row['property_id'])
-        .map((property) => property is Map<String, dynamic> ? _id(property) : _string(property))
+        .map(
+          (property) => property is Map<String, dynamic>
+              ? _id(property)
+              : _string(property),
+        )
         .where((id) => id.isNotEmpty)
         .toSet();
   }
@@ -402,7 +459,11 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   @override
-  Future<List<Room>> getRoomsByHotelId(String hotelId, {DateTime? checkInDate, DateTime? checkOutDate}) async {
+  Future<List<Room>> getRoomsByHotelId(
+    String hotelId, {
+    DateTime? checkInDate,
+    DateTime? checkOutDate,
+  }) async {
     final uri = Uri(
       path: '/room/$hotelId',
       queryParameters: {
@@ -418,7 +479,10 @@ class ApiStayzRepository implements StayzRepository {
   Future<String> _requireToken() async {
     final token = await AuthService.instance.accessToken();
     if (token == null || token.isEmpty) {
-      throw const ApiException('Vui lòng đăng nhập để tiếp tục.', statusCode: 401);
+      throw const ApiException(
+        'Vui lòng đăng nhập để tiếp tục.',
+        statusCode: 401,
+      );
     }
     return token;
   }
@@ -428,14 +492,23 @@ class ApiStayzRepository implements StayzRepository {
     final token = await _requireToken();
     final currentUserId = userId ?? await AuthService.instance.userId();
     if (currentUserId == null) {
-      throw const ApiException('Vui lòng đăng nhập để xem đặt phòng.', statusCode: 401);
+      throw const ApiException(
+        'Vui lòng đăng nhập để xem đặt phòng.',
+        statusCode: 401,
+      );
     }
 
-    final data = await api.get('/booking/user/$currentUserId', bearerToken: token);
+    final data = await api.get(
+      '/booking/user/$currentUserId',
+      bearerToken: token,
+    );
     final rows = data is List
         ? data.whereType<Map<String, dynamic>>().toList(growable: false)
         : const <Map<String, dynamic>>[];
-    final summaries = rows.map(_bookingSummaryFromApi).whereType<BookingSummary>().toList(growable: true);
+    final summaries = rows
+        .map(_bookingSummaryFromApi)
+        .whereType<BookingSummary>()
+        .toList(growable: true);
     return _mergeBookingOverrides(summaries, userId: currentUserId);
   }
 
@@ -458,7 +531,9 @@ class ApiStayzRepository implements StayzRepository {
         if (draft.paymentPlan != null) 'payment_plan': draft.paymentPlan,
       },
     );
-    final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;
+    final summary = data is Map<String, dynamic>
+        ? _bookingSummaryFromApi(data)
+        : null;
     if (summary != null) BookingCache.put(summary);
     return summary;
   }
@@ -466,15 +541,22 @@ class ApiStayzRepository implements StayzRepository {
   @override
   Future<Map<String, dynamic>> createPayOSPayment(String bookingId) async {
     final token = await _requireToken();
-    final data = await api.post('/payment/create/$bookingId', bearerToken: token);
-    if (data is! Map<String, dynamic>) throw const ApiException('Invalid PayOS response.');
+    final data = await api.post(
+      '/payment/create/$bookingId',
+      bearerToken: token,
+    );
+    if (data is! Map<String, dynamic>)
+      throw const ApiException('Invalid PayOS response.');
     return data;
   }
 
   @override
   Future<Map<String, dynamic>?> getPayOSPayment(String bookingId) async {
     final token = await _requireToken();
-    final data = await api.get('/payment/booking/$bookingId', bearerToken: token);
+    final data = await api.get(
+      '/payment/booking/$bookingId',
+      bearerToken: token,
+    );
     return data is Map<String, dynamic> ? data : null;
   }
 
@@ -489,17 +571,19 @@ class ApiStayzRepository implements StayzRepository {
     final data = await api.patch(
       '/booking/$bookingId/status',
       bearerToken: token,
-      body: {
-        'status': status,
-      },
+      body: {'status': status},
     );
-    final summary = data is Map<String, dynamic> ? _bookingSummaryFromApi(data) : null;
+    final summary = data is Map<String, dynamic>
+        ? _bookingSummaryFromApi(data)
+        : null;
     if (summary != null) BookingCache.put(summary);
     return summary;
   }
 
-  List<BookingSummary> _mergeBookingOverrides(List<BookingSummary> summaries, {String? userId}) =>
-      BookingCache.mergeInto(summaries, userId: userId);
+  List<BookingSummary> _mergeBookingOverrides(
+    List<BookingSummary> summaries, {
+    String? userId,
+  }) => BookingCache.mergeInto(summaries, userId: userId);
 
   @override
   Future<List<Payment>> getPayments() async => const <Payment>[];
@@ -552,8 +636,8 @@ class ApiStayzRepository implements StayzRepository {
     final list = data is List
         ? data
         : data is Map<String, dynamic> && data['notifications'] is List
-            ? data['notifications'] as List
-            : const <dynamic>[];
+        ? data['notifications'] as List
+        : const <dynamic>[];
     final rows = list.whereType<Map<String, dynamic>>().toList(growable: false);
 
     return rows.map(_notificationFromApi).toList(growable: false);
@@ -572,7 +656,9 @@ class ApiStayzRepository implements StayzRepository {
   /// Xoa nhieu thong bao. Backend chi co DELETE tung id nen goi song song.
   Future<void> deleteNotifications(Iterable<String> ids) async {
     final token = await _requireToken();
-    await Future.wait(ids.map((id) => api.delete('/notifications/$id', bearerToken: token)));
+    await Future.wait(
+      ids.map((id) => api.delete('/notifications/$id', bearerToken: token)),
+    );
   }
 
   StayzNotification _notificationFromApi(Map<String, dynamic> json) {
@@ -585,7 +671,10 @@ class ApiStayzRepository implements StayzRepository {
       type: _string(json['type'], fallback: 'system'),
       title: AppLocale.instance.isVietnamese
           ? vietnameseTitle
-          : _notificationEnglishTitle(vietnameseTitle, _string(json['title_en'])),
+          : _notificationEnglishTitle(
+              vietnameseTitle,
+              _string(json['title_en']),
+            ),
       message: AppLocale.instance.isVietnamese
           ? vietnameseBody
           : _notificationEnglishBody(vietnameseBody, _string(json['body_en'])),
@@ -598,22 +687,32 @@ class ApiStayzRepository implements StayzRepository {
 
   String _notificationEnglishTitle(String vietnamese, String english) {
     if (english.isNotEmpty) return english;
-    if (vietnamese.contains('chờ thanh toán')) return 'Booking awaiting payment';
+    if (vietnamese.contains('chờ thanh toán'))
+      return 'Booking awaiting payment';
     if (vietnamese.contains('được xác nhận')) return 'Booking confirmed! 🎉';
-    if (vietnamese.contains('chuyến đi vui vẻ')) return 'We hope you enjoyed your stay! ✈️';
+    if (vietnamese.contains('chuyến đi vui vẻ'))
+      return 'We hope you enjoyed your stay! ✈️';
     if (vietnamese.contains('Đã hủy')) return 'Booking cancelled';
-    if (vietnamese.contains('chờ xác nhận')) return 'Booking awaiting confirmation ⏳';
+    if (vietnamese.contains('chờ xác nhận'))
+      return 'Booking awaiting confirmation ⏳';
     return vietnamese;
   }
 
   String _notificationEnglishBody(String vietnamese, String english) {
     if (english.isNotEmpty) return english;
-    final bookingCode = RegExp(r'Booking #[^\s.]+').firstMatch(vietnamese)?.group(0) ?? 'Your booking';
-    if (vietnamese.contains('giữ trong 15 phút')) return '$bookingCode is held for 15 minutes. Please complete the PayOS payment.';
-    if (vietnamese.contains('xác nhận thành công')) return '$bookingCode has been confirmed successfully.';
-    if (vietnamese.contains('đã hoàn thành')) return '$bookingCode is complete. Please leave a review!';
-    if (vietnamese.contains('đã hủy')) return '$bookingCode has been cancelled. Check the booking details for refund information.';
-    if (vietnamese.contains('đang được xử lý')) return '$bookingCode is being processed.';
+    final bookingCode =
+        RegExp(r'Booking #[^\s.]+').firstMatch(vietnamese)?.group(0) ??
+        'Your booking';
+    if (vietnamese.contains('giữ trong 15 phút'))
+      return '$bookingCode is held for 15 minutes. Please complete the PayOS payment.';
+    if (vietnamese.contains('xác nhận thành công'))
+      return '$bookingCode has been confirmed successfully.';
+    if (vietnamese.contains('đã hoàn thành'))
+      return '$bookingCode is complete. Please leave a review!';
+    if (vietnamese.contains('đã hủy'))
+      return '$bookingCode has been cancelled. Check the booking details for refund information.';
+    if (vietnamese.contains('đang được xử lý'))
+      return '$bookingCode is being processed.';
     return vietnamese;
   }
 
@@ -626,7 +725,9 @@ class ApiStayzRepository implements StayzRepository {
       phone: _string(json['phone_number']),
       gender: _string(json['gender']),
       homeAddress: _string(json['home_address']),
-      avatarUrl: avatar is Map ? api.resolveAssetUrl(_string(avatar['url'])) : '',
+      avatarUrl: avatar is Map
+          ? api.resolveAssetUrl(_string(avatar['url']))
+          : '',
       role: _string(json['role'], fallback: 'user'),
       status: 'active',
       dateOfBirth: _string(json['date_of_birth']),
@@ -638,9 +739,13 @@ class ApiStayzRepository implements StayzRepository {
   Hotel _hotelFromApi(Map<String, dynamic> json) {
     final gallery = json['gallery_images'];
     final images = <String>[
-      if (_imageUrl(json['main_image_url']).isNotEmpty) _imageUrl(json['main_image_url']),
+      if (_imageUrl(json['main_image_url']).isNotEmpty)
+        _imageUrl(json['main_image_url']),
       if (gallery is List)
-        ...gallery.whereType<Map>().map((item) => _imageUrl(item['url'])).where((url) => url.isNotEmpty),
+        ...gallery
+            .whereType<Map>()
+            .map((item) => _imageUrl(item['url']))
+            .where((url) => url.isNotEmpty),
     ];
 
     return Hotel(
@@ -663,18 +768,30 @@ class ApiStayzRepository implements StayzRepository {
 
   Room _roomFromApi(Map<String, dynamic> json) {
     final property = json['property_id'];
-    final hotelId = property is Map<String, dynamic> ? _id(property) : _string(property);
+    final hotelId = property is Map<String, dynamic>
+        ? _id(property)
+        : _string(property);
     final capacity = _int(json['capacity'], fallback: 2);
     final gallery = json['gallery_images'];
-    final propertyGallery = property is Map<String, dynamic> ? property['gallery_images'] : null;
+    final propertyGallery = property is Map<String, dynamic>
+        ? property['gallery_images']
+        : null;
     final images = <String>[
-      if (_imageUrl(json['main_image_url']).isNotEmpty) _imageUrl(json['main_image_url']),
+      if (_imageUrl(json['main_image_url']).isNotEmpty)
+        _imageUrl(json['main_image_url']),
       if (gallery is List)
-        ...gallery.whereType<Map>().map((item) => _imageUrl(item['url'])).where((url) => url.isNotEmpty),
-      if (property is Map<String, dynamic> && _imageUrl(property['main_image_url']).isNotEmpty)
+        ...gallery
+            .whereType<Map>()
+            .map((item) => _imageUrl(item['url']))
+            .where((url) => url.isNotEmpty),
+      if (property is Map<String, dynamic> &&
+          _imageUrl(property['main_image_url']).isNotEmpty)
         _imageUrl(property['main_image_url']),
       if (propertyGallery is List)
-        ...propertyGallery.whereType<Map>().map((item) => _imageUrl(item['url'])).where((url) => url.isNotEmpty),
+        ...propertyGallery
+            .whereType<Map>()
+            .map((item) => _imageUrl(item['url']))
+            .where((url) => url.isNotEmpty),
     ];
 
     return Room(
@@ -690,8 +807,14 @@ class ApiStayzRepository implements StayzRepository {
       sizeSqm: _int(json['area'], fallback: 25),
       pricePerNight: _num(json['price_per_night'] ?? json['price']),
       currency: 'VND',
-      totalUnits: _int(json['available_rooms'] ?? json['quantity'], fallback: 1),
-      availableUnits: _int(json['available_rooms'] ?? json['quantity'], fallback: 1),
+      totalUnits: _int(
+        json['available_rooms'] ?? json['quantity'],
+        fallback: 1,
+      ),
+      availableUnits: _int(
+        json['available_rooms'] ?? json['quantity'],
+        fallback: 1,
+      ),
       amenityIds: _enabledKeys(json['amenities']),
       imageUrls: images.toSet().toList(growable: false),
       status: _bool(json['is_active']) ? 'available' : 'inactive',
@@ -701,7 +824,8 @@ class ApiStayzRepository implements StayzRepository {
   BookingSummary? _bookingSummaryFromApi(Map<String, dynamic> json) {
     final roomJson = json['room_id'];
     final hotelJson = json['property_id'];
-    if (roomJson is! Map<String, dynamic> || hotelJson is! Map<String, dynamic>) {
+    if (roomJson is! Map<String, dynamic> ||
+        hotelJson is! Map<String, dynamic>) {
       return null;
     }
 
@@ -713,7 +837,9 @@ class ApiStayzRepository implements StayzRepository {
     // "{_id: ..., full_name: ...}" - khong bao gio bang id that, lam hong
     // bo loc theo nguoi dung o `_mergeBookingOverrides`.
     final userJson = json['user_id'];
-    final bookingUserId = userJson is Map<String, dynamic> ? _id(userJson) : _string(userJson);
+    final bookingUserId = userJson is Map<String, dynamic>
+        ? _id(userJson)
+        : _string(userJson);
 
     final booking = Booking(
       id: _id(json),
@@ -725,18 +851,41 @@ class ApiStayzRepository implements StayzRepository {
       nights: _int(json['nights'], fallback: 1),
       totalAmount: _num(json['total_price']),
       currency: 'VND',
-      status: Booking.normalizeStatus(_string(json['status'], fallback: 'pending')),
-      paymentStatus: _string(json['payment_status'], fallback: Booking.normalizeStatus(_string(json['status'], fallback: 'pending')) == 'confirmed' ? 'paid' : 'pending'),
+      status: Booking.normalizeStatus(
+        _string(json['status'], fallback: 'pending'),
+      ),
+      paymentStatus: _string(
+        json['payment_status'],
+        fallback:
+            Booking.normalizeStatus(
+                  _string(json['status'], fallback: 'pending'),
+                ) ==
+                'confirmed'
+            ? 'paid'
+            : 'pending',
+      ),
       specialRequest: null,
       createdAt: _date(json['createdAt']),
       paymentPlan: _string(json['payment_plan']),
-      amountPaid: json['amount_paid'] == null ? null : _num(json['amount_paid']),
-      remainingAtHotel: json['remaining_at_hotel'] == null ? null : _num(json['remaining_at_hotel']),
-      refundAmount: json['refund_amount'] == null ? null : _num(json['refund_amount']),
-      refundRate: json['refund_rate'] == null ? null : _num(json['refund_rate']),
+      amountPaid: json['amount_paid'] == null
+          ? null
+          : _num(json['amount_paid']),
+      remainingAtHotel: json['remaining_at_hotel'] == null
+          ? null
+          : _num(json['remaining_at_hotel']),
+      refundAmount: json['refund_amount'] == null
+          ? null
+          : _num(json['refund_amount']),
+      refundRate: json['refund_rate'] == null
+          ? null
+          : _num(json['refund_rate']),
       paymentExpiresAt: json['payment_expires_at'] == null
           ? null
           : _date(json['payment_expires_at']),
+      attendanceStatus: _string(json['attendance_status'], fallback: 'pending'),
+      attendanceNote: _string(json['attendance_note']),
+      cancellationReason: _string(json['cancellation_reason']),
+      checkInCode: _string(json['check_in_code']),
     );
 
     return BookingSummary(
@@ -754,7 +903,9 @@ class ApiStayzRepository implements StayzRepository {
       id: _id(json),
       userId: user is Map<String, dynamic> ? _id(user) : _string(user),
       userName: user is Map<String, dynamic> ? _string(user['full_name']) : '',
-      hotelId: property is Map<String, dynamic> ? _id(property) : _string(property),
+      hotelId: property is Map<String, dynamic>
+          ? _id(property)
+          : _string(property),
       bookingId: _string(json['booking_id']),
       rating: _int(json['rating']),
       comment: _string(json['comment']),
@@ -773,7 +924,13 @@ class ApiStayzRepository implements StayzRepository {
       'vung-tau': ('Vung Tau', 'Ba Ria - Vung Tau'),
     };
     final value = names[slug] ?? (slug, 'Viet Nam');
-    return City(id: slug, name: value.$1, countryCode: 'VN', region: value.$2, status: 'active');
+    return City(
+      id: slug,
+      name: value.$1,
+      countryCode: 'VN',
+      region: value.$2,
+      status: 'active',
+    );
   }
 
   List<String> _enabledKeys(dynamic value) {
@@ -785,10 +942,15 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   String _id(Map<String, dynamic> json) => _string(json['_id'] ?? json['id']);
-  String _string(dynamic value, {String fallback = ''}) => value?.toString() ?? fallback;
+  String _string(dynamic value, {String fallback = ''}) =>
+      value?.toString() ?? fallback;
   String _imageUrl(dynamic value) => api.resolveAssetUrl(_string(value));
-  int _int(dynamic value, {int fallback = 0}) => value is num ? value.round() : int.tryParse(value?.toString() ?? '') ?? fallback;
-  num _num(dynamic value) => value is num ? value : num.tryParse(value?.toString() ?? '') ?? 0;
+  int _int(dynamic value, {int fallback = 0}) => value is num
+      ? value.round()
+      : int.tryParse(value?.toString() ?? '') ?? fallback;
+  num _num(dynamic value) =>
+      value is num ? value : num.tryParse(value?.toString() ?? '') ?? 0;
   bool _bool(dynamic value) => value == true || value?.toString() == 'true';
-  DateTime _date(dynamic value) => DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
+  DateTime _date(dynamic value) =>
+      DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
 }

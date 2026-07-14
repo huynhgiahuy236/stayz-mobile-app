@@ -4,6 +4,7 @@ import 'package:capstone_mobile/features/booking/presentation/widgets/booking_se
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/booking_status_presentation.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:flutter/material.dart';
@@ -16,30 +17,35 @@ class CompletedBookingDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
     final summary = args?.summary;
 
     if (summary == null) {
       return Scaffold(
         backgroundColor: AppTheme.cream,
-        bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
-        body: SafeArea(child: Center(child: Text(tr('Thiếu thông tin đặt phòng.', 'Missing booking detail.')))),
+        body: SafeArea(
+          child: Center(
+            child: Text(
+              tr('Thiếu thông tin đặt phòng.', 'Missing booking detail.'),
+            ),
+          ),
+        ),
       );
     }
 
-    final imageUrl = summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull;
+    final imageUrl =
+        summary.room.imageUrls.firstOrNull ??
+        summary.hotel.imageUrls.firstOrNull;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF7F4),
-      bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
       body: SafeArea(
-        bottom: false,
         child: Column(
           children: [
             BookingTopBar(
               title: tr('Chi tiết đặt phòng', 'Booking details'),
               fallbackRoute: AppRoutes.completedBookings,
-              trailing: const Icon(Icons.account_circle_outlined, color: AppTheme.accentDark),
             ),
             Expanded(
               child: ListView(
@@ -49,14 +55,23 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   Row(
                     children: [
                       BookingStatusPill(
-                          label: tr('Đã hoàn thành', 'Completed'),
-                        color: AppTheme.ink,
-                        textColor: Colors.white,
+                        label: tr('Đã hoàn thành', 'Completed'),
+                        color: AppTheme.notificationSuccessBorder.withValues(
+                          alpha: 0.32,
+                        ),
+                        textColor: AppTheme.notificationSuccessText,
                       ),
                       const Spacer(),
                       Text(
-                          tr('MÃ: ${_bookingCode(summary.booking.id)}', 'CODE: ${_bookingCode(summary.booking.id)}'),
-                        style: TextStyle(color: AppTheme.ink, fontSize: 14 * responsive.scale, letterSpacing: 1.3),
+                        tr(
+                          'MÃ: ${_bookingCode(summary.booking.id)}',
+                          'CODE: ${_bookingCode(summary.booking.id)}',
+                        ),
+                        style: TextStyle(
+                          color: AppTheme.ink,
+                          fontSize: 14 * responsive.scale,
+                          letterSpacing: 1.3,
+                        ),
                       ),
                     ],
                   ),
@@ -69,7 +84,10 @@ class CompletedBookingDetailPage extends StatelessWidget {
                         color: AppTheme.neutral200,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.hotel_outlined, color: AppTheme.neutral500),
+                      child: const Icon(
+                        Icons.hotel_outlined,
+                        color: AppTheme.neutral500,
+                      ),
                     )
                   else
                     Stack(
@@ -99,12 +117,36 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   BookingDetailPanel(
                     title: tr('Thông tin lưu trú', 'Stay information'),
                     children: [
-                      DetailLine(label: tr('Nhận phòng', 'Check-in'), value: StayzFormatters.shortDate(summary.booking.checkInDate)),
-                      DetailLine(label: tr('Trả phòng', 'Check-out'), value: StayzFormatters.shortDate(summary.booking.checkOutDate)),
-                      DetailLine(label: tr('Số đêm', 'Nights'), value: tr('${summary.booking.nights} đêm', '${summary.booking.nights} nights')),
+                      DetailLine(
+                        label: tr('Nhận phòng', 'Check-in'),
+                        value: StayzFormatters.shortDate(
+                          summary.booking.checkInDate,
+                        ),
+                      ),
+                      DetailLine(
+                        label: tr('Trả phòng', 'Check-out'),
+                        value: StayzFormatters.shortDate(
+                          summary.booking.checkOutDate,
+                        ),
+                      ),
+                      DetailLine(
+                        label: tr('Số đêm', 'Nights'),
+                        value: tr(
+                          '${summary.booking.nights} đêm',
+                          '${summary.booking.nights} nights',
+                        ),
+                      ),
                       DetailLine(
                         label: tr('Khách lưu trú', 'Guests'),
-                        value: tr('${summary.booking.guests.adults + summary.booking.guests.children} khách', '${summary.booking.guests.adults + summary.booking.guests.children} guests'),
+                        value: tr(
+                          '${summary.booking.guests.adults + summary.booking.guests.children} khách',
+                          '${summary.booking.guests.adults + summary.booking.guests.children} guests',
+                        ),
+                      ),
+                      DetailLine(
+                        label: tr('Trạng thái nhận phòng', 'Check-in status'),
+                        value: bookingAttendanceLabel(summary.booking),
+                        valueColor: AppTheme.notificationSuccessText,
                       ),
                     ],
                   ),
@@ -112,31 +154,58 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   BookingDetailPanel(
                     title: tr('Chi tiết phòng', 'Room details'),
                     children: [
-                      DetailLine(label: tr('Khách sạn', 'Hotel'), value: summary.hotel.name),
-                      DetailLine(label: tr('Loại phòng', 'Room type'), value: summary.room.name),
-                      DetailLine(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(summary.room.pricePerNight)),
+                      DetailLine(
+                        label: tr('Khách sạn', 'Hotel'),
+                        value: summary.hotel.name,
+                      ),
+                      DetailLine(
+                        label: tr('Loại phòng', 'Room type'),
+                        value: summary.room.name,
+                      ),
+                      DetailLine(
+                        label: tr('Giá mỗi đêm', 'Price per night'),
+                        value: StayzFormatters.fullVnd(
+                          summary.room.pricePerNight,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   BookingDetailPanel(
                     title: tr('Chi tiết thanh toán', 'Payment details'),
                     children: [
-                      DetailLine(label: tr('Tiền phòng', 'Room charge'), value: StayzFormatters.fullVnd(summary.booking.totalAmount)),
-                      DetailLine(label: tr('Phí dịch vụ & Thuế', 'Service fee & taxes'), value: tr('Đã bao gồm', 'Included')),
+                      DetailLine(
+                        label: tr('Tiền phòng', 'Room charge'),
+                        value: StayzFormatters.fullVnd(
+                          summary.booking.totalAmount,
+                        ),
+                      ),
+                      DetailLine(
+                        label: tr('Phí dịch vụ & Thuế', 'Service fee & taxes'),
+                        value: tr('Đã bao gồm', 'Included'),
+                      ),
                       if ((summary.booking.remainingAtHotel ?? 0) > 0)
                         DetailLine(
-                          label: tr('Còn lại trả tại khách sạn', 'Due at property'),
-                          value: StayzFormatters.fullVnd(summary.booking.remainingAtHotel!),
+                          label: tr(
+                            'Còn lại trả tại khách sạn',
+                            'Due at property',
+                          ),
+                          value: StayzFormatters.fullVnd(
+                            summary.booking.remainingAtHotel!,
+                          ),
                         ),
                       const Divider(),
                       DetailLine(
                         label: summary.booking.paymentPlan == 'deposit_30'
                             ? tr('Đã thanh toán (30%)', 'Amount paid (30%)')
                             : tr('Đã thanh toán', 'Amount paid'),
-                        value: StayzFormatters.fullVnd(summary.booking.amountPaid ?? summary.booking.totalAmount),
+                        value: StayzFormatters.fullVnd(
+                          summary.booking.amountPaid ??
+                              summary.booking.totalAmount,
+                        ),
                         total: true,
                         valueColor: summary.booking.paymentPlan == 'deposit_30'
-                            ? const Color(0xFFC08A18)
+                            ? AppTheme.depositText
                             : const Color(0xFF159A61),
                       ),
                     ],
@@ -145,17 +214,22 @@ class CompletedBookingDetailPage extends StatelessWidget {
                   SizedBox(
                     height: 58 * responsive.scale,
                     child: FilledButton(
-                      onPressed: () => Navigator.of(context).pushNamed(
-                        AppRoutes.review,
-                        arguments: args,
-                      ),
+                      onPressed: () => Navigator.of(
+                        context,
+                      ).pushNamed(AppRoutes.review, arguments: args),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppTheme.accent,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       child: Text(
-                    tr('Đánh giá dịch vụ', 'Review your stay'),
-                        style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800),
+                        tr('Đánh giá dịch vụ', 'Review your stay'),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18 * responsive.scale,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),

@@ -271,6 +271,14 @@ class AdminBooking {
     required this.checkOut,
     required this.guests,
     required this.roomsCount,
+    this.attendanceStatus = 'pending',
+    this.attendanceNote = '',
+    this.cancellationReason = '',
+    this.refundAmount = 0,
+    this.refundRate = 0,
+    this.paymentPlan = '',
+    this.amountPaid = 0,
+    this.checkInCode = '',
   });
 
   factory AdminBooking.fromJson(Map<String, dynamic> json) {
@@ -310,6 +318,14 @@ class AdminBooking {
       checkOut: _date(json['check_out']),
       guests: _int(json['guests'], fallback: 1),
       roomsCount: _int(json['rooms_count'], fallback: 1),
+      attendanceStatus: _string(json['attendance_status'], fallback: 'pending'),
+      attendanceNote: _string(json['attendance_note']),
+      cancellationReason: _string(json['cancellation_reason']),
+      refundAmount: _num(json['refund_amount']),
+      refundRate: _num(json['refund_rate']),
+      paymentPlan: _string(json['payment_plan']),
+      amountPaid: _num(json['amount_paid']),
+      checkInCode: _string(json['check_in_code']),
     );
   }
 
@@ -328,9 +344,24 @@ class AdminBooking {
   final DateTime checkOut;
   final int guests;
   final int roomsCount;
+  final String attendanceStatus;
+  final String attendanceNote;
+  final String cancellationReason;
+  final num refundAmount;
+  final num refundRate;
+  final String paymentPlan;
+  final num amountPaid;
+  final String checkInCode;
+
+  String get paymentDisplayStatus {
+    if (amountPaid <= 0) return 'pending';
+    if (paymentPlan == 'deposit_30') return 'deposit_30';
+    return 'paid';
+  }
 
   String get searchText =>
-      '$guestName $hotelTitle $roomName $status $paymentStatus'.toLowerCase();
+      '$guestName $hotelTitle $roomName $status $paymentStatus $attendanceStatus $attendanceNote'
+          .toLowerCase();
 }
 
 class AdminReview {
@@ -622,15 +653,17 @@ String normalizeAdminStatus(String value) {
 String adminStatusLabel(String value) {
   switch (normalizeAdminStatus(value)) {
     case 'pending':
-      return tr('Chờ xử lý', 'Pending');
+      return tr('Chờ thanh toán', 'Awaiting payment');
     case 'confirmed':
-      return tr('Đã xác nhận', 'Confirmed');
+      return tr('Đã xác nhận đặt phòng', 'Booking confirmed');
     case 'completed':
       return tr('Đã hoàn tất', 'Completed');
     case 'cancelled':
-      return tr('Đã huỷ', 'Cancelled');
+      return tr('Đã hủy', 'Cancelled');
     case 'paid':
-      return tr('Đã thanh toán', 'Paid');
+      return tr('Đã thanh toán đủ 100%', 'Paid in full');
+    case 'deposit_30':
+      return tr('Đã đặt cọc 30%', '30% deposit paid');
     case 'failed':
       return tr('Thất bại', 'Failed');
     case 'refunded':
@@ -639,6 +672,45 @@ String adminStatusLabel(String value) {
       return value;
   }
 }
+
+String adminAttendanceLabel(String value) => switch (value) {
+  'checked_in' => tr('Đã nhận phòng', 'Checked in'),
+  'no_show' => tr('Không đến', 'No-show'),
+  _ => tr('Chờ xác nhận', 'Awaiting confirmation'),
+};
+
+String adminAttendanceDescription(String value) => switch (value) {
+  'checked_in' => tr(
+    'Admin đã xác nhận khách có đến nhận phòng.',
+    'An admin confirmed that the guest checked in.',
+  ),
+  'no_show' => tr(
+    'Khách không đến; booking sẽ hủy sau checkout và không hoàn tiền.',
+    'The guest did not arrive; the booking will cancel after checkout with no refund.',
+  ),
+  _ => tr(
+    'Chưa có xác nhận khách đã đến nhận phòng.',
+    'The guest check-in has not been confirmed.',
+  ),
+};
+
+String adminStatusDescription(String value) => switch (value) {
+  'paid' => tr('Đã thanh toán đủ 100%.', 'Paid in full.'),
+  'deposit_30' => tr(
+    'Đã cọc 30%; còn lại 70% trả tại khách sạn.',
+    '30% deposit paid; 70% remains due at the property.',
+  ),
+  'cancelled' => tr('Booking đã bị hủy.', 'The booking was cancelled.'),
+  'completed' => tr(
+    'Khách đã nhận phòng và kỳ lưu trú đã kết thúc.',
+    'The guest checked in and the stay has ended.',
+  ),
+  'confirmed' => tr(
+    'Booking đã xác nhận, chưa đồng nghĩa đã nhận phòng.',
+    'The booking is confirmed but check-in is not yet confirmed.',
+  ),
+  _ => tr('Đang chờ thanh toán hoặc xử lý lại.', 'Awaiting payment or retry.'),
+};
 
 String adminOptionLabel(String value) {
   final labels = <String, String>{

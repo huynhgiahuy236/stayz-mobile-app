@@ -50,6 +50,30 @@ class AdminRepository {
     );
   }
 
+  Future<void> updateBookingAttendance(
+    String bookingId,
+    String attendanceStatus, {
+    String note = '',
+  }) async {
+    final token = await _requireToken();
+    await api.patch(
+      '/booking/$bookingId/attendance',
+      bearerToken: token,
+      body: {'attendance_status': attendanceStatus, 'note': note},
+    );
+  }
+
+  Future<AdminBooking> findBookingByCheckInCode(String value) async {
+    final token = await _requireToken();
+    final code = value.trim().toUpperCase().replaceFirst('STAYZ-CHECKIN:', '');
+    final data = await api.get(
+      '/booking/admin/check-in/${Uri.encodeComponent(code)}',
+      bearerToken: token,
+    );
+    if (data is Map<String, dynamic>) return AdminBooking.fromJson(data);
+    throw ApiException(tr('Không tìm thấy đặt phòng.', 'Booking not found.'));
+  }
+
   Future<String> saveHotel(AdminHotelInput input, {String? id}) async {
     final token = await _requireToken();
     if (id == null) {

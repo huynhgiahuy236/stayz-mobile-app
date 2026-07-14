@@ -14,5 +14,7 @@ bookingRouter.post("/create", bookingController.create);
 bookingRouter.put("/update/:bookingId", bookingController.update);
 bookingRouter.delete("/delete/:bookingId", bookingController.delete);
 bookingRouter.patch("/:bookingId/status", bookingController.updateStatus);
+bookingRouter.patch("/:bookingId/attendance", bookingController.updateAttendance);
+bookingRouter.get("/admin/check-in/:code", bookingController.findByCheckInCode);
 
 module.exports = bookingRouter;

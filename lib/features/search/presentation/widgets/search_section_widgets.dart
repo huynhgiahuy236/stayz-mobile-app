@@ -4,6 +4,7 @@ import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 
 class SearchHotelCard extends StatelessWidget {
   const SearchHotelCard({
@@ -129,8 +130,8 @@ class SearchHotelCard extends StatelessWidget {
                       child: Semantics(
                         button: true,
                         label: favorite
-            ? tr('Bỏ khỏi yêu thích', 'Remove from favorites')
-            : tr('Thêm vào yêu thích', 'Add to favorites'),
+                            ? tr('Bỏ khỏi yêu thích', 'Remove from favorites')
+                            : tr('Thêm vào yêu thích', 'Add to favorites'),
                         child: InkResponse(
                           onTap: onFavoriteTap,
                           radius: 24,
@@ -453,8 +454,6 @@ class SearchTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final textTheme = Theme.of(context).textTheme;
-
     return Container(
       padding: EdgeInsets.fromLTRB(
         responsive.horizontalPadding,
@@ -477,21 +476,10 @@ class SearchTopBar extends StatelessWidget {
           ),
           SizedBox(width: 28 * responsive.widthScale),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: textTheme.headlineMedium?.copyWith(
-                  color: AppTheme.ink,
-                  fontSize: 30 * responsive.scale,
-                  fontWeight: FontWeight.w600,
-                ),
-                children: const [
-                  TextSpan(text: 'Stay'),
-                  TextSpan(
-                    text: 'Z',
-                    style: TextStyle(color: AppTheme.accent),
-                  ),
-                ],
-              ),
+            child: StayZBrandLogo(
+              size: 48 * responsive.scale,
+              borderRadius: 14,
+              alignment: Alignment.centerLeft,
             ),
           ),
           Icon(

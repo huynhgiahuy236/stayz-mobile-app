@@ -1099,14 +1099,15 @@ class _BookingFormDialogState extends State<BookingFormDialog> {
                 ),
                 DropdownMenuItem(
                   value: 'completed',
+                  enabled: _status == 'completed',
                   child: Text(tr('Đã hoàn tất', 'Completed')),
                 ),
                 DropdownMenuItem(
                   value: 'cancelled',
-                  child: Text(tr('Đã huỷ', 'Cancelled')),
+                  child: Text(tr('Đã hủy', 'Cancelled')),
                 ),
               ],
-              onChanged: (value) => _status = value ?? _status,
+              onChanged: null,
             ),
           ],
         ),

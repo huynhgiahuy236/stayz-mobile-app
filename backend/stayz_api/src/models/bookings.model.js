@@ -89,6 +89,24 @@ const bookingSchema = new mongoose.Schema(
       default: "none",
     },
     payment_expires_at: { type: Date, default: null },
+    attendance_status: {
+      type: String,
+      enum: ["pending", "checked_in", "no_show"],
+      default: "pending",
+    },
+    attendance_note: { type: String, trim: true, default: "" },
+    attendance_confirmed_at: { type: Date, default: null },
+    attendance_confirmed_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    cancellation_reason: {
+      type: String,
+      enum: ["", "guest_cancelled", "admin_cancelled", "no_show"],
+      default: "",
+    },
+    check_in_code: { type: String, uppercase: true, trim: true, unique: true, sparse: true },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );

@@ -4,6 +4,7 @@ import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 
 Future<void> _finishOnboarding(BuildContext context) async {
   await AuthService.instance.markOnboardingSeen();
@@ -65,8 +66,10 @@ class _FreshBlueSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final heroHeight = (responsive.isCompact ? 330.0 : 390.0) * responsive.scale;
-    final buttonHeight = (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
+    final heroHeight =
+        (responsive.isCompact ? 330.0 : 390.0) * responsive.scale;
+    final buttonHeight =
+        (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
 
     return ColoredBox(
       color: data.palette.background,
@@ -99,10 +102,7 @@ class _FreshBlueSlide extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [
-                              data.palette.sheet,
-                              data.palette.inactive,
-                            ],
+                            colors: [data.palette.sheet, data.palette.inactive],
                           ),
                           border: Border.all(
                             color: data.palette.border,
@@ -110,7 +110,9 @@ class _FreshBlueSlide extends StatelessWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: data.palette.primaryDark.withValues(alpha: 0.14),
+                              color: data.palette.primaryDark.withValues(
+                                alpha: 0.14,
+                              ),
                               blurRadius: 32,
                               offset: const Offset(0, 18),
                             ),
@@ -139,9 +141,7 @@ class _FreshBlueSlide extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: data.palette.sheet.withValues(alpha: 0.92),
                           borderRadius: BorderRadius.circular(99),
-                          border: Border.all(
-                            color: data.palette.border,
-                          ),
+                          border: Border.all(color: data.palette.border),
                         ),
                         child: Text(
                           data.step,
@@ -198,7 +198,12 @@ class _FreshBlueSlide extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                             children: [
-                              TextSpan(text: tr('Đã có tài khoản? ', 'Already have an account? ')),
+                              TextSpan(
+                                text: tr(
+                                  'Đã có tài khoản? ',
+                                  'Already have an account? ',
+                                ),
+                              ),
                               TextSpan(
                                 text: tr('Đăng nhập', 'Sign in'),
                                 style: TextStyle(
@@ -226,7 +231,9 @@ class _FreshBlueSlide extends StatelessWidget {
                         ),
                         const Spacer(),
                         SizedBox(
-                          width: (data.showLoginPrompt ? 162 : 134) * responsive.widthScale,
+                          width:
+                              (data.showLoginPrompt ? 162 : 134) *
+                              responsive.widthScale,
                           height: buttonHeight,
                           child: FilledButton(
                             onPressed: onNext,
@@ -312,7 +319,6 @@ class _OnboardingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         28 * responsive.widthScale,
@@ -323,26 +329,7 @@ class _OnboardingHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          RichText(
-            text: TextSpan(
-              style: textTheme.headlineMedium?.copyWith(
-                color: palette.ink,
-                fontSize: 26 * responsive.scale,
-                fontWeight: FontWeight.w400,
-                height: 1,
-              ),
-              children: [
-                const TextSpan(text: 'Stay'),
-                TextSpan(
-                  text: 'Z',
-                  style: TextStyle(
-                    color: palette.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          StayZBrandLogo(size: 50 * responsive.scale, borderRadius: 15),
           if (showSkip)
             GestureDetector(
               onTap: () => _finishOnboarding(context),
@@ -450,4 +437,3 @@ class _PageIndicator extends StatelessWidget {
     );
   }
 }
-

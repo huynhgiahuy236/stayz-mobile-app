@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_network_image.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
@@ -33,8 +34,12 @@ class BookingThumb extends StatelessWidget {
         child: (imageUrl != null && imageUrl!.isNotEmpty)
             ? StayZNetworkImage(imageUrl: imageUrl!, width: size, height: size)
             : DecoratedBox(
-                decoration: BoxDecoration(gradient: LinearGradient(colors: colors)),
-                child: const Center(child: Icon(Icons.hotel_rounded, color: Colors.white)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: colors),
+                ),
+                child: const Center(
+                  child: Icon(Icons.hotel_rounded, color: Colors.white),
+                ),
               ),
       ),
     );
@@ -94,7 +99,9 @@ class BookingManageHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFBF7F4),
         border: Border(
-          bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.65)),
+          bottom: BorderSide(
+            color: AppTheme.neutral200.withValues(alpha: 0.65),
+          ),
         ),
       ),
       child: Row(
@@ -107,18 +114,10 @@ class BookingManageHeader extends StatelessWidget {
           SizedBox(width: 10 * responsive.widthScale),
           Expanded(
             child: brand
-                ? RichText(
-                    text: TextSpan(
-                      style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.ink,
-                        fontSize: 29 * responsive.scale,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      children: const [
-                        TextSpan(text: 'Stay'),
-                        TextSpan(text: 'Z', style: TextStyle(color: AppTheme.accent)),
-                      ],
-                    ),
+                ? StayZBrandLogo(
+                    size: 48 * responsive.scale,
+                    borderRadius: 14,
+                    alignment: Alignment.centerLeft,
                   )
                 : Text(
                     title,
@@ -127,14 +126,20 @@ class BookingManageHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.accentDark,
-                    fontSize: 24 * responsive.scale,
+                      fontSize: 24 * responsive.scale,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
           ),
           SizedBox(
             width: 72 * responsive.widthScale,
-            child: trailing ?? Icon(Icons.more_vert, color: AppTheme.accentDark, size: 28 * responsive.scale),
+            child:
+                trailing ??
+                Icon(
+                  Icons.more_vert,
+                  color: AppTheme.accentDark,
+                  size: 28 * responsive.scale,
+                ),
           ),
         ],
       ),
@@ -172,20 +177,20 @@ class BookingManageTabs extends StatelessWidget {
         child: Row(
           children: [
             _BookingTab(
-            label: tr('Sắp tới', 'Upcoming'),
-            active: activeTab == BookingManageTab.upcoming,
-            routeName: upcomingRoute,
-          ),
-          _BookingTab(
-            label: tr('Hoàn tất', 'Completed'),
-            active: activeTab == BookingManageTab.completed,
-            routeName: completedRoute,
-          ),
-          _BookingTab(
-            label: tr('Đã hủy', 'Cancelled'),
-            active: activeTab == BookingManageTab.cancelled,
-            routeName: cancelledRoute,
-          ),
+              label: tr('Sắp tới', 'Upcoming'),
+              active: activeTab == BookingManageTab.upcoming,
+              routeName: upcomingRoute,
+            ),
+            _BookingTab(
+              label: tr('Hoàn tất', 'Completed'),
+              active: activeTab == BookingManageTab.completed,
+              routeName: completedRoute,
+            ),
+            _BookingTab(
+              label: tr('Đã hủy', 'Cancelled'),
+              active: activeTab == BookingManageTab.cancelled,
+              routeName: cancelledRoute,
+            ),
           ],
         ),
       ),
@@ -210,7 +215,9 @@ class _BookingTab extends StatelessWidget {
 
     return Expanded(
       child: InkWell(
-        onTap: active ? null : () => Navigator.of(context).pushReplacementNamed(routeName),
+        onTap: active
+            ? null
+            : () => Navigator.of(context).pushReplacementNamed(routeName),
         borderRadius: BorderRadius.circular(14),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -251,17 +258,26 @@ class BookingStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final foreground = textColor ?? AppTheme.accentDark;
 
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: 16 * responsive.widthScale,
         vertical: 8 * responsive.scale,
       ),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: foreground.withValues(alpha: 0.75),
+          width: 1.4,
+        ),
+        boxShadow: AppTheme.softShadow,
+      ),
       child: Text(
         label.toUpperCase(),
         style: TextStyle(
-          color: textColor ?? AppTheme.accentDark,
+          color: foreground,
           fontSize: 12 * responsive.scale,
           fontWeight: FontWeight.w900,
           letterSpacing: 1,
@@ -289,9 +305,11 @@ class UpcomingBookingCard extends StatelessWidget {
     this.statusLabel,
     this.statusColor,
     this.statusTextColor,
+    this.statusDescription,
     this.detailLabel,
     this.secondaryLabel,
     this.paymentAmount,
+    this.remainingAmount,
     this.deposit30 = false,
     super.key,
   });
@@ -312,9 +330,11 @@ class UpcomingBookingCard extends StatelessWidget {
   final String? statusLabel;
   final Color? statusColor;
   final Color? statusTextColor;
+  final String? statusDescription;
   final String? detailLabel;
   final String? secondaryLabel;
   final String? paymentAmount;
+  final String? remainingAmount;
   final bool deposit30;
 
   @override
@@ -341,26 +361,39 @@ class UpcomingBookingCard extends StatelessWidget {
               children: [
                 Positioned.fill(
                   child: LayoutBuilder(
-                    builder: (context, constraints) => (imageUrl == null || imageUrl!.isEmpty)
-                        ? CustomPaint(painter: LuxuryArchitecturalPainter(colors: colors))
-                        : StayZNetworkImage(imageUrl: imageUrl!, width: constraints.maxWidth, height: 160 * responsive.scale),
+                    builder: (context, constraints) =>
+                        (imageUrl == null || imageUrl!.isEmpty)
+                        ? CustomPaint(
+                            painter: LuxuryArchitecturalPainter(colors: colors),
+                          )
+                        : StayZNetworkImage(
+                            imageUrl: imageUrl!,
+                            width: constraints.maxWidth,
+                            height: 160 * responsive.scale,
+                          ),
                   ),
                 ),
                 Positioned(
                   top: 12 * responsive.scale,
                   right: 12 * responsive.widthScale,
                   child: BookingStatusPill(
-                    label: statusLabel ?? (paymentExpired
-                        ? tr('Đã hết hạn', 'Payment expired')
-                        : pendingPayment
-                        ? tr('Chờ thanh toán', 'Pending payment')
-                        : tr('Sắp tới', 'Upcoming')),
-                    color: statusColor ?? (paymentExpired
-                        ? AppTheme.danger.withValues(alpha: 0.14)
-                        : pendingPayment
-                        ? const Color(0xFFFFE8B0)
-                        : AppTheme.primarySoft),
-                    textColor: statusTextColor ?? (paymentExpired ? AppTheme.danger : null),
+                    label:
+                        statusLabel ??
+                        (paymentExpired
+                            ? tr('Đã hết hạn', 'Payment expired')
+                            : pendingPayment
+                            ? tr('Chờ thanh toán', 'Pending payment')
+                            : tr('Sắp tới', 'Upcoming')),
+                    color:
+                        statusColor ??
+                        (paymentExpired
+                            ? AppTheme.danger.withValues(alpha: 0.14)
+                            : pendingPayment
+                            ? const Color(0xFFFFE8B0)
+                            : AppTheme.primarySoft),
+                    textColor:
+                        statusTextColor ??
+                        (paymentExpired ? AppTheme.danger : null),
                   ),
                 ),
               ],
@@ -375,33 +408,106 @@ class UpcomingBookingCard extends StatelessWidget {
                   name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: AppTheme.ink, fontSize: 19 * responsive.scale, fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    color: AppTheme.ink,
+                    fontSize: 19 * responsive.scale,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 SizedBox(height: 6 * responsive.scale),
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, color: AppTheme.muted, size: 16 * responsive.scale),
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: AppTheme.muted,
+                      size: 16 * responsive.scale,
+                    ),
                     SizedBox(width: 5 * responsive.widthScale),
                     Expanded(
                       child: Text(
                         location,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: AppTheme.muted, fontSize: 13.5 * responsive.scale),
+                        style: TextStyle(
+                          color: AppTheme.muted,
+                          fontSize: 13.5 * responsive.scale,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                if (statusDescription != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12 * responsive.scale),
+                    decoration: BoxDecoration(
+                      color: statusColor ?? AppTheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: (statusTextColor ?? AppTheme.line).withValues(
+                          alpha: 0.45,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      statusDescription!,
+                      style: TextStyle(
+                        color: statusTextColor ?? AppTheme.ink,
+                        fontSize: 12.5 * responsive.scale,
+                        height: 1.35,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 14 * responsive.scale),
+                ],
                 if (paymentAmount != null) ...[
                   Row(
                     children: [
-                      Text(tr('Đã thanh toán', 'Amount paid'), style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w700)),
+                      Text(
+                        tr('Đã thanh toán', 'Amount paid'),
+                        style: TextStyle(
+                          color: AppTheme.muted,
+                          fontSize: 13 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const Spacer(),
                       Text(
                         '$paymentAmount${deposit30 ? ' (30%)' : ''}',
                         style: TextStyle(
-                          color: deposit30 ? const Color(0xFFC08A18) : const Color(0xFF159A61),
+                          color: deposit30
+                              ? AppTheme.depositText
+                              : const Color(0xFF159A61),
+                          fontSize: 17 * responsive.scale,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                ],
+                if (remainingAmount != null) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          tr(
+                            'Còn lại tại khách sạn (70%)',
+                            'Remaining at hotel (70%)',
+                          ),
+                          style: TextStyle(
+                            color: AppTheme.muted,
+                            fontSize: 13 * responsive.scale,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        remainingAmount!,
+                        style: TextStyle(
+                          color: AppTheme.notificationConfirmedText,
                           fontSize: 17 * responsive.scale,
                           fontWeight: FontWeight.w900,
                         ),
@@ -412,15 +518,35 @@ class UpcomingBookingCard extends StatelessWidget {
                 ],
                 Row(
                   children: [
-                    Expanded(child: _MetaBlock(label: tr('Nhận phòng', 'Check-in'), value: checkIn)),
-                    Expanded(child: _MetaBlock(label: tr('Trả phòng', 'Check-out'), value: checkOut)),
-                    Expanded(child: _MetaBlock(label: tr('Mã đặt phòng', 'Code'), value: code)),
+                    Expanded(
+                      child: _MetaBlock(
+                        label: tr('Nhận phòng', 'Check-in'),
+                        value: checkIn,
+                      ),
+                    ),
+                    Expanded(
+                      child: _MetaBlock(
+                        label: tr('Trả phòng', 'Check-out'),
+                        value: checkOut,
+                      ),
+                    ),
+                    Expanded(
+                      child: _MetaBlock(
+                        label: tr('Mã đặt phòng', 'Code'),
+                        value: code,
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 18 * responsive.scale),
                 Row(
                   children: [
-                    Expanded(child: BookingSoftButton(label: detailLabel ?? tr('Chi tiết', 'Details'), onTap: onDetail)),
+                    Expanded(
+                      child: BookingSoftButton(
+                        label: detailLabel ?? tr('Chi tiết', 'Details'),
+                        onTap: onDetail,
+                      ),
+                    ),
                     SizedBox(width: 10 * responsive.widthScale),
                     Expanded(
                       child: pendingPayment && onPay != null
@@ -432,7 +558,10 @@ class UpcomingBookingCard extends StatelessWidget {
                                   : tr('Thanh toán', 'Pay now'),
                               onTap: paymentBusy ? null : onPay!,
                             )
-                          : BookingOutlineButton(label: secondaryLabel ?? tr('Hủy lịch', 'Cancel'), onTap: onCancel),
+                          : BookingOutlineButton(
+                              label: secondaryLabel ?? tr('Hủy lịch', 'Cancel'),
+                              onTap: onCancel,
+                            ),
                     ),
                   ],
                 ),
@@ -446,10 +575,7 @@ class UpcomingBookingCard extends StatelessWidget {
 }
 
 class _MetaBlock extends StatelessWidget {
-  const _MetaBlock({
-    required this.label,
-    required this.value,
-  });
+  const _MetaBlock({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -489,11 +615,7 @@ class _MetaBlock extends StatelessWidget {
 }
 
 class BookingSoftButton extends StatelessWidget {
-  const BookingSoftButton({
-    required this.label,
-    this.onTap,
-    super.key,
-  });
+  const BookingSoftButton({required this.label, this.onTap, super.key});
 
   final String label;
   final VoidCallback? onTap;
@@ -515,7 +637,11 @@ class BookingSoftButton extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: AppTheme.accentDark, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            color: AppTheme.accentDark,
+            fontSize: 16 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
@@ -523,11 +649,7 @@ class BookingSoftButton extends StatelessWidget {
 }
 
 class BookingOutlineButton extends StatelessWidget {
-  const BookingOutlineButton({
-    required this.label,
-    this.onTap,
-    super.key,
-  });
+  const BookingOutlineButton({required this.label, this.onTap, super.key});
 
   final String label;
   final VoidCallback? onTap;
@@ -549,7 +671,11 @@ class BookingOutlineButton extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: AppTheme.accentDark, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            color: AppTheme.accentDark,
+            fontSize: 16 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
@@ -599,7 +725,12 @@ class HistoryBookingCard extends StatelessWidget {
             padding: EdgeInsets.all(18 * responsive.scale),
             child: Row(
               children: [
-                BookingThumb(imageUrl: imageUrl, colors: colors, size: 112 * responsive.scale, radius: 12),
+                BookingThumb(
+                  imageUrl: imageUrl,
+                  colors: colors,
+                  size: 112 * responsive.scale,
+                  radius: 12,
+                ),
                 SizedBox(width: 18 * responsive.widthScale),
                 Expanded(
                   child: Column(
@@ -615,15 +746,29 @@ class HistoryBookingCard extends StatelessWidget {
                         name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: AppTheme.ink, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          color: AppTheme.ink,
+                          fontSize: 18 * responsive.scale,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       SizedBox(height: 10 * responsive.scale),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today_outlined, color: const Color(0xFF5A3F3F), size: 17 * responsive.scale),
+                          Icon(
+                            Icons.calendar_today_outlined,
+                            color: const Color(0xFF5A3F3F),
+                            size: 17 * responsive.scale,
+                          ),
                           SizedBox(width: 10 * responsive.widthScale),
                           Expanded(
-                            child: Text(date, style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 18 * responsive.scale)),
+                            child: Text(
+                              date,
+                              style: TextStyle(
+                                color: const Color(0xFF5A3F3F),
+                                fontSize: 18 * responsive.scale,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -648,9 +793,19 @@ class HistoryBookingCard extends StatelessWidget {
             padding: EdgeInsets.all(16 * responsive.scale),
             child: Row(
               children: [
-                Expanded(child: _FilledAction(label: primaryLabel ?? tr('Đánh giá ngay', 'Review now'), onTap: onPrimary)),
+                Expanded(
+                  child: _FilledAction(
+                    label: primaryLabel ?? tr('Đánh giá ngay', 'Review now'),
+                    onTap: onPrimary,
+                  ),
+                ),
                 SizedBox(width: 14 * responsive.widthScale),
-                Expanded(child: BookingOutlineButton(label: secondaryLabel ?? tr('Đặt lại', 'Rebook'), onTap: onSecondary)),
+                Expanded(
+                  child: BookingOutlineButton(
+                    label: secondaryLabel ?? tr('Đặt lại', 'Rebook'),
+                    onTap: onSecondary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -661,10 +816,7 @@ class HistoryBookingCard extends StatelessWidget {
 }
 
 class _FilledAction extends StatelessWidget {
-  const _FilledAction({
-    required this.label,
-    required this.onTap,
-  });
+  const _FilledAction({required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;
@@ -685,7 +837,11 @@ class _FilledAction extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Colors.white, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16 * responsive.scale,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );

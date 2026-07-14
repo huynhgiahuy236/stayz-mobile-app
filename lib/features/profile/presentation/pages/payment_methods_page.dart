@@ -2,6 +2,7 @@ import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodsPage extends StatelessWidget {
@@ -21,7 +22,7 @@ class PaymentMethodsPage extends StatelessWidget {
           children: [
             ProfileHeader(
               title: tr('Phương thức thanh toán', 'Payment methods'),
-              trailing: const Text('StayZ'),
+              trailing: const StayZBrandLogo(size: 38, borderRadius: 11),
             ),
             Expanded(
               child: ListView(

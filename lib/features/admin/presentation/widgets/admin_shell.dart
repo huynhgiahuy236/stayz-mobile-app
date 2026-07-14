@@ -1,6 +1,7 @@
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 
 enum AdminSection {
   overview,
@@ -243,16 +244,8 @@ class AdminSideNav extends StatelessWidget {
 class _BrandMark extends StatelessWidget {
   const _BrandMark();
   @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(12),
-    child: Image.asset(
-      'assets/images/stayz_app_logo.png',
-      width: 36,
-      height: 36,
-      fit: BoxFit.cover,
-      filterQuality: FilterQuality.high,
-    ),
-  );
+  Widget build(BuildContext context) =>
+      const StayZBrandLogo(size: 36, borderRadius: 12);
 }
 
 class AdminHeader extends StatelessWidget {

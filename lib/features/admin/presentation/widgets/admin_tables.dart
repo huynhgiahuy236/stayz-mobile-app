@@ -9,10 +9,12 @@ class AdminOverview extends StatelessWidget {
   const AdminOverview({
     required this.snapshot,
     required this.onStatus,
+    this.onAttendance = _ignoreAttendance,
     super.key,
   });
   final AdminSnapshot snapshot;
   final void Function(AdminBooking booking, String status) onStatus;
+  final void Function(AdminBooking booking, String status) onAttendance;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -111,7 +113,11 @@ class AdminOverview extends StatelessWidget {
         },
       ),
       const SizedBox(height: 9),
-      AdminBookingsTable(bookings: snapshot.recentBookings, onStatus: onStatus),
+      AdminBookingsTable(
+        bookings: snapshot.recentBookings,
+        onStatus: onStatus,
+        onAttendance: onAttendance,
+      ),
     ],
   );
 }
@@ -201,6 +207,7 @@ class AdminBookingsTable extends StatelessWidget {
   const AdminBookingsTable({
     required this.bookings,
     required this.onStatus,
+    this.onAttendance = _ignoreAttendance,
     this.busyKey,
     this.onAdd,
     this.onEdit,
@@ -210,6 +217,7 @@ class AdminBookingsTable extends StatelessWidget {
   final List<AdminBooking> bookings;
   final String? busyKey;
   final void Function(AdminBooking booking, String status) onStatus;
+  final void Function(AdminBooking booking, String status) onAttendance;
   final VoidCallback? onAdd;
   final ValueChanged<AdminBooking>? onEdit;
   final ValueChanged<AdminBooking>? onDelete;
@@ -231,7 +239,9 @@ class AdminBookingsTable extends StatelessWidget {
           tr('Cơ sở lưu trú', 'Property'),
           tr('Nhận phòng', 'Check-in'),
           tr('Tổng tiền', 'Total'),
+          tr('Thanh toán', 'Payment'),
           tr('Trạng thái', 'Status'),
+          tr('Nhận phòng', 'Check-in status'),
           tr('Thao tác', 'Actions'),
         ],
         rows: [
@@ -264,6 +274,15 @@ class AdminBookingsTable extends StatelessWidget {
                     onSelected: (status) => onStatus(booking, status),
                   ),
                 ),
+                DataCell(StatusPill(status: booking.paymentDisplayStatus)),
+                DataCell(
+                  AttendanceStatusMenu(
+                    status: booking.attendanceStatus,
+                    enabled: booking.status == 'confirmed' && busyKey == null,
+                    loading: busyKey == 'attendance:${booking.id}',
+                    onSelected: (status) => onAttendance(booking, status),
+                  ),
+                ),
                 DataCell(
                   _RowActions(
                     onEdit: onEdit == null ? null : () => onEdit!(booking),
@@ -279,6 +298,8 @@ class AdminBookingsTable extends StatelessWidget {
     );
   }
 }
+
+void _ignoreAttendance(AdminBooking _, String _) {}
 
 class AdminHotelsTable extends StatelessWidget {
   const AdminHotelsTable({
@@ -559,7 +580,7 @@ class BookingStatusMenu extends StatelessWidget {
       enabled: enabled,
       initialValue: status,
       onSelected: onSelected,
-      itemBuilder: (_) => ['pending', 'confirmed', 'completed', 'cancelled']
+      itemBuilder: (_) => ['pending', 'confirmed', 'cancelled']
           .map(
             (value) => PopupMenuItem(
               value: value,
@@ -572,6 +593,93 @@ class BookingStatusMenu extends StatelessWidget {
   }
 }
 
+class AttendanceStatusMenu extends StatelessWidget {
+  const AttendanceStatusMenu({
+    required this.status,
+    required this.onSelected,
+    this.enabled = true,
+    this.loading = false,
+    super.key,
+  });
+
+  final String status;
+  final bool enabled;
+  final bool loading;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const SizedBox(
+        width: 22,
+        height: 22,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+    return PopupMenuButton<String>(
+      enabled: enabled,
+      initialValue: status,
+      onSelected: onSelected,
+      itemBuilder: (_) => ['pending', 'checked_in', 'no_show']
+          .map(
+            (value) => PopupMenuItem(
+              value: value,
+              child: Text(adminAttendanceLabel(value)),
+            ),
+          )
+          .toList(),
+      child: AttendanceStatusPill(status: status, showArrow: enabled),
+    );
+  }
+}
+
+class AttendanceStatusPill extends StatelessWidget {
+  const AttendanceStatusPill({
+    required this.status,
+    this.showArrow = false,
+    super.key,
+  });
+  final String status;
+  final bool showArrow;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = status == 'checked_in'
+        ? AppTheme.primaryDark
+        : status == 'no_show'
+        ? AppTheme.danger
+        : AppTheme.notificationPendingText;
+    return Tooltip(
+      message: adminAttendanceDescription(status),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: color.withValues(alpha: 0.55)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              adminAttendanceLabel(status),
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            if (showArrow) ...[
+              const SizedBox(width: 3),
+              Icon(Icons.expand_more_rounded, color: color, size: 15),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class StatusPill extends StatelessWidget {
   const StatusPill({required this.status, this.showArrow = false, super.key});
   final String status;
@@ -579,36 +687,43 @@ class StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final normalized = normalizeAdminStatus(status);
-    final color = normalized == 'confirmed' || normalized == 'paid'
-        ? AppTheme.primary
+    final color = normalized == 'paid'
+        ? AppTheme.success
+        : normalized == 'deposit_30'
+        ? AppTheme.depositText
+        : normalized == 'confirmed'
+        ? AppTheme.muted
         : normalized == 'completed'
         ? AppTheme.success
         : normalized == 'cancelled' || normalized == 'failed'
         ? AppTheme.danger
         : AppTheme.gold;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            adminStatusLabel(status),
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
+    return Tooltip(
+      message: adminStatusDescription(normalized),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: color.withValues(alpha: 0.55)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              adminStatusLabel(status),
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
-          if (showArrow) ...[
-            const SizedBox(width: 3),
-            Icon(Icons.expand_more_rounded, color: color, size: 15),
+            if (showArrow) ...[
+              const SizedBox(width: 3),
+              Icon(Icons.expand_more_rounded, color: color, size: 15),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

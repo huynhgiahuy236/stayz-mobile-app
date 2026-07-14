@@ -47,11 +47,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Future<void> _restoreLastSection() async {
     final preferences = await SharedPreferences.getInstance();
     final saved = preferences.getString(_lastSectionKey);
-    final section = AdminSection.values.where((item) => item.name == saved).firstOrNull;
+    final section = AdminSection.values
+        .where((item) => item.name == saved)
+        .firstOrNull;
     if (section != null && mounted) setState(() => _section = section);
   }
 
-  Future<void> _selectSection(AdminSection section, {bool clearSearch = false}) async {
+  Future<void> _selectSection(
+    AdminSection section, {
+    bool clearSearch = false,
+  }) async {
     if (clearSearch) _searchControllers[section]!.clear();
     if (mounted) setState(() => _section = section);
     final preferences = await SharedPreferences.getInstance();
@@ -127,6 +132,26 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     await _runAction(
       'booking:${booking.id}',
       () => _repository.updateBookingStatus(booking.id, status),
+    );
+  }
+
+  Future<void> _changeBookingAttendance(
+    AdminBooking booking,
+    String attendanceStatus,
+  ) async {
+    if (booking.attendanceStatus == attendanceStatus) return;
+    if (attendanceStatus == 'no_show') {
+      final confirmed = await _confirmDelete(
+        tr(
+          'Xác nhận khách không đến nhận phòng? Sau ngày trả phòng, booking sẽ bị hủy và không hoàn tiền.',
+          'Confirm that the guest did not check in? After checkout, the booking will be cancelled with no refund.',
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    await _runAction(
+      'attendance:${booking.id}',
+      () => _repository.updateBookingAttendance(booking.id, attendanceStatus),
     );
   }
 
@@ -473,15 +498,36 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget _content(AdminSnapshot data) {
     switch (_section) {
       case AdminSection.overview:
-        return AdminOverview(snapshot: data, onStatus: _changeBookingStatus);
-      case AdminSection.bookings:
-        return AdminBookingsTable(
-          bookings: data.filterBookings(_query),
-          busyKey: _busyKey,
+        return AdminOverview(
+          snapshot: data,
           onStatus: _changeBookingStatus,
-          onAdd: () => _editBooking(),
-          onEdit: (booking) => _editBooking(booking: booking),
-          onDelete: _deleteBooking,
+          onAttendance: _changeBookingAttendance,
+        );
+      case AdminSection.bookings:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FilledButton.icon(
+              onPressed: () async {
+                await Navigator.of(context).pushNamed(AppRoutes.adminCheckIn);
+                await _refresh();
+              },
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+              label: Text(
+                tr('Quét / nhập mã nhận phòng', 'Scan / enter check-in code'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            AdminBookingsTable(
+              bookings: data.filterBookings(_query),
+              busyKey: _busyKey,
+              onStatus: _changeBookingStatus,
+              onAttendance: _changeBookingAttendance,
+              onAdd: () => _editBooking(),
+              onEdit: (booking) => _editBooking(booking: booking),
+              onDelete: _deleteBooking,
+            ),
+          ],
         );
       case AdminSection.hotels:
         return AdminHotelsTable(

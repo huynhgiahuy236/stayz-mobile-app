@@ -341,7 +341,10 @@ class SupportActionCard extends StatelessWidget {
 
     return Container(
       height: 164 * responsive.scale,
-      padding: EdgeInsets.all(18 * responsive.scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 12 * responsive.widthScale,
+        vertical: 12 * responsive.scale,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -355,7 +358,7 @@ class SupportActionCard extends StatelessWidget {
             backgroundColor: color.withValues(alpha: 0.28),
             child: Icon(icon, color: AppTheme.accentDark, size: 22 * responsive.scale),
           ),
-          SizedBox(height: 20 * responsive.scale),
+          SizedBox(height: 12 * responsive.scale),
           Text(
             title,
             textAlign: TextAlign.center,
@@ -365,14 +368,20 @@ class SupportActionCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 8 * responsive.scale),
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppTheme.accentDark,
-              fontSize: 16 * responsive.scale,
-              fontWeight: FontWeight.w800,
+          SizedBox(height: 4 * responsive.scale),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.accentDark,
+                  fontSize: 16 * responsive.scale,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ),
         ],

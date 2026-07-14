@@ -9,6 +9,7 @@ class AdminSnapshot {
     required this.bookings,
     required this.reviews,
     required this.payments,
+    this.loadErrors = const {},
   });
 
   final List<AdminUser> users;
@@ -17,6 +18,7 @@ class AdminSnapshot {
   final List<AdminBooking> bookings;
   final List<AdminReview> reviews;
   final List<AdminPayment> payments;
+  final Map<String, String> loadErrors;
 
   num get revenue => payments
       .where((payment) => payment.status.toUpperCase() == 'PAID')
@@ -92,6 +94,8 @@ class AdminUser {
     required this.gender,
     required this.address,
     required this.avatarUrl,
+    this.dateOfBirth = '',
+    this.isActive = true,
     required this.createdAt,
   });
 
@@ -108,6 +112,10 @@ class AdminUser {
       gender: _string(json['gender']),
       address: _string(json['home_address']),
       avatarUrl: _string(json['avatar'] is Map ? json['avatar']['url'] : ''),
+      dateOfBirth: json['date_of_birth'] == null
+          ? ''
+          : _date(json['date_of_birth']).toIso8601String().split('T').first,
+      isActive: json['is_active'] != false,
       createdAt: _date(json['createdAt']),
     );
   }
@@ -120,6 +128,8 @@ class AdminUser {
   final String gender;
   final String address;
   final String avatarUrl;
+  final String dateOfBirth;
+  final bool isActive;
   final DateTime createdAt;
 
   String get searchText =>
@@ -141,6 +151,9 @@ class AdminHotel {
     required this.isPreferred,
     required this.maxStayDays,
     required this.roomCount,
+    this.latitude = 0,
+    this.longitude = 0,
+    this.isActive = true,
   });
 
   factory AdminHotel.fromJson(Map<String, dynamic> json, ApiService api) {
@@ -161,6 +174,9 @@ class AdminHotel {
       isPreferred: _bool(json['is_preferred']),
       maxStayDays: _int(json['max_stay_days'], fallback: 30),
       roomCount: _int(json['room_count']),
+      latitude: _num(json['latitude']).toDouble(),
+      longitude: _num(json['longitude']).toDouble(),
+      isActive: json['is_active'] != false,
     );
   }
 
@@ -177,6 +193,9 @@ class AdminHotel {
   final bool isPreferred;
   final int maxStayDays;
   final int roomCount;
+  final double latitude;
+  final double longitude;
+  final bool isActive;
 
   String get searchText => '$title $slug $city $type $address'.toLowerCase();
 }
@@ -468,6 +487,8 @@ class AdminUserInput {
     required this.gender,
     required this.address,
     required this.role,
+    required this.dateOfBirth,
+    required this.isActive,
     this.imageBytes,
     this.imageFilename,
   });
@@ -478,16 +499,20 @@ class AdminUserInput {
   final String gender;
   final String address;
   final String role;
+  final String dateOfBirth;
+  final bool isActive;
   final List<int>? imageBytes;
   final String? imageFilename;
   Map<String, dynamic> toJson({required bool creating}) => {
     'full_name': fullName,
-    if (creating) 'email': email,
+    'email': email,
     if (password.isNotEmpty) 'password': password,
     'phone_number': phone,
     'gender': gender,
     'home_address': address,
     'role': role,
+    'date_of_birth': dateOfBirth,
+    'is_active': isActive,
   };
 }
 
@@ -535,6 +560,9 @@ class AdminHotelInput {
     required this.imageUrl,
     required this.maxStayDays,
     required this.isPreferred,
+    required this.isActive,
+    required this.latitude,
+    required this.longitude,
     this.imageBytes,
     this.imageFilename,
   });
@@ -550,6 +578,9 @@ class AdminHotelInput {
   final String imageUrl;
   final int maxStayDays;
   final bool isPreferred;
+  final bool isActive;
+  final double latitude;
+  final double longitude;
   final List<int>? imageBytes;
   final String? imageFilename;
 
@@ -559,14 +590,15 @@ class AdminHotelInput {
     'address': address,
     'city': city,
     'country': 'Vietnam',
-    'latitude': 0,
-    'longitude': 0,
+    'latitude': latitude,
+    'longitude': longitude,
     'type': type,
     'base_price': basePrice,
     'description': description,
     'description_en': descriptionEn,
     'main_image_url': imageUrl,
     'is_preferred': isPreferred,
+    'is_active': isActive,
     'max_stay_days': maxStayDays,
   };
 }
@@ -668,6 +700,10 @@ String adminStatusLabel(String value) {
       return tr('Thất bại', 'Failed');
     case 'refunded':
       return tr('Đã hoàn tiền', 'Refunded');
+    case 'active':
+      return tr('Đang hoạt động', 'Active');
+    case 'inactive':
+      return tr('Đã lưu trữ', 'Archived');
     default:
       return value;
   }
@@ -695,6 +731,8 @@ String adminAttendanceDescription(String value) => switch (value) {
 };
 
 String adminStatusDescription(String value) => switch (value) {
+  'active' => tr('Bản ghi đang hoạt động.', 'The record is active.'),
+  'inactive' => tr('Bản ghi đã được lưu trữ.', 'The record is archived.'),
   'paid' => tr('Đã thanh toán đủ 100%.', 'Paid in full.'),
   'deposit_30' => tr(
     'Đã cọc 30%; còn lại 70% trả tại khách sạn.',

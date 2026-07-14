@@ -4,6 +4,8 @@ const roomsModel = require("../models/rooms.model");
 const redis = require("../config/redis.config");
 const { default: Redlock } = require("redlock");
 const notificationsService = require("./notifications.service");
+const paymentsModel = require("../models/payments.model");
+const reviewsModel = require("../models/reviews.model");
 const { normalizePaymentPlan, calculatePaymentQuote } = require("../utils/paymentQuote.util");
 const crypto = require("node:crypto");
 
@@ -24,6 +26,22 @@ const creatableStatus = ["pending", "confirmed"];
 const guestAllowedStatus = ["cancelled"];
 const attendanceStatuses = ["pending", "checked_in", "no_show"];
 const newCheckInCode = () => crypto.randomBytes(4).toString("hex").toUpperCase();
+const BUSINESS_TIME_ZONE = "Asia/Ho_Chi_Minh";
+const businessDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: BUSINESS_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+const businessDateKey = (value = new Date()) => {
+  const parts = Object.fromEntries(
+    businessDateFormatter
+      .formatToParts(new Date(value))
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
 
 const ensureCheckInCodes = async (bookings) => {
   for (const booking of bookings) {
@@ -62,12 +80,6 @@ const calculateNights = (checkIn, checkOut) => {
   return Math.max(1, rawNights);
 };
 
-const getStartOfToday = () => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today;
-};
-
 const populateBooking = (query) =>
   query
     .populate("user_id", "full_name email avatar role")
@@ -81,10 +93,12 @@ const populateBooking = (query) =>
     .populate("room_id");
 
 const settleExpiredBookings = async (userId = null) => {
-  const now = new Date();
+  // Dates are business dates. A stay only expires after its checkout date has
+  // fully passed in Viet Nam, regardless of the server's local timezone.
+  const todayBusinessDate = new Date(`${businessDateKey()}T00:00:00.000Z`);
   const query = {
     status: "confirmed",
-    check_out: { $lt: now },
+    check_out: { $lt: todayBusinessDate },
     attendance_status: { $in: ["checked_in", "no_show"] },
   };
   if (userId) query.user_id = userId;
@@ -148,11 +162,7 @@ const getOverlappingBookedRooms = async ({
 };
 
 const validateDateRange = (checkIn, checkOut) => {
-  const today = getStartOfToday();
-  const normalizedCheckIn = new Date(checkIn);
-  normalizedCheckIn.setHours(0, 0, 0, 0);
-
-  if (normalizedCheckIn < today) {
+  if (businessDateKey(checkIn) < businessDateKey()) {
     throw new BadRequestException("Ngay check_in khong duoc nho hon ngay hien tai");
   }
 
@@ -311,6 +321,13 @@ const bookingService = {
       throw new BadRequestException("Trang thai booking khong hop le");
     }
 
+    if (status === "confirmed" && booking.payment_status !== "paid") {
+      throw new BadRequestException("Khong the xac nhan booking chua thanh toan");
+    }
+    if (booking.status === "confirmed" && status === "pending") {
+      throw new BadRequestException("Khong the dua booking da xac nhan ve cho thanh toan");
+    }
+
     // Chu don chi duoc tu huy. Xac nhan/hoan tat la viec cua he thong.
     if (user?.role !== "admin" && !guestAllowedStatus.includes(status)) {
       throw new ForbiddenException("Ban chi co the huy booking cua minh");
@@ -324,7 +341,7 @@ const bookingService = {
     }
     if (
       status === "completed" &&
-      (booking.attendance_status !== "checked_in" || new Date(booking.check_out) > new Date())
+      (booking.attendance_status !== "checked_in" || businessDateKey(booking.check_out) >= businessDateKey())
     ) {
       throw new BadRequestException("Chi hoan tat sau checkout khi khach da nhan phong");
     }
@@ -416,6 +433,11 @@ const bookingService = {
       throw new BadRequestException("Booking phai duoc xac nhan thanh toan truoc");
     }
 
+    const today = businessDateKey();
+    if (today < businessDateKey(booking.check_in) || today > businessDateKey(booking.check_out)) {
+      throw new BadRequestException("Chi duoc cap nhat nhan phong trong thoi gian luu tru");
+    }
+
     booking.attendance_status = attendanceStatus;
     booking.attendance_note = String(note || "").trim();
     booking.attendance_confirmed_at = attendanceStatus === "pending" ? null : new Date();
@@ -459,6 +481,10 @@ const bookingService = {
 
     assertOwnership(booking, user);
 
+    if (["cancelled", "completed"].includes(booking.status)) {
+      throw new BadRequestException("Khong the chinh sua booking da ket thuc");
+    }
+
     const now = new Date();
     const editDeadline = new Date(booking.check_in);
     editDeadline.setHours(editDeadline.getHours() - EDIT_LOCK_HOURS);
@@ -472,11 +498,41 @@ const bookingService = {
     if (!allStatus.includes(nextStatus)) {
       throw new BadRequestException("Trang thai booking khong hop le");
     }
+    if (user?.role !== "admin") {
+      if (data.user_id != null && String(data.user_id) !== String(booking.user_id)) {
+        throw new ForbiddenException("Ban khong the chuyen booking cho tai khoan khac");
+      }
+      if (nextStatus !== booking.status && nextStatus !== "cancelled") {
+        throw new ForbiddenException("Ban chi co the huy booking cua minh");
+      }
+    }
     if (
       nextStatus === "completed" &&
-      (booking.attendance_status !== "checked_in" || new Date(booking.check_out) > now)
+      (booking.attendance_status !== "checked_in" || businessDateKey(booking.check_out) >= businessDateKey())
     ) {
       throw new BadRequestException("Chi hoan tat sau checkout khi khach da nhan phong");
+    }
+    if (nextStatus === "confirmed" && booking.payment_status !== "paid") {
+      throw new BadRequestException("Khong the xac nhan booking chua thanh toan");
+    }
+    if (booking.status === "confirmed" && nextStatus === "pending") {
+      throw new BadRequestException("Khong the dua booking da xac nhan ve cho thanh toan");
+    }
+
+    if (booking.payment_status === "paid") {
+      const changesPaidContract =
+        (data.user_id != null && String(data.user_id) !== String(booking.user_id)) ||
+        (data.property_id != null && String(data.property_id) !== String(booking.property_id)) ||
+        (data.room_id != null && String(data.room_id) !== String(booking.room_id)) ||
+        (data.check_in != null && new Date(data.check_in).getTime() !== new Date(booking.check_in).getTime()) ||
+        (data.check_out != null && new Date(data.check_out).getTime() !== new Date(booking.check_out).getTime()) ||
+        (data.rooms_count != null && Number(data.rooms_count) !== Number(booking.rooms_count)) ||
+        (data.guests != null && Number(data.guests) !== Number(booking.guests));
+      if (changesPaidContract) {
+        throw new BadRequestException(
+          "Khong the thay doi khach, phong, ngay hoac so luong cua booking da thanh toan",
+        );
+      }
     }
 
     const currentRoom = await roomsModel.findById(booking.room_id);
@@ -534,7 +590,7 @@ const bookingService = {
       throw new BadRequestException("So khach vuot qua suc chua phong");
     }
 
-    booking.user_id = data.user_id || booking.user_id;
+    if (user?.role === "admin" && data.user_id) booking.user_id = data.user_id;
     booking.property_id = nextPropertyId;
     booking.room_id = nextRoomId;
     booking.check_in = nextCheckIn;
@@ -558,6 +614,16 @@ const bookingService = {
     }
 
     assertOwnership(booking, user);
+
+    const [hasPayment, hasReview] = await Promise.all([
+      paymentsModel.exists({ booking_id: bookingId }),
+      reviewsModel.exists({ booking_id: bookingId }),
+    ]);
+    if (hasPayment || hasReview || booking.payment_status === "paid") {
+      throw new BadRequestException(
+        "Booking da co thanh toan hoac danh gia; hay huy va luu lich su thay vi xoa",
+      );
+    }
 
     return await bookingModel.findByIdAndDelete(bookingId);
   },

@@ -65,6 +65,7 @@ const propertySchema = new mongoose.Schema(
       },
     ],
     is_preferred: Boolean,
+    is_active: { type: Boolean, default: true, index: true },
 
     max_stay_days: {
       type: Number,

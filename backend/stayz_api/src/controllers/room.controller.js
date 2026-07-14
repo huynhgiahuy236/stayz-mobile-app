@@ -11,6 +11,15 @@ const roomController = {
       next(err);
     }
   },
+  getAllForAdmin: async (req, res, next) => {
+    try {
+      const data = await roomService.getAll(req.query, { includeInactive: true });
+      const response = responseSuccess(data, "Lay tat ca room cho admin thanh cong", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   getByPropertyId: async (req, res, next) => {
     const propertyId = req.params.propertyId;
     try {

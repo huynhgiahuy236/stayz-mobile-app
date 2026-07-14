@@ -332,6 +332,7 @@ class AdminHotelsTable extends StatelessWidget {
           tr('Loại hình', 'Type'),
           tr('Số phòng', 'Rooms'),
           tr('Giá cơ bản', 'Base price'),
+          tr('Trạng thái', 'Status'),
           tr('Thao tác', 'Actions'),
         ],
         rows: [
@@ -356,6 +357,9 @@ class AdminHotelsTable extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                ),
+                DataCell(
+                  StatusPill(status: hotel.isActive ? 'active' : 'inactive'),
                 ),
                 DataCell(
                   _RowActions(
@@ -480,6 +484,7 @@ class AdminUsersTable extends StatelessWidget {
           tr('Vai trò', 'Role'),
           tr('Địa chỉ', 'Address'),
           tr('Ngày tham gia', 'Joined'),
+          tr('Trạng thái', 'Status'),
           tr('Thao tác', 'Actions'),
         ],
         rows: [
@@ -511,6 +516,9 @@ class AdminUsersTable extends StatelessWidget {
                 ),
                 DataCell(CellText(user.address.isEmpty ? '-' : user.address)),
                 DataCell(Text(StayzFormatters.shortDate(user.createdAt))),
+                DataCell(
+                  StatusPill(status: user.isActive ? 'active' : 'inactive'),
+                ),
                 DataCell(
                   _RowActions(
                     onEdit: () => onEdit(user),
@@ -580,7 +588,11 @@ class BookingStatusMenu extends StatelessWidget {
       enabled: enabled,
       initialValue: status,
       onSelected: onSelected,
-      itemBuilder: (_) => ['pending', 'confirmed', 'cancelled']
+      itemBuilder: (_) => (status == 'pending'
+              ? const ['pending', 'cancelled']
+              : status == 'confirmed'
+              ? const ['confirmed', 'cancelled']
+              : <String>[status])
           .map(
             (value) => PopupMenuItem(
               value: value,
@@ -687,7 +699,7 @@ class StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final normalized = normalizeAdminStatus(status);
-    final color = normalized == 'paid'
+    final color = normalized == 'paid' || normalized == 'active'
         ? AppTheme.success
         : normalized == 'deposit_30'
         ? AppTheme.depositText
@@ -695,7 +707,7 @@ class StatusPill extends StatelessWidget {
         ? AppTheme.muted
         : normalized == 'completed'
         ? AppTheme.success
-        : normalized == 'cancelled' || normalized == 'failed'
+        : normalized == 'cancelled' || normalized == 'failed' || normalized == 'inactive'
         ? AppTheme.danger
         : AppTheme.gold;
     return Tooltip(

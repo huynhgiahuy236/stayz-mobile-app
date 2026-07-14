@@ -22,9 +22,12 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
   late final TextEditingController _basePrice;
   late final TextEditingController _imageUrl;
   late final TextEditingController _maxStayDays;
+  late final TextEditingController _latitude;
+  late final TextEditingController _longitude;
   String _city = 'da-lat';
   String _type = 'hotel';
   bool _preferred = false;
+  bool _active = true;
   List<int>? _imageBytes;
   String? _imageFilename;
 
@@ -42,9 +45,16 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
     );
     _imageUrl = TextEditingController(text: hotel?.imageUrl ?? '');
     _maxStayDays = TextEditingController(text: '${hotel?.maxStayDays ?? 30}');
+    _latitude = TextEditingController(
+      text: hotel == null || hotel.latitude == 0 ? '' : '${hotel.latitude}',
+    );
+    _longitude = TextEditingController(
+      text: hotel == null || hotel.longitude == 0 ? '' : '${hotel.longitude}',
+    );
     _city = hotel?.city ?? 'da-lat';
     _type = hotel?.type ?? 'hotel';
     _preferred = hotel?.isPreferred ?? false;
+    _active = hotel?.isActive ?? true;
   }
 
   @override
@@ -57,6 +67,8 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
     _basePrice.dispose();
     _imageUrl.dispose();
     _maxStayDays.dispose();
+    _latitude.dispose();
+    _longitude.dispose();
     super.dispose();
   }
 
@@ -154,6 +166,26 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
                   ],
                 ),
                 const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AdminTextField(
+                        controller: _latitude,
+                        label: tr('Vĩ độ', 'Latitude'),
+                        numeric: true,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: AdminTextField(
+                        controller: _longitude,
+                        label: tr('Kinh độ', 'Longitude'),
+                        numeric: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 _ImagePickerField(
                   currentImageUrl: _imageUrl.text,
                   selectedFilename: _imageFilename,
@@ -175,6 +207,11 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
                   value: _preferred,
                   onChanged: (value) => setState(() => _preferred = value),
                   title: Text(tr('Cơ sở được ưu tiên', 'Preferred property')),
+                ),
+                SwitchListTile(
+                  value: _active,
+                  onChanged: (value) => setState(() => _active = value),
+                  title: Text(tr('Đang hoạt động', 'Active property')),
                 ),
               ],
             ),
@@ -230,6 +267,9 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
         imageUrl: _imageUrl.text.trim(),
         maxStayDays: int.tryParse(_maxStayDays.text.trim()) ?? 30,
         isPreferred: _preferred,
+        isActive: _active,
+        latitude: double.tryParse(_latitude.text.trim()) ?? 0,
+        longitude: double.tryParse(_longitude.text.trim()) ?? 0,
         imageBytes: _imageBytes,
         imageFilename: _imageFilename,
       ),
@@ -657,8 +697,10 @@ class _UserFormDialogState extends State<UserFormDialog> {
   late final TextEditingController _password;
   late final TextEditingController _phone;
   late final TextEditingController _address;
+  late final TextEditingController _dateOfBirth;
   late String _gender;
   late String _role;
+  bool _active = true;
   List<int>? _imageBytes;
   String? _imageFilename;
 
@@ -671,8 +713,10 @@ class _UserFormDialogState extends State<UserFormDialog> {
     _password = TextEditingController();
     _phone = TextEditingController(text: user?.phone ?? '');
     _address = TextEditingController(text: user?.address ?? '');
+    _dateOfBirth = TextEditingController(text: user?.dateOfBirth ?? '');
     _gender = user?.gender ?? '';
     _role = user?.role ?? 'user';
+    _active = user?.isActive ?? true;
   }
 
   @override
@@ -682,6 +726,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
     _password.dispose();
     _phone.dispose();
     _address.dispose();
+    _dateOfBirth.dispose();
     super.dispose();
   }
 
@@ -717,7 +762,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
               AdminTextField(
                 controller: _email,
                 label: tr('Email', 'Email'),
-                requiredField: widget.user == null,
+                requiredField: true,
               ),
               const SizedBox(height: 10),
               AdminTextField(
@@ -739,6 +784,11 @@ class _UserFormDialogState extends State<UserFormDialog> {
               AdminTextField(
                 controller: _address,
                 label: tr('Địa chỉ', 'Address'),
+              ),
+              const SizedBox(height: 10),
+              AdminTextField(
+                controller: _dateOfBirth,
+                label: tr('Ngày sinh (YYYY-MM-DD)', 'Date of birth (YYYY-MM-DD)'),
               ),
               const SizedBox(height: 10),
               _ImagePickerField(
@@ -798,6 +848,11 @@ class _UserFormDialogState extends State<UserFormDialog> {
                   ),
                 ],
               ),
+              SwitchListTile(
+                value: _active,
+                onChanged: (value) => setState(() => _active = value),
+                title: Text(tr('Tài khoản đang hoạt động', 'Active account')),
+              ),
             ],
           ),
         ),
@@ -818,13 +873,34 @@ class _UserFormDialogState extends State<UserFormDialog> {
 
   void _submit() {
     if (_formKey.currentState?.validate() != true) return;
-    if (_password.text.isNotEmpty && _password.text.length < 6) {
+    final dateOfBirth = _dateOfBirth.text.trim();
+    if (dateOfBirth.isNotEmpty && DateTime.tryParse(dateOfBirth) == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             tr(
-              'Mật khẩu phải có ít nhất 6 ký tự.',
-              'Password must contain at least 6 characters.',
+              'Ngày sinh phải đúng định dạng YYYY-MM-DD.',
+              'Date of birth must use YYYY-MM-DD.',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+    final password = _password.text;
+    final strongPassword = password.length >= 8 &&
+        password.contains(RegExp(r'[a-z]')) &&
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'\d')) &&
+        password.contains(RegExp(r'[^A-Za-z0-9\s]')) &&
+        !password.contains(RegExp(r'\s'));
+    if (password.isNotEmpty && !strongPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            tr(
+              'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
+              'Password must contain at least 8 characters with uppercase, lowercase, number and special character.',
             ),
           ),
         ),
@@ -841,6 +917,8 @@ class _UserFormDialogState extends State<UserFormDialog> {
         gender: _gender,
         address: _address.text.trim(),
         role: _role,
+        dateOfBirth: dateOfBirth,
+        isActive: _active,
         imageBytes: _imageBytes,
         imageFilename: _imageFilename,
       ),

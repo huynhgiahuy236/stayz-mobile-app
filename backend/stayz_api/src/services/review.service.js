@@ -9,6 +9,13 @@ const assertReviewOwnership = (review, user) => {
   }
 };
 
+const assertReviewEditOwnership = (review, user) => {
+  const isOwner = review.user_id?.toString() === user?.userId?.toString();
+  if (!isOwner) {
+    throw new ForbiddenException("Chi nguoi viet moi duoc sua danh gia");
+  }
+};
+
 const reviewService = {
   getAll: async (propertyId) => {
     const query = {};
@@ -61,7 +68,7 @@ const reviewService = {
     const review = await reviewsModel.findById(id);
     if (!review) return null;
 
-    assertReviewOwnership(review, user);
+    assertReviewEditOwnership(review, user);
 
     if (rating != null) {
       const safeRating = Number(rating);

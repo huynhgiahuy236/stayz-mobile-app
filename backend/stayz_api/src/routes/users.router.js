@@ -6,12 +6,14 @@ const adminOnly = require("../middlewares/admin.middleware");
 const uploadLocalMiddleware = require("../middlewares/uploadLocal.middleware");
 const uploadCloud = require("../middlewares/uploadCloud.middleware");
 const { rateLimiter } = require("../middlewares/rateLimit.middleware");
+const adminAudit = require("../middlewares/adminAudit.middleware");
 const userRouter = express.Router();
 
-userRouter.get("/getAll", userController.getAll);
-userRouter.get("/getById/:id", userController.getById);
+userRouter.get("/admin/audit", protect, adminOnly, userController.getAdminAudit);
+userRouter.get("/getAll", protect, adminOnly, userController.getAll);
+userRouter.get("/getById/:id", protect, userController.getById);
 userRouter.delete("/delete/:id", protect, adminOnly, userController.delete);
-userRouter.patch("/update/:id", protect, userController.update);
+userRouter.patch("/update/:id", protect, adminAudit, userController.update);
 // Rate limit: đăng ký tối đa 5 lần / 15 phút, chặn spam tạo tài khoản
 userRouter.post("/create", rateLimiter(5, 900), userController.create);
 userRouter.post("/admin/create", protect, adminOnly, userController.createByAdmin);
@@ -44,6 +46,7 @@ userRouter.patch(
 userRouter.patch(
   "/avatar/cloud/:id",
   protect,
+  adminAudit,
   uploadCloud.single("avatar"),
   userController.uploadCloud,
 );

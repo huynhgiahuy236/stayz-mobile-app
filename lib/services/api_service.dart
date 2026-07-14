@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 /// Loi API da duoc dich sang ngon ngu nguoi dung doc duoc.
 ///
@@ -87,7 +88,12 @@ class ApiService {
       request.headers['Authorization'] = 'Bearer $bearerToken';
     }
     request.files.add(
-      http.MultipartFile.fromBytes(field, bytes, filename: filename),
+      http.MultipartFile.fromBytes(
+        field,
+        bytes,
+        filename: filename,
+        contentType: _imageContentType(filename),
+      ),
     );
 
     try {
@@ -261,6 +267,17 @@ class ApiService {
                 'Something went wrong. Please try again.',
               );
     }
+  }
+
+  MediaType _imageContentType(String filename) {
+    final extension = filename.toLowerCase().split('.').last;
+    return switch (extension) {
+      'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
+      'png' => MediaType('image', 'png'),
+      'webp' => MediaType('image', 'webp'),
+      'gif' => MediaType('image', 'gif'),
+      _ => MediaType('application', 'octet-stream'),
+    };
   }
 
   String? _localizedServerMessage(String? message) {

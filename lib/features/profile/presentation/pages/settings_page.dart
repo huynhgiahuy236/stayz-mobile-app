@@ -313,6 +313,7 @@ class _ProfileStatsState extends State<_ProfileStats> {
               child: _Stat(
                 value: trips?.toString() ?? '–',
                 label: tr('Chuyến đi', 'Trips'),
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
               ),
             ),
             const SizedBox(width: 10),
@@ -320,6 +321,7 @@ class _ProfileStatsState extends State<_ProfileStats> {
               child: _Stat(
                 value: saved?.toString() ?? '–',
                 label: tr('Đã lưu', 'Saved'),
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.favorites),
               ),
             ),
           ],
@@ -598,44 +600,51 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label});
+  const _Stat({required this.value, required this.label, required this.onTap});
 
   final String value;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 14 * responsive.scale),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppTheme.line),
+        side: const BorderSide(color: AppTheme.line),
       ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              color: AppTheme.ink,
-              fontSize: 20 * responsive.scale,
-              fontWeight: FontWeight.w900,
-            ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 14 * responsive.scale),
+          child: Column(
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  color: AppTheme.ink,
+                  fontSize: 20 * responsive.scale,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 5 * responsive.scale),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppTheme.muted,
+                  fontSize: 12 * responsive.scale,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 5 * responsive.scale),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: AppTheme.muted,
-              fontSize: 12 * responsive.scale,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

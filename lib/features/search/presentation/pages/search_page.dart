@@ -26,6 +26,8 @@ class _SearchPageState extends State<SearchPage> {
   SearchFilters _filters = const SearchFilters();
   Future<List<HotelSummary>>? _hotelsFuture;
   Set<String> _favoriteIds = const <String>{};
+  List<HotelSummary> _suggestionSource = const <HotelSummary>[];
+  List<_SearchSuggestion> _suggestions = const <_SearchSuggestion>[];
   Timer? _debounce;
   bool _initialized = false;
   int _searchRequestId = 0;
@@ -35,6 +37,20 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _loadFavorites();
+    _loadSuggestionSource();
+  }
+
+  Future<void> _loadSuggestionSource() async {
+    try {
+      final hotels = await ApiStayzRepository.instance.getHotelSummaries();
+      if (!mounted) return;
+      setState(() {
+        _suggestionSource = hotels;
+        _suggestions = _buildSuggestions(_searchController.text);
+      });
+    } catch (_) {
+      // Suggestions are optional; normal API search still remains available.
+    }
   }
 
   @override
@@ -106,16 +122,109 @@ class _SearchPageState extends State<SearchPage> {
     _debounce?.cancel();
     // Ghi keyword vao state ngay, tranh timer dung lai gia tri filter cu.
     _filters = _filters.copyWith(keyword: value.trim());
+    setState(() => _suggestions = _buildSuggestions(value));
     _debounce = Timer(const Duration(seconds: 1), () {
-      if (mounted) _submitSearch(_searchController.text);
+      if (!mounted) return;
+      _applyFilters(
+        _filters.copyWith(keyword: _searchController.text.trim()),
+        syncTextField: false,
+      );
     });
   }
 
   void _submitSearch(String value) {
     _debounce?.cancel();
     final keyword = value.trim();
+    setState(() => _suggestions = const <_SearchSuggestion>[]);
     _applyFilters(_filters.copyWith(keyword: keyword), syncTextField: false);
     FocusScope.of(context).unfocus();
+  }
+
+  void _selectSuggestion(_SearchSuggestion suggestion) {
+    _searchController.text = suggestion.keyword;
+    _searchController.selection = TextSelection.collapsed(
+      offset: suggestion.keyword.length,
+    );
+    _submitSearch(suggestion.keyword);
+  }
+
+  List<_SearchSuggestion> _buildSuggestions(String input) {
+    final query = _normalizeSearchText(input);
+    if (query.isEmpty || _suggestionSource.isEmpty) {
+      return const <_SearchSuggestion>[];
+    }
+
+    final candidates = <_SearchSuggestion>[];
+    final seenCities = <String>{};
+    for (final summary in _suggestionSource) {
+      final cityKey = _normalizeSearchText(summary.city.name);
+      if (seenCities.add(cityKey)) {
+        candidates.add(
+          _SearchSuggestion(
+            keyword: summary.city.name,
+            label: summary.city.name,
+            subtitle: summary.city.region,
+            searchTerms: _citySearchAliases(summary.hotel.cityId),
+            icon: Icons.location_city_rounded,
+          ),
+        );
+      }
+      candidates.add(
+        _SearchSuggestion(
+          keyword: summary.hotel.name,
+          label: summary.hotel.name,
+          subtitle: '${summary.city.name}, ${summary.city.region}',
+          searchTerms: _citySearchAliases(summary.hotel.cityId),
+          icon: Icons.hotel_rounded,
+        ),
+      );
+    }
+
+    for (final candidate in candidates) {
+      candidate.score = _suggestionScore(query, candidate);
+    }
+    candidates.sort((a, b) {
+      final score = a.score.compareTo(b.score);
+      return score != 0 ? score : a.label.compareTo(b.label);
+    });
+    return candidates.take(6).toList(growable: false);
+  }
+
+  int _suggestionScore(String query, _SearchSuggestion suggestion) {
+    final label = _normalizeSearchText(suggestion.label);
+    final subtitle = _normalizeSearchText(suggestion.subtitle);
+    final searchTerms = _normalizeSearchText(suggestion.searchTerms);
+    if (label.startsWith(query)) return 0;
+    if (searchTerms.split(' ').contains(query)) return 5;
+    if (label.split(' ').any((word) => word.startsWith(query))) return 10;
+    final labelIndex = label.indexOf(query);
+    if (labelIndex >= 0) return 20 + labelIndex;
+    if (subtitle.contains(query)) return 40 + subtitle.indexOf(query);
+    if (searchTerms.contains(query)) return 45 + searchTerms.indexOf(query);
+
+    // A small typo still gets a useful nearest suggestion. Even for a very
+    // different input, candidates are ranked instead of showing an empty box.
+    final words = <String>[...label.split(' '), ...subtitle.split(' ')];
+    final distance = words
+        .map((word) => _editDistance(query, word))
+        .fold<int>(999, (best, value) => value < best ? value : best);
+    return 100 + distance;
+  }
+
+  int _editDistance(String left, String right) {
+    var previous = List<int>.generate(right.length + 1, (index) => index);
+    for (var i = 1; i <= left.length; i++) {
+      final current = <int>[i];
+      for (var j = 1; j <= right.length; j++) {
+        final replace = previous[j - 1] +
+            (left.codeUnitAt(i - 1) == right.codeUnitAt(j - 1) ? 0 : 1);
+        final insert = current[j - 1] + 1;
+        final delete = previous[j] + 1;
+        current.add([replace, insert, delete].reduce((a, b) => a < b ? a : b));
+      }
+      previous = current;
+    }
+    return previous.last;
   }
 
   Future<void> _openFilter() async {
@@ -128,6 +237,7 @@ class _SearchPageState extends State<SearchPage> {
   void _clearAllFilters() {
     _debounce?.cancel();
     _searchController.clear();
+    _suggestions = const <_SearchSuggestion>[];
     _applyFilters(const SearchFilters());
   }
 
@@ -199,6 +309,7 @@ class _SearchPageState extends State<SearchPage> {
               onClear: () {
                 _debounce?.cancel();
                 _searchController.clear();
+                _suggestions = const <_SearchSuggestion>[];
                 _applyFilters(
                   _filters.copyWith(keyword: ''),
                   syncTextField: false,
@@ -206,6 +317,11 @@ class _SearchPageState extends State<SearchPage> {
               },
               activeFilterCount: activeCount,
             ),
+            if (_suggestions.isNotEmpty)
+              _SuggestionPanel(
+                suggestions: _suggestions,
+                onSelected: _selectSuggestion,
+              ),
             _QuickChips(filters: _filters, onChanged: _applyFilters),
             Expanded(
               child: FutureBuilder<List<HotelSummary>>(
@@ -340,10 +456,20 @@ class _SearchPageState extends State<SearchPage> {
         summary.hotel.address,
         summary.city.name,
         summary.city.region,
+        _citySearchAliases(summary.hotel.cityId),
       ].join(' '),
     );
     return text.contains(keyword);
   }
+
+  String _citySearchAliases(String cityId) => switch (cityId) {
+    'ho-chi-minh' => 'HCM TPHCM TP HCM Sai Gon Saigon Ho Chi Minh',
+    'ha-noi' => 'HN Ha Noi Hanoi',
+    'da-nang' => 'DN Da Nang Danang',
+    'da-lat' => 'DL Da Lat Dalat Lam Dong',
+    'vung-tau' => 'VT Vung Tau',
+    _ => '',
+  };
 
   String _normalizeSearchText(String value) {
     const accented =
@@ -355,6 +481,83 @@ class _SearchPageState extends State<SearchPage> {
       result = result.replaceAll(accented[i], plain[i]);
     }
     return result.replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+}
+
+class _SearchSuggestion {
+  _SearchSuggestion({
+    required this.keyword,
+    required this.label,
+    required this.subtitle,
+    this.searchTerms = '',
+    required this.icon,
+  });
+
+  final String keyword;
+  final String label;
+  final String subtitle;
+  final String searchTerms;
+  final IconData icon;
+  int score = 0;
+}
+
+class _SuggestionPanel extends StatelessWidget {
+  const _SuggestionPanel({
+    required this.suggestions,
+    required this.onSelected,
+  });
+
+  final List<_SearchSuggestion> suggestions;
+  final ValueChanged<_SearchSuggestion> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = HomeResponsive.of(context);
+    return Container(
+      margin: EdgeInsets.fromLTRB(
+        52 * responsive.widthScale,
+        0,
+        responsive.horizontalPadding,
+        8 * responsive.scale,
+      ),
+      constraints: BoxConstraints(maxHeight: 220 * responsive.scale),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.neutral200),
+        boxShadow: AppTheme.softShadow,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ListView.separated(
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        itemCount: suggestions.length,
+        separatorBuilder: (_, _) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final suggestion = suggestions[index];
+          return ListTile(
+            dense: true,
+            leading: Icon(suggestion.icon, color: AppTheme.primary),
+            title: Text(
+              suggestion.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppTheme.ink,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            subtitle: Text(
+              suggestion.subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: const Icon(Icons.north_west_rounded, size: 18),
+            onTap: () => onSelected(suggestion),
+          );
+        },
+      ),
+    );
   }
 }
 

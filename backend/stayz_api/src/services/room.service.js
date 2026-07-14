@@ -75,8 +75,9 @@ const attachAvailability = async (rooms, filters = {}) => {
 };
 
 const roomService = {
-  getAll: async (filters = {}) => {
-    const rooms = await roomModel.find({ is_active: { $ne: false } }).populate("property_id");
+  getAll: async (filters = {}, { includeInactive = false } = {}) => {
+    const query = includeInactive ? {} : { is_active: { $ne: false } };
+    const rooms = await roomModel.find(query).populate("property_id");
     return await attachAvailability(rooms, filters);
   },
 
@@ -171,6 +172,13 @@ const roomService = {
 
   delete: async (id) => {
     const room = await roomModel.findById(id);
+    if (!room) throw new BadRequestException("Khong tim thay phong");
+    if (await bookingModel.exists({ room_id: id })) {
+      room.is_active = false;
+      await room.save();
+      await clearRoomCache(room.property_id);
+      return room;
+    }
     if (room?.main_image_public_id) {
       await cloudinary.uploader.destroy(room.main_image_public_id);
     }

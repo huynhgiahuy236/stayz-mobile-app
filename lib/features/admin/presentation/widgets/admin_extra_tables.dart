@@ -10,12 +10,10 @@ import 'package:url_launcher/url_launcher.dart';
 class AdminReviewsTable extends StatelessWidget {
   const AdminReviewsTable({
     required this.reviews,
-    required this.onEdit,
     required this.onDelete,
     super.key,
   });
   final List<AdminReview> reviews;
-  final ValueChanged<AdminReview> onEdit;
   final ValueChanged<AdminReview> onDelete;
 
   @override
@@ -78,11 +76,6 @@ class AdminReviewsTable extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _SmallAction(
-                        icon: Icons.edit_outlined,
-                        tooltip: tr('Chỉnh sửa', 'Edit'),
-                        onTap: () => onEdit(review),
-                      ),
                       _SmallAction(
                         icon: Icons.delete_outline_rounded,
                         tooltip: tr('Xoá', 'Delete'),

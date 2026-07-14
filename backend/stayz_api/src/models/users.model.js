@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user"],
       default: "user",
     },
+    is_active: { type: Boolean, default: true, index: true },
     reset_password: {
       code_hash: {
         type: String,

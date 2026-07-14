@@ -3,6 +3,7 @@ import 'package:capstone_mobile/features/admin/data/admin_repository.dart';
 import 'package:capstone_mobile/features/admin/models/admin_models.dart';
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -15,7 +16,10 @@ class AdminCheckInPage extends StatefulWidget {
 class _AdminCheckInPageState extends State<AdminCheckInPage> {
   final _repository = const AdminRepository();
   final _codeController = TextEditingController();
-  final _scannerController = MobileScannerController();
+  final _scannerController = MobileScannerController(
+    autoStart: false,
+    formats: const [BarcodeFormat.qrCode],
+  );
   AdminBooking? _booking;
   bool _scanning = false;
   bool _busy = false;
@@ -52,6 +56,34 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
     }
   }
 
+  Future<void> _toggleScanner() async {
+    if (_busy) return;
+    if (_scanning) {
+      await _scannerController.stop();
+      if (mounted) setState(() => _scanning = false);
+      return;
+    }
+
+    setState(() {
+      _scanning = true;
+      _error = null;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _scannerController.start();
+      } on MobileScannerException catch (error) {
+        if (!mounted) return;
+        setState(() {
+          _scanning = false;
+          _error = tr(
+            'Không mở được camera quét QR: ${error.errorCode.name}.',
+            'Could not start the QR camera: ${error.errorCode.name}.',
+          );
+        });
+      }
+    });
+  }
+
   Future<void> _confirmCheckIn() async {
     final booking = _booking;
     if (booking == null || _busy) return;
@@ -83,7 +115,13 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
-        title: Text(tr('Xác nhận nhận phòng', 'Confirm check-in')),
+        title: Row(
+          children: [
+            const StayZBrandLogo(size: 34, borderRadius: 10),
+            const SizedBox(width: 10),
+            Expanded(child: Text(tr('Xác nhận nhận phòng', 'Confirm check-in'))),
+          ],
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -104,9 +142,7 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: _busy
-                ? null
-                : () => setState(() => _scanning = !_scanning),
+            onPressed: _busy ? null : _toggleScanner,
             icon: const Icon(Icons.qr_code_scanner_rounded),
             label: Text(
               _scanning
@@ -122,6 +158,19 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
                 height: 300,
                 child: MobileScanner(
                   controller: _scannerController,
+                  errorBuilder: (context, error) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        tr(
+                          'Không thể dùng camera. Hãy cấp quyền Camera hoặc nhập mã thủ công.',
+                          'Camera unavailable. Allow camera access or enter the code manually.',
+                        ),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppTheme.danger),
+                      ),
+                    ),
+                  ),
                   onDetect: (capture) {
                     if (capture.barcodes.isEmpty) return;
                     final value = capture.barcodes.first.rawValue;

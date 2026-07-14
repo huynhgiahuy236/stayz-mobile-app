@@ -262,7 +262,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                     label: tr('Liên hệ hỗ trợ', 'Contact support'),
                     onTap: () => Navigator.of(
                       context,
-                    ).pushNamed(AppRoutes.hotelInfoForm),
+                    ).pushNamed(AppRoutes.helpCenter),
                   ),
                 ],
               ),

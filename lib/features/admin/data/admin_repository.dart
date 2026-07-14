@@ -10,34 +10,40 @@ class AdminRepository {
 
   Future<AdminSnapshot> loadDashboard() async {
     final token = await _requireToken();
-    final result = await Future.wait<dynamic>([
-      _list('/users/getAll'),
-      _list('/properties/getAll'),
-      _list('/room/getAll'),
-      _list('/booking/getAll', bearerToken: token),
-      _list('/review/getAll', bearerToken: token),
-      _list('/payment/getAll', bearerToken: token),
+    final result = await Future.wait<_AdminListResult>([
+      _safeList('users', '/users/getAll', bearerToken: token),
+      _safeList('hotels', '/properties/admin/getAll', bearerToken: token),
+      _safeList('rooms', '/room/admin/getAll', bearerToken: token),
+      _safeList('bookings', '/booking/getAll', bearerToken: token),
+      _safeList('reviews', '/review/getAll', bearerToken: token),
+      _safeList('payments', '/payment/getAll', bearerToken: token),
     ]);
 
+    final errors = <String, String>{
+      for (final part in result)
+        if (part.error != null) part.key: part.error!,
+    };
+
     return AdminSnapshot(
-      users: (result[0] as List<Map<String, dynamic>>)
+      users: result[0].data
           .map(AdminUser.fromJson)
           .toList(growable: false),
-      hotels: (result[1] as List<Map<String, dynamic>>)
+      hotels: result[1].data
           .map((row) => AdminHotel.fromJson(row, api))
           .toList(growable: false),
-      rooms: (result[2] as List<Map<String, dynamic>>)
+      rooms: result[2].data
           .map((row) => AdminRoom.fromJson(row, api))
           .toList(growable: false),
-      bookings: (result[3] as List<Map<String, dynamic>>)
+      bookings: result[3].data
           .map(AdminBooking.fromJson)
           .toList(growable: false),
-      reviews: (result[4] as List<Map<String, dynamic>>)
+      reviews: result[4].data
           .map(AdminReview.fromJson)
           .toList(growable: false),
-      payments: (result[5] as List<Map<String, dynamic>>)
+      payments: result[5].data
           .map(AdminPayment.fromJson)
           .toList(growable: false),
+      loadErrors: errors,
     );
   }
 
@@ -65,7 +71,12 @@ class AdminRepository {
 
   Future<AdminBooking> findBookingByCheckInCode(String value) async {
     final token = await _requireToken();
-    final code = value.trim().toUpperCase().replaceFirst('STAYZ-CHECKIN:', '');
+    final normalized = value.trim().toUpperCase();
+    final qrMatch = RegExp(
+      r'STAYZ-CHECKIN\s*:\s*([A-F0-9]{8})',
+    ).firstMatch(normalized);
+    final standaloneMatch = RegExp(r'\b[A-F0-9]{8}\b').firstMatch(normalized);
+    final code = qrMatch?.group(1) ?? standaloneMatch?.group(0) ?? normalized;
     final data = await api.get(
       '/booking/admin/check-in/${Uri.encodeComponent(code)}',
       bearerToken: token,
@@ -292,4 +303,33 @@ class AdminRepository {
     }
     return const <Map<String, dynamic>>[];
   }
+
+  Future<_AdminListResult> _safeList(
+    String key,
+    String path, {
+    String? bearerToken,
+  }) async {
+    try {
+      return _AdminListResult(
+        key: key,
+        data: await _list(path, bearerToken: bearerToken),
+      );
+    } on ApiException catch (error) {
+      return _AdminListResult(key: key, data: const [], error: error.message);
+    } catch (_) {
+      return _AdminListResult(
+        key: key,
+        data: const [],
+        error: tr('Không thể tải dữ liệu.', 'Unable to load data.'),
+      );
+    }
+  }
+}
+
+class _AdminListResult {
+  const _AdminListResult({required this.key, required this.data, this.error});
+
+  final String key;
+  final List<Map<String, dynamic>> data;
+  final String? error;
 }

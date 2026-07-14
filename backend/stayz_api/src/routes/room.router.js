@@ -7,6 +7,7 @@ const adminOnly = require("../middlewares/admin.middleware");
 const roomRouter = express.Router();
 
 roomRouter.get("/getAll", roomController.getAll);
+roomRouter.get("/admin/getAll", protect, adminOnly, roomController.getAllForAdmin);
 roomRouter.get("/:propertyId", roomController.getByPropertyId);
 roomRouter.post("/create", protect, adminOnly, roomController.create);
 roomRouter.put("/update/:id", protect, adminOnly, roomController.update);

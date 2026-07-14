@@ -1,5 +1,6 @@
 const { responseSuccess } = require("../helpers/response.helper");
 const userService = require("../services/users.service");
+const adminAuditModel = require("../models/adminAudit.model");
 
 const buildRefreshCookieOptions = () => ({
   httpOnly: true,
@@ -10,6 +11,20 @@ const buildRefreshCookieOptions = () => ({
 });
 
 const userController = {
+  getAdminAudit: async (req, res, next) => {
+    try {
+      const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+      const data = await adminAuditModel
+        .find()
+        .populate("admin_id", "full_name email role")
+        .sort({ createdAt: -1 })
+        .limit(limit);
+      const response = responseSuccess(data, "Lay nhat ky quan tri thanh cong", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   getAll: async (req, res, next) => {
     try {
       const data = await userService.getAll();
@@ -22,6 +37,9 @@ const userController = {
   getById: async (req, res, next) => {
     const id = req.params.id;
     try {
+      if (req.user?.userId !== id && req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Ban khong co quyen xem tai khoan nay" });
+      }
       const data = await userService.getById(id);
       const response = responseSuccess(data, "Lay user theo id thanh cong", 200);
       res.status(response.code).json(response);
@@ -32,7 +50,7 @@ const userController = {
   delete: async (req, res, next) => {
     const id = req.params.id;
     try {
-      const data = await userService.delete(id);
+      const data = await userService.delete(id, req.user);
       const response = responseSuccess(data, "Xoa user thanh cong", 200);
       res.status(response.code).json(response);
     } catch (err) {
@@ -46,7 +64,12 @@ const userController = {
       if (req.user?.userId !== id && req.user?.role !== "admin") {
         return res.status(403).json({ message: "Ban khong co quyen cap nhat tai khoan nay" });
       }
-      const data = await userService.update(id, payload);
+      const safePayload = req.user?.role === "admin"
+        ? payload
+        : Object.fromEntries(
+            Object.entries(payload).filter(([key]) => key !== "role"),
+          );
+      const data = await userService.update(id, safePayload, req.user);
       const response = responseSuccess(data, "Cap nhat user thanh cong", 200);
       res.status(response.code).json(response);
     } catch (err) {

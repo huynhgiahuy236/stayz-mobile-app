@@ -31,4 +31,10 @@ class NotificationsController extends ChangeNotifier {
     _unread = 0;
     notifyListeners();
   }
+
+  void readOne() {
+    if (_unread == 0) return;
+    _unread--;
+    notifyListeners();
+  }
 }

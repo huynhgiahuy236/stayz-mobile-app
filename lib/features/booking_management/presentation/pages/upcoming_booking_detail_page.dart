@@ -87,6 +87,10 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
         summary.room.imageUrls.firstOrNull ??
         summary.hotel.imageUrls.firstOrNull;
     final status = bookingStatusPresentation(summary.booking);
+    final checkedIn = summary.booking.attendanceStatus == 'checked_in';
+    final bookingMethod = summary.booking.isDepositPayment
+        ? tr('Đặt cọc 30%', '30% deposit')
+        : tr('Thanh toán toàn bộ', 'Full payment');
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
@@ -260,6 +264,13 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                     title: tr('Chi tiết thanh toán', 'Payment details'),
                     children: [
                       DetailLine(
+                        label: tr(
+                          'Hình thức đặt phòng',
+                          'Booking payment option',
+                        ),
+                        value: bookingMethod,
+                      ),
+                      DetailLine(
                         label: tr('Giá mỗi đêm', 'Price per night'),
                         value: StayzFormatters.fullVnd(
                           summary.room.pricePerNight,
@@ -275,7 +286,9 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                       ),
                       const Divider(),
                       DetailLine(
-                        label: summary.booking.hasRecordedPayment
+                        label: checkedIn
+                            ? tr('Đã thanh toán', 'Amount paid')
+                            : summary.booking.hasRecordedPayment
                             ? summary.booking.isDepositPayment
                                   ? tr('Đã đặt cọc (30%)', 'Deposit paid (30%)')
                                   : tr('Đã thanh toán toàn bộ', 'Paid in full')
@@ -286,18 +299,22 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                               )
                             : tr('Cần thanh toán', 'Amount due'),
                         value: StayzFormatters.fullVnd(
-                          summary.booking.hasRecordedPayment
+                          checkedIn
+                              ? summary.booking.totalAmount
+                              : summary.booking.hasRecordedPayment
                               ? summary.booking.recordedAmount
                               : summary.booking.amountDueNow,
                         ),
                         total: true,
-                        valueColor:
-                            !summary.booking.hasRecordedPayment ||
-                                summary.booking.isDepositPayment
+                        valueColor: checkedIn
+                            ? const Color(0xFF159A61)
+                            : !summary.booking.hasRecordedPayment ||
+                                  summary.booking.isDepositPayment
                             ? AppTheme.depositText
                             : const Color(0xFF159A61),
                       ),
-                      if (summary.booking.isDepositPayment &&
+                      if (!checkedIn &&
+                          summary.booking.isDepositPayment &&
                           summary.booking.hasRecordedPayment)
                         DetailLine(
                           label: tr(
@@ -311,7 +328,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                         ),
                       const Divider(),
                       Text(
-                        '${tr('Trạng thái thanh toán', 'Payment status')}: ${status.label}',
+                        '${tr('Trạng thái thanh toán', 'Payment status')}: ${checkedIn ? tr('Đã thanh toán', 'Paid') : status.label}',
                         style: TextStyle(
                           color: status.foreground,
                           fontSize: 14 * responsive.scale,
@@ -339,49 +356,56 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                     ),
                   ],
                   SizedBox(height: 34 * responsive.scale),
-                  SizedBox(
-                    height: 58 * responsive.scale,
-                    child: OutlinedButton(
-                      onPressed: summary.booking.isPaymentPending
-                          ? (_openingPayment || summary.booking.isPaymentExpired
-                                ? null
-                                : () => _continuePayment(args!))
-                          : () async {
-                              final confirmed = await confirmCancelBooking(
-                                context,
-                                summary,
-                              );
-                              if (!confirmed || !context.mounted) return;
-                              await Navigator.of(context).pushNamed(
-                                AppRoutes.cancelBookingResult,
-                                arguments: args,
-                              );
-                            },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppTheme.accentDark),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  if (!checkedIn)
+                    SizedBox(
+                      height: 58 * responsive.scale,
+                      child: OutlinedButton(
+                        onPressed: summary.booking.isPaymentPending
+                            ? (_openingPayment ||
+                                      summary.booking.isPaymentExpired
+                                  ? null
+                                  : () => _continuePayment(args!))
+                            : () async {
+                                final confirmed = await confirmCancelBooking(
+                                  context,
+                                  summary,
+                                );
+                                if (!confirmed || !context.mounted) return;
+                                await Navigator.of(context).pushNamed(
+                                  AppRoutes.cancelBookingResult,
+                                  arguments: args,
+                                );
+                              },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppTheme.accentDark),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        summary.booking.isPaymentPending
-                            ? (_openingPayment
-                                  ? tr(
-                                      'Đang mở thanh toán...',
-                                      'Opening payment...',
-                                    )
-                                  : tr('Thanh toán ngay', 'Pay now'))
-                            : tr('Hủy đặt phòng', 'Cancel booking'),
-                        style: TextStyle(
-                          color: AppTheme.accentDark,
-                          fontSize: 18 * responsive.scale,
+                        child: Text(
+                          summary.booking.isPaymentPending
+                              ? (_openingPayment
+                                    ? tr(
+                                        'Đang mở thanh toán...',
+                                        'Opening payment...',
+                                      )
+                                    : tr('Thanh toán ngay', 'Pay now'))
+                              : tr('Hủy đặt phòng', 'Cancel booking'),
+                          style: TextStyle(
+                            color: AppTheme.accentDark,
+                            fontSize: 18 * responsive.scale,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   SizedBox(height: 18 * responsive.scale),
                   Text(
-                    summary.booking.isPaymentExpired
+                    checkedIn
+                        ? tr(
+                            'Bạn đã nhận phòng và hoàn tất thanh toán.',
+                            'You have checked in and completed payment.',
+                          )
+                        : summary.booking.isPaymentExpired
                         ? tr(
                             'Mã thanh toán đã hết hạn. Hãy vào Đặt phòng của tôi để tạo lại.',
                             'The payment code has expired. Open My bookings to create a new one.',

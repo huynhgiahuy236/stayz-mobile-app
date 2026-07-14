@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
@@ -5,9 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// The vi tri: xem truoc dang ban do, bam vao mo Google Maps.
 ///
-/// Flutter mobile khong nhung duoc iframe nhu web, nen day la anh xem truoc +
-/// mo GG Maps khi bam. Neu khach san khong co toa do, mac dinh ve dia chi
-/// IUH - 12 Nguyen Van Bao, Go Vap, TP.HCM.
+/// Flutter mobile khong nhung duoc iframe nhu web, nen day la anh ve tinh xem
+/// truoc + mo Google Maps khi bam.
 class LocationMapCard extends StatelessWidget {
   const LocationMapCard({
     required this.latitude,
@@ -20,19 +21,47 @@ class LocationMapCard extends StatelessWidget {
   final double longitude;
   final String address;
 
-  // Toa do mac dinh: Dai hoc Cong nghiep TP.HCM (IUH).
-  static const double _iuhLat = 10.822154;
-  static const double _iuhLng = 106.686409;
-  static const String _iuhAddress = '12 Nguyễn Văn Bảo, Phường 1, Gò Vấp, TP.HCM';
+  bool get _hasCoords => latitude != 0 && longitude != 0;
+  String get _label => address.trim().isNotEmpty
+      ? address.trim()
+      : tr('Chưa có địa chỉ xác thực', 'Verified address unavailable');
 
-  bool get _hasCoords => latitude != 0 || longitude != 0;
-
-  double get _lat => _hasCoords ? latitude : _iuhLat;
-  double get _lng => _hasCoords ? longitude : _iuhLng;
-  String get _label => address.isNotEmpty ? address : _iuhAddress;
+  String? get _satelliteTileUrl {
+    if (!_hasCoords) return null;
+    const zoom = 16;
+    final scale = 1 << zoom;
+    final x = ((longitude + 180) / 360 * scale).floor();
+    final latitudeRadians = latitude * math.pi / 180;
+    final y = ((1 -
+                math.log(
+                      math.tan(latitudeRadians) +
+                          (1 / math.cos(latitudeRadians)),
+                    ) /
+                    math.pi) /
+            2 *
+            scale)
+        .floor();
+    return 'https://server.arcgisonline.com/ArcGIS/rest/services/'
+        'World_Imagery/MapServer/tile/$zoom/$y/$x';
+  }
 
   Future<void> _openMaps(BuildContext context) async {
-    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$_lat,$_lng');
+    final query = _hasCoords ? '$latitude,$longitude' : address.trim();
+    if (query.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            tr('Khách sạn chưa có vị trí xác thực.', 'The hotel has no verified location yet.'),
+          ),
+        ),
+      );
+      return;
+    }
+    final uri = Uri.https(
+      'www.google.com',
+      '/maps/search/',
+      {'api': '1', 'query': query},
+    );
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,14 +86,21 @@ class LocationMapCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             child: Column(
               children: [
-                // Xem truoc dang ban do (ve gia lap luoi duong pho + ghim).
                 SizedBox(
                   height: 150,
                   width: double.infinity,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      CustomPaint(painter: _MapPreviewPainter()),
+                      if (_satelliteTileUrl case final tileUrl?)
+                        Image.network(
+                          tileUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const _MapUnavailable(),
+                        )
+                      else
+                        const _MapUnavailable(),
+                      Container(color: Colors.black.withValues(alpha: 0.08)),
                       const Center(
                         child: Icon(Icons.location_on_rounded, color: AppTheme.danger, size: 40),
                       ),
@@ -119,36 +155,16 @@ class LocationMapCard extends StatelessWidget {
   }
 }
 
-/// Ve luoi duong pho gia lap cho o xem truoc ban do.
-class _MapPreviewPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xFFE8EEF3));
-
-    final road = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 6;
-    final thin = Paint()
-      ..color = const Color(0xFFD3DEE7)
-      ..strokeWidth = 2;
-
-    // Duong doc/ngang thua
-    for (var x = size.width * 0.2; x < size.width; x += size.width * 0.28) {
-      canvas.drawLine(Offset(x, 0), Offset(x + 12, size.height), road);
-    }
-    for (var y = size.height * 0.25; y < size.height; y += size.height * 0.3) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y - 6), road);
-    }
-    for (var x = size.width * 0.1; x < size.width; x += size.width * 0.14) {
-      canvas.drawLine(Offset(x, 0), Offset(x + 6, size.height), thin);
-    }
-
-    // Vai o "cong vien" xanh
-    final park = Paint()..color = const Color(0xFFCDE6CF);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(size.width * 0.55, size.height * 0.12, 60, 40), const Radius.circular(6)), park);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(size.width * 0.1, size.height * 0.6, 48, 34), const Radius.circular(6)), park);
-  }
+class _MapUnavailable extends StatelessWidget {
+  const _MapUnavailable();
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget build(BuildContext context) => Container(
+    color: const Color(0xFFE8EEF3),
+    alignment: Alignment.center,
+    child: Text(
+      tr('Chưa có ảnh vệ tinh', 'Satellite preview unavailable'),
+      style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w700),
+    ),
+  );
 }

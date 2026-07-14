@@ -2,8 +2,18 @@ const {
   ConflictException,
   BadRequestException,
   UnauthorizedError,
+  ForbiddenException,
 } = require("../helpers/error.helper");
 const usersModel = require("../models/users.model");
+const bookingModel = require("../models/bookings.model");
+const paymentsModel = require("../models/payments.model");
+const reviewsModel = require("../models/reviews.model");
+const favoritesModel = require("../models/favorites.model");
+const propertiesModel = require("../models/properties.model");
+const notificationsModel = require("../models/notifications.model");
+const conversationsModel = require("../models/conversations.model");
+const messagesModel = require("../models/messages.model");
+const adminAuditModel = require("../models/adminAudit.model");
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
@@ -20,6 +30,22 @@ const RESET_CODE_EXPIRES_IN_MINUTES = 10;
 const EMAIL_PATTERN = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)+$/;
 const NAME_PATTERN = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ỹĐđ]+(?:[ '\-][A-Za-zÀ-ÖØ-öø-ÿĀ-ỹĐđ]+)*$/;
 const VIETNAMESE_PHONE_PATTERN = /^(?:03[2-9]|05[25689]|07[06-9]|08[1-9]|09[0-9])\d{7}$/;
+
+const assertStrongPassword = (password) => {
+  const value = String(password || "");
+  if (
+    value.length < 8 ||
+    !/[a-z]/.test(value) ||
+    !/[A-Z]/.test(value) ||
+    !/\d/.test(value) ||
+    !/[^A-Za-z0-9\s]/.test(value) ||
+    /\s/.test(value)
+  ) {
+    throw new BadRequestException(
+      "Mat khau phai co it nhat 8 ky tu, gom chu hoa, chu thuong, so va ky tu dac biet",
+    );
+  }
+};
 
 const buildResetCodeHash = (email, code) => {
   return crypto
@@ -135,14 +161,33 @@ const userService = {
     }
     return sanitizeUser(user);
   },
-  delete: async (id) => {
-    const result = await usersModel.findByIdAndDelete(id);
-    if (!result) {
-      throw new BadRequestException("Khong tim thay user nay de xoa");
+  delete: async (id, actor) => {
+    const target = await usersModel.findById(id);
+    if (!target) throw new BadRequestException("Khong tim thay user nay de xoa");
+    if (actor?.role !== "admin") throw new ForbiddenException("Chi admin duoc xoa tai khoan");
+    if (target.role === "admin" && target.is_active !== false && (await usersModel.countDocuments({ role: "admin", is_active: { $ne: false } })) <= 1) {
+      throw new BadRequestException("Khong the xoa quan tri vien cuoi cung");
     }
-    return result;
+    const [bookings, payments, reviews, favorites, properties, notifications, conversations, messages, audits] = await Promise.all([
+      bookingModel.countDocuments({ $or: [{ user_id: id }, { attendance_confirmed_by: id }] }),
+      paymentsModel.countDocuments({ user_id: id }),
+      reviewsModel.countDocuments({ user_id: id }),
+      favoritesModel.countDocuments({ user_id: id }),
+      propertiesModel.countDocuments({ user_id: id }),
+      notificationsModel.countDocuments({ user_id: id }),
+      conversationsModel.countDocuments({ participants: id }),
+      messagesModel.countDocuments({ sender_id: id }),
+      adminAuditModel.countDocuments({ admin_id: id }),
+    ]);
+    if (bookings || payments || reviews || favorites || properties || notifications || conversations || messages || audits) {
+      target.is_active = false;
+      await target.save();
+      return sanitizeUser(target);
+    }
+    const result = await usersModel.findByIdAndDelete(id);
+    return sanitizeUser(result);
   },
-  update: async (id, data) => {
+  update: async (id, data, actor) => {
     const user = await usersModel.findById(id);
     if (!user) {
       throw new BadRequestException("Khong tim thay user nay");
@@ -150,30 +195,71 @@ const userService = {
 
     const {
       full_name,
-      phone_number = "",
-      gender = "",
-      home_address = "",
+      email,
+      phone_number,
+      gender,
+      home_address,
       date_of_birth,
       role,
       password,
       avatar,
+      is_active,
     } = data;
 
-    user.full_name = full_name ?? user.full_name;
-    user.phone_number = phone_number;
-    user.gender = gender;
-    user.home_address = home_address;
-    if (date_of_birth !== undefined) {
-      user.date_of_birth = date_of_birth ? new Date(date_of_birth) : null;
+    if (full_name !== undefined) {
+      const normalizedName = String(full_name).trim();
+      if (!normalizedName) throw new BadRequestException("Ho ten khong duoc de trong");
+      user.full_name = normalizedName;
     }
-    if (role && ["admin", "user"].includes(role)) {
+    if (email != null) {
+      const normalizedEmail = String(email).trim().toLowerCase();
+      if (!EMAIL_PATTERN.test(normalizedEmail)) {
+        throw new BadRequestException("Email khong hop le");
+      }
+      const duplicate = await usersModel.findOne({
+        email: normalizedEmail,
+        _id: { $ne: id },
+      });
+      if (duplicate) throw new ConflictException("Email da ton tai");
+      user.email = normalizedEmail;
+    }
+    if (phone_number !== undefined) {
+      const normalizedPhone = String(phone_number).trim();
+      if (normalizedPhone && !VIETNAMESE_PHONE_PATTERN.test(normalizedPhone)) {
+        throw new BadRequestException("So dien thoai Viet Nam khong hop le");
+      }
+      const duplicatePhone = normalizedPhone
+        ? await usersModel.findOne({ phone_number: normalizedPhone, _id: { $ne: id } })
+        : null;
+      if (duplicatePhone) throw new ConflictException("So dien thoai da ton tai");
+      user.phone_number = normalizedPhone;
+    }
+    if (gender !== undefined) user.gender = gender;
+    if (home_address !== undefined) user.home_address = String(home_address).trim();
+    if (date_of_birth !== undefined) {
+      const parsedDate = date_of_birth ? new Date(date_of_birth) : null;
+      if (parsedDate && Number.isNaN(parsedDate.getTime())) {
+        throw new BadRequestException("Ngay sinh khong hop le");
+      }
+      user.date_of_birth = parsedDate;
+    }
+    if (role !== undefined) {
+      if (actor?.role !== "admin") throw new ForbiddenException("Chi admin duoc thay doi vai tro");
+      if (!["admin", "user"].includes(role)) throw new BadRequestException("Vai tro khong hop le");
+      if (user.role === "admin" && user.is_active !== false && role !== "admin" && (await usersModel.countDocuments({ role: "admin", is_active: { $ne: false } })) <= 1) {
+        throw new BadRequestException("Khong the ha quyen quan tri vien cuoi cung");
+      }
       user.role = role;
     }
-    if (password?.trim()) {
-      if (String(password).trim().length < 6) {
-        throw new BadRequestException("Mat khau phai co it nhat 6 ky tu");
+    if (is_active !== undefined) {
+      if (actor?.role !== "admin") throw new ForbiddenException("Chi admin duoc thay doi trang thai tai khoan");
+      if (user.role === "admin" && is_active === false && (await usersModel.countDocuments({ role: "admin", is_active: { $ne: false } })) <= 1) {
+        throw new BadRequestException("Khong the vo hieu hoa quan tri vien cuoi cung");
       }
-
+      user.is_active = is_active !== false;
+    }
+    if (password?.trim()) {
+      assertStrongPassword(String(password).trim());
       user.password = await bcrypt.hash(String(password).trim(), 10);
     }
     if (avatar) {
@@ -192,28 +278,43 @@ const userService = {
       gender = "",
       home_address = "",
       role = "user",
+      date_of_birth,
+      is_active = true,
     } = data;
 
     if (!email?.trim() || !password || !full_name?.trim()) {
       throw new BadRequestException("Thiếu email, mật khẩu hoặc họ tên");
     }
-    if (String(password).trim().length < 6) {
-      throw new BadRequestException("Mật khẩu phải có ít nhất 6 ký tự");
-    }
-
     const normalizedEmail = email.trim().toLowerCase();
+    if (!EMAIL_PATTERN.test(normalizedEmail)) {
+      throw new BadRequestException("Email khong hop le");
+    }
+    assertStrongPassword(String(password).trim());
+    const normalizedPhone = String(phone_number).trim();
+    if (normalizedPhone && !VIETNAMESE_PHONE_PATTERN.test(normalizedPhone)) {
+      throw new BadRequestException("So dien thoai Viet Nam khong hop le");
+    }
     if (await usersModel.findOne({ email: normalizedEmail })) {
       throw new ConflictException("Email đã tồn tại");
+    }
+    if (normalizedPhone && await usersModel.findOne({ phone_number: normalizedPhone })) {
+      throw new ConflictException("So dien thoai da ton tai");
+    }
+    const parsedBirthDate = date_of_birth ? new Date(date_of_birth) : null;
+    if (parsedBirthDate && Number.isNaN(parsedBirthDate.getTime())) {
+      throw new BadRequestException("Ngay sinh khong hop le");
     }
 
     const user = await usersModel.create({
       email: normalizedEmail,
       password: await bcrypt.hash(String(password).trim(), 10),
       full_name: full_name.trim(),
-      phone_number,
+      phone_number: normalizedPhone,
       gender,
       home_address,
       role: role === "admin" ? "admin" : "user",
+      date_of_birth: parsedBirthDate,
+      is_active: is_active !== false,
     });
     return sanitizeUser(user);
   },
@@ -273,7 +374,8 @@ const userService = {
       throw new ConflictException("So dien thoai da ton tai");
     }
     const hasedPassword = await bcrypt.hash(password, 10);
-    const safeRole = ["admin", "user"].includes(role) ? role : "user";
+    // Public registration can never choose an administrative role.
+    const safeRole = "user";
 
     let user;
     try {
@@ -344,7 +446,7 @@ const userService = {
       throw new BadRequestException("Thieu email hoac mat khau");
     }
     const user = await usersModel.findOne({ email: email });
-    if (!user) {
+    if (!user || user.is_active === false) {
       throw new UnauthorizedError("Email khong ton tai");
     }
     const isMatch = await bcrypt.compare(password, user.password);
@@ -373,7 +475,7 @@ const userService = {
     }
 
     const user = await usersModel.findById(decoded.userId);
-    if (!user) {
+    if (!user || user.is_active === false) {
       throw new UnauthorizedError("Nguoi dung khong ton tai");
     }
 
@@ -497,10 +599,10 @@ const userService = {
       throw new BadRequestException("Khong tim thay user");
     }
 
-    user.avatar = { url: `/images/${file.filename}`, public_id: "" };
+    user.avatar = { url: `/images/avatars/${file.filename}`, public_id: "" };
     await user.save();
 
-    return { filename: file.filename, imgUrl: `/images/${file.filename}` };
+    return { filename: file.filename, imgUrl: `/images/avatars/${file.filename}` };
   },
 
   uploadCloud: async (req) => {

@@ -369,10 +369,20 @@ class ApiStayzRepository implements StayzRepository {
         summary.hotel.address,
         summary.city.name,
         summary.city.region,
+        _citySearchAliases(summary.hotel.cityId),
       ].join(' '),
     );
     return haystack.contains(keyword);
   }
+
+  String _citySearchAliases(String cityId) => switch (cityId) {
+    'ho-chi-minh' => 'HCM TPHCM TP HCM Sai Gon Saigon Ho Chi Minh',
+    'ha-noi' => 'HN Ha Noi Hanoi',
+    'da-nang' => 'DN Da Nang Danang',
+    'da-lat' => 'DL Da Lat Dalat Lam Dong',
+    'vung-tau' => 'VT Vung Tau',
+    _ => '',
+  };
 
   String _searchText(String value) {
     const accented =
@@ -657,6 +667,11 @@ class ApiStayzRepository implements StayzRepository {
     await api.patch('/notifications/read-all', bearerToken: token);
   }
 
+  Future<void> markNotificationRead(String id) async {
+    final token = await _requireToken();
+    await api.patch('/notifications/$id/read', bearerToken: token);
+  }
+
   Future<void> deleteNotification(String id) async {
     final token = await _requireToken();
     await api.delete('/notifications/$id', bearerToken: token);
@@ -926,13 +941,16 @@ class ApiStayzRepository implements StayzRepository {
 
   City _cityFromSlug(String slug) {
     final names = {
-      'da-lat': ('Da Lat', 'Lam Dong'),
-      'da-nang': ('Da Nang', 'Central Vietnam'),
-      'ha-noi': ('Ha Noi', 'Northern Vietnam'),
-      'ho-chi-minh': ('Ho Chi Minh City', 'Southern Vietnam'),
-      'vung-tau': ('Vung Tau', 'Ba Ria - Vung Tau'),
+      'da-lat': (tr('Đà Lạt', 'Da Lat'), tr('Lâm Đồng', 'Lam Dong')),
+      'da-nang': (tr('Đà Nẵng', 'Da Nang'), tr('Miền Trung', 'Central Vietnam')),
+      'ha-noi': (tr('Hà Nội', 'Ha Noi'), tr('Miền Bắc', 'Northern Vietnam')),
+      'ho-chi-minh': (
+        tr('TP Hồ Chí Minh', 'Ho Chi Minh City'),
+        tr('Miền Nam', 'Southern Vietnam'),
+      ),
+      'vung-tau': (tr('Vũng Tàu', 'Vung Tau'), tr('TP Hồ Chí Minh', 'Ho Chi Minh City')),
     };
-    final value = names[slug] ?? (slug, 'Viet Nam');
+    final value = names[slug] ?? (slug, tr('Việt Nam', 'Viet Nam'));
     return City(
       id: slug,
       name: value.$1,

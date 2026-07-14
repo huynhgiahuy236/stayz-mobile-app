@@ -165,15 +165,6 @@ class _AiChatSheetState extends State<_AiChatSheet> {
   bool _navigating = false;
 
   @override
-  void initState() {
-    super.initState();
-    final initialMessage = widget.aiContext.initialMessage;
-    if (initialMessage != null && initialMessage.isNotEmpty) {
-      _controller.text = initialMessage;
-    }
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -378,7 +369,12 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
                       decoration: InputDecoration(
-                    hintText: tr('Hỏi về khách sạn, phòng, giá...', 'Ask about hotels, rooms, prices...'),
+                        hintText:
+                            widget.aiContext.initialMessage ??
+                            tr(
+                              'Hỏi về khách sạn, phòng, giá...',
+                              'Ask about hotels, rooms, prices...',
+                            ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(

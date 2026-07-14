@@ -13,6 +13,7 @@ propertiesRouter.delete("/search/history", protect, propertiesController.clearSe
 propertiesRouter.get("/featured", propertiesController.getFeatured);
 
 propertiesRouter.get("/getAll", propertiesController.getAll);
+propertiesRouter.get("/admin/getAll", protect, adminOnly, propertiesController.getAllForAdmin);
 propertiesRouter.get("/:city", propertiesController.getCity);
 propertiesRouter.get("/:city/:slug", propertiesController.getBySlug);
 propertiesRouter.post("/create", protect, adminOnly, propertiesController.create);

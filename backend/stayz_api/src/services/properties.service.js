@@ -2,6 +2,8 @@ const { BadRequestException } = require("../helpers/error.helper");
 const propertiesModel = require("../models/properties.model");
 const roomsModel = require("../models/rooms.model");
 const reviewsModel = require("../models/reviews.model");
+const bookingModel = require("../models/bookings.model");
+const favoritesModel = require("../models/favorites.model");
 const cloudinary = require("../config/cloudinary.config");
 const streamifier = require("streamifier");
 const redis = require("../config/redis.config");
@@ -15,6 +17,14 @@ const cacheKeyFor = (suffix) => `properties:${CACHE_VERSION}:${suffix}`;
 
 // Cac thanh pho co bien: dung cho bo loc "Bien" o man hinh chinh.
 const BEACH_CITIES = ["da-nang", "vung-tau"];
+
+const coordinate = (value, min, max, label) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < min || parsed > max) {
+    throw new BadRequestException(`${label} khong hop le`);
+  }
+  return parsed;
+};
 
 // Moi thay doi property deu lam sai lech ca danh sach lan bo loc,
 // nen xoa het cac cache lien quan thay vi doan xem cai nao con dung.
@@ -92,13 +102,19 @@ const enrichProperties = async (properties) => {
 };
 
 const propertiesService = {
-  getAll: async () => {
+  getAll: async ({ includeInactive = false } = {}) => {
+    if (includeInactive) {
+      const rows = await propertiesModel
+        .find()
+        .populate("user_id", "full_name email avatar role");
+      return await enrichProperties(rows);
+    }
     const cacheKey = cacheKeyFor("all");
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
     const rows = await propertiesModel
-      .find()
+      .find({ is_active: { $ne: false } })
       .populate("user_id", "full_name email avatar role");
     const data = await enrichProperties(rows);
 
@@ -111,7 +127,7 @@ const propertiesService = {
     if (cached) return JSON.parse(cached);
 
     const rows = await propertiesModel
-      .find({ is_preferred: true })
+      .find({ is_preferred: true, is_active: { $ne: false } })
       .populate("user_id", "full_name email avatar role");
     const data = await enrichProperties(rows);
 
@@ -124,7 +140,7 @@ const propertiesService = {
     if (cached) return JSON.parse(cached);
 
     const data = await propertiesModel
-      .findOne({ slug: slug, city: city })
+      .findOne({ slug: slug, city: city, is_active: { $ne: false } })
       .populate("user_id", "full_name email avatar role");
 
     if (data) await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(data));
@@ -136,7 +152,7 @@ const propertiesService = {
     if (cached) return JSON.parse(cached);
 
     const data = await propertiesModel
-      .find({ city: city })
+      .find({ city: city, is_active: { $ne: false } })
       .populate("user_id", "full_name email avatar role");
 
     await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(data));
@@ -180,7 +196,7 @@ const propertiesService = {
     };
 
     // Phần lọc chạy được ở tầng Mongo.
-    const query = {};
+    const query = { is_active: { $ne: false } };
     if (city) query.city = city;
     else if (asBool(nearBeach)) query.city = { $in: BEACH_CITIES };
 
@@ -268,6 +284,7 @@ const propertiesService = {
       is_preferred,
       max_stay_days,
       user_id,
+      is_active,
     } = data;
     const properties = await propertiesModel.create({
       title: title,
@@ -275,8 +292,8 @@ const propertiesService = {
       address: address,
       city: city,
       country: country,
-      latitude: Number(latitude) || 0,
-      longitude: Number(longitude) || 0,
+      latitude: coordinate(latitude ?? 0, -90, 90, "Vi do"),
+      longitude: coordinate(longitude ?? 0, -180, 180, "Kinh do"),
       type: type,
       base_price: base_price,
       description: description,
@@ -288,6 +305,7 @@ const propertiesService = {
       is_preferred: is_preferred,
       max_stay_days: max_stay_days,
       user_id: user_id,
+      is_active: is_active !== false,
     });
 
     // Xóa cache sau khi tạo mới
@@ -309,9 +327,16 @@ const propertiesService = {
       description: data.description ?? existing.description,
     };
 
+    const nextData = { ...data };
+    if (data.latitude !== undefined) {
+      nextData.latitude = coordinate(data.latitude, -90, 90, "Vi do");
+    }
+    if (data.longitude !== undefined) {
+      nextData.longitude = coordinate(data.longitude, -180, 180, "Kinh do");
+    }
     const properties = await propertiesModel.findByIdAndUpdate(
       id,
-      { ...data, search_index: buildSearchIndex(merged) },
+      { ...nextData, search_index: buildSearchIndex(merged) },
       { new: true, runValidators: true },
     );
 
@@ -323,6 +348,19 @@ const propertiesService = {
   },
   delete: async (id) => {
     const properties = await propertiesModel.findById(id);
+    if (!properties) throw new BadRequestException("Khong tim thay property");
+    const [rooms, bookings, reviews, favorites] = await Promise.all([
+      roomsModel.countDocuments({ property_id: id }),
+      bookingModel.countDocuments({ property_id: id }),
+      reviewsModel.countDocuments({ property_id: id }),
+      favoritesModel.countDocuments({ property_id: id }),
+    ]);
+    if (rooms || bookings || reviews || favorites) {
+      properties.is_active = false;
+      await properties.save();
+      await invalidateCache(properties);
+      return properties;
+    }
     if (properties?.main_image_public_id) {
       await cloudinary.uploader.destroy(properties.main_image_public_id);
     }

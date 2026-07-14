@@ -3,6 +3,7 @@ const { BadRequestException, ServiceUnavailableException } = require("../helpers
 const bookingModel = require("../models/bookings.model");
 const paymentsModel = require("../models/payments.model");
 const redis = require("../config/redis.config");
+const mongoose = require("mongoose");
 const { default: Redlock } = require("redlock");
 const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL } = require("../constants/app.constant");
 const { calculatePaymentQuote, normalizePaymentPlan } = require("../utils/paymentQuote.util");
@@ -19,6 +20,34 @@ const assertProductionPaymentUrls = () => {
     throw new ServiceUnavailableException(
       "He thong thanh toan chua duoc cau hinh day du",
     );
+  }
+};
+
+const commitPaymentCancellation = async (paymentId) => {
+  const session = await mongoose.startSession();
+  let updatedPayment;
+  try {
+    await session.withTransaction(async () => {
+      updatedPayment = await paymentsModel.findOneAndUpdate(
+        { _id: paymentId, status: "pending" },
+        { status: "CANCELLED" },
+        { new: true, session },
+      );
+      if (!updatedPayment) {
+        throw new BadRequestException("Giao dich khong con o trang thai cho thanh toan");
+      }
+      const booking = await bookingModel.findByIdAndUpdate(
+        updatedPayment.booking_id,
+        { payment_status: "failed", payment_expires_at: null },
+        { new: true, session },
+      );
+      if (!booking) {
+        throw new BadRequestException("Booking cua giao dich khong con ton tai");
+      }
+    });
+    return updatedPayment;
+  } finally {
+    await session.endSession();
   }
 };
 
@@ -235,19 +264,22 @@ const paymentService = {
     if (payment.status !== "pending") {
       throw new BadRequestException(`Không thể hủy giao dịch ở trạng thái: ${payment.status}`);
     }
+    if (!(await bookingModel.exists({ _id: bookingId, user_id: userId }))) {
+      throw new BadRequestException("Booking cua giao dich khong con ton tai");
+    }
 
     if (payOS) {
       try {
         await payOS.paymentRequests.cancel(payment.payment_link_id, "Cancelled by StayZ user");
       } catch (err) {
         console.warn("PayOS SDK cancel link error:", err.message);
+        throw new BadRequestException(
+          "Khong the huy giao dich tren PayOS; trang thai chua duoc thay doi",
+        );
       }
     }
 
-    payment.status = "CANCELLED";
-    await payment.save();
-
-    return payment;
+    return await commitPaymentCancellation(payment._id);
   },
   cancelPaymentByAdmin: async (paymentId) => {
     const payment = await paymentsModel.findById(paymentId);
@@ -255,16 +287,20 @@ const paymentService = {
     if (payment.status !== "pending") {
       throw new BadRequestException("Chỉ có thể huỷ giao dịch đang chờ thanh toán");
     }
+    if (!(await bookingModel.exists({ _id: payment.booking_id }))) {
+      throw new BadRequestException("Booking cua giao dich khong con ton tai");
+    }
     if (payOS && payment.payment_link_id) {
       try {
         await payOS.paymentRequests.cancel(payment.payment_link_id, "Cancelled by StayZ admin");
       } catch (err) {
         console.warn("PayOS SDK cancel link error:", err.message);
+        throw new BadRequestException(
+          "Khong the huy giao dich tren PayOS; trang thai chua duoc thay doi",
+        );
       }
     }
-    payment.status = "CANCELLED";
-    await payment.save();
-    return payment;
+    return await commitPaymentCancellation(payment._id);
   },
 };
 

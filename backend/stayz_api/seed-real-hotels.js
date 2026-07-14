@@ -50,11 +50,11 @@ const hotels = [
   {
     title: "Hotel de l'Opera Hanoi - MGallery",
     slug: "hotel-de-lopera-hanoi-mgallery",
-    address: "29 Tràng Tiền, Hoàn Kiếm, Hà Nội",
+    address: "29 Tràng Tiền, phường Hoàn Kiếm, Hà Nội",
     city: "ha-noi",
     type: "hotel",
-    latitude: 21.0246,
-    longitude: 105.8574,
+    latitude: 21.0244864,
+    longitude: 105.8555817,
     base_price: 3200000,
     description:
       "Khách sạn boutique phong cách nhà hát Pháp, nằm giữa Hồ Gươm và Nhà hát Lớn Hà Nội.",
@@ -69,11 +69,11 @@ const hotels = [
   {
     title: "Sofitel Legend Metropole Hanoi",
     slug: "sofitel-legend-metropole-hanoi",
-    address: "15 Ngô Quyền, Hoàn Kiếm, Hà Nội",
+    address: "15 Ngô Quyền, phường Hoàn Kiếm, Hà Nội",
     city: "ha-noi",
     type: "hotel",
-    latitude: 21.0247,
-    longitude: 105.8564,
+    latitude: 21.0254884,
+    longitude: 105.8559784,
     base_price: 6500000,
     description:
       "Khách sạn di sản mở cửa từ năm 1901, kiến trúc thuộc địa Pháp, sân trong và hầm trú ẩn lịch sử.",
@@ -110,8 +110,8 @@ const hotels = [
     address: "Bãi Bắc, bán đảo Sơn Trà, Đà Nẵng",
     city: "da-nang",
     type: "resort",
-    latitude: 16.1236,
-    longitude: 108.3068,
+    latitude: 16.1210876,
+    longitude: 108.3061358,
     base_price: 7800000,
     description:
       "Khu nghỉ dưỡng biển cao cấp trên bán đảo Sơn Trà, bãi tắm riêng và tầm nhìn hướng vịnh.",
@@ -127,11 +127,11 @@ const hotels = [
   {
     title: "Furama Resort Danang",
     slug: "furama-resort-danang",
-    address: "103 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng",
+    address: "103-105 Võ Nguyên Giáp, phường Ngũ Hành Sơn, Đà Nẵng",
     city: "da-nang",
     type: "resort",
-    latitude: 16.0398,
-    longitude: 108.2494,
+    latitude: 16.0397489,
+    longitude: 108.2513386,
     base_price: 3400000,
     description:
       "Khu nghỉ dưỡng 5 sao đầu tiên của Đà Nẵng, hồ bơi nước mặn hướng ra bãi biển Mỹ Khê.",
@@ -147,11 +147,11 @@ const hotels = [
   {
     title: "Novotel Danang Premier Han River",
     slug: "novotel-danang-premier-han-river",
-    address: "36 Bạch Đằng, Hải Châu, Đà Nẵng",
+    address: "36-38 Bạch Đằng, phường Hải Châu, Đà Nẵng",
     city: "da-nang",
     type: "business",
-    latitude: 16.0715,
-    longitude: 108.2244,
+    latitude: 16.077222,
+    longitude: 108.223333,
     base_price: 2100000,
     description:
       "Khách sạn cao tầng bên sông Hàn, gần cầu Rồng, phù hợp công tác và nghỉ ngắn ngày.",
@@ -166,11 +166,11 @@ const hotels = [
   {
     title: "Four Points by Sheraton Danang",
     slug: "four-points-by-sheraton-danang",
-    address: "118-120 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng",
+    address: "118-120 Võ Nguyên Giáp, phường An Hải, Đà Nẵng",
     city: "da-nang",
     type: "business",
-    latitude: 16.0546,
-    longitude: 108.2467,
+    latitude: 16.0778724,
+    longitude: 108.2451737,
     base_price: 1600000,
     description:
       "Khách sạn hiện đại đối diện biển Mỹ Khê, hồ bơi trên tầng cao và quầy bar ngắm hoàng hôn.",
@@ -185,11 +185,11 @@ const hotels = [
   {
     title: "Grand Tourane Hotel Da Nang",
     slug: "grand-tourane-hotel-danang",
-    address: "252 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng",
+    address: "252 Võ Nguyên Giáp, phường An Hải, Đà Nẵng",
     city: "da-nang",
     type: "hotel",
-    latitude: 16.0605,
-    longitude: 108.2455,
+    latitude: 16.0617123,
+    longitude: 108.2459032,
     base_price: 1450000,
     description:
       "Khách sạn 4 sao sát bãi biển, hồ bơi vô cực tầng thượng và đưa đón sân bay theo yêu cầu.",
@@ -204,11 +204,11 @@ const hotels = [
   {
     title: "Mường Thanh Luxury Đà Nẵng",
     slug: "muong-thanh-luxury-danang",
-    address: "270 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng",
+    address: "270 Võ Nguyên Giáp, phường Ngũ Hành Sơn, Đà Nẵng",
     city: "da-nang",
     type: "hotel",
-    latitude: 16.0498,
-    longitude: 108.2481,
+    latitude: 16.0534593,
+    longitude: 108.2481303,
     base_price: 1250000,
     description:
       "Khách sạn hướng biển với phòng gia đình rộng, hồ bơi ngoài trời và bữa sáng buffet.",
@@ -221,13 +221,13 @@ const hotels = [
     ],
   },
   {
-    title: "Risemount Apartment Đà Nẵng",
+    title: "Risemount Premier Resort Đà Nẵng",
     slug: "risemount-apartment-danang",
-    address: "120 Nguyễn Văn Linh, Hải Châu, Đà Nẵng",
+    address: "120 Nguyễn Văn Thoại, phường Ngũ Hành Sơn, Đà Nẵng",
     city: "da-nang",
     type: "apartment",
-    latitude: 16.0602,
-    longitude: 108.2167,
+    latitude: 16.0545878,
+    longitude: 108.242076,
     base_price: 1700000,
     description:
       "Căn hộ dịch vụ có bếp riêng, máy giặt và phòng khách tách biệt, phù hợp lưu trú dài ngày.",
@@ -280,11 +280,11 @@ const hotels = [
   {
     title: "Hotel Colline Dalat",
     slug: "hotel-colline-dalat",
-    address: "10 Phan Bội Châu, Phường 1, Đà Lạt",
+    address: "10 Phan Bội Châu, phường Xuân Hương - Đà Lạt, Lâm Đồng",
     city: "da-lat",
     type: "hotel",
-    latitude: 11.9442,
-    longitude: 108.4382,
+    latitude: 11.94397,
+    longitude: 108.438126,
     base_price: 1800000,
     description:
       "Khách sạn trung tâm Đà Lạt, cạnh chợ đêm và hồ Xuân Hương, có phòng gia đình rộng rãi.",
@@ -299,11 +299,11 @@ const hotels = [
   {
     title: "The Reverie Saigon",
     slug: "the-reverie-saigon",
-    address: "22-36 Nguyễn Huệ, Quận 1, TP Hồ Chí Minh",
+    address: "22-36 Nguyễn Huệ và 57-69F Đồng Khởi, phường Sài Gòn, TP Hồ Chí Minh",
     city: "ho-chi-minh",
     type: "hotel",
-    latitude: 10.7733,
-    longitude: 106.7041,
+    latitude: 10.7738731,
+    longitude: 106.704865,
     base_price: 5600000,
     description:
       "Khách sạn sang trọng trên phố đi bộ Nguyễn Huệ, nội thất Ý và tầm nhìn sông Sài Gòn.",
@@ -318,11 +318,11 @@ const hotels = [
   {
     title: "Park Hyatt Saigon",
     slug: "park-hyatt-saigon",
-    address: "2 Công trường Lam Sơn, Quận 1, TP Hồ Chí Minh",
+    address: "2 Công trường Lam Sơn, phường Sài Gòn, TP Hồ Chí Minh",
     city: "ho-chi-minh",
     type: "hotel",
-    latitude: 10.7773,
-    longitude: 106.7031,
+    latitude: 10.7775344,
+    longitude: 106.7034163,
     base_price: 5200000,
     description:
       "Khách sạn kiến trúc thuộc địa đối diện Nhà hát Thành phố, hồ bơi ngoài trời giữa trung tâm Quận 1.",
@@ -337,11 +337,11 @@ const hotels = [
   {
     title: "Hotel Continental Saigon",
     slug: "hotel-continental-saigon",
-    address: "132-134 Đồng Khởi, Quận 1, TP Hồ Chí Minh",
+    address: "132-134 Đồng Khởi, phường Sài Gòn, TP Hồ Chí Minh",
     city: "ho-chi-minh",
     type: "hotel",
-    latitude: 10.7769,
-    longitude: 106.7028,
+    latitude: 10.7770648,
+    longitude: 106.7028032,
     base_price: 1900000,
     description:
       "Khách sạn lâu đời nhất Sài Gòn, khai trương năm 1880, sân trong rợp bóng cây sứ.",
@@ -356,11 +356,11 @@ const hotels = [
   {
     title: "Pullman Vũng Tàu",
     slug: "pullman-vung-tau",
-    address: "15 Thi Sách, phường Thắng Tam, Vũng Tàu",
+    address: "15 Thi Sách, phường Vũng Tàu, TP Hồ Chí Minh",
     city: "vung-tau",
     type: "hotel",
-    latitude: 10.3506,
-    longitude: 107.0965,
+    latitude: 10.34872,
+    longitude: 107.094469,
     base_price: 2400000,
     description:
       "Khách sạn hiện đại gần Bãi Sau Vũng Tàu, phù hợp kỳ nghỉ biển và chuyến đi gia đình.",
@@ -375,7 +375,7 @@ const hotels = [
   {
     title: "The Imperial Hotel Vũng Tàu",
     slug: "the-imperial-hotel-vung-tau",
-    address: "159 Thùy Vân, Bãi Sau, Vũng Tàu",
+    address: "159 Thùy Vân, phường Vũng Tàu, TP Hồ Chí Minh",
     city: "vung-tau",
     type: "hotel",
     latitude: 10.3384,

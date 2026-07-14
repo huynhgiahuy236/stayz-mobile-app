@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/features/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:capstone_mobile/features/admin/presentation/pages/admin_check_in_page.dart';
+import 'package:capstone_mobile/features/admin/presentation/pages/admin_access_gate.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/auth_gate_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/login_page.dart';
@@ -28,7 +29,6 @@ import 'package:capstone_mobile/features/home/presentation/pages/home_page.dart'
 import 'package:capstone_mobile/features/home/presentation/pages/notifications_page.dart';
 import 'package:capstone_mobile/features/onboarding/presentation/pages/onboarding_intro_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/edit_profile_page.dart';
-import 'package:capstone_mobile/features/profile/presentation/pages/help_center_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/payment_methods_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/profile_form_page.dart';
 import 'package:capstone_mobile/features/profile/presentation/pages/settings_page.dart';
@@ -82,8 +82,8 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> get routes => {
     authGate: (_) => const AuthGatePage(),
-    admin: (_) => const AdminDashboardPage(),
-    adminCheckIn: (_) => const AdminCheckInPage(),
+    admin: (_) => AdminAccessGate(builder: (_) => const AdminDashboardPage()),
+    adminCheckIn: (_) => AdminAccessGate(builder: (_) => const AdminCheckInPage()),
     home: (_) => const HomePage(),
     onboarding: (_) => const OnboardingIntroPage(),
     login: (_) => const LoginPage(),
@@ -98,6 +98,8 @@ class AppRoutes {
     offlineError: (_) => const OfflineErrorPage(),
     hotelDetail: (_) => const RoomDetailPage(),
     roomDetail: (_) => const RoomTypeDetailPage(),
+    // Route cu duoc giu lam alias de cac deep link/build cu van hoat dong,
+    // nhung toan bo ung dung chi dung mot giao dien Trung tam ho tro.
     hotelInfoForm: (_) => const HotelInfoFormPage(),
     roomSelection: (_) => const RealRoomSelectionPage(),
     bookingSchedule: (_) => const BookingSchedulePage(),
@@ -117,7 +119,7 @@ class AppRoutes {
     settings: (_) => const SettingsPage(),
     profileForm: (_) => const ProfileFormPage(),
     editProfile: (_) => const EditProfilePage(),
-    helpCenter: (_) => const HelpCenterPage(),
+    helpCenter: (_) => const HotelInfoFormPage(),
     paymentMethods: (_) => const PaymentMethodsPage(),
   };
 }

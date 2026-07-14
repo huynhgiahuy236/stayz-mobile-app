@@ -9,6 +9,7 @@ import 'package:capstone_mobile/features/admin/presentation/widgets/admin_extra_
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_brand_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -129,6 +130,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Future<void> _changeBookingStatus(AdminBooking booking, String status) async {
     if (booking.status == status) return;
+    if (status == 'cancelled') {
+      final confirmed = await _confirmDelete(
+        tr(
+          'Xác nhận huỷ booking #${booking.id}? Thao tác này có thể phát sinh hoàn tiền thủ công.',
+          'Cancel booking #${booking.id}? This action may require a manual refund.',
+        ),
+      );
+      if (confirmed != true) return;
+    }
     await _runAction(
       'booking:${booking.id}',
       () => _repository.updateBookingStatus(booking.id, status),
@@ -298,22 +308,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
-  Future<void> _editReview(AdminReview review) async {
-    final result = await showDialog<(int, String)>(
-      context: context,
-      builder: (_) => ReviewFormDialog(review: review),
-    );
-    if (result == null) return;
-    await _runAction(
-      'review:${review.id}',
-      () => _repository.updateReview(
-        review,
-        rating: result.$1,
-        comment: result.$2,
-      ),
-    );
-  }
-
   Future<void> _deleteReview(AdminReview review) async {
     if (await _confirmDelete(
           tr(
@@ -377,6 +371,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Future<void> _updateUserRole(AdminUser user, String role) async {
     if (user.role == role) return;
+    final confirmed = await _confirmDelete(
+      tr(
+        'Đổi vai trò của ${user.fullName} thành ${role == 'admin' ? 'quản trị viên' : 'người dùng'}?',
+        'Change ${user.fullName} to ${role == 'admin' ? 'administrator' : 'user'}?',
+      ),
+    );
+    if (confirmed != true) return;
     await _runAction(
       'user:${user.id}',
       () => _repository.updateUserRole(user.id, role),
@@ -421,7 +422,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             if (snapshot.connectionState == ConnectionState.waiting &&
                 _snapshot == null) {
               return const Center(
-                child: CircularProgressIndicator(color: AppTheme.primary),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    StayZBrandLogo(size: 72, borderRadius: 20),
+                    SizedBox(height: 18),
+                    CircularProgressIndicator(color: AppTheme.primary),
+                  ],
+                ),
               );
             }
             if (snapshot.hasError && _snapshot == null) {
@@ -480,7 +488,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               wide ? 24 : 16,
                               32,
                             ),
-                            child: _content(data),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (_visibleLoadErrors(data).isNotEmpty) ...[
+                                  _AdminLoadErrorCard(
+                                    messages: _visibleLoadErrors(data),
+                                    onRetry: _refresh,
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                                _content(data),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -493,6 +513,23 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         ),
       ),
     );
+  }
+
+  List<String> _visibleLoadErrors(AdminSnapshot data) {
+    if (_section == AdminSection.overview) {
+      return data.loadErrors.values.toList(growable: false);
+    }
+    final key = switch (_section) {
+      AdminSection.overview => '',
+      AdminSection.bookings => 'bookings',
+      AdminSection.hotels => 'hotels',
+      AdminSection.rooms => 'rooms',
+      AdminSection.users => 'users',
+      AdminSection.reviews => 'reviews',
+      AdminSection.payments => 'payments',
+    };
+    final message = data.loadErrors[key];
+    return message == null ? const [] : [message];
   }
 
   Widget _content(AdminSnapshot data) {
@@ -555,7 +592,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case AdminSection.reviews:
         return AdminReviewsTable(
           reviews: data.filterReviews(_query),
-          onEdit: _editReview,
           onDelete: _deleteReview,
         );
       case AdminSection.payments:
@@ -565,4 +601,35 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         );
     }
   }
+}
+
+class _AdminLoadErrorCard extends StatelessWidget {
+  const _AdminLoadErrorCard({required this.messages, required this.onRetry});
+
+  final List<String> messages;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    color: AppTheme.danger.withValues(alpha: 0.08),
+    child: Padding(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_rounded, color: AppTheme.danger),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              messages.toSet().join('\n'),
+              style: const TextStyle(color: AppTheme.danger),
+            ),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(tr('Thử lại', 'Retry')),
+          ),
+        ],
+      ),
+    ),
+  );
 }

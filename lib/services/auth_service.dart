@@ -66,6 +66,22 @@ class AuthService {
     return role == null || role.isEmpty ? null : role;
   }
 
+  Future<bool> hasCurrentAdminAccess() async {
+    final id = await userId();
+    final token = await accessToken();
+    if (id == null || token == null) return false;
+    try {
+      final data = await api.get('/users/getById/$id', bearerToken: token);
+      if (data is! Map<String, dynamic>) return false;
+      final role = (data['role']?.toString() ?? 'user').toLowerCase();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userRoleKey, role);
+      return role == 'admin';
+    } on ApiException {
+      return false;
+    }
+  }
+
   /// Doc truong `exp` cua JWT ma khong can thu vien ngoai.
   /// Token khong doc duoc thi coi nhu con han: de server quyet dinh.
   bool _isExpired(String token) {

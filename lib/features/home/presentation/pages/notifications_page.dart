@@ -145,7 +145,46 @@ class _NotificationsPageState extends State<NotificationsPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _openNotification(StayzNotification item) {
+  Future<void> _openNotification(StayzNotification item) async {
+    if (item.status == 'unread') {
+      final index = _items.indexWhere((notification) => notification.id == item.id);
+      if (index >= 0) {
+        final updated = StayzNotification(
+          id: item.id,
+          userId: item.userId,
+          type: item.type,
+          title: item.title,
+          message: item.message,
+          referenceType: item.referenceType,
+          referenceId: item.referenceId,
+          status: 'read',
+          createdAt: item.createdAt,
+        );
+        setState(() {
+          final next = List<StayzNotification>.of(_items);
+          next[index] = updated;
+          _items = next;
+        });
+        NotificationsController.instance.readOne();
+        try {
+          await ApiStayzRepository.instance.markNotificationRead(item.id);
+        } on ApiException catch (error) {
+          if (!mounted) return;
+          setState(() {
+            final next = List<StayzNotification>.of(_items);
+            final currentIndex = next.indexWhere(
+              (notification) => notification.id == item.id,
+            );
+            if (currentIndex >= 0) next[currentIndex] = item;
+            _items = next;
+          });
+          NotificationsController.instance.refresh();
+          _showSnack(error.message);
+          return;
+        }
+      }
+    }
+    if (!mounted) return;
     if (item.referenceType == 'Booking' && item.referenceId.isNotEmpty) {
       Navigator.of(
         context,

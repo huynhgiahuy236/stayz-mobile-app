@@ -12,6 +12,15 @@ const propertiesController = {
       next(err);
     }
   },
+  getAllForAdmin: async (_req, res, next) => {
+    try {
+      const data = await propertiesService.getAll({ includeInactive: true });
+      const response = responseSuccess(data, "Lay tat ca properties cho admin thanh cong", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   getFeatured: async (req, res, next) => {
     try {
       const data = await propertiesService.getFeatured();

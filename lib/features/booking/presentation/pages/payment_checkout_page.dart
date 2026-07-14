@@ -21,19 +21,11 @@ class PaymentCheckoutPage extends StatefulWidget {
 class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   bool _creatingPayment = false;
   PaymentPlan _selectedPlan = PaymentPlan.deposit30;
-  PayOSPaymentArgs? _activePayment;
 
   /// Tao booking pending va payment mot lan, sau do tai su dung cung ma QR
   /// neu nguoi dung quay lai checkout trong cung phien man hinh.
   Future<void> _goToPayment(BookingDraft draft) async {
     if (_creatingPayment) return;
-    final activePayment = _activePayment;
-    if (activePayment != null) {
-      await Navigator.of(
-        context,
-      ).pushNamed(AppRoutes.paymentQr, arguments: activePayment);
-      return;
-    }
     final quote = PaymentPolicy.quote(_selectedPlan, draft.totalAmount);
     final payableDraft = draft.copyWith(
       paymentMethod: 'PayOS',
@@ -60,6 +52,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
         throw const ApiException('Could not create booking.');
       final payment = await ApiStayzRepository.instance.createPayOSPayment(
         summary.booking.id,
+        paymentPlan: PaymentPolicy.slug(_selectedPlan),
       );
       final paymentArgs = PayOSPaymentArgs.fromPayment(
         summary: summary,
@@ -69,7 +62,6 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
       if (paymentArgs.qrCode.isEmpty && paymentArgs.qrImageUrl.isEmpty)
         throw const ApiException('VietQR is missing.');
       if (!mounted) return;
-      _activePayment = paymentArgs;
       await Navigator.of(
         context,
       ).pushNamed(AppRoutes.paymentQr, arguments: paymentArgs);

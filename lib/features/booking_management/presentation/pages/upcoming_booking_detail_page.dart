@@ -2,9 +2,11 @@ import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/cancel_booking_dialog.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
+import 'package:capstone_mobile/features/booking/presentation/widgets/payment_plan_picker.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/payment_policy.dart';
 import 'package:capstone_mobile/shared/data/booking_status_presentation.dart';
 import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -26,16 +28,24 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
 
   Future<void> _continuePayment(BookingSummaryArgs args) async {
     if (_openingPayment) return;
+    final summary = args.summary;
+    final plan = await showPaymentPlanPicker(
+      context,
+      totalAmount: summary.booking.totalAmount,
+      currentPlan: summary.booking.paymentPlan,
+    );
+    if (plan == null || !mounted) return;
+    final quote = PaymentPolicy.quote(plan, summary.booking.totalAmount);
     setState(() => _openingPayment = true);
     try {
-      final summary = args.summary;
       final payment = await ApiStayzRepository.instance.createPayOSPayment(
         summary.booking.id,
+        paymentPlan: PaymentPolicy.slug(plan),
       );
       final paymentArgs = PayOSPaymentArgs.fromPayment(
         summary: summary,
         payment: payment,
-        fallbackAmount: summary.booking.totalAmount,
+        fallbackAmount: quote.payNow,
       );
       if (!mounted) return;
       await Navigator.of(

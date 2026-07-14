@@ -11,6 +11,9 @@ const handleError = (err, req, res, next) => {
     err.code = 403; //token hết hạn
   }
   if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      err.message = "Anh qua lon. Vui long chon anh nho hon 2 MB";
+    }
     err.code = 400;
   }
   if (err.code === 11000) {

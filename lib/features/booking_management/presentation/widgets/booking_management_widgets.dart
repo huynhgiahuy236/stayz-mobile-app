@@ -311,6 +311,7 @@ class UpcomingBookingCard extends StatelessWidget {
     this.paymentAmount,
     this.remainingAmount,
     this.deposit30 = false,
+    this.canCancel = true,
     super.key,
   });
 
@@ -336,6 +337,7 @@ class UpcomingBookingCard extends StatelessWidget {
   final String? paymentAmount;
   final String? remainingAmount;
   final bool deposit30;
+  final bool canCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -547,22 +549,27 @@ class UpcomingBookingCard extends StatelessWidget {
                         onTap: onDetail,
                       ),
                     ),
-                    SizedBox(width: 10 * responsive.widthScale),
-                    Expanded(
-                      child: pendingPayment && onPay != null
-                          ? BookingSoftButton(
-                              label: paymentBusy
-                                  ? tr('Đang tạo mã...', 'Creating...')
-                                  : paymentExpired
-                                  ? tr('Tạo mã mới', 'New payment code')
-                                  : tr('Thanh toán', 'Pay now'),
-                              onTap: paymentBusy ? null : onPay!,
-                            )
-                          : BookingOutlineButton(
-                              label: secondaryLabel ?? tr('Hủy lịch', 'Cancel'),
-                              onTap: onCancel,
-                            ),
-                    ),
+                    if (pendingPayment && onPay != null) ...[
+                      SizedBox(width: 10 * responsive.widthScale),
+                      Expanded(
+                        child: BookingSoftButton(
+                          label: paymentBusy
+                              ? tr('Đang tạo mã...', 'Creating...')
+                              : paymentExpired
+                              ? tr('Tạo mã mới', 'New payment code')
+                              : tr('Thanh toán', 'Pay now'),
+                          onTap: paymentBusy ? null : onPay!,
+                        ),
+                      ),
+                    ] else if (canCancel) ...[
+                      SizedBox(width: 10 * responsive.widthScale),
+                      Expanded(
+                        child: BookingOutlineButton(
+                          label: secondaryLabel ?? tr('Hủy lịch', 'Cancel'),
+                          onTap: onCancel,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

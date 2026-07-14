@@ -1,9 +1,11 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/cancel_booking_dialog.dart';
+import 'package:capstone_mobile/features/booking/presentation/widgets/payment_plan_picker.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
+import 'package:capstone_mobile/shared/data/payment_policy.dart';
 import 'package:capstone_mobile/shared/data/booking_status_presentation.dart';
 import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
@@ -33,15 +35,23 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
   Future<void> _continuePayment(BookingSummary summary) async {
     final bookingId = summary.booking.id;
     if (_openingPayments.contains(bookingId)) return;
+    final plan = await showPaymentPlanPicker(
+      context,
+      totalAmount: summary.booking.totalAmount,
+      currentPlan: summary.booking.paymentPlan,
+    );
+    if (plan == null || !mounted) return;
+    final quote = PaymentPolicy.quote(plan, summary.booking.totalAmount);
     setState(() => _openingPayments.add(bookingId));
     try {
       final payment = await ApiStayzRepository.instance.createPayOSPayment(
         bookingId,
+        paymentPlan: PaymentPolicy.slug(plan),
       );
       final paymentArgs = PayOSPaymentArgs.fromPayment(
         summary: summary,
         payment: payment,
-        fallbackAmount: summary.booking.totalAmount,
+        fallbackAmount: quote.payNow,
       );
       if (paymentArgs.qrCode.isEmpty && paymentArgs.qrImageUrl.isEmpty) {
         throw const ApiException('VietQR is missing.');
@@ -133,6 +143,8 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
 
                       final summary = bookings[index - 1];
                       final status = bookingStatusPresentation(summary.booking);
+                      final checkedIn =
+                          summary.booking.attendanceStatus == 'checked_in';
                       return UpcomingBookingCard(
                         name: summary.hotel.name,
                         location:
@@ -156,19 +168,27 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                         statusColor: status.background,
                         statusTextColor: status.foreground,
                         statusDescription: status.description,
-                        paymentAmount: summary.booking.hasRecordedPayment
+                        paymentAmount: checkedIn
+                            ? StayzFormatters.compactVnd(
+                                summary.booking.totalAmount,
+                              )
+                            : summary.booking.hasRecordedPayment
                             ? StayzFormatters.compactVnd(
                                 summary.booking.recordedAmount,
                               )
                             : null,
                         remainingAmount:
-                            summary.booking.isDepositPayment &&
+                            !checkedIn &&
+                                summary.booking.isDepositPayment &&
                                 summary.booking.hasRecordedPayment
                             ? StayzFormatters.compactVnd(
                                 summary.booking.remainingAmount,
                               )
                             : null,
-                        deposit30: summary.booking.paymentPlan == 'deposit_30',
+                        deposit30:
+                            !checkedIn &&
+                            summary.booking.paymentPlan == 'deposit_30',
+                        canCancel: !checkedIn,
                         paymentBusy: _openingPayments.contains(
                           summary.booking.id,
                         ),

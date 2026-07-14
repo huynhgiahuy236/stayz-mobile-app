@@ -45,10 +45,13 @@ dependencies:
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.2.0
   share_plus: ^10.1.4
+  image: ^4.8.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  icons_launcher: ^3.1.0
+  flutter_native_splash: ^2.4.8
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -100,3 +103,28 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+icons_launcher:
+  image_path: "assets/images/StayZ new.png"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
+    web:
+      enable: true
+      favicon_path: "assets/images/StayZ new.png"
+    macos:
+      enable: true
+    windows:
+      enable: true
+
+flutter_native_splash:
+  color: "#046CB8"
+  image: "assets/images/StayZ splash.png"
+  android: true
+  ios: true
+  web: true
+  android_12:
+    color: "#046CB8"
+    image: "assets/images/StayZ splash.png"

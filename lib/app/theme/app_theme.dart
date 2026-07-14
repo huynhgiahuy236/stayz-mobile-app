@@ -37,7 +37,7 @@ class AppTheme {
   static const notificationOfferBorder = Color(0xFFB79AE8);
   static const notificationOfferText = Color(0xFF6741A5);
   static const depositBorder = Color(0xFFF29B38);
-  static const depositText = Color(0xFF9A4D00);
+  static const depositText = Color(0xFF4E220F);
   static const double cardRadius = 18;
   static const double controlRadius = 16;
   static const double dialogRadius = 20;

@@ -2,8 +2,16 @@ const payOS = require("../config/payos.config");
 const { BadRequestException, ServiceUnavailableException } = require("../helpers/error.helper");
 const bookingModel = require("../models/bookings.model");
 const paymentsModel = require("../models/payments.model");
+const redis = require("../config/redis.config");
+const { default: Redlock } = require("redlock");
 const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL } = require("../constants/app.constant");
-const { calculatePaymentQuote } = require("../utils/paymentQuote.util");
+const { calculatePaymentQuote, normalizePaymentPlan } = require("../utils/paymentQuote.util");
+
+const paymentRedlock = new Redlock([redis], {
+  retryCount: 3,
+  retryDelay: 200,
+  retryJitter: 50,
+});
 
 const assertProductionPaymentUrls = () => {
   if (process.env.NODE_ENV !== "production") return;
@@ -28,7 +36,27 @@ const paymentService = {
       })
       .sort({ createdAt: -1 }),
   // Tạo liên kết thanh toán PayOS từ một Booking
-  createPaymentLink: async (bookingId, userId) => {
+  createPaymentLink: async (bookingId, userId, requestedPlan) => {
+    let lock;
+    try {
+      lock = await paymentRedlock.acquire([`lock:payment:${bookingId}`], 60000);
+    } catch {
+      throw new BadRequestException(
+        "He thong dang tao giao dich cho booking nay. Vui long thu lai.",
+      );
+    }
+    try {
+      return await paymentService._createPaymentLinkUnlocked(
+        bookingId,
+        userId,
+        requestedPlan,
+      );
+    } finally {
+      if (lock) await lock.release();
+    }
+  },
+
+  _createPaymentLinkUnlocked: async (bookingId, userId, requestedPlan) => {
     assertProductionPaymentUrls();
     if (!payOS) {
       throw new BadRequestException("Cổng thanh toán PayOS hiện chưa được cấu hình key.");
@@ -48,6 +76,9 @@ const paymentService = {
       throw new BadRequestException("Booking này đã được thanh toán rồi");
     }
 
+    const nextPlan = normalizePaymentPlan(requestedPlan || booking.payment_plan);
+    const paymentQuote = calculatePaymentQuote(nextPlan, booking.total_price);
+
     const existingPayment = await paymentsModel
       .findOne({ booking_id: bookingId })
       .sort({ createdAt: -1 });
@@ -57,7 +88,9 @@ const paymentService = {
       );
       const canReuse =
         existingPayment.status === "PAID" ||
-        (existingPayment.status === "pending" && expiresAt > new Date());
+        (existingPayment.status === "pending" &&
+          expiresAt > new Date() &&
+          Number(existingPayment.amount) === Number(paymentQuote.payNow));
 
       if (!canReuse) {
         if (
@@ -72,6 +105,8 @@ const paymentService = {
           } catch (err) {
             console.warn("PayOS expired link cleanup error:", err.message);
           }
+        }
+        if (existingPayment.status === "pending") {
           existingPayment.status = "CANCELLED";
           await existingPayment.save();
         }
@@ -94,7 +129,6 @@ const paymentService = {
     // Tạo mã đơn hàng ngẫu nhiên duy nhất (PayOS yêu cầu định dạng số)
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(1000 + Math.random() * 9000));
 
-    const paymentQuote = calculatePaymentQuote(booking.payment_plan, booking.total_price);
     const description = `Thanh toan StayZ`;
     const transferDescription = `STAYZ${orderCode}`;
     // Tạo request data theo chuẩn PayOS
@@ -128,6 +162,8 @@ const paymentService = {
     });
 
     booking.payment_expires_at = new Date(Date.now() + 15 * 60 * 1000);
+    booking.payment_plan = nextPlan;
+    booking.remaining_at_hotel = paymentQuote.remaining;
     booking.payment_status = "pending";
     booking.status = "pending";
     await booking.save();

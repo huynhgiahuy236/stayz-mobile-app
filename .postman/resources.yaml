@@ -1,9 +1,10 @@
-# Use this workspace to collaborate
 workspace:
   id: 5260642f-4671-44c2-868d-248743af40e8
 
-# All resources in the `postman/` folder are automatically registered in Local View.
-# Point to additional files outside the `postman/` folder to register them individually. Example:
-#localResources:
-#  collections:
-#    - ../tests/E2E Test Collection/
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/StayZ Render Smoke Test: d9e1ee72-c6e4-4856-a058-cf72e0b6f62c
+    ../postman/collections/StayZ Booking PayOS - Clean Run: 3479f3cb-4037-4cd9-adf1-b43ac7a3e3e0
+    ../postman/collections/StayZ FULL Postman - TC01 den TC09: c88161d3-56ac-4b53-8c09-edcc507e029b

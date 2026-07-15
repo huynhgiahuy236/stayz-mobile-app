@@ -200,7 +200,8 @@ class ApiStayzRepository implements StayzRepository {
   @override
   Future<StayzUser?> getProfile() async {
     final userId = await AuthService.instance.userId();
-    if (userId == null) {
+    final token = await AuthService.instance.accessToken();
+    if (userId == null || token == null) {
       throw ApiException(
         tr(
           'Vui lòng đăng nhập lại để xem hồ sơ.',
@@ -209,7 +210,7 @@ class ApiStayzRepository implements StayzRepository {
         statusCode: 401,
       );
     }
-    final data = await api.get('/users/getById/$userId');
+    final data = await api.get('/users/getById/$userId', bearerToken: token);
     if (data is! Map<String, dynamic>) {
       throw ApiException(
         tr(

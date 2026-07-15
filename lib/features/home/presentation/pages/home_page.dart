@@ -332,7 +332,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 304 * responsive.scale,
+                      // The carousel height should follow the card width scale,
+                      // not the overall height scale, because card dimensions are
+                      // based on horizontal sizing.
+                      height: 304 * responsive.widthScale,
                       child: loading
                           ? const Center(
                               child: CircularProgressIndicator(

@@ -3,6 +3,14 @@
 *.log
 *.pyc
 *.swp
+*.doc
+*.docx
+*.xls
+*.xlsx
+postman/reports/
+doc_review/
+postman/*.postman_collection.json
+postman/collections/StayZ*/
 .env
 node_modules/
 **/node_modules/

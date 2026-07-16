@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const { default: Redlock } = require("redlock");
 const { PAYOS_RETURN_URL, PAYOS_CANCEL_URL } = require("../constants/app.constant");
 const { calculatePaymentQuote, normalizePaymentPlan } = require("../utils/paymentQuote.util");
+const notificationsService = require("./notifications.service");
 
 const paymentRedlock = new Redlock([redis], {
   retryCount: 3,
@@ -234,6 +235,22 @@ const paymentService = {
         remaining_at_hotel: paymentQuote.remaining,
         payment_expires_at: null,
       });
+      const depositPaid = booking.payment_plan === "deposit_30";
+      notificationsService.createInternal({
+        userId: booking.user_id,
+        type: "booking_status",
+        event: depositPaid ? "deposit_paid" : "paid_in_full",
+        title: depositPaid ? "Đã thanh toán cọc 30%" : "Đã thanh toán toàn bộ",
+        body: depositPaid
+          ? `Booking #${booking._id} đã thanh toán cọc 30% và được xác nhận. Phần còn lại thanh toán tại khách sạn.`
+          : `Booking #${booking._id} đã thanh toán đầy đủ và được xác nhận.`,
+        titleEn: depositPaid ? "30% deposit paid" : "Paid in full",
+        bodyEn: depositPaid
+          ? `Booking #${booking._id} has a 30% deposit and is confirmed. The remainder is due at the property.`
+          : `Booking #${booking._id} has been paid in full and confirmed.`,
+        refId: booking._id,
+        refType: "Booking",
+      }).catch(() => {});
     } else {
       // 1. Cập nhật trạng thái Payment là CANCELLED
       payment.status = "CANCELLED";

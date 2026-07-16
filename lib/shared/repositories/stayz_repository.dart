@@ -694,6 +694,7 @@ class ApiStayzRepository implements StayzRepository {
       id: _id(json),
       userId: user is Map<String, dynamic> ? _id(user) : _string(user),
       type: _string(json['type'], fallback: 'system'),
+      event: _string(json['event']),
       title: AppLocale.instance.isVietnamese
           ? vietnameseTitle
           : _notificationEnglishTitle(

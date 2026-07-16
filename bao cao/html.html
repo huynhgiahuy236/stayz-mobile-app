@@ -1,0 +1,2276 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tài liệu học vấn đáp dự án StayZ">
+    <title>StayZ Project Study Guide</title>
+    <style>
+        :root {
+            --bg: #f7f8fa;
+            --surface: #ffffff;
+            --text: #17212b;
+            --muted: #667085;
+            --line: #e7eaf0;
+            --primary: #1769aa;
+            --primary-soft: #edf6fc;
+            --green: #18794e;
+            --green-soft: #edf9f2;
+            --amber: #9a6700;
+            --amber-soft: #fff8e6;
+            --red: #b42318;
+            --red-soft: #fff1f0;
+            --purple: #6941c6;
+            --purple-soft: #f4f0ff;
+            --radius: 16px;
+            --shadow: 0 8px 24px rgba(16, 24, 40, .05);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 16px/1.72 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 290px minmax(0, 860px);
+            gap: 34px;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 28px
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 18px;
+            align-self: start;
+            max-height: calc(100vh - 36px);
+            overflow: auto;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow)
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 18px;
+            margin-bottom: 4px
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px
+        }
+
+        .search {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            background: #fff;
+            color: var(--text)
+        }
+
+        .toc {
+            display: flex;
+            flex-direction: column;
+            gap: 3px
+        }
+
+        .toc a {
+            display: block;
+            color: #475467;
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 13px;
+            line-height: 1.35
+        }
+
+        .toc a:hover,
+        .toc a.active {
+            background: var(--primary-soft);
+            color: var(--primary);
+            text-decoration: none
+        }
+
+        .toc-l3 {
+            padding-left: 20px !important
+        }
+
+        main {
+            min-width: 0
+        }
+
+        .hero {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 42px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow)
+        }
+
+        .hero .eyebrow {
+            font-size: 12px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 800
+        }
+
+        .hero h1 {
+            margin: 10px 0 8px;
+            font-size: clamp(34px, 6vw, 58px);
+            line-height: 1.06;
+            letter-spacing: -.04em
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 700px
+        }
+
+        .content {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 44px;
+            box-shadow: var(--shadow)
+        }
+
+        h1 {
+            font-size: 40px;
+            line-height: 1.15
+        }
+
+        h2 {
+            font-size: 28px;
+            line-height: 1.25;
+            margin: 64px 0 18px;
+            padding-top: 8px;
+            border-top: 1px solid var(--line)
+        }
+
+        h3 {
+            font-size: 21px;
+            line-height: 1.3;
+            margin: 34px 0 12px
+        }
+
+        h4 {
+            font-size: 17px;
+            margin: 26px 0 8px
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            letter-spacing: -.02em;
+            scroll-margin-top: 24px
+        }
+
+        .anchor {
+            opacity: 0;
+            margin-left: 8px;
+            font-size: .75em;
+            color: #98a2b3
+        }
+
+        h1:hover .anchor,
+        h2:hover .anchor,
+        h3:hover .anchor,
+        h4:hover .anchor {
+            opacity: 1
+        }
+
+        p {
+            margin: 10px 0 16px
+        }
+
+        ul,
+        ol {
+            padding-left: 24px
+        }
+
+        li {
+            margin: 5px 0
+        }
+
+        blockquote {
+            margin: 22px 0;
+            padding: 16px 18px;
+            border-left: 4px solid var(--primary);
+            background: var(--primary-soft);
+            border-radius: 0 12px 12px 0
+        }
+
+        blockquote p {
+            margin: 0
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: .9em;
+            background: #f2f4f7;
+            border: 1px solid #eaecf0;
+            border-radius: 6px;
+            padding: 2px 6px
+        }
+
+        pre {
+            overflow: auto;
+            background: #101828;
+            color: #f8fafc;
+            padding: 18px;
+            border-radius: 14px
+        }
+
+        pre code {
+            background: transparent;
+            border: 0;
+            padding: 0;
+            color: inherit
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--line);
+            margin: 36px 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px
+        }
+
+        th,
+        td {
+            border: 1px solid var(--line);
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top
+        }
+
+        th {
+            background: #f8fafc
+        }
+
+        .section-badge {
+            display: inline-flex;
+            vertical-align: middle;
+            margin-left: 10px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            letter-spacing: .01em;
+            font-weight: 800
+        }
+
+        .positive {
+            color: var(--green);
+            background: var(--green-soft)
+        }
+
+        .warning {
+            color: var(--amber);
+            background: var(--amber-soft)
+        }
+
+        .question {
+            color: var(--red);
+            background: var(--red-soft)
+        }
+
+        .answer {
+            color: var(--purple);
+            background: var(--purple-soft)
+        }
+
+        .remember {
+            color: var(--primary);
+            background: var(--primary-soft)
+        }
+
+        #cau-1-vi-sao-chon-flutter~h2,
+        [id^="cau-"] {
+            scroll-margin-top: 18px
+        }
+
+        .back-top {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: var(--shadow);
+            display: grid;
+            place-items: center;
+            font-weight: 800
+        }
+
+        .no-results {
+            display: none;
+            color: var(--muted);
+            padding: 12px;
+            font-size: 13px
+        }
+
+        @media(max-width:900px) {
+            .layout {
+                grid-template-columns: 1fr;
+                padding: 14px
+            }
+
+            .sidebar {
+                position: relative;
+                top: auto;
+                max-height: none
+            }
+
+            .content,
+            .hero {
+                padding: 24px
+            }
+
+            .toc {
+                max-height: 280px;
+                overflow: auto
+            }
+
+            h2 {
+                margin-top: 48px
+            }
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                font-size: 11pt
+            }
+
+            .layout {
+                display: block;
+                max-width: none;
+                padding: 0
+            }
+
+            .sidebar,
+            .back-top,
+            .anchor,
+            .search {
+                display: none !important
+            }
+
+            .hero,
+            .content {
+                box-shadow: none;
+                border: 0;
+                padding: 0
+            }
+
+            h2 {
+                page-break-before: auto
+            }
+
+            pre,
+            blockquote,
+            table {
+                break-inside: avoid
+            }
+
+            a {
+                color: inherit;
+                text-decoration: none
+            }
+        }
+    </style>
+</head>
+
+<body id="top">
+    <div class="layout">
+        <aside class="sidebar" aria-label="Mục lục">
+            <div class="brand">StayZ Study Guide</div>
+            <div class="brand-sub">Tài liệu vấn đáp · Minimalism</div>
+            <input id="tocSearch" class="search" type="search" placeholder="Tìm trong mục lục…"
+                aria-label="Tìm trong mục lục">
+            <nav class="toc" id="toc"><a class="toc-l2" href="#1-stayz-la-gi">1. StayZ là gì?</a>
+                <a class="toc-l3" href="#cau-tra-loi-mau-khi-thay-hoi-stayz-la-gi">Câu trả lời mẫu khi thầy hỏi “StayZ
+                    là gì?”</a>
+                <a class="toc-l2" href="#2-kien-truc-tong-the">2. Kiến trúc tổng thể</a>
+                <a class="toc-l3" href="#vai-tro-tung-tang">Vai trò từng tầng</a>
+                <a class="toc-l3" href="#vi-sao-can-chia-tang">Vì sao cần chia tầng?</a>
+                <a class="toc-l2" href="#3-entry-point-va-khoi-ong-ung-dung">3. Entry point và khởi động ứng dụng</a>
+                <a class="toc-l2" href="#4-cong-nghe-frontend">4. Công nghệ frontend</a>
+                <a class="toc-l3" href="#flutter-va-dart">Flutter và Dart</a>
+                <a class="toc-l3" href="#material-3">Material 3</a>
+                <a class="toc-l3" href="#package-http">Package http</a>
+                <a class="toc-l3" href="#sharedpreferences">SharedPreferences</a>
+                <a class="toc-l3" href="#url-launcher">url_launcher</a>
+                <a class="toc-l3" href="#app-links">app_links</a>
+                <a class="toc-l3" href="#file-picker-va-cross-file">file_picker và cross_file</a>
+                <a class="toc-l3" href="#http-parser">http_parser</a>
+                <a class="toc-l3" href="#qr-flutter">qr_flutter</a>
+                <a class="toc-l3" href="#mobile-scanner">mobile_scanner</a>
+                <a class="toc-l3" href="#share-plus">share_plus</a>
+                <a class="toc-l3" href="#localization">Localization</a>
+                <a class="toc-l2" href="#5-cong-nghe-backend">5. Công nghệ backend</a>
+                <a class="toc-l3" href="#node-js-va-express">Node.js và Express</a>
+                <a class="toc-l3" href="#mongodb-va-mongoose">MongoDB và Mongoose</a>
+                <a class="toc-l3" href="#bcrypt">bcrypt</a>
+                <a class="toc-l3" href="#json-web-token">JSON Web Token</a>
+                <a class="toc-l3" href="#redis-va-ioredis">Redis và ioredis</a>
+                <a class="toc-l3" href="#redlock">Redlock</a>
+                <a class="toc-l3" href="#socket-io">Socket.IO</a>
+                <a class="toc-l3" href="#multer">Multer</a>
+                <a class="toc-l3" href="#cloudinary">Cloudinary</a>
+                <a class="toc-l3" href="#payos">PayOS</a>
+                <a class="toc-l3" href="#passport-google-oauth">Passport Google OAuth</a>
+                <a class="toc-l3" href="#gmail-oauth">Gmail OAuth</a>
+                <a class="toc-l3" href="#openai-api">OpenAI API</a>
+                <a class="toc-l2" href="#6-design-system-va-ui-ux">6. Design system và UI/UX</a>
+                <a class="toc-l3" href="#mau-sac">Màu sắc</a>
+                <a class="toc-l3" href="#kich-thuoc-chung">Kích thước chung</a>
+                <a class="toc-l3" href="#accessibility-a-uoc-quan-tam">Accessibility đã được quan tâm</a>
+                <a class="toc-l3" href="#han-che-can-noi-trung-thuc">Hạn chế cần nói trung thực</a>
+                <a class="toc-l2" href="#7-navigation">7. Navigation</a>
+                <a class="toc-l3" href="#authentication">Authentication</a>
+                <a class="toc-l3" href="#kham-pha-khach-san">Khám phá khách sạn</a>
+                <a class="toc-l3" href="#booking-va-payment">Booking và payment</a>
+                <a class="toc-l3" href="#quan-ly-booking">Quản lý booking</a>
+                <a class="toc-l3" href="#tai-khoan">Tài khoản</a>
+                <a class="toc-l3" href="#admin">Admin</a>
+                <a class="toc-l2" href="#8-luong-ang-ky">8. Luồng đăng ký</a>
+                <a class="toc-l2" href="#9-luong-ang-nhap">9. Luồng đăng nhập</a>
+                <a class="toc-l2" href="#10-quen-mat-khau">10. Quên mật khẩu</a>
+                <a class="toc-l2" href="#11-google-login">11. Google login</a>
+                <a class="toc-l2" href="#12-luong-tim-kiem">12. Luồng tìm kiếm</a>
+                <a class="toc-l2" href="#13-luong-at-phong">13. Luồng đặt phòng</a>
+                <a class="toc-l3" href="#buoc-1-chon-khach-san-va-phong">Bước 1: Chọn khách sạn và phòng</a>
+                <a class="toc-l3" href="#buoc-2-chon-lich">Bước 2: Chọn lịch</a>
+                <a class="toc-l3" href="#buoc-3-tao-booking">Bước 3: Tạo booking</a>
+                <a class="toc-l3" href="#buoc-4-kiem-tra-phong-trong">Bước 4: Kiểm tra phòng trống</a>
+                <a class="toc-l3" href="#buoc-5-distributed-lock">Bước 5: Distributed lock</a>
+                <a class="toc-l3" href="#buoc-6-booking-pending">Bước 6: Booking pending</a>
+                <a class="toc-l2" href="#14-luong-thanh-toan">14. Luồng thanh toán</a>
+                <a class="toc-l3" href="#deposit-30">Deposit 30%</a>
+                <a class="toc-l3" href="#full-100">Full 100%</a>
+                <a class="toc-l3" href="#qua-trinh-payos">Quá trình PayOS</a>
+                <a class="toc-l2" href="#15-huy-booking-va-hoan-tien">15. Hủy booking và hoàn tiền</a>
+                <a class="toc-l2" href="#16-check-in-va-hoan-tat-chuyen-i">16. Check-in và hoàn tất chuyến đi</a>
+                <a class="toc-l2" href="#17-review">17. Review</a>
+                <a class="toc-l2" href="#18-favorites">18. Favorites</a>
+                <a class="toc-l2" href="#19-notifications">19. Notifications</a>
+                <a class="toc-l2" href="#20-ai-booking-assistant">20. AI Booking Assistant</a>
+                <a class="toc-l2" href="#21-chat-realtime">21. Chat realtime</a>
+                <a class="toc-l2" href="#22-admin">22. Admin</a>
+                <a class="toc-l2" href="#23-database-models">23. Database models</a>
+                <a class="toc-l3" href="#user">User</a>
+                <a class="toc-l3" href="#property">Property</a>
+                <a class="toc-l3" href="#room">Room</a>
+                <a class="toc-l3" href="#booking">Booking</a>
+                <a class="toc-l3" href="#payment">Payment</a>
+                <a class="toc-l3" href="#favorite">Favorite</a>
+                <a class="toc-l3" href="#review">Review</a>
+                <a class="toc-l3" href="#notification">Notification</a>
+                <a class="toc-l3" href="#conversation-va-message">Conversation và Message</a>
+                <a class="toc-l3" href="#amenition">Amenition</a>
+                <a class="toc-l3" href="#adminaudit">AdminAudit</a>
+                <a class="toc-l2" href="#24-bien-moi-truong">24. Biến môi trường</a>
+                <a class="toc-l3" href="#database">Database</a>
+                <a class="toc-l3" href="#authentication-2">Authentication</a>
+                <a class="toc-l3" href="#server">Server</a>
+                <a class="toc-l3" href="#redis">Redis</a>
+                <a class="toc-l3" href="#google-oauth">Google OAuth</a>
+                <a class="toc-l3" href="#gmail">Gmail</a>
+                <a class="toc-l3" href="#cloudinary-2">Cloudinary</a>
+                <a class="toc-l3" href="#payos-2">PayOS</a>
+                <a class="toc-l3" href="#vietqr">VietQR</a>
+                <a class="toc-l3" href="#ai">AI</a>
+                <a class="toc-l3" href="#flutter">Flutter</a>
+                <a class="toc-l2" href="#25-bao-mat">25. Bảo mật</a>
+                <a class="toc-l3" href="#iem-tot">Điểm tốt</a>
+                <a class="toc-l3" href="#han-che">Hạn chế</a>
+                <a class="toc-l3" href="#cau-tra-loi-mau">Câu trả lời mẫu</a>
+                <a class="toc-l2" href="#26-testing">26. Testing</a>
+                <a class="toc-l2" href="#27-iem-manh">27. Điểm mạnh</a>
+                <a class="toc-l2" href="#28-han-che">28. Hạn chế</a>
+                <a class="toc-l2" href="#29-huong-phat-trien">29. Hướng phát triển</a>
+                <a class="toc-l2" href="#cau-1-vi-sao-chon-flutter">Câu 1: Vì sao chọn Flutter?</a>
+                <a class="toc-l2" href="#cau-2-vi-sao-chon-node-js-va-express">Câu 2: Vì sao chọn Node.js và
+                    Express?</a>
+                <a class="toc-l2" href="#cau-3-vi-sao-chon-mongodb">Câu 3: Vì sao chọn MongoDB?</a>
+                <a class="toc-l2" href="#cau-4-repository-khac-service-the-nao">Câu 4: Repository khác Service thế
+                    nào?</a>
+                <a class="toc-l2" href="#cau-5-controller-khac-service-the-nao">Câu 5: Controller khác Service thế
+                    nào?</a>
+                <a class="toc-l2" href="#cau-6-middleware-la-gi">Câu 6: Middleware là gì?</a>
+                <a class="toc-l2" href="#cau-7-jwt-hoat-ong-the-nao">Câu 7: JWT hoạt động thế nào?</a>
+                <a class="toc-l2" href="#cau-8-access-token-va-refresh-token-khac-nhau-the-nao">Câu 8: Access token và
+                    refresh token khác nhau thế nào?</a>
+                <a class="toc-l2" href="#cau-9-redis-dung-lam-gi">Câu 9: Redis dùng làm gì?</a>
+                <a class="toc-l2" href="#cau-10-lam-sao-tranh-at-trung-phong">Câu 10: Làm sao tránh đặt trùng phòng?</a>
+                <a class="toc-l2" href="#cau-11-neu-redis-loi-thi-sao">Câu 11: Nếu Redis lỗi thì sao?</a>
+                <a class="toc-l2" href="#cau-12-gia-booking-uoc-tinh-o-au">Câu 12: Giá booking được tính ở đâu?</a>
+                <a class="toc-l2" href="#cau-13-vi-sao-booking-co-trang-thai-pending">Câu 13: Vì sao booking có trạng
+                    thái pending?</a>
+                <a class="toc-l2" href="#cau-14-khi-nao-booking-confirmed">Câu 14: Khi nào booking confirmed?</a>
+                <a class="toc-l2" href="#cau-15-tai-sao-can-webhook">Câu 15: Tại sao cần webhook?</a>
+                <a class="toc-l2" href="#cau-16-lam-sao-chong-gia-mao-so-tien">Câu 16: Làm sao chống giả mạo số
+                    tiền?</a>
+                <a class="toc-l2" href="#cau-17-deposit-30-la-gi">Câu 17: Deposit 30% là gì?</a>
+                <a class="toc-l2" href="#cau-18-full-payment-co-gi-khac">Câu 18: Full payment có gì khác?</a>
+                <a class="toc-l2" href="#cau-19-socket-io-khac-rest-the-nao">Câu 19: Socket.IO khác REST thế nào?</a>
+                <a class="toc-l2" href="#cau-20-flutter-a-dung-socket-io-chua">Câu 20: Flutter đã dùng Socket.IO
+                    chưa?</a>
+                <a class="toc-l2" href="#cau-21-ai-co-tu-bia-khach-san-khong">Câu 21: AI có tự bịa khách sạn không?</a>
+                <a class="toc-l2" href="#cau-22-neu-khong-co-openai-api-key-thi-sao">Câu 22: Nếu không có OpenAI API key
+                    thì sao?</a>
+                <a class="toc-l2" href="#cau-23-cloudinary-dung-lam-gi">Câu 23: Cloudinary dùng làm gì?</a>
+                <a class="toc-l2" href="#cau-24-lam-sao-phan-quyen-admin">Câu 24: Làm sao phân quyền admin?</a>
+                <a class="toc-l2" href="#cau-25-favorite-bi-them-trung-thi-sao">Câu 25: Favorite bị thêm trùng thì
+                    sao?</a>
+                <a class="toc-l2" href="#cau-26-mot-booking-co-the-review-nhieu-lan-khong">Câu 26: Một booking có thể
+                    review nhiều lần không?</a>
+                <a class="toc-l2" href="#cau-27-tai-sao-dung-asia-ho-chi-minh">Câu 27: Tại sao dùng
+                    Asia/Ho_Chi_Minh?</a>
+                <a class="toc-l2" href="#cau-28-sharedpreferences-dung-lam-gi">Câu 28: SharedPreferences dùng làm
+                    gì?</a>
+                <a class="toc-l2" href="#cau-29-sharedpreferences-co-an-toan-tuyet-oi-khong">Câu 29: SharedPreferences
+                    có an toàn tuyệt đối không?</a>
+                <a class="toc-l2" href="#cau-30-iem-kho-nhat-cua-du-an-la-gi">Câu 30: Điểm khó nhất của dự án là gì?</a>
+                <a class="toc-l2" href="#cau-31-neu-hai-nguoi-cung-at-mot-phong">Câu 31: Nếu hai người cùng đặt một
+                    phòng?</a>
+                <a class="toc-l2" href="#cau-32-neu-webhook-en-hai-lan">Câu 32: Nếu webhook đến hai lần?</a>
+                <a class="toc-l2" href="#cau-33-neu-payment-paid-nhung-booking-update-loi-thi-sao">Câu 33: Nếu payment
+                    PAID nhưng booking update lỗi thì sao?</a>
+                <a class="toc-l2" href="#cau-34-vi-sao-can-admin-audit">Câu 34: Vì sao cần admin audit?</a>
+                <a class="toc-l2" href="#cau-35-vi-sao-khong-goi-mongodb-tu-flutter">Câu 35: Vì sao không gọi MongoDB từ
+                    Flutter?</a>
+                <a class="toc-l2" href="#cau-36-search-khong-dau-hoat-ong-the-nao">Câu 36: Search không dấu hoạt động
+                    thế nào?</a>
+                <a class="toc-l2" href="#cau-37-app-xu-ly-loi-mang-the-nao">Câu 37: App xử lý lỗi mạng thế nào?</a>
+                <a class="toc-l2" href="#cau-38-tai-sao-dung-model-dart">Câu 38: Tại sao dùng model Dart?</a>
+                <a class="toc-l2" href="#cau-39-tai-sao-co-is-active">Câu 39: Tại sao có is_active?</a>
+                <a class="toc-l2" href="#cau-40-check-in-code-dung-lam-gi">Câu 40: Check-in code dùng làm gì?</a>
+                <a class="toc-l2" href="#cau-41-khi-nao-booking-completed">Câu 41: Khi nào booking completed?</a>
+                <a class="toc-l2" href="#cau-42-no-show-uoc-xu-ly-the-nao">Câu 42: No-show được xử lý thế nào?</a>
+                <a class="toc-l2" href="#cau-43-iem-manh-lon-nhat-cua-stayz">Câu 43: Điểm mạnh lớn nhất của StayZ?</a>
+                <a class="toc-l2" href="#cau-44-han-che-lon-nhat">Câu 44: Hạn chế lớn nhất?</a>
+                <a class="toc-l2" href="#cau-45-neu-lam-lai-se-cai-thien-gi-truoc">Câu 45: Nếu làm lại sẽ cải thiện gì
+                    trước?</a>
+                <a class="toc-l2" href="#gioi-thieu-30-giay">Giới thiệu 30 giây</a>
+                <a class="toc-l2" href="#trinh-bay-kien-truc">Trình bày kiến trúc</a>
+                <a class="toc-l2" href="#trinh-bay-booking-payment">Trình bày booking/payment</a>
+                <a class="toc-l2" href="#tra-loi-iem-kho-nhat">Trả lời điểm khó nhất</a>
+                <a class="toc-l2" href="#tra-loi-neu-co-them-thoi-gian">Trả lời nếu có thêm thời gian</a>
+                <a class="toc-l2" href="#cong-nghe-phai-nho">Công nghệ phải nhớ</a>
+                <a class="toc-l2" href="#model-phai-nho">Model phải nhớ</a>
+                <a class="toc-l2" href="#luong-phai-nho">Luồng phải nhớ</a>
+                <a class="toc-l2" href="#iem-phan-bien-phai-nho">Điểm phản biện phải nhớ</a>
+            </nav>
+            <div class="no-results" id="noResults">Không tìm thấy mục phù hợp.</div>
+        </aside>
+        <main>
+            <header class="hero">
+                <div class="eyebrow">Capstone Project · Flutter & Node.js</div>
+                <h1>StayZ Project<br>Study Guide</h1>
+                <p>Tài liệu học vấn đáp được tổ chức theo kiến trúc, luồng nghiệp vụ, công nghệ, bảo mật, testing và bộ
+                    câu hỏi trả lời mẫu.</p>
+            </header>
+            <article class="content" id="content">
+                <h1 id="stayz-project-study-guide">STAYZ PROJECT STUDY GUIDE<a class="anchor"
+                        href="#stayz-project-study-guide" aria-label="Liên kết đến mục này">#</a></h1>
+                <blockquote>
+                    <p><strong>Ghi chú đối chiếu source:</strong> File được tạo từ nội dung phân tích do người dùng cung
+                        cấp. Trong phiên làm việc này không có toàn bộ thư mục source StayZ để mở và xác minh trực tiếp,
+                        vì vậy các đường dẫn file được giữ nguyên theo tài liệu. Không có secret thật nào được đưa vào
+                        trang.</p>
+                </blockquote>
+                <h2 id="1-stayz-la-gi">1. StayZ là gì?<a class="anchor" href="#1-stayz-la-gi"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>StayZ là ứng dụng đặt phòng khách sạn đa nền tảng được xây dựng bằng Flutter. Ứng dụng cho phép người
+                    dùng tìm kiếm nơi lưu trú, xem khách sạn và phòng, kiểm tra tình trạng phòng theo ngày, đặt phòng,
+                    thanh toán qua PayOS, quản lý booking, yêu thích khách sạn, nhận thông báo, đánh giá sau chuyến đi
+                    và nhận đề xuất bằng AI.</p>
+                <p>Hệ thống gồm hai phần:</p>
+                <ul>
+                    <li>Frontend mobile/web: Flutter và Dart.</li>
+                    <li>Backend REST API: Node.js, Express và MongoDB.</li>
+                    <li>Các dịch vụ hỗ trợ: Redis, Socket.IO, Cloudinary, PayOS, Gmail OAuth, Google OAuth và OpenAI
+                        API.</li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>pubspec.yaml</code></li>
+                    <li><code>lib/main.dart</code></li>
+                    <li><code>lib/app/app.dart</code></li>
+                    <li><code>backend/stayz_api/package.json</code></li>
+                    <li><code>backend/stayz_api/server.js</code></li>
+                </ul>
+                <h3 id="cau-tra-loi-mau-khi-thay-hoi-stayz-la-gi">Câu trả lời mẫu khi thầy hỏi “StayZ là gì?”<span
+                        class="section-badge answer">Trả lời mẫu</span><a class="anchor"
+                        href="#cau-tra-loi-mau-khi-thay-hoi-stayz-la-gi" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>“StayZ là ứng dụng hỗ trợ người dùng tìm kiếm và đặt phòng khách sạn. Frontend được phát triển bằng
+                    Flutter để có thể chạy trên nhiều nền tảng. Backend sử dụng Node.js và Express, dữ liệu được lưu
+                    bằng MongoDB. Ngoài các chức năng đặt phòng cơ bản, hệ thống còn tích hợp PayOS để thanh toán, Redis
+                    để hỗ trợ rate limit và chống đặt trùng phòng, Cloudinary để lưu hình ảnh, Socket.IO cho chat
+                    realtime và OpenAI để tư vấn khách sạn dựa trên dữ liệu thật của hệ thống.”</p>
+                <hr />
+                <h2 id="2-kien-truc-tong-the">2. Kiến trúc tổng thể<a class="anchor" href="#2-kien-truc-tong-the"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Kiến trúc thực tế của StayZ có thể mô tả như sau:</p>
+                <p>Người dùng<br />
+                    → Flutter Page/Widget<br />
+                    → Repository hoặc AuthService<br />
+                    → ApiService<br />
+                    → HTTP REST API<br />
+                    → Express Router<br />
+                    → Middleware<br />
+                    → Controller<br />
+                    → Business Service<br />
+                    → Mongoose Model<br />
+                    → MongoDB</p>
+                <p>Các dịch vụ bên ngoài được backend gọi khi cần:</p>
+                <ul>
+                    <li>Redis: rate limiting, blacklist token và distributed lock.</li>
+                    <li>PayOS: tạo liên kết thanh toán và xử lý webhook.</li>
+                    <li>Cloudinary: upload ảnh avatar, khách sạn và phòng.</li>
+                    <li>Gmail OAuth: gửi OTP.</li>
+                    <li>Google OAuth: đăng nhập bằng tài khoản Google.</li>
+                    <li>OpenAI: sinh câu trả lời tư vấn từ dữ liệu StayZ.</li>
+                    <li>Socket.IO: nhắn tin thời gian thực.</li>
+                </ul>
+                <h3 id="vai-tro-tung-tang">Vai trò từng tầng<a class="anchor" href="#vai-tro-tung-tang"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <h4 id="flutter-page-widget">Flutter Page/Widget<a class="anchor" href="#flutter-page-widget"
+                        aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Hiển thị giao diện, nhận thao tác và điều hướng. Page không nên trực tiếp xử lý MongoDB hoặc nghiệp
+                    vụ backend.</p>
+                <p>Ví dụ:</p>
+                <ul>
+                    <li><code>lib/features/search/presentation/pages/search_page.dart</code></li>
+                    <li><code>lib/features/booking/presentation/pages/payment_checkout_page.dart</code></li>
+                    <li><code>lib/features/profile/presentation/pages/settings_page.dart</code></li>
+                </ul>
+                <h4 id="repository">Repository<a class="anchor" href="#repository"
+                        aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Là lớp trung gian giữa UI và API. Repository gọi endpoint rồi chuyển JSON thành model Dart.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/shared/repositories/stayz_repository.dart</code></li>
+                    <li><code>lib/features/admin/data/admin_repository.dart</code></li>
+                </ul>
+                <h4 id="apiservice">ApiService<a class="anchor" href="#apiservice"
+                        aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Chuẩn hóa GET, POST, PUT, PATCH, DELETE, multipart, bearer token, timeout và lỗi mạng.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/services/api_service.dart</code></li>
+                </ul>
+                <p><code>ApiService</code> dùng timeout 20 giây. Nó chuyển lỗi HTTP thành <code>ApiException</code>, hỗ
+                    trợ tiếng Việt/Anh và xử lý upload theo MIME type.</p>
+                <h4 id="router">Router<a class="anchor" href="#router" aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Định nghĩa URL, HTTP method và middleware.</p>
+                <p>Ví dụ:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/routes/booking.router.js</code></li>
+                    <li><code>backend/stayz_api/src/routes/payment.router.js</code></li>
+                </ul>
+                <h4 id="controller">Controller<a class="anchor" href="#controller"
+                        aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Nhận <code>req</code>, lấy params/body/user, gọi service và trả response.</p>
+                <h4 id="service-backend">Service backend<a class="anchor" href="#service-backend"
+                        aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Chứa nghiệp vụ thật như kiểm tra phòng trống, tính tiền, kiểm tra quyền, tạo payment và cập nhật
+                    trạng thái.</p>
+                <p>Ví dụ:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/services/booking.service.js</code></li>
+                    <li><code>backend/stayz_api/src/services/payment.service.js</code></li>
+                    <li><code>backend/stayz_api/src/services/ai.service.js</code></li>
+                </ul>
+                <h4 id="mongoose-model">Mongoose Model<a class="anchor" href="#mongoose-model"
+                        aria-label="Liên kết đến mục này">#</a></h4>
+                <p>Khai báo cấu trúc MongoDB, enum, quan hệ, index và giá trị mặc định.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/models/</code></li>
+                </ul>
+                <h3 id="vi-sao-can-chia-tang">Vì sao cần chia tầng?<a class="anchor" href="#vi-sao-can-chia-tang"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Nếu toàn bộ xử lý nằm trong Flutter Page hoặc Express Controller:</p>
+                <ul>
+                    <li>Code khó đọc.</li>
+                    <li>Khó tái sử dụng.</li>
+                    <li>Khó kiểm thử.</li>
+                    <li>Dễ sai nghiệp vụ giữa nhiều màn hình.</li>
+                    <li>Khó thay API hoặc database.</li>
+                    <li>UI phải biết quá nhiều chi tiết backend.</li>
+                </ul>
+                <p>StayZ đã tách UI, repository, API service, route, controller, service và model, dù một số file vẫn
+                    còn khá lớn.</p>
+                <hr />
+                <h2 id="3-entry-point-va-khoi-ong-ung-dung">3. Entry point và khởi động ứng dụng<a class="anchor"
+                        href="#3-entry-point-va-khoi-ong-ung-dung" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Entry point Flutter là:</p>
+                <ul>
+                    <li><code>lib/main.dart</code></li>
+                </ul>
+                <p>Quá trình khởi động:</p>
+                <ol>
+                    <li>Gọi <code>WidgetsFlutterBinding.ensureInitialized()</code>.</li>
+                    <li>Tải ngôn ngữ đã lưu bằng <code>AppLocale.instance.load()</code>.</li>
+                    <li>Chạy <code>StayZApp</code>.</li>
+                    <li><code>MaterialApp</code> bắt đầu tại <code>AppRoutes.authGate</code>.</li>
+                </ol>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/main.dart</code></li>
+                    <li><code>lib/app/app.dart</code></li>
+                    <li><code>lib/app/routes/app_routes.dart</code></li>
+                </ul>
+                <p><code>AuthGatePage</code> quyết định:</p>
+                <ul>
+                    <li>Người dùng chưa xem onboarding → onboarding.</li>
+                    <li>Chưa đăng nhập → login.</li>
+                    <li>Có access token còn hạn → home.</li>
+                </ul>
+                <p>Ứng dụng kiểm tra trường <code>exp</code> trong JWT ở phía Flutter. Nếu token đã hết hạn, dữ liệu
+                    đăng nhập được xóa.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/features/auth/presentation/pages/auth_gate_page.dart</code></li>
+                    <li><code>lib/services/auth_service.dart</code></li>
+                </ul>
+                <hr />
+                <h2 id="4-cong-nghe-frontend">4. Công nghệ frontend<a class="anchor" href="#4-cong-nghe-frontend"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <h3 id="flutter-va-dart">Flutter và Dart<a class="anchor" href="#flutter-va-dart"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Flutter được dùng để tạo UI đa nền tảng từ cùng một codebase.</p>
+                <p>Project có cấu hình Android, iOS, web, Windows và macOS. Trọng tâm sản phẩm là ứng dụng đặt phòng
+                    trên mobile.</p>
+                <h3 id="material-3">Material 3<a class="anchor" href="#material-3"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Theme sử dụng <code>useMaterial3: true</code>.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/app/theme/app_theme.dart</code></li>
+                </ul>
+                <h3 id="package-http">Package <code>http</code><a class="anchor" href="#package-http"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Dùng gửi REST request và multipart request.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/services/api_service.dart</code></li>
+                </ul>
+                <h3 id="sharedpreferences">SharedPreferences<a class="anchor" href="#sharedpreferences"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Dùng lưu dữ liệu nhỏ trên thiết bị:</p>
+                <ul>
+                    <li>Đã xem onboarding hay chưa.</li>
+                    <li>Access token.</li>
+                    <li>User ID.</li>
+                    <li>Email.</li>
+                    <li>Tên người dùng.</li>
+                    <li>Role.</li>
+                    <li>Ngôn ngữ.</li>
+                    <li>Section admin gần nhất.</li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/services/auth_service.dart</code></li>
+                    <li><code>lib/shared/i18n/app_locale.dart</code></li>
+                    <li><code>lib/features/admin/presentation/pages/admin_dashboard_page.dart</code></li>
+                </ul>
+                <p>Lưu ý bảo mật: <code>SharedPreferences</code> tiện nhưng không phải secure storage chuyên dụng. Với
+                    production, token nên được cân nhắc lưu bằng secure storage.</p>
+                <h3 id="url-launcher"><code>url_launcher</code><a class="anchor" href="#url-launcher"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Mở URL ngoài ứng dụng, tiêu biểu là trang thanh toán hoặc liên kết hỗ trợ.</p>
+                <h3 id="app-links"><code>app_links</code><a class="anchor" href="#app-links"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Nhận deep link quay lại ứng dụng, đặc biệt trong Google login.</p>
+                <p>Callback Google của Flutter dự kiến dạng:</p>
+                <p><code>stayz://auth/login-success</code></p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/services/auth_service.dart</code></li>
+                    <li><code>lib/features/auth/presentation/pages/login_page.dart</code></li>
+                </ul>
+                <h3 id="file-picker-va-cross-file"><code>file_picker</code> và <code>cross_file</code><a class="anchor"
+                        href="#file-picker-va-cross-file" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Hỗ trợ chọn file hoặc ảnh trên nhiều nền tảng.</p>
+                <h3 id="http-parser"><code>http_parser</code><a class="anchor" href="#http-parser"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Xác định MIME type khi upload JPG, PNG, WebP hoặc GIF.</p>
+                <h3 id="qr-flutter"><code>qr_flutter</code><a class="anchor" href="#qr-flutter"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Hiển thị mã QR trong ứng dụng.</p>
+                <h3 id="mobile-scanner"><code>mobile_scanner</code><a class="anchor" href="#mobile-scanner"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Quét QR, được dùng trong chức năng check-in admin.</p>
+                <h3 id="share-plus"><code>share_plus</code><a class="anchor" href="#share-plus"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Chia sẻ thông tin hoặc nội dung từ ứng dụng.</p>
+                <h3 id="localization">Localization<a class="anchor" href="#localization"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Ứng dụng hỗ trợ tiếng Việt và tiếng Anh.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/shared/i18n/app_locale.dart</code></li>
+                    <li><code>lib/app/app.dart</code></li>
+                </ul>
+                <p>Cơ chế hiện tại dùng hàm <code>tr(vietnamese, english)</code> và <code>AppLocale</code> thay vì hệ
+                    thống ARB tiêu chuẩn.</p>
+                <hr />
+                <h2 id="5-cong-nghe-backend">5. Công nghệ backend<a class="anchor" href="#5-cong-nghe-backend"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <h3 id="node-js-va-express">Node.js và Express<a class="anchor" href="#node-js-va-express"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Express xử lý REST API, middleware, CORS, JSON body và static files.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/server.js</code></li>
+                    <li><code>backend/stayz_api/package.json</code></li>
+                </ul>
+                <h3 id="mongodb-va-mongoose">MongoDB và Mongoose<a class="anchor" href="#mongodb-va-mongoose"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>MongoDB lưu user, property, room, booking, payment, review, favorite, notification và chat.</p>
+                <p>Mongoose khai báo schema, validation, enum, reference và index.</p>
+                <h3 id="bcrypt">bcrypt<a class="anchor" href="#bcrypt" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Hash mật khẩu trước khi lưu. Backend không nên lưu mật khẩu dạng plain text.</p>
+                <h3 id="json-web-token">JSON Web Token<a class="anchor" href="#json-web-token"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Backend tạo access token và refresh token.</p>
+                <p>Access token được gửi bằng header:</p>
+                <p><code>Authorization: Bearer &lt;token&gt;</code></p>
+                <p>Middleware <code>protect</code> xác minh JWT, kiểm tra blacklist và tải lại role hiện tại từ
+                    database.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/utils/token.util.js</code></li>
+                    <li><code>backend/stayz_api/src/middlewares/protect.middleware.js</code></li>
+                </ul>
+                <h3 id="redis-va-ioredis">Redis và ioredis<a class="anchor" href="#redis-va-ioredis"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Redis có ba vai trò chính:</p>
+                <ol>
+                    <li>Rate limiting.</li>
+                    <li>Blacklist access token khi logout.</li>
+                    <li>Hỗ trợ distributed lock trong booking.</li>
+                </ol>
+                <p>Redis được thiết kế theo hướng fail-open cho một số thao tác: nếu Redis lỗi, request không nhất thiết
+                    bị chặn hoàn toàn.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/config/redis.config.js</code></li>
+                    <li><code>backend/stayz_api/src/middlewares/rateLimit.middleware.js</code></li>
+                    <li><code>backend/stayz_api/src/middlewares/protect.middleware.js</code></li>
+                </ul>
+                <h3 id="redlock">Redlock<a class="anchor" href="#redlock" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Dùng tạo lock phân tán theo room và khoảng ngày để giảm nguy cơ hai request đồng thời cùng đặt vượt
+                    số lượng phòng.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/services/booking.service.js</code></li>
+                </ul>
+                <h3 id="socket-io">Socket.IO<a class="anchor" href="#socket-io" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <p>Backend có:</p>
+                <ul>
+                    <li>Xác thực socket bằng JWT.</li>
+                    <li>Join conversation.</li>
+                    <li>Leave conversation.</li>
+                    <li>Send message.</li>
+                    <li>Broadcast <code>message_received</code>.</li>
+                    <li>Typing và stop typing.</li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/config/socket.config.js</code></li>
+                </ul>
+                <p>Lưu ý quan trọng: <code>pubspec.yaml</code> hiện không khai báo package Socket.IO client. Vì vậy
+                    backend có hạ tầng realtime nhưng chưa nên khẳng định Flutter client đang sử dụng đầy đủ Socket.IO.
+                    AI chat hiện đi bằng HTTP.</p>
+                <h3 id="multer">Multer<a class="anchor" href="#multer" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Nhận multipart upload.</p>
+                <h3 id="cloudinary">Cloudinary<a class="anchor" href="#cloudinary"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Lưu ảnh cloud cho:</p>
+                <ul>
+                    <li>Avatar.</li>
+                    <li>Ảnh chính property.</li>
+                    <li>Gallery property.</li>
+                    <li>Ảnh phòng.</li>
+                    <li>Gallery phòng.</li>
+                </ul>
+                <h3 id="payos">PayOS<a class="anchor" href="#payos" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Tạo payment link, QR và webhook cập nhật trạng thái giao dịch.</p>
+                <p>Nếu thiếu PayOS key, SDK không được khởi tạo và backend cảnh báo payment flow có thể không hoạt động.
+                </p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/config/payos.config.js</code></li>
+                    <li><code>backend/stayz_api/src/services/payment.service.js</code></li>
+                </ul>
+                <h3 id="passport-google-oauth">Passport Google OAuth<a class="anchor" href="#passport-google-oauth"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Backend hỗ trợ:</p>
+                <ul>
+                    <li><code>/auth/google</code></li>
+                    <li><code>/auth/google/callback</code></li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/routes/auth.router.js</code></li>
+                    <li><code>backend/stayz_api/src/config/passport.config.js</code></li>
+                </ul>
+                <h3 id="gmail-oauth">Gmail OAuth<a class="anchor" href="#gmail-oauth"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Dùng gửi OTP đăng ký hoặc đặt lại mật khẩu.</p>
+                <h3 id="openai-api">OpenAI API<a class="anchor" href="#openai-api"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Backend gọi OpenAI Chat Completions. Model mặc định là <code>gpt-4o-mini</code>, có thể đổi bằng
+                    <code>OPENAI_MODEL</code>.</p>
+                <p>Nếu không có API key, OpenAI lỗi hoặc timeout 12 giây, backend dùng câu trả lời fallback dựa trên dữ
+                    liệu StayZ.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/services/ai.service.js</code></li>
+                </ul>
+                <hr />
+                <h2 id="6-design-system-va-ui-ux">6. Design system và UI/UX<a class="anchor"
+                        href="#6-design-system-va-ui-ux" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Theme chính nằm tại:</p>
+                <ul>
+                    <li><code>lib/app/theme/app_theme.dart</code></li>
+                </ul>
+                <h3 id="mau-sac">Màu sắc<a class="anchor" href="#mau-sac" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Primary: <code>#1D8BD1</code></li>
+                    <li>Primary dark: <code>#0A4E83</code></li>
+                    <li>Background/surface: xanh trắng nhạt</li>
+                    <li>Ink: <code>#102A43</code></li>
+                    <li>Success: xanh lá</li>
+                    <li>Danger: đỏ</li>
+                    <li>Gold: màu điểm nhấn</li>
+                </ul>
+                <h3 id="kich-thuoc-chung">Kích thước chung<a class="anchor" href="#kich-thuoc-chung"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Card radius: 18</li>
+                    <li>Control radius: 16</li>
+                    <li>Dialog radius: 20</li>
+                    <li>Page action height: 52</li>
+                    <li>Card action height: 48</li>
+                    <li>Hotel image ratio: 16:10</li>
+                </ul>
+                <h3 id="accessibility-a-uoc-quan-tam">Accessibility đã được quan tâm<a class="anchor"
+                        href="#accessibility-a-uoc-quan-tam" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Icon button tối thiểu 48×48.</li>
+                    <li>Material tap target padded.</li>
+                    <li>Có high-contrast theme.</li>
+                    <li>Một số icon có semantic label.</li>
+                    <li>Có loading, empty, error và offline views dùng chung.</li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/app/theme/app_theme.dart</code></li>
+                    <li><code>lib/shared/widgets/stayz_state_views.dart</code></li>
+                    <li><code>lib/shared/widgets/stayz_network_image.dart</code></li>
+                </ul>
+                <h3 id="han-che-can-noi-trung-thuc">Hạn chế cần nói trung thực<span class="section-badge warning">Hạn
+                        chế</span><a class="anchor" href="#han-che-can-noi-trung-thuc"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Chưa có bằng chứng runtime trong lần phân tích này.</li>
+                    <li>Cần kiểm tra thêm text scaling, screen reader, landscape và tablet.</li>
+                    <li>Localization dùng chuỗi trực tiếp nên khó quản lý hơn ARB khi dự án lớn.</li>
+                    <li>Một số file UI và admin form khá dài.</li>
+                    <li>Khả năng chat realtime từ Flutter chưa hoàn chỉnh vì thiếu Socket.IO client dependency.</li>
+                </ul>
+                <hr />
+                <h2 id="7-navigation">7. Navigation<a class="anchor" href="#7-navigation"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Các route chính nằm trong:</p>
+                <ul>
+                    <li><code>lib/app/routes/app_routes.dart</code></li>
+                </ul>
+                <h3 id="authentication">Authentication<a class="anchor" href="#authentication"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>/auth-gate</code></li>
+                    <li><code>/onboarding</code></li>
+                    <li><code>/login</code></li>
+                    <li><code>/register</code></li>
+                    <li><code>/forgot-password</code></li>
+                    <li><code>/otp</code></li>
+                    <li><code>/reset-password</code></li>
+                </ul>
+                <h3 id="kham-pha-khach-san">Khám phá khách sạn<a class="anchor" href="#kham-pha-khach-san"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>/</code></li>
+                    <li><code>/search</code></li>
+                    <li><code>/filter</code></li>
+                    <li><code>/empty-search</code></li>
+                    <li><code>/offline-error</code></li>
+                    <li><code>/hotel-detail</code></li>
+                    <li><code>/room-detail</code></li>
+                </ul>
+                <h3 id="booking-va-payment">Booking và payment<a class="anchor" href="#booking-va-payment"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>/room-selection</code></li>
+                    <li><code>/booking-schedule</code></li>
+                    <li><code>/payment-checkout</code></li>
+                    <li><code>/payment-qr</code></li>
+                    <li><code>/booking-confirmation</code></li>
+                </ul>
+                <h3 id="quan-ly-booking">Quản lý booking<a class="anchor" href="#quan-ly-booking"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>/my-bookings</code></li>
+                    <li><code>/upcoming-booking-detail</code></li>
+                    <li><code>/completed-bookings</code></li>
+                    <li><code>/completed-booking-detail</code></li>
+                    <li><code>/cancelled-bookings</code></li>
+                    <li><code>/cancelled-booking-detail</code></li>
+                    <li><code>/booking-check-in-qr</code></li>
+                    <li><code>/cancel-booking-result</code></li>
+                    <li><code>/review</code></li>
+                </ul>
+                <h3 id="tai-khoan">Tài khoản<a class="anchor" href="#tai-khoan" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <ul>
+                    <li><code>/favorites</code></li>
+                    <li><code>/settings</code></li>
+                    <li><code>/profile-form</code></li>
+                    <li><code>/edit-profile</code></li>
+                    <li><code>/help-center</code></li>
+                    <li><code>/payment-methods</code></li>
+                    <li><code>/notifications</code></li>
+                </ul>
+                <h3 id="admin">Admin<a class="anchor" href="#admin" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>/admin</code></li>
+                    <li><code>/admin/check-in</code></li>
+                </ul>
+                <p>Admin route được bọc bằng <code>AdminAccessGate</code>. Gate gọi backend để xác minh role hiện tại,
+                    không chỉ tin role đã lưu cục bộ.</p>
+                <p>Unknown route có trang lỗi riêng và cho phép quay lại hoặc về home.</p>
+                <hr />
+                <h2 id="8-luong-ang-ky">8. Luồng đăng ký<a class="anchor" href="#8-luong-ang-ky"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Luồng source-confirmed:</p>
+                <ol>
+                    <li>Người dùng nhập họ tên, email, số điện thoại và mật khẩu.</li>
+                    <li>Flutter gọi <code>requestRegisterOtp</code>.</li>
+                    <li>Backend tạo OTP và gửi email.</li>
+                    <li>Người dùng nhập OTP 6 chữ số.</li>
+                    <li>Flutter gọi <code>verifyRegisterOtp</code>.</li>
+                    <li>Khi OTP hợp lệ, Flutter gọi endpoint tạo user với <code>register_code</code>.</li>
+                    <li>Backend validate dữ liệu.</li>
+                    <li>Mật khẩu được hash bằng bcrypt.</li>
+                    <li>User được lưu vào MongoDB.</li>
+                </ol>
+                <p>Endpoint:</p>
+                <ul>
+                    <li><code>POST /api/users/request-register-otp</code></li>
+                    <li><code>POST /api/users/verify-register-otp</code></li>
+                    <li><code>POST /api/users/create</code></li>
+                </ul>
+                <p>Rate limit:</p>
+                <ul>
+                    <li>Request OTP: 3 lần/15 phút.</li>
+                    <li>Verify OTP: 5 lần/15 phút.</li>
+                    <li>Tạo tài khoản: 5 lần/15 phút.</li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/features/auth/presentation/pages/register_page.dart</code></li>
+                    <li><code>lib/features/auth/presentation/pages/otp_page.dart</code></li>
+                    <li><code>lib/services/auth_service.dart</code></li>
+                    <li><code>backend/stayz_api/src/routes/users.router.js</code></li>
+                </ul>
+                <hr />
+                <h2 id="9-luong-ang-nhap">9. Luồng đăng nhập<a class="anchor" href="#9-luong-ang-nhap"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Flutter gửi email và password.</li>
+                    <li>Backend tìm user.</li>
+                    <li>bcrypt so sánh mật khẩu.</li>
+                    <li>Backend trả access token, refresh token và user.</li>
+                    <li>Flutter hiện chỉ lưu access token cùng thông tin user.</li>
+                    <li>AuthGate kiểm tra token có tồn tại và còn hạn.</li>
+                    <li>Các API bảo vệ nhận access token qua Bearer header.</li>
+                </ol>
+                <p>Endpoint:</p>
+                <ul>
+                    <li><code>POST /api/users/login</code></li>
+                    <li><code>POST /api/users/refresh-token</code></li>
+                    <li><code>POST /api/users/logout</code></li>
+                </ul>
+                <p>Điểm cần nói chính xác:</p>
+                <p>Backend có refresh-token API, nhưng Flutter <code>AuthService</code> hiện chủ yếu lưu access token và
+                    chưa thể hiện một cơ chế tự động refresh token hoàn chỉnh. Khi token hết hạn, phía Flutter logout và
+                    yêu cầu đăng nhập lại.</p>
+                <p>Đây là điểm có thể phát triển thêm.</p>
+                <hr />
+                <h2 id="10-quen-mat-khau">10. Quên mật khẩu<a class="anchor" href="#10-quen-mat-khau"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Nhập email.</li>
+                    <li>Backend gửi OTP.</li>
+                    <li>Người dùng xác minh mã.</li>
+                    <li>Nhập mật khẩu mới.</li>
+                    <li>Backend cập nhật password hash.</li>
+                </ol>
+                <p>Endpoint:</p>
+                <ul>
+                    <li><code>POST /api/users/request-password-reset</code></li>
+                    <li><code>POST /api/users/verify-reset-code</code></li>
+                    <li><code>POST /api/users/reset-password</code></li>
+                </ul>
+                <p>Có rate limit để giảm brute force OTP.</p>
+                <hr />
+                <h2 id="11-google-login">11. Google login<a class="anchor" href="#11-google-login"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Flutter mở <code>/auth/google</code>.</li>
+                    <li>Passport chuyển người dùng đến Google.</li>
+                    <li>Google callback về backend.</li>
+                    <li>Backend tìm hoặc tạo user.</li>
+                    <li>Backend sinh token.</li>
+                    <li>Backend redirect về deep link <code>stayz://auth/login-success</code>.</li>
+                    <li>Flutter nhận deep link, kiểm tra token và lưu session.</li>
+                </ol>
+                <p>Lưu ý schema <code>User</code> hiện không khai báo rõ <code>provider</code> và <code>googleId</code>.
+                    Mongoose strict mode có thể không lưu hai field bổ sung này. Tài khoản Google vẫn có thể được liên
+                    kết thực tế bằng email, nhưng đây là điểm thiết kế dữ liệu nên được rà soát.</p>
+                <hr />
+                <h2 id="12-luong-tim-kiem">12. Luồng tìm kiếm<a class="anchor" href="#12-luong-tim-kiem"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Người dùng nhập từ khóa hoặc mở bộ lọc.</li>
+                    <li>Flutter tạo <code>SearchFilters</code>.</li>
+                    <li>Filter có thể gồm:<ul>
+                            <li>Keyword</li>
+                            <li>City</li>
+                            <li>Property type</li>
+                            <li>Room type</li>
+                            <li>Min/max price</li>
+                            <li>Guests</li>
+                            <li>Amenities</li>
+                            <li>Preferred</li>
+                            <li>Near beach</li>
+                        </ul>
+                    </li>
+                    <li>Repository chuyển filter thành query parameters.</li>
+                    <li>Backend tìm property phù hợp.</li>
+                    <li>Flutter chuyển JSON thành <code>HotelSummary</code>.</li>
+                    <li>Kết quả được hiển thị hoặc chuyển sang empty/offline state.</li>
+                </ol>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/shared/repositories/stayz_repository.dart</code></li>
+                    <li><code>lib/features/search/presentation/pages/search_page.dart</code></li>
+                    <li><code>lib/features/search/presentation/pages/filter_page.dart</code></li>
+                    <li><code>backend/stayz_api/src/helpers/search.helper.js</code></li>
+                    <li><code>backend/stayz_api/src/services/properties.service.js</code></li>
+                </ul>
+                <p>Backend có <code>search_index</code> để hỗ trợ tìm không dấu và xử lý chuỗi tìm kiếm tốt hơn.</p>
+                <p>Các endpoint:</p>
+                <ul>
+                    <li><code>GET /api/properties/search</code></li>
+                    <li><code>GET /api/properties/featured</code></li>
+                    <li><code>GET /api/properties/getAll</code></li>
+                    <li><code>GET /api/properties/:city</code></li>
+                    <li><code>GET /api/properties/:city/:slug</code></li>
+                </ul>
+                <hr />
+                <h2 id="13-luong-at-phong">13. Luồng đặt phòng<a class="anchor" href="#13-luong-at-phong"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Luồng chính:</p>
+                <p>Home/Search<br />
+                    → Hotel detail<br />
+                    → Room selection<br />
+                    → Booking schedule<br />
+                    → Payment checkout<br />
+                    → Tạo booking pending<br />
+                    → Tạo PayOS payment<br />
+                    → Payment QR<br />
+                    → PayOS webhook<br />
+                    → Booking confirmed<br />
+                    → Booking confirmation<br />
+                    → My Bookings</p>
+                <h3 id="buoc-1-chon-khach-san-va-phong">Bước 1: Chọn khách sạn và phòng<a class="anchor"
+                        href="#buoc-1-chon-khach-san-va-phong" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Người dùng xem property, danh sách room, giá, sức chứa, tiện nghi và tình trạng phòng.</p>
+                <h3 id="buoc-2-chon-lich">Bước 2: Chọn lịch<a class="anchor" href="#buoc-2-chon-lich"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Người dùng chọn:</p>
+                <ul>
+                    <li>Check-in</li>
+                    <li>Check-out</li>
+                    <li>Số khách</li>
+                    <li>Số phòng</li>
+                </ul>
+                <h3 id="buoc-3-tao-booking">Bước 3: Tạo booking<a class="anchor" href="#buoc-3-tao-booking"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Flutter gửi:</p>
+                <ul>
+                    <li><code>user_id</code></li>
+                    <li><code>property_id</code></li>
+                    <li><code>room_id</code></li>
+                    <li><code>check_in</code></li>
+                    <li><code>check_out</code></li>
+                    <li><code>guests</code></li>
+                    <li><code>rooms_count</code></li>
+                    <li><code>payment_plan</code></li>
+                </ul>
+                <p>Backend không tin giá do client gửi. Backend đọc room từ database rồi tự tính:</p>
+                <p><code>total_price = room.price × nights × rooms_count</code></p>
+                <p>Backend cũng tự tính số đêm và sức chứa tối đa.</p>
+                <h3 id="buoc-4-kiem-tra-phong-trong">Bước 4: Kiểm tra phòng trống<a class="anchor"
+                        href="#buoc-4-kiem-tra-phong-trong" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Backend tìm các booking bị overlap:</p>
+                <ul>
+                    <li>Booking confirmed.</li>
+                    <li>Booking pending nhưng thời gian giữ chỗ chưa hết.</li>
+                </ul>
+                <p>Điều kiện overlap:</p>
+                <ul>
+                    <li>Booking cũ check-in trước check-out mới.</li>
+                    <li>Booking cũ check-out sau check-in mới.</li>
+                </ul>
+                <p>Số phòng còn lại:</p>
+                <p><code>room.quantity - tổng rooms_count đã giữ</code></p>
+                <h3 id="buoc-5-distributed-lock">Bước 5: Distributed lock<a class="anchor"
+                        href="#buoc-5-distributed-lock" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Backend tạo lock theo room và khoảng ngày bằng Redlock để giảm race condition khi nhiều request đặt
+                    cùng lúc.</p>
+                <p>Nếu Redis không sẵn sàng, code có cơ chế bỏ qua lock và vẫn kiểm tra database. Vì vậy Redis giúp tăng
+                    độ an toàn concurrency nhưng cần kiểm thử tải thực tế.</p>
+                <h3 id="buoc-6-booking-pending">Bước 6: Booking pending<a class="anchor" href="#buoc-6-booking-pending"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Booking mới luôn có:</p>
+                <ul>
+                    <li><code>status = pending</code></li>
+                    <li><code>payment_status = pending</code></li>
+                    <li>Thời gian giữ chỗ 15 phút.</li>
+                    <li>Check-in code ngẫu nhiên.</li>
+                </ul>
+                <p>Vì vậy booking pending không phải mặc định là lỗi. Nếu người dùng chưa hoàn tất PayOS, pending là
+                    trạng thái đúng.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/services/booking.service.js</code></li>
+                    <li><code>backend/stayz_api/src/models/bookings.model.js</code></li>
+                </ul>
+                <hr />
+                <h2 id="14-luong-thanh-toan">14. Luồng thanh toán<a class="anchor" href="#14-luong-thanh-toan"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>StayZ hỗ trợ hai payment plan:</p>
+                <h3 id="deposit-30">Deposit 30%<a class="anchor" href="#deposit-30"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Thanh toán trước 30%.</li>
+                    <li>70% còn lại thanh toán tại khách sạn.</li>
+                </ul>
+                <h3 id="full-100">Full 100%<a class="anchor" href="#full-100" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <ul>
+                    <li>Thanh toán toàn bộ.</li>
+                    <li>Logic test hiện cho thấy full payment áp dụng giảm 10%.</li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/utils/paymentQuote.util.js</code></li>
+                    <li><code>backend/stayz_api/test/paymentQuote.test.js</code></li>
+                    <li><code>test/payment_business_logic_test.dart</code></li>
+                </ul>
+                <h3 id="qua-trinh-payos">Quá trình PayOS<a class="anchor" href="#qua-trinh-payos"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ol>
+                    <li>Booking pending được tạo.</li>
+                    <li>Flutter gọi:
+                        <code>POST /api/payment/create/:bookingId</code>
+                    </li>
+                    <li>Backend lấy booking thật.</li>
+                    <li>Backend tính lại payment quote.</li>
+                    <li>Backend tạo order code.</li>
+                    <li>PayOS trả checkout URL và QR.</li>
+                    <li>Payment được lưu với trạng thái pending.</li>
+                    <li>Người dùng thanh toán.</li>
+                    <li>PayOS gọi webhook.</li>
+                    <li>Backend xác minh webhook.</li>
+                    <li>Backend kiểm tra số tiền webhook phải khớp <code>payment.amount</code>.</li>
+                    <li>Payment chuyển thành <code>PAID</code>.</li>
+                    <li>Booking chuyển:<ul>
+                            <li><code>status = confirmed</code></li>
+                            <li><code>payment_status = paid</code></li>
+                        </ul>
+                    </li>
+                    <li><code>payment_expires_at</code> được xóa.</li>
+                </ol>
+                <p>Nếu giao dịch bị hủy, payment chuyển <code>CANCELLED</code>.</p>
+                <p>Điểm tốt:</p>
+                <ul>
+                    <li>Giá được tính ở server.</li>
+                    <li>Webhook được xác minh.</li>
+                    <li>Có kiểm tra amount.</li>
+                    <li>Webhook đã xử lý payment paid theo hướng idempotent.</li>
+                    <li>Chỉ payment thành công mới xác nhận booking.</li>
+                </ul>
+                <p>Rủi ro cần nói:</p>
+                <ul>
+                    <li>Cần test thật với PayOS sandbox/production.</li>
+                    <li>Trạng thái payment dùng cả lowercase <code>pending</code> và uppercase <code>PAID</code>,
+                        <code>CANCELLED</code>, chưa hoàn toàn đồng nhất.</li>
+                    <li>Cần kiểm tra trường hợp webhook thành công nhưng cập nhật booking thất bại giữa chừng.</li>
+                    <li>Cần reconciliation job nếu webhook bị bỏ lỡ.</li>
+                </ul>
+                <hr />
+                <h2 id="15-huy-booking-va-hoan-tien">15. Hủy booking và hoàn tiền<a class="anchor"
+                        href="#15-huy-booking-va-hoan-tien" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Người dùng thường chỉ được hủy booking của chính mình.</p>
+                <p>Admin có quyền quản lý rộng hơn.</p>
+                <p>Backend không cho:</p>
+                <ul>
+                    <li>Xác nhận booking chưa thanh toán.</li>
+                    <li>Đưa confirmed booking trở lại pending.</li>
+                    <li>Thay đổi booking đã cancelled.</li>
+                    <li>Thay đổi booking đã completed.</li>
+                    <li>User thường tự chuyển booking sang confirmed/completed.</li>
+                </ul>
+                <p>Thông tin hoàn tiền được lưu:</p>
+                <ul>
+                    <li><code>refund_amount</code></li>
+                    <li><code>refund_rate</code></li>
+                    <li><code>refund_status</code></li>
+                </ul>
+                <p>Lưu ý: comment trong model/service mô tả phần hoàn tiền là mô phỏng hoặc xử lý thủ công, không nên
+                    trình bày như PayOS đã tự động hoàn tiền hoàn chỉnh.</p>
+                <hr />
+                <h2 id="16-check-in-va-hoan-tat-chuyen-i">16. Check-in và hoàn tất chuyến đi<a class="anchor"
+                        href="#16-check-in-va-hoan-tat-chuyen-i" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Booking có:</p>
+                <ul>
+                    <li><code>check_in_code</code></li>
+                    <li><code>attendance_status</code></li>
+                    <li><code>attendance_note</code></li>
+                    <li><code>attendance_confirmed_at</code></li>
+                    <li><code>attendance_confirmed_by</code></li>
+                </ul>
+                <p>Attendance status:</p>
+                <ul>
+                    <li><code>pending</code></li>
+                    <li><code>checked_in</code></li>
+                    <li><code>no_show</code></li>
+                </ul>
+                <p>Admin có màn hình quét/check mã check-in:</p>
+                <ul>
+                    <li><code>/admin/check-in</code></li>
+                </ul>
+                <p>Booking chỉ chuyển completed sau checkout nếu người dùng đã checked-in.</p>
+                <p>Nếu no-show, booking có thể chuyển cancelled và không hoàn tiền theo chính sách hiện tại.</p>
+                <p>Backend dùng múi giờ nghiệp vụ:</p>
+                <p><code>Asia/Ho_Chi_Minh</code></p>
+                <p>Điều này giúp tránh sai ngày khi server production chạy múi giờ khác Việt Nam.</p>
+                <hr />
+                <h2 id="17-review">17. Review<a class="anchor" href="#17-review" aria-label="Liên kết đến mục này">#</a>
+                </h2>
+                <p>Review liên kết:</p>
+                <ul>
+                    <li>User</li>
+                    <li>Property</li>
+                    <li>Booking</li>
+                </ul>
+                <p>Index unique theo <code>user_id + booking_id</code> giúp một user không review nhiều lần cho cùng một
+                    booking.</p>
+                <p>Luồng đúng:</p>
+                <ol>
+                    <li>Booking hoàn tất.</li>
+                    <li>Người dùng mở completed booking.</li>
+                    <li>Nhập rating và comment.</li>
+                    <li>Flutter gọi review API.</li>
+                    <li>Backend kiểm tra điều kiện.</li>
+                    <li>Review được lưu.</li>
+                </ol>
+                <p>Endpoint:</p>
+                <ul>
+                    <li><code>GET /api/review/getAll</code></li>
+                    <li><code>POST /api/review/create</code></li>
+                    <li><code>PUT /api/review/update/:id</code></li>
+                    <li><code>DELETE /api/review/delete/:id</code></li>
+                </ul>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/models/reviews.model.js</code></li>
+                    <li><code>backend/stayz_api/src/services/review.service.js</code></li>
+                    <li><code>lib/features/booking_management/presentation/pages/review_page.dart</code></li>
+                </ul>
+                <hr />
+                <h2 id="18-favorites">18. Favorites<a class="anchor" href="#18-favorites"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Favorite liên kết user với property.</p>
+                <p>Index unique:</p>
+                <p><code>user_id + property_id</code></p>
+                <p>nhằm ngăn một khách sạn bị thêm yêu thích trùng nhiều lần.</p>
+                <p>Endpoint:</p>
+                <ul>
+                    <li><code>GET /api/favorites</code></li>
+                    <li><code>GET /api/favorites/check/:propertyId</code></li>
+                    <li><code>POST /api/favorites/:propertyId</code></li>
+                    <li><code>DELETE /api/favorites/:propertyId</code></li>
+                </ul>
+                <p>Các endpoint đều dựa trên user đã đăng nhập.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>backend/stayz_api/src/models/favorites.model.js</code></li>
+                    <li><code>backend/stayz_api/src/routes/favorites.router.js</code></li>
+                    <li><code>lib/features/favorites/presentation/pages/favorites_page.dart</code></li>
+                </ul>
+                <hr />
+                <h2 id="19-notifications">19. Notifications<a class="anchor" href="#19-notifications"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Notification có:</p>
+                <ul>
+                    <li><code>user_id</code></li>
+                    <li><code>type</code></li>
+                    <li><code>title</code></li>
+                    <li><code>body</code></li>
+                    <li>Nội dung tiếng Anh</li>
+                    <li><code>ref_id</code></li>
+                    <li><code>ref_type</code></li>
+                    <li><code>is_read</code></li>
+                </ul>
+                <p>Type:</p>
+                <ul>
+                    <li><code>booking_status</code></li>
+                    <li><code>promotion</code></li>
+                    <li><code>system</code></li>
+                </ul>
+                <p>Backend tạo notification khi:</p>
+                <ul>
+                    <li>Booking được tạo và chờ thanh toán.</li>
+                    <li>Booking đổi trạng thái.</li>
+                    <li>Chuyến đi hoàn tất.</li>
+                    <li>No-show hoặc các sự kiện nghiệp vụ khác.</li>
+                </ul>
+                <p>Endpoint:</p>
+                <ul>
+                    <li><code>GET /api/notifications</code></li>
+                    <li><code>PATCH /api/notifications/read-all</code></li>
+                    <li><code>PATCH /api/notifications/:id/read</code></li>
+                    <li><code>DELETE /api/notifications/:id</code></li>
+                </ul>
+                <hr />
+                <h2 id="20-ai-booking-assistant">20. AI Booking Assistant<a class="anchor"
+                        href="#20-ai-booking-assistant" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Flutter mở AI chat sheet và gửi nội dung đến backend.</p>
+                <p>Endpoint:</p>
+                <p><code>POST /api/ai/chat</code></p>
+                <p>Endpoint được bảo vệ bằng JWT.</p>
+                <p>Backend thực hiện:</p>
+                <ol>
+                    <li>Nhận message.</li>
+                    <li>Parse intent và điều kiện tìm kiếm.</li>
+                    <li>Đọc dữ liệu property/room thật từ MongoDB.</li>
+                    <li>Tạo database context.</li>
+                    <li>Lưu message người dùng.</li>
+                    <li>Gọi OpenAI với context.</li>
+                    <li>Lưu message assistant.</li>
+                    <li>Trả:<ul>
+                            <li>Reply</li>
+                            <li>Conversation ID</li>
+                            <li>Intent</li>
+                            <li>Suggestions</li>
+                        </ul>
+                    </li>
+                </ol>
+                <p>AI có thể phân tích:</p>
+                <ul>
+                    <li>Thành phố.</li>
+                    <li>Khoảng giá.</li>
+                    <li>Số khách.</li>
+                    <li>Ngày nhận/trả.</li>
+                    <li>Amenities.</li>
+                    <li>Property/room liên quan.</li>
+                </ul>
+                <p>Điểm quan trọng:</p>
+                <p>AI không được phép tự bịa khách sạn hoặc giá. Prompt backend cung cấp context lấy từ database.</p>
+                <p>Nếu OpenAI không dùng được:</p>
+                <ul>
+                    <li>Không có <code>OPENAI_API_KEY</code>.</li>
+                    <li>Request lỗi.</li>
+                    <li>Timeout 12 giây.</li>
+                    <li>Response không hợp lệ.</li>
+                </ul>
+                <p>Backend dùng <code>fallbackReply</code> dựa trên dữ liệu StayZ.</p>
+                <p>Flutter có thể dùng suggestion để điều hướng người dùng sang khách sạn hoặc booking flow.</p>
+                <p>Bằng chứng:</p>
+                <ul>
+                    <li><code>lib/features/chat/ai_chat_sheet.dart</code></li>
+                    <li><code>backend/stayz_api/src/routes/ai.router.js</code></li>
+                    <li><code>backend/stayz_api/src/services/ai.service.js</code></li>
+                </ul>
+                <hr />
+                <h2 id="21-chat-realtime">21. Chat realtime<a class="anchor" href="#21-chat-realtime"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Backend có REST chat API:</p>
+                <ul>
+                    <li>Tạo hoặc lấy conversation.</li>
+                    <li>Lấy danh sách conversation.</li>
+                    <li>Lấy messages.</li>
+                    <li>Gửi message.</li>
+                    <li>Đánh dấu đã đọc.</li>
+                </ul>
+                <p>Socket.IO hỗ trợ realtime.</p>
+                <p>Model:</p>
+                <ul>
+                    <li>Conversation chứa participants và last message.</li>
+                    <li>Message chứa conversation, sender, content và read state.</li>
+                </ul>
+                <p>Điểm cần trả lời trung thực:</p>
+                <p>Backend đã có chat realtime, nhưng Flutter hiện không khai báo Socket.IO client trong
+                    <code>pubspec.yaml</code>. Vì vậy không nên nói mobile chat realtime đã hoàn thiện end-to-end nếu
+                    chưa bổ sung hoặc xác minh client.</p>
+                <hr />
+                <h2 id="22-admin">22. Admin<a class="anchor" href="#22-admin" aria-label="Liên kết đến mục này">#</a>
+                </h2>
+                <p>Admin được bảo vệ hai lớp:</p>
+                <ol>
+                    <li>Flutter dùng <code>AdminAccessGate</code>.</li>
+                    <li>Backend dùng <code>protect</code> và <code>adminOnly</code>.</li>
+                </ol>
+                <p>Backend không chỉ tin role trong JWT. <code>protect</code> tải lại user từ MongoDB để xác nhận:</p>
+                <ul>
+                    <li>User còn tồn tại.</li>
+                    <li>Tài khoản còn active.</li>
+                    <li>Role hiện tại là gì.</li>
+                </ul>
+                <p>Điều này giúp user bị khóa hoặc admin bị hạ quyền mất quyền ngay, thay vì giữ quyền đến khi JWT hết
+                    hạn.</p>
+                <p>Admin hỗ trợ quản lý:</p>
+                <ul>
+                    <li>User.</li>
+                    <li>Property.</li>
+                    <li>Room.</li>
+                    <li>Booking.</li>
+                    <li>Payment.</li>
+                    <li>Review.</li>
+                    <li>Upload hình ảnh.</li>
+                    <li>Check-in.</li>
+                    <li>Audit hành động admin.</li>
+                </ul>
+                <p>Admin audit lưu:</p>
+                <ul>
+                    <li>Admin ID.</li>
+                    <li>Method.</li>
+                    <li>Path.</li>
+                    <li>Status code.</li>
+                    <li>Target.</li>
+                    <li>Changes.</li>
+                    <li>IP.</li>
+                    <li>Timestamp.</li>
+                </ul>
+                <hr />
+                <h2 id="23-database-models">23. Database models<a class="anchor" href="#23-database-models"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <h3 id="user">User<a class="anchor" href="#user" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Các field chính:</p>
+                <ul>
+                    <li>email</li>
+                    <li>password</li>
+                    <li>full_name</li>
+                    <li>phone_number</li>
+                    <li>gender</li>
+                    <li>home_address</li>
+                    <li>date_of_birth</li>
+                    <li>avatar</li>
+                    <li>role</li>
+                    <li>is_active</li>
+                    <li>reset_password</li>
+                    <li>timestamps</li>
+                </ul>
+                <p>Role: <code>admin</code>, <code>user</code>.</p>
+                <h3 id="property">Property<a class="anchor" href="#property" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <p>Các field chính:</p>
+                <ul>
+                    <li>title</li>
+                    <li>slug</li>
+                    <li>address</li>
+                    <li>city</li>
+                    <li>country</li>
+                    <li>latitude/longitude</li>
+                    <li>type</li>
+                    <li>base_price</li>
+                    <li>description</li>
+                    <li>description_en</li>
+                    <li>search_index</li>
+                    <li>amenities</li>
+                    <li>images</li>
+                    <li>is_preferred</li>
+                    <li>is_active</li>
+                    <li>max_stay_days</li>
+                    <li>user_id</li>
+                </ul>
+                <h3 id="room">Room<a class="anchor" href="#room" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Các field chính:</p>
+                <ul>
+                    <li>property_id</li>
+                    <li>name</li>
+                    <li>room_type</li>
+                    <li>description</li>
+                    <li>price</li>
+                    <li>original_price</li>
+                    <li>discount_percent</li>
+                    <li>capacity</li>
+                    <li>quantity</li>
+                    <li>images</li>
+                    <li>is_active</li>
+                    <li>bed_info</li>
+                    <li>area</li>
+                    <li>view</li>
+                    <li>badges</li>
+                    <li>amenities</li>
+                </ul>
+                <h3 id="booking">Booking<a class="anchor" href="#booking" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Các field chính:</p>
+                <ul>
+                    <li>user_id</li>
+                    <li>property_id</li>
+                    <li>room_id</li>
+                    <li>check_in/check_out</li>
+                    <li>guests</li>
+                    <li>rooms_count</li>
+                    <li>nights</li>
+                    <li>price_per_night</li>
+                    <li>total_price</li>
+                    <li>status</li>
+                    <li>payment_status</li>
+                    <li>payment_plan</li>
+                    <li>amount_paid</li>
+                    <li>remaining_at_hotel</li>
+                    <li>refund fields</li>
+                    <li>payment_expires_at</li>
+                    <li>attendance fields</li>
+                    <li>cancellation_reason</li>
+                    <li>check_in_code</li>
+                </ul>
+                <h3 id="payment">Payment<a class="anchor" href="#payment" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>booking_id</li>
+                    <li>user_id</li>
+                    <li>order_code</li>
+                    <li>amount</li>
+                    <li>status</li>
+                    <li>payment_link_id</li>
+                    <li>checkout_url</li>
+                    <li>QR/bank information</li>
+                    <li>currency</li>
+                </ul>
+                <h3 id="favorite">Favorite<a class="anchor" href="#favorite" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <ul>
+                    <li>user_id</li>
+                    <li>property_id</li>
+                </ul>
+                <h3 id="review">Review<a class="anchor" href="#review" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>user_id</li>
+                    <li>property_id</li>
+                    <li>booking_id</li>
+                    <li>rating</li>
+                    <li>comment</li>
+                </ul>
+                <h3 id="notification">Notification<a class="anchor" href="#notification"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>user_id</li>
+                    <li>type</li>
+                    <li>title/body VI và EN</li>
+                    <li>reference</li>
+                    <li>is_read</li>
+                </ul>
+                <h3 id="conversation-va-message">Conversation và Message<a class="anchor"
+                        href="#conversation-va-message" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Lưu hội thoại và tin nhắn chat.</p>
+                <h3 id="amenition">Amenition<a class="anchor" href="#amenition" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <p>Model được đặt tên <code>Amenition</code>, đây có thể là lỗi chính tả của “Amenity”. Cần giữ đúng khi
+                    nói về source hiện tại.</p>
+                <h3 id="adminaudit">AdminAudit<a class="anchor" href="#adminaudit"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <p>Theo dõi hành động quản trị.</p>
+                <hr />
+                <h2 id="24-bien-moi-truong">24. Biến môi trường<a class="anchor" href="#24-bien-moi-truong"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Không được đưa giá trị secret thật vào HTML.</p>
+                <h3 id="database">Database<a class="anchor" href="#database" aria-label="Liên kết đến mục này">#</a>
+                </h3>
+                <ul>
+                    <li><code>MONGODB_URI</code></li>
+                    <li><code>DATABASE_URL</code></li>
+                    <li><code>MONGODB_DNS_SERVERS</code></li>
+                </ul>
+                <p><code>MONGODB_URI</code> được ưu tiên, sau đó mới dùng <code>DATABASE_URL</code>.</p>
+                <h3 id="authentication-2">Authentication<a class="anchor" href="#authentication-2"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>JWT_SECRET</code></li>
+                    <li><code>SECRET</code></li>
+                    <li><code>JWT_REFRESH_SECRET</code></li>
+                    <li><code>REFRESH_SECRET</code></li>
+                </ul>
+                <h3 id="server">Server<a class="anchor" href="#server" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>PORT</code></li>
+                    <li><code>CLIENT_URL</code></li>
+                    <li><code>NODE_ENV</code></li>
+                </ul>
+                <h3 id="redis">Redis<a class="anchor" href="#redis" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>REDIS_URL</code></li>
+                </ul>
+                <p>Mặc định local:</p>
+                <p><code>redis://127.0.0.1:6379</code></p>
+                <h3 id="google-oauth">Google OAuth<a class="anchor" href="#google-oauth"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>GOOGLE_CLIENT_ID</code></li>
+                    <li><code>GOOGLE_CLIENT_SECRET</code></li>
+                    <li><code>GOOGLE_CALLBACK_URL</code></li>
+                </ul>
+                <h3 id="gmail">Gmail<a class="anchor" href="#gmail" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>GMAIL_CLIENT_ID</code></li>
+                    <li><code>GMAIL_CLIENT_SECRET</code></li>
+                    <li><code>GMAIL_REFRESH_TOKEN</code></li>
+                    <li><code>GMAIL_SENDER_EMAIL</code></li>
+                </ul>
+                <h3 id="cloudinary-2">Cloudinary<a class="anchor" href="#cloudinary-2"
+                        aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>CLOUDINARY_CLOUD_NAME</code></li>
+                    <li><code>CLOUDINARY_API_KEY</code></li>
+                    <li><code>CLOUDINARY_API_SECRET</code></li>
+                </ul>
+                <h3 id="payos-2">PayOS<a class="anchor" href="#payos-2" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>PAYOS_CLIENT_ID</code></li>
+                    <li><code>PAYOS_API_KEY</code></li>
+                    <li><code>PAYOS_CHECKSUM_KEY</code></li>
+                    <li><code>PAYOS_RETURN_URL</code></li>
+                    <li><code>PAYOS_CANCEL_URL</code></li>
+                </ul>
+                <h3 id="vietqr">VietQR<a class="anchor" href="#vietqr" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>VIETQR_BANK_BIN</code></li>
+                    <li><code>VIETQR_ACCOUNT_NUMBER</code></li>
+                    <li><code>VIETQR_ACCOUNT_NAME</code></li>
+                </ul>
+                <h3 id="ai">AI<a class="anchor" href="#ai" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>OPENAI_API_KEY</code></li>
+                    <li><code>OPENAI_MODEL</code></li>
+                </ul>
+                <h3 id="flutter">Flutter<a class="anchor" href="#flutter" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li><code>STAYZ_API_BASE_URL</code></li>
+                </ul>
+                <p>Mặc định hiện tại:</p>
+                <p><code>https://stayz-api.onrender.com/api</code></p>
+                <p>Ví dụ chạy local Android emulator:</p>
+                <p><code>flutter run --dart-define=STAYZ_API_BASE_URL=http://10.0.2.2:3000/api</code></p>
+                <p>Thiết bị thật dùng Wi-Fi:</p>
+                <p><code>flutter run --dart-define=STAYZ_API_BASE_URL=http://&lt;IP-LAN-CUA-MAY-TIN&gt;:3000/api</code>
+                </p>
+                <p>USB với adb reverse:</p>
+                <p><code>adb reverse tcp:3000 tcp:3000</code></p>
+                <p>sau đó dùng:</p>
+                <p><code>http://127.0.0.1:3000/api</code></p>
+                <p>Giải thích: <code>localhost</code> hoặc <code>127.0.0.1</code> trên điện thoại là chính điện thoại,
+                    không phải máy tính, trừ khi dùng <code>adb reverse</code>.</p>
+                <hr />
+                <h2 id="25-bao-mat">25. Bảo mật<a class="anchor" href="#25-bao-mat"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <h3 id="iem-tot">Điểm tốt<a class="anchor" href="#iem-tot" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Password được hash bằng bcrypt.</li>
+                    <li>JWT bảo vệ API.</li>
+                    <li>Middleware tải role hiện tại từ database.</li>
+                    <li>Có admin authorization.</li>
+                    <li>Redis blacklist token logout.</li>
+                    <li>Rate limit login, register và OTP.</li>
+                    <li>Kiểm tra ownership booking/payment.</li>
+                    <li>Giá booking được tính lại ở server.</li>
+                    <li>Webhook kiểm tra số tiền.</li>
+                    <li>Upload có kiểm soát MIME.</li>
+                    <li>Favorite và review có unique index.</li>
+                    <li>Distributed lock giảm overbooking.</li>
+                    <li>Admin action có audit log.</li>
+                </ul>
+                <h3 id="han-che">Hạn chế<span class="section-badge warning">Hạn chế</span><a class="anchor"
+                        href="#han-che" aria-label="Liên kết đến mục này">#</a></h3>
+                <ul>
+                    <li>Flutter lưu token trong SharedPreferences thay vì secure storage.</li>
+                    <li>Client chưa dùng refresh token đầy đủ.</li>
+                    <li>CORS Socket.IO đang cho phép origin <code>*</code>.</li>
+                    <li>Redis fail-open giúp hệ thống không chết nhưng làm giảm bảo vệ rate limit/lock khi Redis lỗi.
+                    </li>
+                    <li>Cần test kỹ transaction giữa payment và booking.</li>
+                    <li>Cần xác minh upload size/type ở runtime.</li>
+                    <li>Không được khẳng định hệ thống an toàn tuyệt đối.</li>
+                    <li>Cần rotation, quản lý và bảo vệ production secret.</li>
+                </ul>
+                <h3 id="cau-tra-loi-mau">Câu trả lời mẫu<span class="section-badge answer">Trả lời mẫu</span><a
+                        class="anchor" href="#cau-tra-loi-mau" aria-label="Liên kết đến mục này">#</a></h3>
+                <p>“Dự án sử dụng bcrypt để hash mật khẩu, JWT để xác thực và middleware để phân quyền. Role admin được
+                    kiểm tra lại từ database. Redis hỗ trợ blacklist token, rate limit và lock booking. Giá thanh toán
+                    được tính ở server và webhook PayOS được xác minh. Tuy nhiên hệ thống vẫn còn các hướng cải thiện
+                    như chuyển token sang secure storage, hoàn thiện refresh token và tăng khả năng phục hồi transaction
+                    payment.”</p>
+                <hr />
+                <h2 id="26-testing">26. Testing<a class="anchor" href="#26-testing"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Flutter test hiện có:</p>
+                <ul>
+                    <li>App/onboarding rendering.</li>
+                    <li>Responsive hotel card trên iPhone SE.</li>
+                    <li>Admin responsive ở màn hình nhỏ.</li>
+                    <li>Admin language switching.</li>
+                    <li>Admin booking form fallback.</li>
+                    <li>Payment calculation.</li>
+                    <li>Cache booking được thay bằng dữ liệu server.</li>
+                    <li>Confirmation hiển thị payment breakdown và check-in QR.</li>
+                </ul>
+                <p>Backend test hiện có:</p>
+                <ul>
+                    <li>Deposit 30%.</li>
+                    <li>Full payment discount 10%.</li>
+                    <li>Làm tròn VND.</li>
+                    <li>Payment plan không hợp lệ fallback về deposit.</li>
+                </ul>
+                <p>Không được khẳng định toàn bộ test đang pass nếu Claude không chạy test.</p>
+                <p>Khoảng trống testing:</p>
+                <ul>
+                    <li>Auth integration.</li>
+                    <li>Booking concurrency.</li>
+                    <li>PayOS webhook integration.</li>
+                    <li>Redis failure.</li>
+                    <li>Google OAuth.</li>
+                    <li>Email OTP.</li>
+                    <li>Cloudinary upload.</li>
+                    <li>Socket.IO.</li>
+                    <li>AI fallback.</li>
+                    <li>Full navigation.</li>
+                    <li>Accessibility.</li>
+                    <li>End-to-end booking trên thiết bị thật.</li>
+                </ul>
+                <hr />
+                <h2 id="27-iem-manh">27. Điểm mạnh<span class="section-badge positive">Điểm mạnh</span><a class="anchor"
+                        href="#27-iem-manh" aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Kiến trúc frontend/backend tách tương đối rõ.</li>
+                    <li>Có backend và database thật.</li>
+                    <li>Booking được tính giá ở server.</li>
+                    <li>Có kiểm tra sức chứa và phòng trống.</li>
+                    <li>Có Redis/Redlock xử lý concurrency.</li>
+                    <li>Có PayOS webhook.</li>
+                    <li>AI dùng dữ liệu database thật và có fallback.</li>
+                    <li>Có localization Việt/Anh.</li>
+                    <li>Có admin authorization và audit.</li>
+                    <li>Có notification, favorite, review và booking management.</li>
+                    <li>Có UI state dùng chung.</li>
+                    <li>Có một số test nghiệp vụ payment và responsive.</li>
+                    <li>Dùng múi giờ Việt Nam cho nghiệp vụ ngày booking.</li>
+                    <li>Có check-in code và trạng thái attendance.</li>
+                    <li>Có archive/active state thay vì chỉ xóa dữ liệu.</li>
+                </ol>
+                <hr />
+                <h2 id="28-han-che">28. Hạn chế<span class="section-badge warning">Hạn chế</span><a class="anchor"
+                        href="#28-han-che" aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Chưa có runtime verification trong bản phân tích này.</li>
+                    <li>Flutter chưa hoàn thiện refresh token.</li>
+                    <li>Token lưu trong SharedPreferences.</li>
+                    <li>Socket.IO client chưa thấy trong Flutter dependency.</li>
+                    <li>Payment và booking cần transaction/reconciliation chắc chắn hơn.</li>
+                    <li>Refund hiện thiên về mô phỏng/thủ công.</li>
+                    <li>Một số trạng thái payment chưa đồng nhất chữ hoa/chữ thường.</li>
+                    <li>Test integration và end-to-end còn thiếu.</li>
+                    <li>Một số file UI/admin khá lớn.</li>
+                    <li>Localization bằng chuỗi trực tiếp khó mở rộng.</li>
+                    <li>Redis failure làm rate limit hoặc lock giảm hiệu lực.</li>
+                    <li>Cần kiểm tra accessibility trên thiết bị thật.</li>
+                    <li>Cần xác minh OAuth, OTP và PayOS với production config.</li>
+                    <li>Model <code>Amenition</code> có lỗi chính tả.</li>
+                    <li>User schema chưa thể hiện rõ các field provider/googleId được auth service truyền vào.</li>
+                </ol>
+                <hr />
+                <h2 id="29-huong-phat-trien">29. Hướng phát triển<a class="anchor" href="#29-huong-phat-trien"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ol>
+                    <li>Dùng Flutter secure storage.</li>
+                    <li>Hoàn thiện refresh-token rotation.</li>
+                    <li>Thêm Socket.IO client cho Flutter nếu cần realtime chat.</li>
+                    <li>Thêm transaction hoặc reconciliation cho payment.</li>
+                    <li>Thêm idempotency key cho booking/payment request.</li>
+                    <li>Thêm background job xử lý booking/payment hết hạn.</li>
+                    <li>Chuẩn hóa payment status.</li>
+                    <li>Chuyển localization sang ARB.</li>
+                    <li>Tách nhỏ các file UI/admin lớn.</li>
+                    <li>Tăng integration test.</li>
+                    <li>Thêm monitoring và structured logging.</li>
+                    <li>Kiểm thử load cho booking concurrency.</li>
+                    <li>Test accessibility và responsive.</li>
+                    <li>Tăng bảo mật CORS theo production domain.</li>
+                    <li>Hoàn thiện refund tự động nếu PayOS hỗ trợ quy trình phù hợp.</li>
+                </ol>
+                <hr />
+                <h1 id="30-cau-hoi-van-ap-va-tra-loi">30. CÂU HỎI VẤN ĐÁP VÀ TRẢ LỜI<span
+                        class="section-badge question">Câu thầy dễ hỏi</span><a class="anchor"
+                        href="#30-cau-hoi-van-ap-va-tra-loi" aria-label="Liên kết đến mục này">#</a></h1>
+                <h2 id="cau-1-vi-sao-chon-flutter">Câu 1: Vì sao chọn Flutter?<a class="anchor"
+                        href="#cau-1-vi-sao-chon-flutter" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Flutter cho phép dùng một codebase để phát triển nhiều nền tảng. Nó có hệ thống widget mạnh, hiệu
+                    năng UI tốt và phù hợp với ứng dụng mobile có nhiều màn hình như StayZ.</p>
+                <h2 id="cau-2-vi-sao-chon-node-js-va-express">Câu 2: Vì sao chọn Node.js và Express?<a class="anchor"
+                        href="#cau-2-vi-sao-chon-node-js-va-express" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Node.js phù hợp với REST API và các tác vụ I/O như database, thanh toán, upload và chat. Express giúp
+                    tổ chức route, middleware, controller và service khá đơn giản.</p>
+                <h2 id="cau-3-vi-sao-chon-mongodb">Câu 3: Vì sao chọn MongoDB?<a class="anchor"
+                        href="#cau-3-vi-sao-chon-mongodb" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Dữ liệu khách sạn và phòng có nhiều thuộc tính lồng nhau như amenities, gallery và trạng thái.
+                    MongoDB linh hoạt với dạng dữ liệu document và Mongoose hỗ trợ schema, validation, index và
+                    reference.</p>
+                <h2 id="cau-4-repository-khac-service-the-nao">Câu 4: Repository khác Service thế nào?<a class="anchor"
+                        href="#cau-4-repository-khac-service-the-nao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Repository phía Flutter chịu trách nhiệm lấy dữ liệu từ API và chuyển thành model. Service backend xử
+                    lý nghiệp vụ như tính giá, kiểm tra phòng trống và cập nhật trạng thái.</p>
+                <h2 id="cau-5-controller-khac-service-the-nao">Câu 5: Controller khác Service thế nào?<a class="anchor"
+                        href="#cau-5-controller-khac-service-the-nao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Controller làm việc với request/response. Service xử lý logic nghiệp vụ. Tách hai phần giúp service
+                    tái sử dụng và dễ test hơn.</p>
+                <h2 id="cau-6-middleware-la-gi">Câu 6: Middleware là gì?<a class="anchor" href="#cau-6-middleware-la-gi"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Middleware chạy trước controller để xác thực JWT, kiểm tra admin, rate limit, upload hoặc audit.</p>
+                <h2 id="cau-7-jwt-hoat-ong-the-nao">Câu 7: JWT hoạt động thế nào?<a class="anchor"
+                        href="#cau-7-jwt-hoat-ong-the-nao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Sau login, backend ký JWT chứa định danh user. Flutter gửi token trong Bearer header. Backend xác
+                    minh chữ ký và lấy user hiện tại trước khi cho truy cập API bảo vệ.</p>
+                <h2 id="cau-8-access-token-va-refresh-token-khac-nhau-the-nao">Câu 8: Access token và refresh token khác
+                    nhau thế nào?<a class="anchor" href="#cau-8-access-token-va-refresh-token-khac-nhau-the-nao"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Access token dùng gọi API và thường có thời hạn ngắn hơn. Refresh token dùng xin access token mới.
+                    Backend StayZ đã có refresh endpoint nhưng Flutter chưa sử dụng đầy đủ.</p>
+                <h2 id="cau-9-redis-dung-lam-gi">Câu 9: Redis dùng làm gì?<a class="anchor"
+                        href="#cau-9-redis-dung-lam-gi" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Redis được dùng cho rate limit, blacklist token logout và hỗ trợ distributed lock khi đặt phòng.</p>
+                <h2 id="cau-10-lam-sao-tranh-at-trung-phong">Câu 10: Làm sao tránh đặt trùng phòng?<a class="anchor"
+                        href="#cau-10-lam-sao-tranh-at-trung-phong" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Backend dùng Redlock để giới hạn xử lý đồng thời, sau đó đếm các booking overlap theo ngày và so sánh
+                    với <code>room.quantity</code>.</p>
+                <h2 id="cau-11-neu-redis-loi-thi-sao">Câu 11: Nếu Redis lỗi thì sao?<a class="anchor"
+                        href="#cau-11-neu-redis-loi-thi-sao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Một số thao tác Redis được thiết kế fail-open để API vẫn hoạt động. Tuy nhiên rate limit và lock có
+                    thể giảm hiệu lực, nên database validation vẫn rất quan trọng.</p>
+                <h2 id="cau-12-gia-booking-uoc-tinh-o-au">Câu 12: Giá booking được tính ở đâu?<a class="anchor"
+                        href="#cau-12-gia-booking-uoc-tinh-o-au" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Giá được tính ở backend từ giá phòng trong database, số đêm và số phòng. Backend không tin giá client
+                    gửi lên.</p>
+                <h2 id="cau-13-vi-sao-booking-co-trang-thai-pending">Câu 13: Vì sao booking có trạng thái pending?<a
+                        class="anchor" href="#cau-13-vi-sao-booking-co-trang-thai-pending"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Booking pending nghĩa là phòng đang được giữ trong thời gian người dùng chờ thanh toán. Code hiện giữ
+                    booking khoảng 15 phút.</p>
+                <h2 id="cau-14-khi-nao-booking-confirmed">Câu 14: Khi nào booking confirmed?<a class="anchor"
+                        href="#cau-14-khi-nao-booking-confirmed" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Khi webhook PayOS hợp lệ xác nhận giao dịch thành công, payment chuyển PAID và booking chuyển
+                    confirmed.</p>
+                <h2 id="cau-15-tai-sao-can-webhook">Câu 15: Tại sao cần webhook?<a class="anchor"
+                        href="#cau-15-tai-sao-can-webhook" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Người dùng có thể đóng app hoặc không quay lại return URL. Webhook cho phép PayOS thông báo trực tiếp
+                    cho backend về kết quả thanh toán.</p>
+                <h2 id="cau-16-lam-sao-chong-gia-mao-so-tien">Câu 16: Làm sao chống giả mạo số tiền?<a class="anchor"
+                        href="#cau-16-lam-sao-chong-gia-mao-so-tien" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Backend tự tính payment amount và khi nhận webhook sẽ so sánh amount từ webhook với amount đã lưu.
+                </p>
+                <h2 id="cau-17-deposit-30-la-gi">Câu 17: Deposit 30% là gì?<a class="anchor"
+                        href="#cau-17-deposit-30-la-gi" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Người dùng thanh toán trước 30%, phần còn lại thanh toán tại khách sạn.</p>
+                <h2 id="cau-18-full-payment-co-gi-khac">Câu 18: Full payment có gì khác?<a class="anchor"
+                        href="#cau-18-full-payment-co-gi-khac" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Người dùng thanh toán toàn bộ. Logic hiện tại áp dụng giảm 10% cho phương án này.</p>
+                <h2 id="cau-19-socket-io-khac-rest-the-nao">Câu 19: Socket.IO khác REST thế nào?<a class="anchor"
+                        href="#cau-19-socket-io-khac-rest-the-nao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>REST hoạt động theo request-response. Socket.IO giữ kết nối hai chiều để server có thể đẩy message
+                    realtime.</p>
+                <h2 id="cau-20-flutter-a-dung-socket-io-chua">Câu 20: Flutter đã dùng Socket.IO chưa?<a class="anchor"
+                        href="#cau-20-flutter-a-dung-socket-io-chua" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Backend có Socket.IO nhưng dependency Flutter hiện chưa có Socket.IO client. Vì vậy chưa nên khẳng
+                    định realtime chat đã hoàn chỉnh end-to-end.</p>
+                <h2 id="cau-21-ai-co-tu-bia-khach-san-khong">Câu 21: AI có tự bịa khách sạn không?<a class="anchor"
+                        href="#cau-21-ai-co-tu-bia-khach-san-khong" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Thiết kế backend đưa dữ liệu property và room thật vào context. Nếu OpenAI lỗi, hệ thống dùng
+                    fallback từ database thay vì bịa dữ liệu.</p>
+                <h2 id="cau-22-neu-khong-co-openai-api-key-thi-sao">Câu 22: Nếu không có OpenAI API key thì sao?<a
+                        class="anchor" href="#cau-22-neu-khong-co-openai-api-key-thi-sao"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Backend dùng <code>fallbackReply</code> để trả lời dựa trên dữ liệu StayZ.</p>
+                <h2 id="cau-23-cloudinary-dung-lam-gi">Câu 23: Cloudinary dùng làm gì?<a class="anchor"
+                        href="#cau-23-cloudinary-dung-lam-gi" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Cloudinary lưu avatar, ảnh property và ảnh room trên cloud để frontend có URL truy cập ổn định.</p>
+                <h2 id="cau-24-lam-sao-phan-quyen-admin">Câu 24: Làm sao phân quyền admin?<a class="anchor"
+                        href="#cau-24-lam-sao-phan-quyen-admin" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Flutter có AdminAccessGate. Backend dùng protect và adminOnly. Backend tải role hiện tại từ MongoDB
+                    nên không chỉ tin role cũ trong token.</p>
+                <h2 id="cau-25-favorite-bi-them-trung-thi-sao">Câu 25: Favorite bị thêm trùng thì sao?<a class="anchor"
+                        href="#cau-25-favorite-bi-them-trung-thi-sao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>MongoDB có unique index trên <code>user_id + property_id</code>.</p>
+                <h2 id="cau-26-mot-booking-co-the-review-nhieu-lan-khong">Câu 26: Một booking có thể review nhiều lần
+                    không?<a class="anchor" href="#cau-26-mot-booking-co-the-review-nhieu-lan-khong"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Unique index theo <code>user_id + booking_id</code> ngăn một user review lặp lại cùng booking.</p>
+                <h2 id="cau-27-tai-sao-dung-asia-ho-chi-minh">Câu 27: Tại sao dùng <code>Asia/Ho_Chi_Minh</code>?<a
+                        class="anchor" href="#cau-27-tai-sao-dung-asia-ho-chi-minh"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Server production có thể chạy UTC. Dùng timezone nghiệp vụ giúp ngày check-in, checkout và hoàn tất
+                    booking đúng theo ngày Việt Nam.</p>
+                <h2 id="cau-28-sharedpreferences-dung-lam-gi">Câu 28: SharedPreferences dùng làm gì?<a class="anchor"
+                        href="#cau-28-sharedpreferences-dung-lam-gi" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Lưu onboarding, access token, user info, role, ngôn ngữ và trạng thái giao diện nhỏ.</p>
+                <h2 id="cau-29-sharedpreferences-co-an-toan-tuyet-oi-khong">Câu 29: SharedPreferences có an toàn tuyệt
+                    đối không?<a class="anchor" href="#cau-29-sharedpreferences-co-an-toan-tuyet-oi-khong"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Không. Với production, token nên được chuyển sang secure storage.</p>
+                <h2 id="cau-30-iem-kho-nhat-cua-du-an-la-gi">Câu 30: Điểm khó nhất của dự án là gì?<a class="anchor"
+                        href="#cau-30-iem-kho-nhat-cua-du-an-la-gi" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Phần khó nhất là giữ dữ liệu booking và payment nhất quán: kiểm tra phòng trống, chống request đồng
+                    thời, tính giá ở server và chỉ xác nhận booking khi webhook hợp lệ.</p>
+                <h2 id="cau-31-neu-hai-nguoi-cung-at-mot-phong">Câu 31: Nếu hai người cùng đặt một phòng?<a
+                        class="anchor" href="#cau-31-neu-hai-nguoi-cung-at-mot-phong"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Backend dùng lock và kiểm tra số booking overlap trước khi tạo. Request không còn đủ phòng sẽ bị từ
+                    chối.</p>
+                <h2 id="cau-32-neu-webhook-en-hai-lan">Câu 32: Nếu webhook đến hai lần?<a class="anchor"
+                        href="#cau-32-neu-webhook-en-hai-lan" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Code kiểm tra payment đã PAID và trả lại thay vì cập nhật lặp lại, giúp xử lý idempotent một phần.
+                </p>
+                <h2 id="cau-33-neu-payment-paid-nhung-booking-update-loi-thi-sao">Câu 33: Nếu payment PAID nhưng booking
+                    update lỗi thì sao?<a class="anchor"
+                        href="#cau-33-neu-payment-paid-nhung-booking-update-loi-thi-sao"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Đây là rủi ro consistency. Hướng cải thiện là transaction, retry hoặc reconciliation job.</p>
+                <h2 id="cau-34-vi-sao-can-admin-audit">Câu 34: Vì sao cần admin audit?<a class="anchor"
+                        href="#cau-34-vi-sao-can-admin-audit" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Để biết admin nào đã thực hiện hành động gì, trên dữ liệu nào, kết quả ra sao và vào thời điểm nào.
+                </p>
+                <h2 id="cau-35-vi-sao-khong-goi-mongodb-tu-flutter">Câu 35: Vì sao không gọi MongoDB từ Flutter?<a
+                        class="anchor" href="#cau-35-vi-sao-khong-goi-mongodb-tu-flutter"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Làm vậy sẽ lộ database credential, khó kiểm soát nghiệp vụ và phân quyền. Flutter chỉ gọi backend
+                    API.</p>
+                <h2 id="cau-36-search-khong-dau-hoat-ong-the-nao">Câu 36: Search không dấu hoạt động thế nào?<a
+                        class="anchor" href="#cau-36-search-khong-dau-hoat-ong-the-nao"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Property có <code>search_index</code> đã chuẩn hóa. Backend dùng helper tìm kiếm để đối chiếu từ khóa
+                    linh hoạt hơn.</p>
+                <h2 id="cau-37-app-xu-ly-loi-mang-the-nao">Câu 37: App xử lý lỗi mạng thế nào?<a class="anchor"
+                        href="#cau-37-app-xu-ly-loi-mang-the-nao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>ApiService có timeout 20 giây, bắt ClientException/TimeoutException và chuyển thành thông báo thân
+                    thiện. UI có offline, empty và error state.</p>
+                <h2 id="cau-38-tai-sao-dung-model-dart">Câu 38: Tại sao dùng model Dart?<a class="anchor"
+                        href="#cau-38-tai-sao-dung-model-dart" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Model Dart chuyển JSON thành object có kiểu dữ liệu rõ ràng, giúp UI không phải xử lý Map động ở mọi
+                    nơi.</p>
+                <h2 id="cau-39-tai-sao-co-is-active">Câu 39: Tại sao có <code>is_active</code>?<a class="anchor"
+                        href="#cau-39-tai-sao-co-is-active" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Cho phép archive hoặc khóa dữ liệu thay vì xóa vật lý ngay lập tức, bảo vệ quan hệ lịch sử.</p>
+                <h2 id="cau-40-check-in-code-dung-lam-gi">Câu 40: Check-in code dùng làm gì?<a class="anchor"
+                        href="#cau-40-check-in-code-dung-lam-gi" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Booking có mã check-in riêng để admin tìm hoặc quét khi khách đến nhận phòng.</p>
+                <h2 id="cau-41-khi-nao-booking-completed">Câu 41: Khi nào booking completed?<a class="anchor"
+                        href="#cau-41-khi-nao-booking-completed" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Sau checkout và khi attendance cho biết khách đã checked-in.</p>
+                <h2 id="cau-42-no-show-uoc-xu-ly-the-nao">Câu 42: No-show được xử lý thế nào?<a class="anchor"
+                        href="#cau-42-no-show-uoc-xu-ly-the-nao" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Booking có thể bị cancelled với <code>cancellation_reason = no_show</code> và không hoàn tiền theo
+                    logic hiện tại.</p>
+                <h2 id="cau-43-iem-manh-lon-nhat-cua-stayz">Câu 43: Điểm mạnh lớn nhất của StayZ?<span
+                        class="section-badge positive">Điểm mạnh</span><a class="anchor"
+                        href="#cau-43-iem-manh-lon-nhat-cua-stayz" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Dự án có luồng booking tương đối đầy đủ, backend thật, kiểm tra nghiệp vụ server-side, payment
+                    webhook, AI dựa trên database và phân quyền admin.</p>
+                <h2 id="cau-44-han-che-lon-nhat">Câu 44: Hạn chế lớn nhất?<span class="section-badge warning">Hạn
+                        chế</span><a class="anchor" href="#cau-44-han-che-lon-nhat"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Khả năng kiểm thử integration chưa đủ sâu, refresh token Flutter chưa hoàn thiện và payment
+                    consistency cần cơ chế phục hồi mạnh hơn.</p>
+                <h2 id="cau-45-neu-lam-lai-se-cai-thien-gi-truoc">Câu 45: Nếu làm lại sẽ cải thiện gì trước?<a
+                        class="anchor" href="#cau-45-neu-lam-lai-se-cai-thien-gi-truoc"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>Tôi sẽ ưu tiên secure token storage, refresh-token rotation, transaction/reconciliation cho payment
+                    và thêm end-to-end test cho booking.</p>
+                <hr />
+                <h1 id="31-bai-noi-mau">31. BÀI NÓI MẪU<span class="section-badge answer">Trả lời mẫu</span><a
+                        class="anchor" href="#31-bai-noi-mau" aria-label="Liên kết đến mục này">#</a></h1>
+                <h2 id="gioi-thieu-30-giay">Giới thiệu 30 giây<a class="anchor" href="#gioi-thieu-30-giay"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>“StayZ là ứng dụng đặt phòng khách sạn được phát triển bằng Flutter và Node.js. Người dùng có thể tìm
+                    kiếm khách sạn, xem phòng, đặt phòng, thanh toán PayOS, quản lý booking, yêu thích và đánh giá.
+                    Backend sử dụng MongoDB để lưu dữ liệu, Redis để hỗ trợ rate limit và chống đặt trùng, Cloudinary để
+                    lưu ảnh và OpenAI để tư vấn dựa trên dữ liệu thật của hệ thống.”</p>
+                <h2 id="trinh-bay-kien-truc">Trình bày kiến trúc<a class="anchor" href="#trinh-bay-kien-truc"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>“Ứng dụng được chia thành Flutter frontend và Express backend. Từ giao diện, page gọi repository hoặc
+                    service, sau đó ApiService gửi HTTP request. Backend route áp dụng middleware rồi gọi controller và
+                    service. Service xử lý nghiệp vụ và truy cập MongoDB qua Mongoose model. Các dịch vụ ngoài như
+                    Redis, PayOS, Cloudinary và OpenAI chỉ được gọi từ backend nên secret không nằm trong ứng dụng
+                    Flutter.”</p>
+                <h2 id="trinh-bay-booking-payment">Trình bày booking/payment<a class="anchor"
+                        href="#trinh-bay-booking-payment" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>“Khi người dùng chọn phòng và ngày, Flutter gửi ID phòng, ngày và số lượng lên backend. Backend lấy
+                    giá phòng thật từ MongoDB, tự tính số đêm và tổng tiền, đồng thời kiểm tra sức chứa và số phòng còn
+                    lại. Booking mới ở trạng thái pending và được giữ 15 phút. Sau đó backend tạo giao dịch PayOS. Khi
+                    PayOS gửi webhook hợp lệ, backend kiểm tra số tiền, chuyển payment sang PAID và booking sang
+                    confirmed. Vì vậy client không thể tự gửi giá hoặc tự xác nhận booking.”</p>
+                <h2 id="tra-loi-iem-kho-nhat">Trả lời điểm khó nhất<a class="anchor" href="#tra-loi-iem-kho-nhat"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <p>“Điểm khó nhất là đảm bảo booking và payment nhất quán khi nhiều người đặt cùng lúc. Dự án xử lý bằng
+                    kiểm tra overlap, Redis Redlock, tính giá ở server và webhook PayOS. Tuy vậy, để production tốt hơn
+                    vẫn cần transaction hoặc reconciliation job cho các trường hợp cập nhật một phần.”</p>
+                <h2 id="tra-loi-neu-co-them-thoi-gian">Trả lời nếu có thêm thời gian<a class="anchor"
+                        href="#tra-loi-neu-co-them-thoi-gian" aria-label="Liên kết đến mục này">#</a></h2>
+                <p>“Nếu có thêm thời gian, tôi sẽ hoàn thiện refresh token phía Flutter, lưu token bằng secure storage,
+                    bổ sung integration test cho PayOS và booking concurrency, thêm Socket.IO client nếu cần realtime
+                    chat và chuẩn hóa localization bằng ARB.”</p>
+                <hr />
+                <h1 id="32-cheat-sheet">32. CHEAT SHEET<span class="section-badge remember">Phải nhớ</span><a
+                        class="anchor" href="#32-cheat-sheet" aria-label="Liên kết đến mục này">#</a></h1>
+                <h2 id="cong-nghe-phai-nho">Công nghệ phải nhớ<a class="anchor" href="#cong-nghe-phai-nho"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ul>
+                    <li>Flutter/Dart: frontend đa nền tảng.</li>
+                    <li>Express: REST API.</li>
+                    <li>MongoDB/Mongoose: database và schema.</li>
+                    <li>JWT: xác thực.</li>
+                    <li>bcrypt: hash mật khẩu.</li>
+                    <li>Redis: rate limit, blacklist, lock.</li>
+                    <li>Redlock: chống race condition booking.</li>
+                    <li>PayOS: thanh toán.</li>
+                    <li>Cloudinary: ảnh.</li>
+                    <li>OpenAI: AI assistant.</li>
+                    <li>Socket.IO: chat realtime backend.</li>
+                </ul>
+                <h2 id="model-phai-nho">Model phải nhớ<a class="anchor" href="#model-phai-nho"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ul>
+                    <li>User</li>
+                    <li>Property</li>
+                    <li>Room</li>
+                    <li>Booking</li>
+                    <li>Payment</li>
+                    <li>Favorite</li>
+                    <li>Review</li>
+                    <li>Notification</li>
+                    <li>Conversation</li>
+                    <li>Message</li>
+                    <li>AdminAudit</li>
+                    <li>Amenition</li>
+                </ul>
+                <h2 id="luong-phai-nho">Luồng phải nhớ<a class="anchor" href="#luong-phai-nho"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ul>
+                    <li>Onboarding.</li>
+                    <li>Register OTP.</li>
+                    <li>Login.</li>
+                    <li>Google login.</li>
+                    <li>Search/filter.</li>
+                    <li>Property/room detail.</li>
+                    <li>Booking.</li>
+                    <li>PayOS payment.</li>
+                    <li>Booking management.</li>
+                    <li>Cancellation/refund.</li>
+                    <li>Check-in.</li>
+                    <li>Review.</li>
+                    <li>Favorites.</li>
+                    <li>Notifications.</li>
+                    <li>AI assistant.</li>
+                    <li>Admin.</li>
+                </ul>
+                <h2 id="iem-phan-bien-phai-nho">Điểm phản biện phải nhớ<a class="anchor" href="#iem-phan-bien-phai-nho"
+                        aria-label="Liên kết đến mục này">#</a></h2>
+                <ul>
+                    <li>Booking pending chưa chắc là lỗi.</li>
+                    <li>Giá phải do server tính.</li>
+                    <li>Webhook mới xác nhận payment.</li>
+                    <li>Redis hỗ trợ nhưng không thay thế database validation.</li>
+                    <li>Backend có refresh token nhưng Flutter chưa dùng đầy đủ.</li>
+                    <li>Backend có Socket.IO nhưng Flutter client chưa được xác minh.</li>
+                    <li>Refund chưa phải luồng tự động hoàn chỉnh.</li>
+                    <li>SharedPreferences không phải secure storage.</li>
+                    <li>Payment consistency cần transaction/reconciliation.</li>
+                    <li>Không được nói AI tự biết mọi khách sạn; AI chỉ nên dùng dữ liệu database.</li>
+                </ul>
+            </article>
+        </main>
+    </div>
+    <a class="back-top" href="#top" aria-label="Lên đầu trang">↑</a>
+    <script>
+        const input = document.getElementById('tocSearch');
+        const links = [...document.querySelectorAll('#toc a')];
+        const noResults = document.getElementById('noResults');
+        input.addEventListener('input', () => {
+            const q = input.value.toLowerCase().trim(); let shown = 0;
+            links.forEach(a => { const ok = a.textContent.toLowerCase().includes(q); a.style.display = ok ? 'block' : 'none'; if (ok) shown++; });
+            noResults.style.display = shown ? 'none' : 'block';
+        });
+        const sections = [...document.querySelectorAll('h2[id],h3[id]')];
+        const observer = new IntersectionObserver(entries => {
+            const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+            if (!visible) return;
+            links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + visible.target.id));
+        }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+        sections.forEach(s => observer.observe(s));
+    </script>
+</body>
+
+</html>

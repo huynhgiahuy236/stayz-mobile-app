@@ -68,20 +68,42 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
       _scanning = true;
       _error = null;
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _scannerController.start();
-      } on MobileScannerException catch (error) {
-        if (!mounted) return;
-        setState(() {
-          _scanning = false;
-          _error = tr(
-            'Không mở được camera quét QR: ${error.errorCode.name}.',
-            'Could not start the QR camera: ${error.errorCode.name}.',
-          );
-        });
-      }
-    });
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || !_scanning) return;
+    try {
+      await _scannerController.start();
+    } on MobileScannerException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _scanning = false;
+        _error = _scannerErrorMessage(error);
+      });
+    }
+  }
+
+  String _scannerErrorMessage(MobileScannerException error) {
+    return switch (error.errorCode) {
+      MobileScannerErrorCode.permissionDenied => tr(
+        'Ứng dụng chưa được phép dùng Camera. Hãy cấp quyền Camera trong Cài đặt rồi thử lại.',
+        'Camera access is denied. Allow Camera access in Settings and try again.',
+      ),
+      MobileScannerErrorCode.unsupported => tr(
+        'Thiết bị này không có camera phù hợp để quét QR.',
+        'This device has no supported camera for QR scanning.',
+      ),
+      MobileScannerErrorCode.controllerInitializing => tr(
+        'Camera đang khởi động. Vui lòng thử lại sau một chút.',
+        'The camera is starting. Please try again in a moment.',
+      ),
+      MobileScannerErrorCode.controllerNotAttached => tr(
+        'Camera chưa sẵn sàng. Vui lòng đóng và mở lại trình quét.',
+        'The camera is not ready. Close and reopen the scanner.',
+      ),
+      _ => tr(
+        'Không mở được camera quét QR. Hãy đóng ứng dụng khác đang dùng camera rồi thử lại.',
+        'Could not start the QR camera. Close other apps using the camera and try again.',
+      ),
+    };
   }
 
   Future<void> _confirmCheckIn() async {
@@ -162,10 +184,7 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Text(
-                        tr(
-                          'Không thể dùng camera. Hãy cấp quyền Camera hoặc nhập mã thủ công.',
-                          'Camera unavailable. Allow camera access or enter the code manually.',
-                        ),
+                        _scannerErrorMessage(error),
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: AppTheme.danger),
                       ),

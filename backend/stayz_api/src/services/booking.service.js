@@ -119,6 +119,7 @@ const settleExpiredBookings = async (userId = null) => {
     notificationsService.createInternal({
       userId: booking.user_id,
       type: "booking_status",
+      event: noShow ? "no_show" : "completed",
       title: noShow ? "Đã hủy do không đến nhận phòng" : "Chuyến đi đã hoàn tất",
       body: noShow
         ? `Booking #${booking._id} đã hủy do không đến nhận phòng. Không hoàn tiền theo chính sách.`
@@ -288,6 +289,7 @@ const bookingService = {
       notificationsService.createInternal({
         userId: booking.user_id,
         type: "booking_status",
+        event: "awaiting_payment",
         title: "Booking đang chờ thanh toán",
         body: `Booking #${booking._id} đã được giữ trong 15 phút. Vui lòng hoàn tất thanh toán PayOS.`,
         titleEn: "Booking awaiting payment",
@@ -404,6 +406,9 @@ const bookingService = {
       notificationsService.createInternal({
         userId: booking.user_id,
         type: "booking_status",
+        event: status === "confirmed"
+          ? (booking.payment_plan === "deposit_30" ? "deposit_paid" : "paid_in_full")
+          : status,
         title: msg.title,
         body: msg.body,
         titleEn: msg.titleEn,
@@ -449,6 +454,7 @@ const bookingService = {
       notificationsService.createInternal({
         userId: booking.user_id,
         type: "booking_status",
+        event: checkedIn ? "checked_in" : "no_show",
         title: checkedIn ? "Đã xác nhận nhận phòng" : "Ghi nhận không đến nhận phòng",
         body: checkedIn
           ? `Booking #${booking._id}: khách sạn đã xác nhận bạn nhận phòng.`

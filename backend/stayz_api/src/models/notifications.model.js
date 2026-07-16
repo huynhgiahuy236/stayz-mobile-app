@@ -12,6 +12,11 @@ const notificationSchema = new mongoose.Schema(
       enum: ["booking_status", "promotion", "system"],
       default: "system",
     },
+    event: {
+      type: String,
+      enum: ["awaiting_payment", "pending", "confirmed", "deposit_paid", "paid_in_full", "checked_in", "no_show", "completed", "cancelled", "expired", null],
+      default: null,
+    },
     title: {
       type: String,
       required: true,

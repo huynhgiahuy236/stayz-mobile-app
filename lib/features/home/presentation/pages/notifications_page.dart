@@ -153,6 +153,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           id: item.id,
           userId: item.userId,
           type: item.type,
+          event: item.event,
           title: item.title,
           message: item.message,
           referenceType: item.referenceType,
@@ -441,6 +442,71 @@ _notificationVisual(StayzNotification item) {
   final title = item.title.toLowerCase();
   final content = '$title ${item.message.toLowerCase()}';
 
+  final structuredVisual = switch (item.event) {
+    'awaiting_payment' => (
+      icon: Icons.schedule_rounded,
+      border: AppTheme.notificationPendingBorder,
+      foreground: AppTheme.notificationPendingText,
+      label: tr('Chờ thanh toán', 'Awaiting payment'),
+    ),
+    'pending' => (
+      icon: Icons.schedule_rounded,
+      border: AppTheme.notificationPendingBorder,
+      foreground: AppTheme.notificationPendingText,
+      label: tr('Chờ xử lý', 'Pending'),
+    ),
+    'confirmed' => (
+      icon: Icons.verified_outlined,
+      border: AppTheme.notificationConfirmedBorder,
+      foreground: AppTheme.notificationConfirmedText,
+      label: tr('Đã xác nhận', 'Confirmed'),
+    ),
+    'deposit_paid' => (
+      icon: Icons.savings_outlined,
+      border: AppTheme.depositBorder,
+      foreground: AppTheme.depositText,
+      label: tr('Đã cọc 30%', '30% deposit'),
+    ),
+    'paid_in_full' => (
+      icon: Icons.check_circle_outline_rounded,
+      border: AppTheme.notificationSuccessBorder,
+      foreground: AppTheme.notificationSuccessText,
+      label: tr('Đã thanh toán đủ', 'Paid in full'),
+    ),
+    'checked_in' => (
+      icon: Icons.login_rounded,
+      border: AppTheme.notificationConfirmedBorder,
+      foreground: AppTheme.notificationConfirmedText,
+      label: tr('Đã nhận phòng', 'Checked in'),
+    ),
+    'no_show' => (
+      icon: Icons.person_off_outlined,
+      border: AppTheme.notificationDangerBorder,
+      foreground: AppTheme.notificationDangerText,
+      label: tr('Không đến nhận phòng', 'No-show'),
+    ),
+    'cancelled' => (
+      icon: Icons.cancel_outlined,
+      border: AppTheme.notificationDangerBorder,
+      foreground: AppTheme.notificationDangerText,
+      label: tr('Đã hủy', 'Cancelled'),
+    ),
+    'expired' => (
+      icon: Icons.timer_off_outlined,
+      border: AppTheme.notificationDangerBorder,
+      foreground: AppTheme.notificationDangerText,
+      label: tr('Đã hết hạn', 'Expired'),
+    ),
+    'completed' => (
+      icon: Icons.check_circle_outline_rounded,
+      border: AppTheme.notificationSuccessBorder,
+      foreground: AppTheme.notificationSuccessText,
+      label: tr('Hoàn tất', 'Completed'),
+    ),
+    _ => null,
+  };
+  if (structuredVisual != null) return structuredVisual;
+
   if (content.contains('không đến') || content.contains('no-show')) {
     return (
       icon: Icons.person_off_outlined,
@@ -480,7 +546,7 @@ _notificationVisual(StayzNotification item) {
       border: AppTheme.notificationPendingBorder,
       foreground: AppTheme.notificationPendingText,
       label: content.contains('thanh toán') || content.contains('payment')
-          ? tr('Chờ thanh toán lại', 'Awaiting payment retry')
+          ? tr('Chờ thanh toán', 'Awaiting payment')
           : tr('Chờ xử lý', 'Pending'),
     );
   }
@@ -519,15 +585,16 @@ _notificationVisual(StayzNotification item) {
   if (title.contains('xác nhận') || title.contains('confirmed')) {
     return (
       icon: Icons.verified_outlined,
-      border: AppTheme.notificationInfoBorder,
-      foreground: AppTheme.ink,
+      border: AppTheme.notificationConfirmedBorder,
+      foreground: AppTheme.notificationConfirmedText,
       label: tr('Đã xác nhận', 'Confirmed'),
     );
   }
 
-  if (title.contains('hoàn thành') ||
+  if (content.contains('hoàn thành') ||
       title.contains('completed') ||
-      title.contains('thành công') ||
+      content.contains('complete') ||
+      content.contains('thành công') ||
       title.contains('successful')) {
     return (
       icon: Icons.check_circle_outline_rounded,

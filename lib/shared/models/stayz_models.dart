@@ -562,6 +562,7 @@ class StayzNotification {
     required this.id,
     required this.userId,
     required this.type,
+    this.event = '',
     required this.title,
     required this.message,
     required this.referenceType,
@@ -575,6 +576,7 @@ class StayzNotification {
       id: json['id'] as String,
       userId: json['userId'] as String,
       type: json['type'] as String,
+      event: json['event']?.toString() ?? '',
       title: json['title'] as String,
       message: json['message'] as String,
       referenceType: json['referenceType'] as String,
@@ -587,6 +589,7 @@ class StayzNotification {
   final String id;
   final String userId;
   final String type;
+  final String event;
   final String title;
   final String message;
   final String referenceType;

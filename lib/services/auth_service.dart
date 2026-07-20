@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/shared/repositories/booking_cache.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -12,6 +13,7 @@ class AuthService {
 
   static const _hasSeenOnboardingKey = 'hasSeenOnboarding';
   static const _accessTokenKey = 'accessToken';
+  static const _secureStorage = FlutterSecureStorage();
   static const _userIdKey = 'authUserId';
   static const _userEmailKey = 'authUserEmail';
   static const _userNameKey = 'authUserName';
@@ -43,9 +45,16 @@ class AuthService {
   }
 
   Future<String?> accessToken() async {
+    final secureToken = await _secureStorage.read(key: _accessTokenKey);
+    if (secureToken != null && secureToken.isNotEmpty) return secureToken;
+
+    // One-time migration for sessions created before secure storage was added.
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(_accessTokenKey);
-    return token == null || token.isEmpty ? null : token;
+    final legacyToken = prefs.getString(_accessTokenKey);
+    if (legacyToken == null || legacyToken.isEmpty) return null;
+    await _secureStorage.write(key: _accessTokenKey, value: legacyToken);
+    await prefs.remove(_accessTokenKey);
+    return legacyToken;
   }
 
   Future<String?> userId() async {
@@ -167,7 +176,8 @@ class AuthService {
     BookingCache.clear();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_accessTokenKey, token);
+    await _secureStorage.write(key: _accessTokenKey, value: token);
+    await prefs.remove(_accessTokenKey);
     await prefs.setString(_userIdKey, user['_id']?.toString() ?? '');
     await prefs.setString(_userEmailKey, user['email']?.toString() ?? '');
     await prefs.setString(_userNameKey, user['full_name']?.toString() ?? '');
@@ -184,27 +194,48 @@ class AuthService {
   }
 
   Future<void> completeGoogleLogin(Uri callbackUri) async {
-    if (callbackUri.scheme != 'stayz' || callbackUri.host != 'auth' || callbackUri.path != '/login-success') {
-      throw ApiException(tr('Liên kết đăng nhập Google không hợp lệ.', 'Invalid Google sign-in callback.'));
+    if (callbackUri.scheme != 'stayz' ||
+        callbackUri.host != 'auth' ||
+        callbackUri.path != '/login-success') {
+      throw ApiException(
+        tr(
+          'Liên kết đăng nhập Google không hợp lệ.',
+          'Invalid Google sign-in callback.',
+        ),
+      );
     }
     final token = callbackUri.queryParameters['accessToken'] ?? '';
     if (token.isEmpty || _isExpired(token)) {
-      throw ApiException(tr('Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn.', 'The Google sign-in session is invalid or expired.'));
+      throw ApiException(
+        tr(
+          'Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn.',
+          'The Google sign-in session is invalid or expired.',
+        ),
+      );
     }
     final payload = _jwtPayload(token);
     BookingCache.clear();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_accessTokenKey, token);
+    await _secureStorage.write(key: _accessTokenKey, value: token);
+    await prefs.remove(_accessTokenKey);
     await prefs.setString(_userIdKey, payload['userId']?.toString() ?? '');
-    await prefs.setString(_userEmailKey, callbackUri.queryParameters['email'] ?? '');
-    await prefs.setString(_userNameKey, callbackUri.queryParameters['name'] ?? '');
+    await prefs.setString(
+      _userEmailKey,
+      callbackUri.queryParameters['email'] ?? '',
+    );
+    await prefs.setString(
+      _userNameKey,
+      callbackUri.queryParameters['name'] ?? '',
+    );
   }
 
   Map<String, dynamic> _jwtPayload(String token) {
     try {
       final parts = token.split('.');
       if (parts.length != 3) return const {};
-      final value = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+      final value = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
       return value is Map<String, dynamic> ? value : const {};
     } catch (_) {
       return const {};
@@ -250,6 +281,7 @@ class AuthService {
     BookingCache.clear();
 
     final prefs = await SharedPreferences.getInstance();
+    await _secureStorage.delete(key: _accessTokenKey);
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_userIdKey);
     await prefs.remove(_userEmailKey);

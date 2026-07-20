@@ -468,7 +468,12 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
           return SizedBox(
             height: 190,
             child: StayzErrorView(
-              error: StateError('Profile data is unavailable.'),
+              error: StateError(
+                tr(
+                  'Dá»¯ liá»‡u há»“ sÆ¡ khÃ´ng kháº£ dá»¥ng.',
+                  'Profile data is unavailable.',
+                ),
+              ),
               onRetry: _retry,
               compact: true,
             ),

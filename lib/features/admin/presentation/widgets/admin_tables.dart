@@ -517,6 +517,7 @@ class AdminUsersTable extends StatelessWidget {
                 DataCell(CellText(user.address.isEmpty ? '-' : user.address)),
                 DataCell(Text(StayzFormatters.shortDate(user.createdAt))),
                 DataCell(
+                  // l10n-ignore: Backend status identifiers localized by StatusPill.
                   StatusPill(status: user.isActive ? 'active' : 'inactive'),
                 ),
                 DataCell(

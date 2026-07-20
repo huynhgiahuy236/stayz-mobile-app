@@ -43,6 +43,28 @@ const businessDateKey = (value = new Date()) => {
   return `${parts.year}-${parts.month}-${parts.day}`;
 };
 
+const calculateCancellationQuote = (booking, now = new Date()) => {
+  const paid = Number(booking.amount_paid) || 0;
+  const checkInAt = new Date(booking.check_in).getTime();
+  const hoursBeforeCheckIn = checkInAt <= now.getTime()
+    ? 0
+    : Math.floor((checkInAt - now.getTime()) / 3600000);
+  const isFull = booking.payment_plan === "full_100";
+  const refundRate = hoursBeforeCheckIn >= 168
+    ? 100
+    : hoursBeforeCheckIn >= 48
+      ? (isFull ? 90 : 70)
+      : hoursBeforeCheckIn > 0
+        ? (isFull ? 70 : 50)
+        : 0;
+  return {
+    refund_amount: Math.round((paid * refundRate) / 100),
+    refund_rate: refundRate,
+    hours_before_check_in: hoursBeforeCheckIn,
+    processing: "manual",
+  };
+};
+
 const ensureCheckInCodes = async (bookings) => {
   for (const booking of bookings) {
     if (!booking.check_in_code) {
@@ -182,6 +204,15 @@ const acquireBookingLock = async (lockKey) => {
 };
 
 const bookingService = {
+  getCancellationQuote: async (bookingId, user) => {
+    const booking = await bookingModel.findById(bookingId);
+    if (!booking) throw new BadRequestException("Booking khong ton tai");
+    assertOwnership(booking, user);
+    if (["cancelled", "completed"].includes(booking.status)) {
+      throw new BadRequestException("Booking khong con co the huy");
+    }
+    return calculateCancellationQuote(booking);
+  },
   settleExpiredBookings: async () => settleExpiredBookings(),
   getAll: async () => {
     await settleExpiredBookings();
@@ -368,16 +399,10 @@ const bookingService = {
     // payment_status = refunded neu co hoan.
     if (status === "cancelled") {
       booking.cancellation_reason = user?.role === "admin" ? "admin_cancelled" : "guest_cancelled";
-      const paid = Number(booking.amount_paid) || 0;
-      const hours = new Date(booking.check_in).getTime() <= Date.now()
-        ? 0
-        : Math.floor((new Date(booking.check_in).getTime() - Date.now()) / 3600000);
-      const isFull = booking.payment_plan === "full_100";
-      const refundRate = hours >= 168 ? 100 : hours >= 48 ? (isFull ? 90 : 70) : hours > 0 ? (isFull ? 70 : 50) : 0;
-      const refundAmount = Math.round((paid * refundRate) / 100);
-      booking.refund_amount = refundAmount;
-      booking.refund_rate = refundRate;
-      if (booking.payment_status === "paid" && refundAmount > 0) {
+      const quote = calculateCancellationQuote(booking);
+      booking.refund_amount = quote.refund_amount;
+      booking.refund_rate = quote.refund_rate;
+      if (booking.payment_status === "paid" && quote.refund_amount > 0) {
         booking.refund_status = "pending_manual";
       }
     }
@@ -387,11 +412,11 @@ const bookingService = {
     const formatVnd = (value) => `${Number(value || 0).toLocaleString("vi-VN")}đ`;
     const cancelBody =
       booking.refund_amount > 0
-        ? `Booking #${booking._id} đã hủy. Hoàn ${formatVnd(booking.refund_amount)} (${booking.refund_rate}%) về phương thức thanh toán ban đầu.`
+        ? `Booking #${booking._id} đã hủy. Yêu cầu hoàn ${formatVnd(booking.refund_amount)} (${booking.refund_rate}%) đang chờ xử lý thủ công.`
         : `Booking #${booking._id} đã hủy. Không có khoản hoàn theo chính sách.`;
     const cancelBodyEn =
       booking.refund_amount > 0
-        ? `Booking #${booking._id} was cancelled. ${formatVnd(booking.refund_amount)} (${booking.refund_rate}%) will be refunded to the original payment method.`
+        ? `Booking #${booking._id} was cancelled. The ${formatVnd(booking.refund_amount)} refund request (${booking.refund_rate}%) is awaiting manual processing.`
         : `Booking #${booking._id} was cancelled. No refund applies under the policy.`;
 
     // Tự động tạo thông báo cho user khi trạng thái booking thay đổi

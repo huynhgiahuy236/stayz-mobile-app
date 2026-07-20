@@ -8,11 +8,21 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:capstone_mobile/app/app.dart';
+import 'package:capstone_mobile/shared/i18n/app_locale.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('StayZ app renders onboarding screen', (WidgetTester tester) async {
+  testWidgets('StayZ app renders onboarding screen', (
+    WidgetTester tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      'hasSeenOnboarding': false,
+      'appLanguage': 'vi',
+    });
+    await AppLocale.instance.load();
     // Build our app and trigger a frame.
     await tester.pumpWidget(const StayZApp());
+    await tester.pumpAndSettle();
 
     expect(find.text('01 / 03'), findsOneWidget);
     expect(find.text('Khám phá hàng nghìn\nkhách sạn'), findsOneWidget);

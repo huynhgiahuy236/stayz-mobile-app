@@ -19,9 +19,9 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
   Future<void> _openContact(Uri uri, String fallbackMessage) async {
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(fallbackMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(fallbackMessage)));
     }
   }
 
@@ -53,10 +53,22 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
           'Open Trips, select the booking, and review the terms first.',
         ),
         steps: [
-          tr('Vào mục Lịch đặt ở thanh điều hướng.', 'Open Trips from the navigation bar.'),
-          tr('Chọn đơn sắp tới bạn muốn hủy.', 'Select the upcoming booking you want to cancel.'),
-          tr('Mở chi tiết và chọn Hủy đặt phòng.', 'Open its details and choose Cancel booking.'),
-          tr('Đọc số tiền hoàn dự kiến rồi tự xác nhận hủy.', 'Review the estimated refund, then confirm the cancellation yourself.'),
+          tr(
+            'Vào mục Lịch đặt ở thanh điều hướng.',
+            'Open Trips from the navigation bar.',
+          ),
+          tr(
+            'Chọn đơn sắp tới bạn muốn hủy.',
+            'Select the upcoming booking you want to cancel.',
+          ),
+          tr(
+            'Mở chi tiết và chọn Hủy đặt phòng.',
+            'Open its details and choose Cancel booking.',
+          ),
+          tr(
+            'Đọc số tiền hoàn dự kiến rồi tự xác nhận hủy.',
+            'Review the estimated refund, then confirm the cancellation yourself.',
+          ),
         ],
       ),
       _HelpArticle(
@@ -66,9 +78,18 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
           'Refunds depend on payment status and cancellation time.',
         ),
         steps: [
-          tr('StayZ hiển thị số tiền hoàn dự kiến trước khi bạn xác nhận hủy.', 'StayZ shows the estimated refund before cancellation confirmation.'),
-          tr('Không đóng ứng dụng khi yêu cầu đang được xử lý.', 'Keep the app open while the request is being processed.'),
-          tr('Nếu trạng thái chưa cập nhật, gửi mã đặt phòng qua Zalo hỗ trợ.', 'If the status is not updated, send the booking code to Zalo support.'),
+          tr(
+            'StayZ hiển thị số tiền hoàn dự kiến trước khi bạn xác nhận hủy.',
+            'StayZ shows the estimated refund before cancellation confirmation.',
+          ),
+          tr(
+            'Không đóng ứng dụng khi yêu cầu đang được xử lý.',
+            'Keep the app open while the request is being processed.',
+          ),
+          tr(
+            'Nếu trạng thái chưa cập nhật, gửi mã đặt phòng qua Zalo hỗ trợ.',
+            'If the status is not updated, send the booking code to Zalo support.',
+          ),
         ],
       ),
       _HelpArticle(
@@ -78,9 +99,18 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
           'Stay dates cannot be edited directly on an existing booking.',
         ),
         steps: [
-          tr('Mở chi tiết đơn để lấy mã đặt phòng và tên khách sạn.', 'Open booking details to get the booking code and hotel name.'),
-          tr('Liên hệ Zalo hỗ trợ và gửi ngày nhận, trả phòng mong muốn.', 'Contact Zalo support with your requested check-in and check-out dates.'),
-          tr('Chỉ thay đổi sau khi khách sạn xác nhận còn phòng và giá mới.', 'Only change after the hotel confirms availability and the updated price.'),
+          tr(
+            'Mở chi tiết đơn để lấy mã đặt phòng và tên khách sạn.',
+            'Open booking details to get the booking code and hotel name.',
+          ),
+          tr(
+            'Liên hệ Zalo hỗ trợ và gửi ngày nhận, trả phòng mong muốn.',
+            'Contact Zalo support with your requested check-in and check-out dates.',
+          ),
+          tr(
+            'Chỉ thay đổi sau khi khách sạn xác nhận còn phòng và giá mới.',
+            'Only change after the hotel confirms availability and the updated price.',
+          ),
         ],
       ),
       _HelpArticle(
@@ -90,9 +120,18 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
           'The QR code is valid for 15 minutes and requires the exact amount.',
         ),
         steps: [
-          tr('Quét mã bằng ứng dụng ngân hàng hỗ trợ VietQR.', 'Scan the code with a VietQR-supported banking app.'),
-          tr('Giữ nguyên nội dung chuyển khoản và thanh toán đúng số tiền.', 'Keep the transfer reference and pay the exact amount.'),
-          tr('Quay lại StayZ để kiểm tra trạng thái thanh toán.', 'Return to StayZ and check the payment status.'),
+          tr(
+            'Quét mã bằng ứng dụng ngân hàng hỗ trợ VietQR.',
+            'Scan the code with a VietQR-supported banking app.',
+          ),
+          tr(
+            'Giữ nguyên nội dung chuyển khoản và thanh toán đúng số tiền.',
+            'Keep the transfer reference and pay the exact amount.',
+          ),
+          tr(
+            'Quay lại StayZ để kiểm tra trạng thái thanh toán.',
+            'Return to StayZ and check the payment status.',
+          ),
         ],
       ),
       _HelpArticle(
@@ -102,21 +141,42 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
           'Check your inbox and spam folder before requesting a new code.',
         ),
         steps: [
-          tr('Kiểm tra đúng địa chỉ email đã nhập.', 'Verify the email address you entered.'),
-          tr('Kiểm tra mục Spam hoặc Thư rác.', 'Check the Spam or Junk folder.'),
-          tr('Nếu vẫn không có mã, liên hệ Zalo và không gửi mật khẩu.', 'If no code arrives, contact Zalo and never send your password.'),
+          tr(
+            'Kiểm tra đúng địa chỉ email đã nhập.',
+            'Verify the email address you entered.',
+          ),
+          tr(
+            'Kiểm tra mục Spam hoặc Thư rác.',
+            'Check the Spam or Junk folder.',
+          ),
+          tr(
+            'Nếu vẫn không có mã, liên hệ Zalo và không gửi mật khẩu.',
+            'If no code arrives, contact Zalo and never send your password.',
+          ),
         ],
       ),
       _HelpArticle(
-        title: tr('Liên hệ khách sạn khi nhận phòng', 'Contact the hotel at check-in'),
+        title: tr(
+          'Liên hệ khách sạn khi nhận phòng',
+          'Contact the hotel at check-in',
+        ),
         summary: tr(
           'Chuẩn bị mã đặt phòng và thông tin người đặt để được hỗ trợ.',
           'Have the booking code and guest details ready for support.',
         ),
         steps: [
-          tr('Mở đơn đã xác nhận trong mục Lịch đặt.', 'Open the confirmed booking in Trips.'),
-          tr('Xuất trình mã đặt phòng hoặc mã check-in tại quầy.', 'Show the booking or check-in code at reception.'),
-          tr('Nếu khách sạn chưa thấy đơn, liên hệ ngay Zalo StayZ.', 'If the hotel cannot find it, contact StayZ on Zalo immediately.'),
+          tr(
+            'Mở đơn đã xác nhận trong mục Lịch đặt.',
+            'Open the confirmed booking in Trips.',
+          ),
+          tr(
+            'Xuất trình mã đặt phòng hoặc mã check-in tại quầy.',
+            'Show the booking or check-in code at reception.',
+          ),
+          tr(
+            'Nếu khách sạn chưa thấy đơn, liên hệ ngay Zalo StayZ.',
+            'If the hotel cannot find it, contact StayZ on Zalo immediately.',
+          ),
         ],
       ),
     ];
@@ -132,8 +192,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
         .toList(growable: false);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF7F4),
-      bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.profile),
+      backgroundColor: AppTheme.surface,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -147,7 +206,9 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
               ),
               decoration: BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.55)),
+                  bottom: BorderSide(
+                    color: AppTheme.neutral200.withValues(alpha: 0.55),
+                  ),
                 ),
               ),
               child: Row(
@@ -170,7 +231,11 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       ),
                     ),
                   ),
-                  Icon(Icons.search, color: AppTheme.neutral500, size: 28 * responsive.scale),
+                  Icon(
+                    Icons.search,
+                    color: AppTheme.neutral500,
+                    size: 28 * responsive.scale,
+                  ),
                 ],
               ),
             ),
@@ -186,7 +251,9 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                 children: [
                   Container(
                     height: 64 * responsive.scale,
-                    padding: EdgeInsets.symmetric(horizontal: 20 * responsive.widthScale),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20 * responsive.widthScale,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -194,11 +261,16 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.search, color: const Color(0xFF5A3F3F), size: 24 * responsive.scale),
+                        Icon(
+                          Icons.search,
+                          color: AppTheme.ink,
+                          size: 24 * responsive.scale,
+                        ),
                         SizedBox(width: 16 * responsive.widthScale),
                         Expanded(
                           child: TextField(
-                            onChanged: (value) => setState(() => _query = value),
+                            onChanged: (value) =>
+                                setState(() => _query = value),
                             decoration: InputDecoration(
                               hintText: tr(
                                 'Tìm kiếm bài hướng dẫn...',
@@ -217,12 +289,19 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 54 * responsive.scale),
-                  DetailSectionTitle(title: tr('Câu hỏi thường gặp', 'Frequently asked questions')),
+                  SizedBox(height: 24 * responsive.scale),
+                  DetailSectionTitle(
+                    title: tr(
+                      'Câu hỏi thường gặp',
+                      'Frequently asked questions',
+                    ),
+                  ),
                   SizedBox(height: 24 * responsive.scale),
                   if (visibleArticles.isEmpty)
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24 * responsive.scale),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 24 * responsive.scale,
+                      ),
                       child: Text(
                         tr(
                           'Không tìm thấy bài hướng dẫn phù hợp.',
@@ -233,13 +312,19 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       ),
                     )
                   else
-                    for (var index = 0; index < visibleArticles.length; index++) ...[
+                    for (
+                      var index = 0;
+                      index < visibleArticles.length;
+                      index++
+                    ) ...[
                       _FaqTile(article: visibleArticles[index]),
                       if (index != visibleArticles.length - 1)
                         SizedBox(height: 12 * responsive.scale),
                     ],
-                  SizedBox(height: 56 * responsive.scale),
-                  DetailSectionTitle(title: tr('Liên hệ với chúng tôi', 'Contact us')),
+                  SizedBox(height: 32 * responsive.scale),
+                  DetailSectionTitle(
+                    title: tr('Liên hệ với chúng tôi', 'Contact us'),
+                  ),
                   SizedBox(height: 24 * responsive.scale),
                   Row(
                     children: [
@@ -268,13 +353,15 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 54 * responsive.scale),
+                  SizedBox(height: 32 * responsive.scale),
                   Container(
                     padding: EdgeInsets.all(28 * responsive.scale),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0DEDA),
+                      color: AppTheme.primarySoft,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.8)),
+                      border: Border.all(
+                        color: AppTheme.neutral200.withValues(alpha: 0.8),
+                      ),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +371,10 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                tr('Gửi phản hồi cho chúng tôi', 'Send us feedback'),
+                                tr(
+                                  'Gửi phản hồi cho chúng tôi',
+                                  'Send us feedback',
+                                ),
                                 style: TextStyle(
                                   color: AppTheme.accentDark,
                                   fontSize: 17 * responsive.scale,
@@ -293,9 +383,12 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                               ),
                               SizedBox(height: 14 * responsive.scale),
                               Text(
-                                tr('Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn mỗi ngày.', 'Your feedback helps us improve StayZ.'),
+                                tr(
+                                  'Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn mỗi ngày.',
+                                  'Your feedback helps us improve StayZ.',
+                                ),
                                 style: TextStyle(
-                                  color: const Color(0xFF6B5348),
+                                  color: AppTheme.muted,
                                   fontSize: 18 * responsive.scale,
                                   height: 1.55,
                                 ),
@@ -333,12 +426,12 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 56 * responsive.scale),
+                  SizedBox(height: 32 * responsive.scale),
                   DetailSectionTitle(title: tr('Pháp lý', 'Legal')),
                   SizedBox(height: 26 * responsive.scale),
                   _LegalTile(label: tr('Điều khoản sử dụng', 'Terms of use')),
                   _LegalTile(label: tr('Chính sách bảo mật', 'Privacy policy')),
-                  SizedBox(height: 54 * responsive.scale),
+                  SizedBox(height: 32 * responsive.scale),
                   Icon(
                     Icons.local_florist_outlined,
                     color: AppTheme.neutral200.withValues(alpha: 0.72),
@@ -480,7 +573,9 @@ class _LegalTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 0 * responsive.widthScale),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.35)),
+          bottom: BorderSide(
+            color: AppTheme.neutral200.withValues(alpha: 0.35),
+          ),
         ),
       ),
       child: Row(
@@ -489,13 +584,17 @@ class _LegalTile extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: const Color(0xFF5A3F3F),
+                color: AppTheme.ink,
                 fontSize: 17 * responsive.scale,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          Icon(Icons.chevron_right, color: AppTheme.neutral500, size: 26 * responsive.scale),
+          Icon(
+            Icons.chevron_right,
+            color: AppTheme.neutral500,
+            size: 26 * responsive.scale,
+          ),
         ],
       ),
     );

@@ -30,7 +30,9 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
 
   Future<void> _pickDate({required bool checkIn}) async {
     final now = DateTime.now();
-    final initial = checkIn ? _draft?.checkInDate ?? now : _draft?.checkOutDate ?? now.add(const Duration(days: 1));
+    final initial = checkIn
+        ? _draft?.checkInDate ?? now
+        : _draft?.checkOutDate ?? now.add(const Duration(days: 1));
     final picked = await showDatePicker(
       context: context,
       firstDate: now,
@@ -53,31 +55,59 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
 
   void _changeRoomCount(int delta) {
     if (_draft == null) return;
-    final nextCount = (_draft!.roomCount + delta).clamp(1, _draft!.room.availableUnits).toInt();
-    final maxGuests = ((_draft!.room.capacityAdults + _draft!.room.capacityChildren) * nextCount).clamp(1, 999).toInt();
+    final nextCount = (_draft!.roomCount + delta)
+        .clamp(1, _draft!.room.availableUnits)
+        .toInt();
+    final maxGuests =
+        ((_draft!.room.capacityAdults + _draft!.room.capacityChildren) *
+                nextCount)
+            .clamp(1, 999)
+            .toInt();
     final nextGuests = _guestCount.clamp(1, maxGuests).toInt();
-    setState(() => _draft = _draft!.copyWith(roomCount: nextCount, adults: nextGuests, children: 0));
+    setState(
+      () => _draft = _draft!.copyWith(
+        roomCount: nextCount,
+        adults: nextGuests,
+        children: 0,
+      ),
+    );
   }
 
   void _continue() {
     final draft = _draft;
     if (draft == null) {
-      _showMessage(tr('Vui lòng chọn phòng trước.', 'Please select a room first.'));
+      _showMessage(
+        tr('Vui lòng chọn phòng trước.', 'Please select a room first.'),
+      );
       return;
     }
     if (!draft.hasValidDates) {
-      _showMessage(tr('Ngày check-out phải sau ngày check-in.', 'Check-out must be after check-in.'));
+      _showMessage(
+        tr(
+          'Ngày check-out phải sau ngày check-in.',
+          'Check-out must be after check-in.',
+        ),
+      );
       return;
     }
     if (_guestCount > _maxGuests) {
-      _showMessage(tr('Số khách vượt quá sức chứa phòng.', 'Number of guests exceeds room capacity.'));
+      _showMessage(
+        tr(
+          'Số khách vượt quá sức chứa phòng.',
+          'Number of guests exceeds room capacity.',
+        ),
+      );
       return;
     }
-    Navigator.of(context).pushNamed(AppRoutes.paymentCheckout, arguments: draft);
+    Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.paymentCheckout, arguments: draft);
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -138,16 +168,25 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                 }
               },
             ),
-            SizedBox(height: 20 * responsive.scale),
+            SizedBox(height: 12 * responsive.scale),
             if (draft == null)
-              _StateCard(message: tr('Vui lòng chọn phòng trước.', 'Please select a room first.'))
+              _StateCard(
+                message: tr(
+                  'Vui lòng chọn phòng trước.',
+                  'Please select a room first.',
+                ),
+              )
             else
               _BookingRoomHero(draft: draft),
-            SizedBox(height: 18 * responsive.scale),
+            SizedBox(height: 12 * responsive.scale),
             if (draft?.datesLocked == true)
               _InfoCard(
-                title: '${StayzFormatters.shortDate(draft!.checkInDate)} - ${StayzFormatters.shortDate(draft.checkOutDate)}',
-                subtitle: tr('${draft.nights} đêm đã chọn từ bước trước', '${draft.nights} nights chosen in the previous step'),
+                title:
+                    '${StayzFormatters.shortDate(draft!.checkInDate)} - ${StayzFormatters.shortDate(draft.checkOutDate)}',
+                subtitle: tr(
+                  '${draft.nights} đêm đã chọn từ bước trước',
+                  '${draft.nights} nights chosen in the previous step',
+                ),
               )
             else
               Row(
@@ -155,7 +194,9 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                   Expanded(
                     child: _DateButton(
                       label: 'Check-in',
-                      value: draft == null ? tr('Bắt buộc', 'Required') : StayzFormatters.shortDate(draft.checkInDate),
+                      value: draft == null
+                          ? tr('Bắt buộc', 'Required')
+                          : StayzFormatters.shortDate(draft.checkInDate),
                       onTap: () => _pickDate(checkIn: true),
                     ),
                   ),
@@ -163,32 +204,39 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
                   Expanded(
                     child: _DateButton(
                       label: 'Check-out',
-                      value: draft == null ? tr('Bắt buộc', 'Required') : StayzFormatters.shortDate(draft.checkOutDate),
+                      value: draft == null
+                          ? tr('Bắt buộc', 'Required')
+                          : StayzFormatters.shortDate(draft.checkOutDate),
                       onTap: () => _pickDate(checkIn: false),
                     ),
                   ),
                 ],
               ),
-            SizedBox(height: 18 * responsive.scale),
+            SizedBox(height: 12 * responsive.scale),
             _RoomCountStepper(
               count: draft?.roomCount ?? 1,
               maxRooms: draft?.room.availableUnits ?? 1,
               onMinus: () => _changeRoomCount(-1),
               onPlus: () => _changeRoomCount(1),
             ),
-            SizedBox(height: 18 * responsive.scale),
+            SizedBox(height: 12 * responsive.scale),
             _GuestStepper(
               count: _guestCount,
               maxGuests: _maxGuests,
               onMinus: () => _changeGuests(-1),
               onPlus: () => _changeGuests(1),
             ),
-            SizedBox(height: 18 * responsive.scale),
+            SizedBox(height: 12 * responsive.scale),
             _InfoCard(
-              title: draft == null ? tr('Tổng tiền', 'Total') : StayzFormatters.fullVnd(draft.totalAmount),
+              title: draft == null
+                  ? tr('Tổng tiền', 'Total')
+                  : StayzFormatters.fullVnd(draft.totalAmount),
               subtitle: draft == null
                   ? tr('Chọn ngày và số khách', 'Choose dates and guests')
-                  : tr('${draft.nights} đêm, $_guestCount khách, ${draft.roomCount} phòng', '${draft.nights} nights, $_guestCount guests, ${draft.roomCount} rooms'),
+                  : tr(
+                      '${draft.nights} đêm, $_guestCount khách, ${draft.roomCount} phòng',
+                      '${draft.nights} nights, $_guestCount guests, ${draft.roomCount} rooms',
+                    ),
             ),
           ],
         ),
@@ -216,9 +264,22 @@ class _InfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: AppTheme.ink, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
+          Text(
+            title,
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 18 * responsive.scale,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
           SizedBox(height: 6 * responsive.scale),
-          Text(subtitle, style: TextStyle(color: AppTheme.muted, fontSize: 14 * responsive.scale)),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: AppTheme.muted,
+              fontSize: 14 * responsive.scale,
+            ),
+          ),
         ],
       ),
     );
@@ -233,7 +294,9 @@ class _BookingRoomHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final imageUrl = draft.room.imageUrls.firstOrNull ?? draft.hotel.hotel.imageUrls.firstOrNull;
+    final imageUrl =
+        draft.room.imageUrls.firstOrNull ??
+        draft.hotel.hotel.imageUrls.firstOrNull;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -246,15 +309,17 @@ class _BookingRoomHero extends StatelessWidget {
         children: [
           if (imageUrl == null || imageUrl.isEmpty)
             Container(
-              height: 180 * responsive.scale,
+              height: 140 * responsive.scale,
               color: AppTheme.neutral200,
-              child: const Center(child: Icon(Icons.hotel_outlined, color: AppTheme.neutral500)),
+              child: const Center(
+                child: Icon(Icons.hotel_outlined, color: AppTheme.neutral500),
+              ),
             )
           else
             StayZNetworkImage(
               imageUrl: imageUrl,
               width: double.infinity,
-              height: 180 * responsive.scale,
+              height: 140 * responsive.scale,
             ),
           Padding(
             padding: EdgeInsets.all(16 * responsive.scale),
@@ -272,18 +337,46 @@ class _BookingRoomHero extends StatelessWidget {
                 SizedBox(height: 6 * responsive.scale),
                 Text(
                   draft.room.name,
-                  style: TextStyle(color: AppTheme.accentDark, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w800),
+                  style: TextStyle(
+                    color: AppTheme.accentDark,
+                    fontSize: 15 * responsive.scale,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 SizedBox(height: 8 * responsive.scale),
                 Text(
                   draft.hotel.hotel.address,
-                  style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale, height: 1.4),
+                  style: TextStyle(
+                    color: AppTheme.muted,
+                    fontSize: 13 * responsive.scale,
+                    height: 1.4,
+                  ),
                 ),
                 Divider(height: 26 * responsive.scale),
-                _DetailMiniLine(label: tr('Giá mỗi đêm', 'Price per night'), value: StayzFormatters.fullVnd(draft.room.pricePerNight)),
-                _DetailMiniLine(label: tr('Trạng thái phòng', 'Room status'), value: draft.room.availableUnits > 0 ? tr('Còn ${draft.room.availableUnits} phòng', '${draft.room.availableUnits} rooms left') : tr('Hết phòng', 'Sold out')),
-                _DetailMiniLine(label: tr('Sức chứa', 'Capacity'), value: tr('${draft.room.capacityAdults + draft.room.capacityChildren} khách/phòng', '${draft.room.capacityAdults + draft.room.capacityChildren} guests/room')),
-                _DetailMiniLine(label: tr('Số đêm', 'Nights'), value: tr('${draft.nights} đêm', '${draft.nights} nights')),
+                _DetailMiniLine(
+                  label: tr('Giá mỗi đêm', 'Price per night'),
+                  value: StayzFormatters.fullVnd(draft.room.pricePerNight),
+                ),
+                _DetailMiniLine(
+                  label: tr('Trạng thái phòng', 'Room status'),
+                  value: draft.room.availableUnits > 0
+                      ? tr(
+                          'Còn ${draft.room.availableUnits} phòng',
+                          '${draft.room.availableUnits} rooms left',
+                        )
+                      : tr('Hết phòng', 'Sold out'),
+                ),
+                _DetailMiniLine(
+                  label: tr('Sức chứa', 'Capacity'),
+                  value: tr(
+                    '${draft.room.capacityAdults + draft.room.capacityChildren} khách/phòng',
+                    '${draft.room.capacityAdults + draft.room.capacityChildren} guests/room',
+                  ),
+                ),
+                _DetailMiniLine(
+                  label: tr('Số đêm', 'Nights'),
+                  value: tr('${draft.nights} đêm', '${draft.nights} nights'),
+                ),
               ],
             ),
           ),
@@ -306,8 +399,23 @@ class _DetailMiniLine extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 4 * responsive.scale),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: TextStyle(color: AppTheme.muted, fontSize: 13 * responsive.scale))),
-          Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 13 * responsive.scale, fontWeight: FontWeight.w800)),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: AppTheme.muted,
+                fontSize: 13 * responsive.scale,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 13 * responsive.scale,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );
@@ -335,7 +443,11 @@ class _StateCard extends StatelessWidget {
 }
 
 class _DateButton extends StatelessWidget {
-  const _DateButton({required this.label, required this.value, required this.onTap});
+  const _DateButton({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
   final String label;
   final String value;
   final VoidCallback onTap;
@@ -356,9 +468,23 @@ class _DateButton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: TextStyle(color: AppTheme.muted, fontSize: 12 * responsive.scale, fontWeight: FontWeight.w800)),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppTheme.muted,
+                fontSize: 12 * responsive.scale,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
             SizedBox(height: 8 * responsive.scale),
-            Text(value, style: TextStyle(color: AppTheme.ink, fontSize: 15 * responsive.scale, fontWeight: FontWeight.w900)),
+            Text(
+              value,
+              style: TextStyle(
+                color: AppTheme.ink,
+                fontSize: 15 * responsive.scale,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
           ],
         ),
       ),
@@ -394,12 +520,28 @@ class _GuestStepper extends StatelessWidget {
           Expanded(
             child: Text(
               tr('Số khách (tối đa $maxGuests)', 'Guests (max $maxGuests)'),
-              style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                color: AppTheme.ink,
+                fontSize: 16 * responsive.scale,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
-          IconButton(onPressed: onMinus, icon: const Icon(Icons.remove_circle_outline)),
-          Text('$count', style: TextStyle(fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
-          IconButton(onPressed: onPlus, icon: const Icon(Icons.add_circle_outline)),
+          IconButton(
+            onPressed: onMinus,
+            icon: const Icon(Icons.remove_circle_outline),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 18 * responsive.scale,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          IconButton(
+            onPressed: onPlus,
+            icon: const Icon(Icons.add_circle_outline),
+          ),
         ],
       ),
     );
@@ -434,12 +576,28 @@ class _RoomCountStepper extends StatelessWidget {
           Expanded(
             child: Text(
               tr('Số phòng (còn $maxRooms)', 'Rooms ($maxRooms left)'),
-              style: TextStyle(color: AppTheme.ink, fontSize: 16 * responsive.scale, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                color: AppTheme.ink,
+                fontSize: 16 * responsive.scale,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
-          IconButton(onPressed: count <= 1 ? null : onMinus, icon: const Icon(Icons.remove_circle_outline)),
-          Text('$count', style: TextStyle(fontSize: 18 * responsive.scale, fontWeight: FontWeight.w900)),
-          IconButton(onPressed: count >= maxRooms ? null : onPlus, icon: const Icon(Icons.add_circle_outline)),
+          IconButton(
+            onPressed: count <= 1 ? null : onMinus,
+            icon: const Icon(Icons.remove_circle_outline),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 18 * responsive.scale,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          IconButton(
+            onPressed: count >= maxRooms ? null : onPlus,
+            icon: const Icon(Icons.add_circle_outline),
+          ),
         ],
       ),
     );

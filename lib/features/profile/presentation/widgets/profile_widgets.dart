@@ -308,7 +308,7 @@ class PaymentAccountTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFFFBF1EE),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFD9B8B8)),
+              border: Border.all(color: AppTheme.line),
             ),
             child: Icon(
               icon,
@@ -350,7 +350,7 @@ class PaymentAccountTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFFF1E7E3),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: const Color(0xFFD9B8B8)),
+                border: Border.all(color: AppTheme.line),
               ),
               child: Text(
                 tr('MẶC ĐỊNH', 'DEFAULT'),

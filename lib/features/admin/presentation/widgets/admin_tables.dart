@@ -538,28 +538,99 @@ class AdminDataTable extends StatelessWidget {
   final List<String> columns;
   final List<DataRow> rows;
   @override
-  Widget build(BuildContext context) => DataTable(
-    headingRowHeight: 48,
-    dataRowMinHeight: 56,
-    dataRowMaxHeight: 64,
-    horizontalMargin: 20,
-    columnSpacing: 28,
-    dividerThickness: 0.7,
-    headingRowColor: WidgetStateProperty.all(
-      AppTheme.primarySoft.withValues(alpha: 0.42),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      if (constraints.maxWidth < 600) {
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+                _AdminMobileRow(columns: columns, row: rows[rowIndex]),
+                if (rowIndex != rows.length - 1) const SizedBox(height: 10),
+              ],
+            ],
+          ),
+        );
+      }
+
+      return DataTable(
+        headingRowHeight: 48,
+        dataRowMinHeight: 56,
+        dataRowMaxHeight: 64,
+        horizontalMargin: 20,
+        columnSpacing: 28,
+        dividerThickness: 0.7,
+        headingRowColor: WidgetStateProperty.all(
+          AppTheme.primarySoft.withValues(alpha: 0.42),
+        ),
+        headingTextStyle: const TextStyle(
+          color: AppTheme.muted,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+        ),
+        dataTextStyle: const TextStyle(
+          color: AppTheme.muted,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        columns: columns
+            .map((label) => DataColumn(label: Text(label)))
+            .toList(),
+        rows: rows,
+      );
+    },
+  );
+}
+
+class _AdminMobileRow extends StatelessWidget {
+  const _AdminMobileRow({required this.columns, required this.row});
+
+  final List<String> columns;
+  final DataRow row;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: AppTheme.surface,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: AppTheme.line),
     ),
-    headingTextStyle: const TextStyle(
-      color: AppTheme.muted,
-      fontSize: 11,
-      fontWeight: FontWeight.w800,
+    child: Column(
+      children: [
+        for (var index = 0; index < row.cells.length; index++) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 92,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Text(
+                    columns[index],
+                    style: const TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: row.cells[index].child,
+                ),
+              ),
+            ],
+          ),
+          if (index != row.cells.length - 1)
+            const Divider(height: 18, color: AppTheme.line),
+        ],
+      ],
     ),
-    dataTextStyle: const TextStyle(
-      color: AppTheme.muted,
-      fontSize: 12,
-      fontWeight: FontWeight.w500,
-    ),
-    columns: columns.map((label) => DataColumn(label: Text(label))).toList(),
-    rows: rows,
   );
 }
 
@@ -588,18 +659,19 @@ class BookingStatusMenu extends StatelessWidget {
       enabled: enabled,
       initialValue: status,
       onSelected: onSelected,
-      itemBuilder: (_) => (status == 'pending'
-              ? const ['pending', 'cancelled']
-              : status == 'confirmed'
-              ? const ['confirmed', 'cancelled']
-              : <String>[status])
-          .map(
-            (value) => PopupMenuItem(
-              value: value,
-              child: Text(adminStatusLabel(value)),
-            ),
-          )
-          .toList(),
+      itemBuilder: (_) =>
+          (status == 'pending'
+                  ? const ['pending', 'cancelled']
+                  : status == 'confirmed'
+                  ? const ['confirmed', 'cancelled']
+                  : <String>[status])
+              .map(
+                (value) => PopupMenuItem(
+                  value: value,
+                  child: Text(adminStatusLabel(value)),
+                ),
+              )
+              .toList(),
       child: StatusPill(status: status, showArrow: true),
     );
   }
@@ -707,7 +779,9 @@ class StatusPill extends StatelessWidget {
         ? AppTheme.muted
         : normalized == 'completed'
         ? AppTheme.success
-        : normalized == 'cancelled' || normalized == 'failed' || normalized == 'inactive'
+        : normalized == 'cancelled' ||
+              normalized == 'failed' ||
+              normalized == 'inactive'
         ? AppTheme.danger
         : AppTheme.gold;
     return Tooltip(
@@ -917,13 +991,16 @@ class TableShell extends StatelessWidget {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: LayoutBuilder(
-        builder: (_, constraints) => SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: constraints.maxWidth),
-            child: child,
-          ),
-        ),
+        builder: (_, constraints) {
+          if (constraints.maxWidth < 600) return child;
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: child,
+            ),
+          );
+        },
       ),
     ),
   );

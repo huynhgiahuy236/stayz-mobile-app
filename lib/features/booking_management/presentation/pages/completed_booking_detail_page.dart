@@ -39,7 +39,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
         summary.hotel.imageUrls.firstOrNull;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF7F4),
+      backgroundColor: AppTheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -206,7 +206,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                         total: true,
                         valueColor: summary.booking.paymentPlan == 'deposit_30'
                             ? AppTheme.depositText
-                            : const Color(0xFF159A61),
+                            : AppTheme.success,
                       ),
                     ],
                   ),

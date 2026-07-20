@@ -101,7 +101,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.location_on_outlined,
-                        color: const Color(0xFF5A3F3F),
+                        color: AppTheme.ink,
                         size: 20 * responsive.scale,
                       ),
                       SizedBox(width: 8 * responsive.widthScale),
@@ -111,7 +111,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: const Color(0xFF5A3F3F),
+                            color: AppTheme.ink,
                             fontSize: 16 * responsive.scale,
                           ),
                         ),
@@ -212,7 +212,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                         total: true,
                         valueColor: summary.booking.paymentPlan == 'deposit_30'
                             ? AppTheme.depositText
-                            : const Color(0xFF159A61),
+                            : AppTheme.success,
                       ),
                       const Divider(),
                       DetailLine(
@@ -260,9 +260,8 @@ class CancelledBookingDetailPage extends StatelessWidget {
                   SizedBox(height: 14 * responsive.scale),
                   BookingOutlineButton(
                     label: tr('Liên hệ hỗ trợ', 'Contact support'),
-                    onTap: () => Navigator.of(
-                      context,
-                    ).pushNamed(AppRoutes.helpCenter),
+                    onTap: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.helpCenter),
                   ),
                 ],
               ),

@@ -56,11 +56,7 @@ class DetailCircleButton extends StatelessWidget {
 }
 
 class DetailSectionTitle extends StatelessWidget {
-  const DetailSectionTitle({
-    required this.title,
-    this.trailing,
-    super.key,
-  });
+  const DetailSectionTitle({required this.title, this.trailing, super.key});
 
   final String title;
   final Widget? trailing;
@@ -88,11 +84,7 @@ class DetailSectionTitle extends StatelessWidget {
 }
 
 class AmenityTile extends StatelessWidget {
-  const AmenityTile({
-    required this.icon,
-    required this.label,
-    super.key,
-  });
+  const AmenityTile({required this.icon, required this.label, super.key});
 
   final IconData icon;
   final String label;
@@ -119,7 +111,7 @@ class AmenityTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: const Color(0xFF6B5348),
+                color: AppTheme.muted,
                 fontSize: 13 * responsive.scale,
                 fontWeight: FontWeight.w600,
               ),
@@ -165,7 +157,11 @@ class ReviewCard extends StatelessWidget {
               CircleAvatar(
                 radius: 20 * responsive.scale,
                 backgroundColor: colors.first,
-                child: Icon(Icons.person, color: colors.last, size: 22 * responsive.scale),
+                child: Icon(
+                  Icons.person,
+                  color: colors.last,
+                  size: 22 * responsive.scale,
+                ),
               ),
               SizedBox(width: 12 * responsive.widthScale),
               Expanded(
@@ -206,7 +202,7 @@ class ReviewCard extends StatelessWidget {
           Text(
             body,
             style: TextStyle(
-              color: const Color(0xFF5A3F3F),
+              color: AppTheme.ink,
               fontSize: 13 * responsive.scale,
               fontStyle: FontStyle.italic,
               height: 1.55,
@@ -276,7 +272,10 @@ class DetailBottomBookingBar extends StatelessWidget {
                   SizedBox(height: 4 * responsive.scale),
                   Text(
                     // Backend khong tinh thue/phi nao ca; noi "da bao gom" la sai su that.
-                    tr('Giá phòng thấp nhất, chưa gồm phụ phí tại chỗ', 'Lowest room price, excluding on-site fees'),
+                    tr(
+                      'Giá phòng thấp nhất, chưa gồm phụ phí tại chỗ',
+                      'Lowest room price, excluding on-site fees',
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -297,12 +296,14 @@ class DetailBottomBookingBar extends StatelessWidget {
                 onPressed: summary == null
                     ? null
                     : () => Navigator.of(context).pushNamed(
-                          AppRoutes.roomSelection,
-                          arguments: RoomSelectionArgs(hotel: summary!),
-                        ),
+                        AppRoutes.roomSelection,
+                        arguments: RoomSelectionArgs(hotel: summary!),
+                      ),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppTheme.accentDark,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Text(
                   tr('Chọn phòng', 'Select room'),
@@ -356,14 +357,18 @@ class SupportActionCard extends StatelessWidget {
           CircleAvatar(
             radius: 24 * responsive.scale,
             backgroundColor: color.withValues(alpha: 0.28),
-            child: Icon(icon, color: AppTheme.accentDark, size: 22 * responsive.scale),
+            child: Icon(
+              icon,
+              color: AppTheme.accentDark,
+              size: 22 * responsive.scale,
+            ),
           ),
           SizedBox(height: 12 * responsive.scale),
           Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: const Color(0xFF6B5348),
+              color: AppTheme.muted,
               fontSize: 17 * responsive.scale,
               fontWeight: FontWeight.w600,
             ),

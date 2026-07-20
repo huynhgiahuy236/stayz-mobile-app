@@ -15,7 +15,8 @@ class CancelBookingResultPage extends StatefulWidget {
   const CancelBookingResultPage({super.key});
 
   @override
-  State<CancelBookingResultPage> createState() => _CancelBookingResultPageState();
+  State<CancelBookingResultPage> createState() =>
+      _CancelBookingResultPageState();
 }
 
 class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
@@ -29,7 +30,8 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
     super.didChangeDependencies();
     if (_started) return;
     _started = true;
-    final args = ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as BookingSummaryArgs?;
     // `_cancelBooking` goi setState ngay dau; hoan lai sau khi khung dung xong
     // de tranh "setState() called during build".
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -56,8 +58,19 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
     final plan = PaymentPolicy.fromSlug(summary.booking.paymentPlan);
     final paid = summary.booking.amountPaid ?? 0;
     final now = DateTime.now();
-    final rate = PaymentPolicy.refundRatePercent(plan, summary.booking.checkInDate, now);
-    final refund = paid > 0 ? PaymentPolicy.refundAmount(plan, paid, summary.booking.checkInDate, now) : 0;
+    final rate = PaymentPolicy.refundRatePercent(
+      plan,
+      summary.booking.checkInDate,
+      now,
+    );
+    final refund = paid > 0
+        ? PaymentPolicy.refundAmount(
+            plan,
+            paid,
+            summary.booking.checkInDate,
+            now,
+          )
+        : 0;
 
     try {
       final updated = await ApiStayzRepository.instance.updateBookingStatus(
@@ -69,7 +82,13 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
       await ApiStayzRepository.instance.getBookingSummaries();
       if (!mounted) return;
       setState(() {
-        _summary = updated ?? summary.copyWithStatus('cancelled', refundAmount: refund, refundRate: rate);
+        _summary =
+            updated ??
+            summary.copyWithStatus(
+              'cancelled',
+              refundAmount: refund,
+              refundRate: rate,
+            );
         _isCancelling = false;
       });
       // Alert tuc thoi cho khach biet ket qua (khac voi thong bao luu lai trong danh sach).
@@ -78,8 +97,14 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
         type: StayzAlertType.success,
         title: tr('Đã hủy đặt phòng', 'Booking cancelled'),
         message: refund > 0
-            ? tr('Yêu cầu hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) đang chờ xử lý thủ công.', 'Your ${StayzFormatters.fullVnd(refund)} refund request ($rate%) is awaiting manual processing.')
-            : tr('Không có khoản hoàn theo chính sách hủy.', 'No refund is due under the cancellation policy.'),
+            ? tr(
+                'Yêu cầu hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) đang chờ xử lý thủ công.',
+                'Your ${StayzFormatters.fullVnd(refund)} refund request ($rate%) is awaiting manual processing.',
+              )
+            : tr(
+                'Không có khoản hoàn theo chính sách hủy.',
+                'No refund is due under the cancellation policy.',
+              ),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -144,15 +169,21 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                 children: [
                   CircleAvatar(
                     radius: 64 * responsive.scale,
-                    backgroundColor: const Color(0xFFFFE9E8),
+                    backgroundColor: AppTheme.dangerSoft,
                     child: CircleAvatar(
                       radius: 46 * responsive.scale,
                       backgroundColor: Colors.white,
                       child: _isCancelling
-                          ? const CircularProgressIndicator(color: AppTheme.accent)
+                          ? const CircularProgressIndicator(
+                              color: AppTheme.accent,
+                            )
                           : Icon(
-                              hasError ? Icons.error_outline : Icons.check_rounded,
-                              color: hasError ? Colors.redAccent : const Color(0xFF0D8A4E),
+                              hasError
+                                  ? Icons.error_outline
+                                  : Icons.check_rounded,
+                              color: hasError
+                                  ? AppTheme.danger
+                                  : AppTheme.success,
                               size: 52 * responsive.scale,
                             ),
                     ),
@@ -160,10 +191,13 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   SizedBox(height: 44 * responsive.scale),
                   Text(
                     hasError
-                        ? tr('Không thể hủy đặt phòng', 'Unable to cancel booking')
+                        ? tr(
+                            'Không thể hủy đặt phòng',
+                            'Unable to cancel booking',
+                          )
                         : _isCancelling
-                            ? 'Đang hủy đặt phòng'
-                            : 'Đã hủy đặt phòng',
+                        ? 'Đang hủy đặt phòng'
+                        : 'Đã hủy đặt phòng',
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.accent,
@@ -177,10 +211,14 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     hasError
                         ? _errorMessage!
                         : summary == null
-                            ? 'Đơn đang được cập nhật trong hệ thống.'
-                            : 'Đơn tại ${summary.hotel.name} đã chuyển sang trạng thái đã hủy.',
+                        ? 'Đơn đang được cập nhật trong hệ thống.'
+                        : 'Đơn tại ${summary.hotel.name} đã chuyển sang trạng thái đã hủy.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 17 * responsive.scale, height: 1.45),
+                    style: TextStyle(
+                      color: AppTheme.ink,
+                      fontSize: 17 * responsive.scale,
+                      height: 1.45,
+                    ),
                   ),
                   SizedBox(height: 38 * responsive.scale),
                   Container(
@@ -188,7 +226,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFD9B8B8)),
+                      border: Border.all(color: AppTheme.line),
                     ),
                     child: Column(
                       children: [
@@ -196,17 +234,30 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                           label: tr('TRẠNG THÁI', 'STATUS'),
                           value: _isCancelling
                               ? tr('Đang xử lý', 'Processing')
-                              : StayzTaxonomy.bookingStatusLabel(summary?.booking.normalizedStatus ?? 'cancelled'),
+                              : StayzTaxonomy.bookingStatusLabel(
+                                  summary?.booking.normalizedStatus ??
+                                      'cancelled',
+                                ),
                         ),
                         const Divider(),
-                        if (!_isCancelling && summary != null && (summary.booking.refundAmount ?? 0) > 0) ...[
+                        if (!_isCancelling &&
+                            summary != null &&
+                            (summary.booking.refundAmount ?? 0) > 0) ...[
                           _ResultLine(
-                            label: tr('HOÀN TIỀN (${summary.booking.refundRate?.round() ?? 0}%)', 'REFUND (${summary.booking.refundRate?.round() ?? 0}%)'),
-                            value: StayzFormatters.fullVnd(summary.booking.refundAmount ?? 0),
+                            label: tr(
+                              'HOÀN TIỀN (${summary.booking.refundRate?.round() ?? 0}%)',
+                              'REFUND (${summary.booking.refundRate?.round() ?? 0}%)',
+                            ),
+                            value: StayzFormatters.fullVnd(
+                              summary.booking.refundAmount ?? 0,
+                            ),
                           ),
                           const Divider(),
                         ],
-                        _ResultLine(label: tr('MÃ ĐẶT PHÒNG', 'BOOKING CODE'), value: _bookingCode(summary)),
+                        _ResultLine(
+                          label: tr('MÃ ĐẶT PHÒNG', 'BOOKING CODE'),
+                          value: _bookingCode(summary),
+                        ),
                       ],
                     ),
                   ),
@@ -215,7 +266,11 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     Text(
                       PaymentPolicy.refundDisclaimer,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppTheme.muted, fontSize: 12.5 * responsive.scale, height: 1.5),
+                      style: TextStyle(
+                        color: AppTheme.muted,
+                        fontSize: 12.5 * responsive.scale,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                   SizedBox(height: 38 * responsive.scale),
@@ -225,16 +280,21 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     onTap: _isCancelling || hasError
                         ? null
                         : () => Navigator.of(context).pushNamedAndRemoveUntil(
-                              AppRoutes.cancelledBookings,
-                              (route) => false,
-                            ),
+                            AppRoutes.cancelledBookings,
+                            (route) => false,
+                          ),
                   ),
                   SizedBox(height: 18 * responsive.scale),
                   _ResultButton(
-                    label: hasError ? tr('Thử lại', 'Try again') : tr('Tìm phòng khác', 'Find another room'),
+                    label: hasError
+                        ? tr('Thử lại', 'Try again')
+                        : tr('Tìm phòng khác', 'Find another room'),
                     onTap: hasError
                         ? () => _cancelBooking(_summary)
-                        : () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.search, (route) => false),
+                        : () => Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRoutes.search,
+                            (route) => false,
+                          ),
                   ),
                 ],
               ),
@@ -267,10 +327,25 @@ class _ResultLine extends StatelessWidget {
       children: [
         SizedBox(
           width: 120 * responsive.widthScale,
-          child: Text(label, style: TextStyle(color: const Color(0xFF5A3F3F), fontSize: 16 * responsive.scale, letterSpacing: 2)),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 16 * responsive.scale,
+              letterSpacing: 2,
+            ),
+          ),
         ),
         Expanded(
-          child: Text(value, textAlign: TextAlign.right, style: TextStyle(color: AppTheme.ink, fontSize: 17 * responsive.scale, fontWeight: FontWeight.w700)),
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              color: AppTheme.ink,
+              fontSize: 17 * responsive.scale,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
       ],
     );
@@ -278,11 +353,7 @@ class _ResultLine extends StatelessWidget {
 }
 
 class _ResultButton extends StatelessWidget {
-  const _ResultButton({
-    required this.label,
-    this.filled = false,
-    this.onTap,
-  });
+  const _ResultButton({required this.label, this.filled = false, this.onTap});
 
   final String label;
   final bool filled;
@@ -300,17 +371,35 @@ class _ResultButton extends StatelessWidget {
               onPressed: onTap,
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.accent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              child: Text(label, style: TextStyle(color: Colors.white, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800)),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18 * responsive.scale,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             )
           : OutlinedButton(
               onPressed: onTap,
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppTheme.accent),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              child: Text(label, style: TextStyle(color: AppTheme.accent, fontSize: 18 * responsive.scale, fontWeight: FontWeight.w800)),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: AppTheme.accent,
+                  fontSize: 18 * responsive.scale,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
     );
   }
@@ -318,7 +407,11 @@ class _ResultButton extends StatelessWidget {
 
 extension on BookingSummary {
   /// Ban sao local khi backend khong tra ve (mo phong): doi status + luu hoan tien.
-  BookingSummary copyWithStatus(String status, {num? refundAmount, num? refundRate}) {
+  BookingSummary copyWithStatus(
+    String status, {
+    num? refundAmount,
+    num? refundRate,
+  }) {
     return BookingSummary(
       booking: booking.copyWith(
         status: status,

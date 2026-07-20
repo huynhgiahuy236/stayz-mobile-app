@@ -11,20 +11,28 @@ class AppTheme {
   static const cream = Color(0xFFEAF7FF);
   static const surface = Color(0xFFF7FBFF);
   static const ink = Color(0xFF102A43);
-  static const primary = Color(0xFF1D8BD1);
+  static const brand = Color(0xFF1D8BD1);
+  static const primary = Color(0xFF0A73B8);
   static const primaryDark = Color(0xFF0A4E83);
   static const primarySoft = Color(0xFFDDEEFF);
-  static const accent = primary;
+  static const accent = brand;
   static const accentDark = primaryDark;
   static const teal = Color(0xFF2378C9);
   static const gold = Color(0xFFE9A92F);
   static const line = Color(0xFFC6E4F7);
-  static const muted = Color(0xFF5E7F98);
+  static const border = Color(0xFFA9CCE3);
+  static const muted = Color(0xFF4B6B83);
   static const neutral200 = line;
   static const neutral500 = muted;
   static const neutral800 = Color(0xFF12314D);
   static const success = Color(0xFF17875A);
-  static const danger = Color(0xFFD34B3F);
+  static const successSoft = Color(0xFFE7F6EE);
+  static const warning = Color(0xFFB45309);
+  static const warningSoft = Color(0xFFFFF3E0);
+  static const danger = Color(0xFFB93832);
+  static const dangerSoft = Color(0xFFFDECEB);
+  static const refund = Color(0xFF6741A5);
+  static const refundSoft = Color(0xFFF1EBFA);
   static const notificationPendingBorder = Color(0xFFF0B84B);
   static const notificationPendingText = Color(0xFF9A6500);
   static const notificationSuccessBorder = Color(0xFF61C996);
@@ -37,7 +45,7 @@ class AppTheme {
   static const notificationOfferBorder = Color(0xFFB79AE8);
   static const notificationOfferText = Color(0xFF6741A5);
   static const depositBorder = Color(0xFFF29B38);
-  static const depositText = Color(0xFF4E220F);
+  static const depositText = warning;
   static const double cardRadius = 18;
   static const double controlRadius = 16;
   static const double dialogRadius = 20;
@@ -109,7 +117,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryDark,
-          side: const BorderSide(color: line),
+          side: const BorderSide(color: border),
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -132,11 +140,11 @@ class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: line),
+          borderSide: const BorderSide(color: border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: line),
+          borderSide: const BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

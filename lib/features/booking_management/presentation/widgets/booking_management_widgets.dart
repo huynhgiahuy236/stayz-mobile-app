@@ -97,7 +97,7 @@ class BookingManageHeader extends StatelessWidget {
         16 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFFBF7F4),
+        color: AppTheme.surface,
         border: Border(
           bottom: BorderSide(
             color: AppTheme.neutral200.withValues(alpha: 0.65),
@@ -357,7 +357,7 @@ class UpcomingBookingCard extends StatelessWidget {
           // Anh full-width, ten khach san nam DUOI anh (giong the ngoai home),
           // pill trang thai noi goc phai tren anh (giong the cancelled).
           SizedBox(
-            height: 160 * responsive.scale,
+            height: 136 * responsive.scale,
             width: double.infinity,
             child: Stack(
               children: [
@@ -371,7 +371,7 @@ class UpcomingBookingCard extends StatelessWidget {
                         : StayZNetworkImage(
                             imageUrl: imageUrl!,
                             width: constraints.maxWidth,
-                            height: 160 * responsive.scale,
+                            height: 136 * responsive.scale,
                           ),
                   ),
                 ),
@@ -402,7 +402,7 @@ class UpcomingBookingCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(16 * responsive.scale),
+            padding: EdgeInsets.all(14 * responsive.scale),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -412,7 +412,7 @@ class UpcomingBookingCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppTheme.ink,
-                    fontSize: 19 * responsive.scale,
+                    fontSize: 17 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -438,11 +438,14 @@ class UpcomingBookingCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                Divider(height: 20 * responsive.scale, color: AppTheme.line),
                 if (statusDescription != null) ...[
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(12 * responsive.scale),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12 * responsive.widthScale,
+                      vertical: 9 * responsive.scale,
+                    ),
                     decoration: BoxDecoration(
                       color: statusColor ?? AppTheme.surface,
                       borderRadius: BorderRadius.circular(12),
@@ -462,7 +465,7 @@ class UpcomingBookingCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 14 * responsive.scale),
+                  SizedBox(height: 10 * responsive.scale),
                 ],
                 if (paymentAmount != null) ...[
                   Row(
@@ -481,14 +484,14 @@ class UpcomingBookingCard extends StatelessWidget {
                         style: TextStyle(
                           color: deposit30
                               ? AppTheme.depositText
-                              : const Color(0xFF159A61),
+                              : AppTheme.success,
                           fontSize: 17 * responsive.scale,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                     ],
                   ),
-                  Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                  Divider(height: 20 * responsive.scale, color: AppTheme.line),
                 ],
                 if (remainingAmount != null) ...[
                   Row(
@@ -516,7 +519,7 @@ class UpcomingBookingCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Divider(height: 26 * responsive.scale, color: AppTheme.line),
+                  Divider(height: 20 * responsive.scale, color: AppTheme.line),
                 ],
                 Row(
                   children: [
@@ -540,7 +543,7 @@ class UpcomingBookingCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 18 * responsive.scale),
+                SizedBox(height: 12 * responsive.scale),
                 Row(
                   children: [
                     Expanded(
@@ -764,7 +767,7 @@ class HistoryBookingCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.calendar_today_outlined,
-                            color: const Color(0xFF5A3F3F),
+                            color: AppTheme.ink,
                             size: 17 * responsive.scale,
                           ),
                           SizedBox(width: 10 * responsive.widthScale),
@@ -772,7 +775,7 @@ class HistoryBookingCard extends StatelessWidget {
                             child: Text(
                               date,
                               style: TextStyle(
-                                color: const Color(0xFF5A3F3F),
+                                color: AppTheme.ink,
                                 fontSize: 18 * responsive.scale,
                               ),
                             ),
@@ -922,7 +925,7 @@ class DetailLine extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: total ? AppTheme.accentDark : const Color(0xFF5A3F3F),
+                color: total ? AppTheme.accentDark : AppTheme.ink,
                 fontSize: (total ? 18 : 16) * responsive.scale,
                 fontWeight: total ? FontWeight.w900 : FontWeight.w500,
               ),

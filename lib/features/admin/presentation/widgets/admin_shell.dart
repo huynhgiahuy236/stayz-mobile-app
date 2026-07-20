@@ -392,9 +392,13 @@ class AdminHeader extends StatelessWidget {
                 addButton,
                 const SizedBox(width: 8),
               ],
-              controls,
+              if (wide) controls,
             ],
           ),
+          if (!wide) ...[
+            const SizedBox(height: 10),
+            Align(alignment: Alignment.centerRight, child: controls),
+          ],
           if (!wide && section != AdminSection.overview) ...[
             const SizedBox(height: 12),
             Row(

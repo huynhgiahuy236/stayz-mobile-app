@@ -33,7 +33,6 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
-      bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -109,7 +108,7 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
                               summary.booking.cancellationReason == 'no_show'
                               ? tr('Đã hủy – Không đến', 'Cancelled – No-show')
                               : tr('Đã hủy', 'Cancelled'),
-                          statusColor: const Color(0xFFFFD8D5),
+                          statusColor: AppTheme.dangerSoft,
                           statusTextColor: AppTheme.danger,
                           statusDescription:
                               (summary.booking.refundAmount ?? 0) > 0
@@ -206,10 +205,10 @@ class _CancelledEmptyState extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 44 * responsive.scale,
-              backgroundColor: const Color(0xFFF0E9E3),
+              backgroundColor: AppTheme.dangerSoft,
               child: Icon(
                 Icons.event_busy_outlined,
-                color: const Color(0xFF6B5348),
+                color: AppTheme.danger,
                 size: 36 * responsive.scale,
               ),
             ),
@@ -306,7 +305,7 @@ class _CancelledBookingCard extends StatelessWidget {
                     right: 14 * responsive.widthScale,
                     child: BookingStatusPill(
                       label: tr('Đã hủy', 'Cancelled'),
-                      color: const Color(0xFFFFD8D5),
+                      color: AppTheme.dangerSoft,
                     ),
                   ),
                 ],

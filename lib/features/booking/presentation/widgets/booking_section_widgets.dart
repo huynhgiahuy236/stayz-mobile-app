@@ -93,7 +93,7 @@ class BookingPrimaryButton extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: 58 * responsive.scale,
+      height: AppTheme.pageActionHeight,
       child: FilledButton(
         onPressed: onTap,
         style: FilledButton.styleFrom(
@@ -110,13 +110,13 @@ class BookingPrimaryButton extends StatelessWidget {
               label,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18 * responsive.scale,
+                fontSize: 16 * responsive.scale,
                 fontWeight: FontWeight.w800,
               ),
             ),
             if (icon != null) ...[
               SizedBox(width: 12 * responsive.widthScale),
-              Icon(icon, color: Colors.white, size: 28 * responsive.scale),
+              Icon(icon, color: Colors.white, size: 22 * responsive.scale),
             ],
           ],
         ),
@@ -173,10 +173,10 @@ class RoomOptionCard extends StatelessWidget {
           _RoomImageBanner(
             imageUrl: imageUrl,
             colors: colors,
-            height: 166 * responsive.scale,
+            height: 136 * responsive.scale,
           ),
           Padding(
-            padding: EdgeInsets.all(18 * responsive.scale),
+            padding: EdgeInsets.all(14 * responsive.scale),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -197,7 +197,7 @@ class RoomOptionCard extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 10 * responsive.widthScale,
-                        vertical: 7 * responsive.scale,
+                        vertical: 5 * responsive.scale,
                       ),
                       decoration: BoxDecoration(
                         color: badgeColor,
@@ -227,7 +227,7 @@ class RoomOptionCard extends StatelessWidget {
                     ),
                   ),
                 ],
-                SizedBox(height: 14 * responsive.scale),
+                SizedBox(height: 10 * responsive.scale),
                 Wrap(
                   spacing: 8 * responsive.widthScale,
                   runSpacing: 8 * responsive.scale,
@@ -235,21 +235,21 @@ class RoomOptionCard extends StatelessWidget {
                       .map((label) => _RoomMeta(label: label))
                       .toList(),
                 ),
-                SizedBox(height: 16 * responsive.scale),
+                SizedBox(height: 10 * responsive.scale),
                 if (amenityLabels.isNotEmpty)
                   Wrap(
                     spacing: 8 * responsive.widthScale,
                     runSpacing: 8 * responsive.scale,
                     children: amenityLabels
-                        .take(4)
+                        .take(3)
                         .map((label) => _AmenityChip(label: label))
                         .toList(),
                   ),
                 SizedBox(
-                  height: amenityLabels.isEmpty ? 0 : 16 * responsive.scale,
+                  height: amenityLabels.isEmpty ? 0 : 10 * responsive.scale,
                 ),
                 Divider(
-                  height: 42 * responsive.scale,
+                  height: 28 * responsive.scale,
                   color: AppTheme.neutral200,
                 ),
                 Text.rich(
@@ -274,12 +274,12 @@ class RoomOptionCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
                       child: SizedBox(
-                        height: AppTheme.cardActionHeight,
+                        height: 44,
                         child: OutlinedButton(
                           onPressed: onDetails,
                           child: Text(tr('Chi tiáº¿t phÃ²ng', 'Room details')),
@@ -289,7 +289,7 @@ class RoomOptionCard extends StatelessWidget {
                     SizedBox(width: 10 * responsive.widthScale),
                     Expanded(
                       child: SizedBox(
-                        height: AppTheme.cardActionHeight,
+                        height: 44,
                         child: FilledButton(
                           onPressed: canBook ? onBook : null,
                           style: FilledButton.styleFrom(
@@ -376,13 +376,13 @@ class _AmenityChip extends StatelessWidget {
         vertical: 6 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF3DD),
+        color: AppTheme.successSoft,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: const Color(0xFF3F6D25),
+          color: AppTheme.success,
           fontSize: 11 * responsive.scale,
           fontWeight: FontWeight.w600,
         ),
@@ -407,12 +407,12 @@ class _RoomMeta extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFE5BFC0)),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: const Color(0xFFC79291),
+          color: AppTheme.muted,
           fontSize: 11 * responsive.scale,
           fontWeight: FontWeight.w600,
         ),

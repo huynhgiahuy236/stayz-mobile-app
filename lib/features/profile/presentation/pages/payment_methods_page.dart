@@ -30,7 +30,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 children: [
                   SizedBox(height: 20 * responsive.scale),
                   Text(
-                    tr('Tài khoản thanh toán', 'Payment accounts'),
+                    tr('Thanh toán qua PayOS', 'Payments via PayOS'),
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.ink,
                       fontSize: 28 * responsive.scale,
@@ -40,8 +40,8 @@ class PaymentMethodsPage extends StatelessWidget {
                   SizedBox(height: 12 * responsive.scale),
                   Text(
                     tr(
-                      'Quản lý các phương thức thanh toán của bạn một cách an toàn.',
-                      'Manage your payment methods securely.',
+                      'StayZ không lưu số thẻ hoặc tài khoản ngân hàng. Bạn chọn phương thức trên cổng PayOS khi thanh toán từng đơn.',
+                      'StayZ does not store card or bank-account details. You choose a method in PayOS for each booking payment.',
                     ),
                     style: TextStyle(
                       color: AppTheme.muted,
@@ -58,8 +58,8 @@ class PaymentMethodsPage extends StatelessWidget {
                   SizedBox(height: 20 * responsive.scale),
                   Text(
                     tr(
-                      'Chưa có phương thức thanh toán đã lưu',
-                      'No saved payment methods',
+                      'Không lưu phương thức thanh toán',
+                      'Payment methods are not stored',
                     ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -89,8 +89,8 @@ class PaymentMethodsPage extends StatelessWidget {
                   SizedBox(height: 24 * responsive.scale),
                   Text(
                     tr(
-                      'Dữ liệu thanh toán được bảo mật',
-                      'Your payment data is protected',
+                      'Kết quả thanh toán chỉ được xác nhận sau webhook hợp lệ từ PayOS',
+                      'Payment is confirmed only after a valid PayOS webhook',
                     ),
                     textAlign: TextAlign.center,
                     style: TextStyle(

@@ -161,7 +161,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: const Color(0xFF5A3F3F),
+                            color: AppTheme.ink,
                             fontSize: 16 * responsive.scale,
                           ),
                         ),
@@ -307,11 +307,11 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                         ),
                         total: true,
                         valueColor: checkedIn
-                            ? const Color(0xFF159A61)
+                            ? AppTheme.success
                             : !summary.booking.hasRecordedPayment ||
                                   summary.booking.isDepositPayment
                             ? AppTheme.depositText
-                            : const Color(0xFF159A61),
+                            : AppTheme.success,
                       ),
                       if (!checkedIn &&
                           summary.booking.isDepositPayment &&
@@ -347,7 +347,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                         Text(
                           summary.booking.specialRequest!,
                           style: TextStyle(
-                            color: const Color(0xFF5A3F3F),
+                            color: AppTheme.ink,
                             fontSize: 18 * responsive.scale,
                             fontStyle: FontStyle.italic,
                           ),

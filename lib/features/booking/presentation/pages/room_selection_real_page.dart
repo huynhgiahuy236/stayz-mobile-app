@@ -146,7 +146,6 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.search),
       body: SafeArea(
         bottom: false,
         child: Column(

@@ -93,7 +93,7 @@ class AddPaymentMethodPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF1F1712), Color(0xFF8A1E25)],
+                        colors: [AppTheme.ink, AppTheme.primaryDark],
                       ),
                     ),
                   ),
@@ -133,7 +133,7 @@ class _PaymentTypeTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24 * responsive.scale,
-            backgroundColor: const Color(0xFFF4E8E4),
+            backgroundColor: AppTheme.primarySoft,
             child: Icon(
               icon,
               color: AppTheme.accentDark,

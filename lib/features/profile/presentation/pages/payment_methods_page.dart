@@ -15,7 +15,6 @@ class PaymentMethodsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.profile),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -29,16 +28,16 @@ class PaymentMethodsPage extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.all(responsive.horizontalPadding),
                 children: [
-                  SizedBox(height: 52 * responsive.scale),
+                  SizedBox(height: 20 * responsive.scale),
                   Text(
                     tr('Tài khoản thanh toán', 'Payment accounts'),
                     style: textTheme.headlineMedium?.copyWith(
                       color: AppTheme.ink,
-                      fontSize: 36 * responsive.scale,
+                      fontSize: 28 * responsive.scale,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 24 * responsive.scale),
+                  SizedBox(height: 12 * responsive.scale),
                   Text(
                     tr(
                       'Quản lý các phương thức thanh toán của bạn một cách an toàn.',
@@ -46,14 +45,14 @@ class PaymentMethodsPage extends StatelessWidget {
                     ),
                     style: TextStyle(
                       color: AppTheme.muted,
-                      fontSize: 23 * responsive.scale,
+                      fontSize: 16 * responsive.scale,
                       height: 1.55,
                     ),
                   ),
-                  SizedBox(height: 72 * responsive.scale),
+                  SizedBox(height: 40 * responsive.scale),
                   Icon(
                     Icons.account_balance_wallet_outlined,
-                    size: 72 * responsive.scale,
+                    size: 56 * responsive.scale,
                     color: AppTheme.neutral200,
                   ),
                   SizedBox(height: 20 * responsive.scale),
@@ -82,10 +81,10 @@ class PaymentMethodsPage extends StatelessWidget {
                       height: 1.5,
                     ),
                   ),
-                  SizedBox(height: 82 * responsive.scale),
+                  SizedBox(height: 40 * responsive.scale),
                   Divider(
-                    indent: 150 * responsive.widthScale,
-                    endIndent: 150 * responsive.widthScale,
+                    indent: 96 * responsive.widthScale,
+                    endIndent: 96 * responsive.widthScale,
                   ),
                   SizedBox(height: 24 * responsive.scale),
                   Text(

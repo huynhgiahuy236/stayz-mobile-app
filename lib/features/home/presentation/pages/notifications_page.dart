@@ -147,7 +147,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Future<void> _openNotification(StayzNotification item) async {
     if (item.status == 'unread') {
-      final index = _items.indexWhere((notification) => notification.id == item.id);
+      final index = _items.indexWhere(
+        (notification) => notification.id == item.id,
+      );
       if (index >= 0) {
         final updated = StayzNotification(
           id: item.id,
@@ -210,9 +212,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
-      bottomNavigationBar: _selectionMode
-          ? null
-          : const StayZBottomNav(activeTab: HomeTab.profile),
       body: SafeArea(
         bottom: false,
         child: Column(

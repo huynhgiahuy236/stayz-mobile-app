@@ -313,7 +313,8 @@ class _ProfileStatsState extends State<_ProfileStats> {
               child: _Stat(
                 value: trips?.toString() ?? '–',
                 label: tr('Chuyến đi', 'Trips'),
-                onTap: () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
+                onTap: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.myBookings),
               ),
             ),
             const SizedBox(width: 10),
@@ -321,7 +322,8 @@ class _ProfileStatsState extends State<_ProfileStats> {
               child: _Stat(
                 value: saved?.toString() ?? '–',
                 label: tr('Đã lưu', 'Saved'),
-                onTap: () => Navigator.of(context).pushNamed(AppRoutes.favorites),
+                onTap: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.favorites),
               ),
             ),
           ],
@@ -402,8 +404,10 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                 borderRadius: BorderRadius.circular(18),
                 child: user.avatarUrl.isEmpty
                     ? Container(
-                        width: 280,
-                        height: 280,
+                        width: (MediaQuery.sizeOf(dialogContext).width - 80)
+                            .clamp(180.0, 280.0),
+                        height: (MediaQuery.sizeOf(dialogContext).width - 80)
+                            .clamp(180.0, 280.0),
                         color: AppTheme.primary,
                         alignment: Alignment.center,
                         child: Text(
@@ -417,8 +421,10 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                       )
                     : Image.network(
                         user.avatarUrl,
-                        width: 280,
-                        height: 280,
+                        width: (MediaQuery.sizeOf(dialogContext).width - 80)
+                            .clamp(180.0, 280.0),
+                        height: (MediaQuery.sizeOf(dialogContext).width - 80)
+                            .clamp(180.0, 280.0),
                         fit: BoxFit.cover,
                       ),
               ),

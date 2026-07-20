@@ -67,7 +67,7 @@ class _FreshBlueSlide extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final heroHeight =
-        (responsive.isCompact ? 330.0 : 390.0) * responsive.scale;
+        (responsive.isCompact ? 290.0 : 340.0) * responsive.scale;
     final buttonHeight =
         (responsive.isCompact ? 52.0 : 58.0) * responsive.scale;
 
@@ -162,7 +162,7 @@ class _FreshBlueSlide extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   horizontalPadding,
-                  24 * responsive.scale,
+                  20 * responsive.scale,
                   horizontalPadding,
                   24 * responsive.scale,
                 ),
@@ -173,7 +173,7 @@ class _FreshBlueSlide extends StatelessWidget {
                       data.title,
                       style: textTheme.displayLarge?.copyWith(
                         color: data.palette.ink,
-                        fontSize: 35 * responsive.scale,
+                        fontSize: 31 * responsive.scale,
                         height: 1.12,
                         fontWeight: FontWeight.w400,
                       ),

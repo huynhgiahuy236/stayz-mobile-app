@@ -19,7 +19,6 @@ class CompletedBookingsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
-      bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.bookings),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -39,8 +38,11 @@ class CompletedBookingsPage extends StatelessWidget {
                       .where((summary) => summary.booking.isCompleted)
                       .toList();
 
-                  if (bookings.isEmpty && snapshot.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.accent));
+                  if (bookings.isEmpty &&
+                      snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.accent),
+                    );
                   }
 
                   if (bookings.isEmpty) {
@@ -55,11 +57,19 @@ class CompletedBookingsPage extends StatelessWidget {
                       if (index == bookings.length) {
                         return Column(
                           children: [
-                            SizedBox(height: (bookings.isEmpty ? 110 : 58) * responsive.scale),
+                            SizedBox(
+                              height:
+                                  (bookings.isEmpty ? 110 : 58) *
+                                  responsive.scale,
+                            ),
                             CircleAvatar(
                               radius: 42 * responsive.scale,
-                              backgroundColor: const Color(0xFFF0E9E3),
-                              child: Icon(Icons.card_travel_outlined, color: AppTheme.neutral500, size: 34 * responsive.scale),
+                              backgroundColor: AppTheme.successSoft,
+                              child: Icon(
+                                Icons.card_travel_outlined,
+                                color: AppTheme.neutral500,
+                                size: 34 * responsive.scale,
+                              ),
                             ),
                             SizedBox(height: 28 * responsive.scale),
                             Text(
@@ -74,7 +84,10 @@ class CompletedBookingsPage extends StatelessWidget {
                             ),
                             SizedBox(height: 16 * responsive.scale),
                             Text(
-                              tr('Mỗi chuyến đi là một câu chuyện. Hãy lưu lại cảm xúc của bạn tại các điểm dừng chân.', 'Every trip is a story. Capture how you felt at each stop.'),
+                              tr(
+                                'Mỗi chuyến đi là một câu chuyện. Hãy lưu lại cảm xúc của bạn tại các điểm dừng chân.',
+                                'Every trip is a story. Capture how you felt at each stop.',
+                              ),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppTheme.neutral500,
@@ -97,17 +110,31 @@ class CompletedBookingsPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           child: UpcomingBookingCard(
                             name: summary.hotel.name,
-                            location: '${summary.city.name}, ${summary.city.region}',
-                            code: 'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
-                            checkIn: StayzFormatters.shortDate(summary.booking.checkInDate),
-                            checkOut: StayzFormatters.shortDate(summary.booking.checkOutDate),
-                            imageUrl: summary.room.imageUrls.firstOrNull ?? summary.hotel.imageUrls.firstOrNull,
-                            colors: _completedColors[index % _completedColors.length],
+                            location:
+                                '${summary.city.name}, ${summary.city.region}',
+                            code:
+                                'SZ-${summary.booking.id.substring(summary.booking.id.length - 5)}',
+                            checkIn: StayzFormatters.shortDate(
+                              summary.booking.checkInDate,
+                            ),
+                            checkOut: StayzFormatters.shortDate(
+                              summary.booking.checkOutDate,
+                            ),
+                            imageUrl:
+                                summary.room.imageUrls.firstOrNull ??
+                                summary.hotel.imageUrls.firstOrNull,
+                            colors:
+                                _completedColors[index %
+                                    _completedColors.length],
                             statusLabel: tr('Đã hoàn thành', 'Completed'),
-                            statusColor: const Color(0xFFBDF4D4),
-                            statusTextColor: const Color(0xFF096A43),
-                            paymentAmount: StayzFormatters.compactVnd(summary.booking.amountPaid ?? summary.booking.totalAmount),
-                            deposit30: summary.booking.paymentPlan == 'deposit_30',
+                            statusColor: AppTheme.successSoft,
+                            statusTextColor: AppTheme.success,
+                            paymentAmount: StayzFormatters.compactVnd(
+                              summary.booking.amountPaid ??
+                                  summary.booking.totalAmount,
+                            ),
+                            deposit30:
+                                summary.booking.paymentPlan == 'deposit_30',
                             detailLabel: tr('Đánh giá', 'Review'),
                             secondaryLabel: tr('Đặt lại', 'Rebook'),
                             onCancel: () => Navigator.of(context).pushNamed(

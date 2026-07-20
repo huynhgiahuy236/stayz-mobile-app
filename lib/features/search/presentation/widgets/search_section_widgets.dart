@@ -386,8 +386,8 @@ class SearchStateScaffold extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 180 * responsive.widthScale,
-                        height: 180 * responsive.widthScale,
+                        width: 132 * responsive.widthScale,
+                        height: 132 * responsive.widthScale,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white.withValues(alpha: 0.5),
@@ -397,17 +397,17 @@ class SearchStateScaffold extends StatelessWidget {
                           child: Icon(
                             icon,
                             color: AppTheme.accent.withValues(alpha: 0.84),
-                            size: 64 * responsive.scale,
+                            size: 52 * responsive.scale,
                           ),
                         ),
                       ),
-                      SizedBox(height: 32 * responsive.scale),
+                      SizedBox(height: 24 * responsive.scale),
                       Text(
                         title,
                         textAlign: TextAlign.center,
                         style: textTheme.headlineMedium?.copyWith(
                           color: AppTheme.ink,
-                          fontSize: 28 * responsive.scale,
+                          fontSize: 24 * responsive.scale,
                           fontWeight: FontWeight.w700,
                           height: 1.15,
                         ),
@@ -422,7 +422,7 @@ class SearchStateScaffold extends StatelessWidget {
                           height: 1.55,
                         ),
                       ),
-                      SizedBox(height: 30 * responsive.scale),
+                      SizedBox(height: 24 * responsive.scale),
                       PrimarySearchButton(
                         label: primaryLabel,
                         onTap: onPrimary,

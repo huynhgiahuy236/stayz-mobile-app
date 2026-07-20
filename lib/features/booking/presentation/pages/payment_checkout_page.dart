@@ -182,7 +182,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 ),
                 children: [
                   _CheckoutHotelCard(draft: draft),
-                  SizedBox(height: 24 * responsive.scale),
+                  SizedBox(height: 16 * responsive.scale),
                   _SectionCaption(
                     label: tr(
                       'Chọn hình thức thanh toán',
@@ -205,7 +205,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                     onTap: () =>
                         setState(() => _selectedPlan = PaymentPlan.full100),
                   ),
-                  SizedBox(height: 18 * responsive.scale),
+                  SizedBox(height: 12 * responsive.scale),
                   Text(
                     tr(
                       'Số tiền PayOS được backend tính lại từ giá phòng và gói thanh toán bạn chọn. Booking sẽ nằm ở mục đang chờ thanh toán cho tới khi webhook PayOS hợp lệ.',
@@ -546,7 +546,7 @@ class _BookingInfoRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: const Color(0xFF5A3F3F),
+                color: AppTheme.ink,
                 fontSize: 14 * responsive.scale,
               ),
             ),

@@ -298,7 +298,7 @@ class _ConfirmedTicket extends StatelessWidget {
                 child: Text(
                   tr('MÃ ĐẶT PHÒNG', 'BOOKING CODE'),
                   style: TextStyle(
-                    color: const Color(0xFF5A3F3F),
+                    color: AppTheme.ink,
                     fontSize: 16 * responsive.scale,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 3,
@@ -315,10 +315,7 @@ class _ConfirmedTicket extends StatelessWidget {
               ),
             ],
           ),
-          Divider(
-            height: 34 * responsive.scale,
-            color: const Color(0xFFD9B8B8),
-          ),
+          Divider(height: 34 * responsive.scale, color: AppTheme.line),
           Text(
             hotelName,
             style: TextStyle(
@@ -332,7 +329,7 @@ class _ConfirmedTicket extends StatelessWidget {
             children: [
               Icon(
                 Icons.location_on_outlined,
-                color: const Color(0xFF5A3F3F),
+                color: AppTheme.ink,
                 size: 22 * responsive.scale,
               ),
               SizedBox(width: 8 * responsive.widthScale),
@@ -340,7 +337,7 @@ class _ConfirmedTicket extends StatelessWidget {
                 child: Text(
                   address,
                   style: TextStyle(
-                    color: const Color(0xFF5A3F3F),
+                    color: AppTheme.ink,
                     fontSize: 17 * responsive.scale,
                   ),
                 ),
@@ -362,10 +359,7 @@ class _ConfirmedTicket extends StatelessWidget {
               ),
             ],
           ),
-          Divider(
-            height: 38 * responsive.scale,
-            color: const Color(0xFFD9B8B8),
-          ),
+          Divider(height: 38 * responsive.scale, color: AppTheme.line),
           PriceLine(label: tr('Tổng giá phòng', 'Room total'), value: total),
           if (discount > 0)
             PriceLine(
@@ -417,7 +411,7 @@ class _TicketMeta extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: const Color(0xFF5A3F3F),
+            color: AppTheme.ink,
             fontSize: 14 * responsive.scale,
             fontWeight: FontWeight.w700,
             letterSpacing: 2,

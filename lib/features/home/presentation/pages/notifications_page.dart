@@ -448,12 +448,14 @@ _notificationVisual(StayzNotification item) {
       foreground: AppTheme.notificationPendingText,
       label: tr('Chờ thanh toán', 'Awaiting payment'),
     ),
+    // l10n-ignore: Backend event identifier mapped to localized content below.
     'pending' => (
       icon: Icons.schedule_rounded,
       border: AppTheme.notificationPendingBorder,
       foreground: AppTheme.notificationPendingText,
       label: tr('Chờ xử lý', 'Pending'),
     ),
+    // l10n-ignore: Backend event identifier mapped to localized content below.
     'confirmed' => (
       icon: Icons.verified_outlined,
       border: AppTheme.notificationConfirmedBorder,
@@ -484,18 +486,21 @@ _notificationVisual(StayzNotification item) {
       foreground: AppTheme.notificationDangerText,
       label: tr('Không đến nhận phòng', 'No-show'),
     ),
+    // l10n-ignore: Backend event identifier mapped to localized content below.
     'cancelled' => (
       icon: Icons.cancel_outlined,
       border: AppTheme.notificationDangerBorder,
       foreground: AppTheme.notificationDangerText,
       label: tr('Đã hủy', 'Cancelled'),
     ),
+    // l10n-ignore: Backend event identifier mapped to localized content below.
     'expired' => (
       icon: Icons.timer_off_outlined,
       border: AppTheme.notificationDangerBorder,
       foreground: AppTheme.notificationDangerText,
       label: tr('Đã hết hạn', 'Expired'),
     ),
+    // l10n-ignore: Backend event identifier mapped to localized content below.
     'completed' => (
       icon: Icons.check_circle_outline_rounded,
       border: AppTheme.notificationSuccessBorder,
@@ -544,6 +549,7 @@ _notificationVisual(StayzNotification item) {
       icon: Icons.schedule_rounded,
       border: AppTheme.notificationPendingBorder,
       foreground: AppTheme.notificationPendingText,
+      // l10n-ignore: Search keywords for classifying already-localized notification content.
       label: content.contains('thanh toán') || content.contains('payment')
           ? tr('Chờ thanh toán', 'Awaiting payment')
           : tr('Chờ xử lý', 'Pending'),

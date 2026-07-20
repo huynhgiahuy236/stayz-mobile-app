@@ -1,7 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
-import 'package:capstone_mobile/shared/data/payment_policy.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_alert.dart';
@@ -54,41 +53,16 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
       _summary = summary;
     });
 
-    // Tinh hoan tien theo ma tran (cung ham voi hop thoai xac nhan).
-    final plan = PaymentPolicy.fromSlug(summary.booking.paymentPlan);
-    final paid = summary.booking.amountPaid ?? 0;
-    final now = DateTime.now();
-    final rate = PaymentPolicy.refundRatePercent(
-      plan,
-      summary.booking.checkInDate,
-      now,
-    );
-    final refund = paid > 0
-        ? PaymentPolicy.refundAmount(
-            plan,
-            paid,
-            summary.booking.checkInDate,
-            now,
-          )
-        : 0;
-
     try {
       final updated = await ApiStayzRepository.instance.updateBookingStatus(
         summary.booking.id,
         'cancelled',
-        refundAmount: refund,
-        refundRate: rate,
       );
       await ApiStayzRepository.instance.getBookingSummaries();
       if (!mounted) return;
+      final result = updated ?? summary.copyWithStatus('cancelled');
       setState(() {
-        _summary =
-            updated ??
-            summary.copyWithStatus(
-              'cancelled',
-              refundAmount: refund,
-              refundRate: rate,
-            );
+        _summary = result;
         _isCancelling = false;
       });
       // Alert tuc thoi cho khach biet ket qua (khac voi thong bao luu lai trong danh sach).
@@ -96,10 +70,10 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
         context,
         type: StayzAlertType.success,
         title: tr('Đã hủy đặt phòng', 'Booking cancelled'),
-        message: refund > 0
+        message: (result.booking.refundAmount ?? 0) > 0
             ? tr(
-                'Yêu cầu hoàn ${StayzFormatters.fullVnd(refund)} ($rate%) đang chờ xử lý thủ công.',
-                'Your ${StayzFormatters.fullVnd(refund)} refund request ($rate%) is awaiting manual processing.',
+                'Yêu cầu hoàn ${StayzFormatters.fullVnd(result.booking.refundAmount ?? 0)} (${result.booking.refundRate ?? 0}%) đang chờ xử lý thủ công.',
+                'Your ${StayzFormatters.fullVnd(result.booking.refundAmount ?? 0)} refund request (${result.booking.refundRate ?? 0}%) is awaiting manual processing.',
               )
             : tr(
                 'Không có khoản hoàn theo chính sách hủy.',
@@ -264,7 +238,10 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   if (!_isCancelling && !hasError) ...[
                     SizedBox(height: 16 * responsive.scale),
                     Text(
-                      PaymentPolicy.refundDisclaimer,
+                      tr(
+                        'Khoản hoàn (nếu có) là yêu cầu đang chờ xử lý thủ công, chưa phải giao dịch hoàn tiền đã hoàn tất.',
+                        'Any refund shown is a request awaiting manual processing, not a completed refund transaction.',
+                      ),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppTheme.muted,
@@ -406,18 +383,12 @@ class _ResultButton extends StatelessWidget {
 }
 
 extension on BookingSummary {
-  /// Ban sao local khi backend khong tra ve (mo phong): doi status + luu hoan tien.
-  BookingSummary copyWithStatus(
-    String status, {
-    num? refundAmount,
-    num? refundRate,
-  }) {
+  /// Fallback status only; refund values always come from the backend response.
+  BookingSummary copyWithStatus(String status) {
     return BookingSummary(
       booking: booking.copyWith(
         status: status,
-        paymentStatus: (refundAmount ?? 0) > 0 ? 'refunded' : null,
-        refundAmount: refundAmount,
-        refundRate: refundRate,
+        paymentStatus: booking.paymentStatus,
       ),
       room: room,
       hotel: hotel,

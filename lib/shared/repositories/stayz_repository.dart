@@ -147,6 +147,7 @@ abstract class StayzRepository {
     String? paymentPlan,
   });
   Future<Map<String, dynamic>?> getPayOSPayment(String bookingId);
+  Future<CancellationQuote> getCancellationQuote(String bookingId);
   Future<BookingSummary?> updateBookingStatus(
     String bookingId,
     String status, {
@@ -164,6 +165,16 @@ abstract class StayzRepository {
     required String comment,
   });
   Future<List<StayzNotification>> getNotifications({String? userId});
+}
+
+class CancellationQuote {
+  const CancellationQuote({
+    required this.refundAmount,
+    required this.refundRate,
+  });
+
+  final num refundAmount;
+  final num refundRate;
 }
 
 class ApiStayzRepository implements StayzRepository {
@@ -581,6 +592,22 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   @override
+  Future<CancellationQuote> getCancellationQuote(String bookingId) async {
+    final token = await _requireToken();
+    final data = await api.get(
+      '/booking/$bookingId/cancellation-quote',
+      bearerToken: token,
+    );
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException('Invalid cancellation quote response.');
+    }
+    return CancellationQuote(
+      refundAmount: _num(data['refund_amount']),
+      refundRate: _num(data['refund_rate']),
+    );
+  }
+
+  @override
   Future<BookingSummary?> updateBookingStatus(
     String bookingId,
     String status, {
@@ -944,13 +971,19 @@ class ApiStayzRepository implements StayzRepository {
   City _cityFromSlug(String slug) {
     final names = {
       'da-lat': (tr('Đà Lạt', 'Da Lat'), tr('Lâm Đồng', 'Lam Dong')),
-      'da-nang': (tr('Đà Nẵng', 'Da Nang'), tr('Miền Trung', 'Central Vietnam')),
+      'da-nang': (
+        tr('Đà Nẵng', 'Da Nang'),
+        tr('Miền Trung', 'Central Vietnam'),
+      ),
       'ha-noi': (tr('Hà Nội', 'Ha Noi'), tr('Miền Bắc', 'Northern Vietnam')),
       'ho-chi-minh': (
         tr('TP Hồ Chí Minh', 'Ho Chi Minh City'),
         tr('Miền Nam', 'Southern Vietnam'),
       ),
-      'vung-tau': (tr('Vũng Tàu', 'Vung Tau'), tr('TP Hồ Chí Minh', 'Ho Chi Minh City')),
+      'vung-tau': (
+        tr('Vũng Tàu', 'Vung Tau'),
+        tr('TP Hồ Chí Minh', 'Ho Chi Minh City'),
+      ),
     };
     final value = names[slug] ?? (slug, tr('Việt Nam', 'Viet Nam'));
     return City(

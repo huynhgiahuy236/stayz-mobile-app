@@ -480,6 +480,7 @@ class UpcomingBookingCard extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
+                        // l10n-ignore: Currency value plus invariant percentage.
                         '$paymentAmount${deposit30 ? ' (30%)' : ''}',
                         style: TextStyle(
                           color: deposit30

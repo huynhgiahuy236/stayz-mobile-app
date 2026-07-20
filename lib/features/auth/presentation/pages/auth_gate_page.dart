@@ -37,12 +37,13 @@ class _AuthGatePageState extends State<AuthGatePage> {
 
     try {
       final auth = AuthService.instance;
-      final values = await Future.wait<Object?>([
-        auth.hasSeenOnboarding(),
-        auth.isAuthenticated(),
-      ]).timeout(const Duration(seconds: 12));
-      final hasSeenOnboarding = values[0] as bool;
-      final isAuthenticated = values[1] as bool;
+      final hasSeenOnboarding = await auth.hasSeenOnboarding().timeout(
+        const Duration(seconds: 12),
+      );
+      // New users do not need secure-storage or session work before onboarding.
+      final isAuthenticated = hasSeenOnboarding
+          ? await auth.isAuthenticated().timeout(const Duration(seconds: 12))
+          : false;
       if (!mounted) return;
 
       final route = !hasSeenOnboarding
@@ -96,8 +97,9 @@ class _AuthGatePageState extends State<AuthGatePage> {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => Navigator.of(context)
-                            .pushReplacementNamed(AppRoutes.login),
+                        onPressed: () => Navigator.of(
+                          context,
+                        ).pushReplacementNamed(AppRoutes.login),
                         child: Text(tr('Về trang đăng nhập', 'Go to sign in')),
                       ),
                     ],

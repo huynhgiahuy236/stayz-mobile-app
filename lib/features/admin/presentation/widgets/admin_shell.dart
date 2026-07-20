@@ -459,14 +459,14 @@ class _LanguageButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _LanguageOption(
-              // l10n-ignore: ISO language code with its universally recognized flag.
-              label: '${AppLocale.flagFor(AppLanguage.vi)} VI',
+              flag: AppLocale.flagFor(AppLanguage.vi),
+              code: 'VI',
               selected: AppLocale.instance.language == AppLanguage.vi,
               onTap: () => AppLocale.instance.setLanguage(AppLanguage.vi),
             ),
             _LanguageOption(
-              // l10n-ignore: ISO language code with its universally recognized flag.
-              label: '${AppLocale.flagFor(AppLanguage.en)} EN',
+              flag: AppLocale.flagFor(AppLanguage.en),
+              code: 'EN',
               selected: AppLocale.instance.language == AppLanguage.en,
               onTap: () => AppLocale.instance.setLanguage(AppLanguage.en),
             ),
@@ -479,30 +479,40 @@ class _LanguageButton extends StatelessWidget {
 
 class _LanguageOption extends StatelessWidget {
   const _LanguageOption({
-    required this.label,
+    required this.flag,
+    required this.code,
     required this.selected,
     required this.onTap,
   });
-  final String label;
+  final String flag;
+  final String code;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 36,
+    width: 48,
     height: 40,
     child: TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
-        minimumSize: const Size(36, 40),
+        minimumSize: const Size(48, 40),
         backgroundColor: selected ? AppTheme.primary : Colors.transparent,
         foregroundColor: selected ? Colors.white : AppTheme.muted,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(flag, style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 2),
+          // l10n-ignore: ISO language code.
+          Text(
+            code,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+          ),
+        ],
       ),
     ),
   );

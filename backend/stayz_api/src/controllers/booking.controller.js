@@ -5,6 +5,18 @@ const bookingService = require("../services/booking.service");
 const isAdmin = (req) => req.user?.role === "admin";
 
 const bookingController = {
+  getCancellationQuote: async (req, res, next) => {
+    try {
+      const data = await bookingService.getCancellationQuote(
+        req.params.bookingId,
+        req.user,
+      );
+      const response = responseSuccess(data, "Lay bao gia huy booking thanh cong", 200);
+      res.status(response.code).json(response);
+    } catch (err) {
+      next(err);
+    }
+  },
   getAll: async (req, res, next) => {
     try {
       // Danh sach toan he thong chi danh cho admin. Nguoi dung thuong

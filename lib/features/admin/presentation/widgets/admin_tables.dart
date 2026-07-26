@@ -88,15 +88,15 @@ class AdminOverview extends StatelessWidget {
         builder: (_, constraints) {
           final title = Text(
             tr('Booking gần đây', 'Recent bookings'),
-            style: const TextStyle(
-              color: AppTheme.ink,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
           );
           final caption = Text(
             tr('Cập nhật theo dữ liệu mới nhất', 'Updated from live data'),
-            style: const TextStyle(color: AppTheme.muted, fontSize: 11),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 11),
           );
           if (constraints.maxWidth < 420) {
             return Column(
@@ -141,7 +141,7 @@ class MetricTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: AppTheme.line),
       boxShadow: AppTheme.softShadow,
@@ -167,8 +167,8 @@ class MetricTile extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppTheme.muted,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -178,8 +178,8 @@ class MetricTile extends StatelessWidget {
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppTheme.ink,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 21,
                   fontWeight: FontWeight.w900,
                 ),
@@ -259,8 +259,8 @@ class AdminBookingsTable extends StatelessWidget {
                 DataCell(
                   Text(
                     StayzFormatters.fullVnd(booking.totalPrice),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -352,8 +352,8 @@ class AdminHotelsTable extends StatelessWidget {
                 DataCell(
                   Text(
                     StayzFormatters.fullVnd(hotel.basePrice),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -429,8 +429,8 @@ class AdminRoomsTable extends StatelessWidget {
                 DataCell(
                   Text(
                     StayzFormatters.fullVnd(room.pricePerNight),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -565,13 +565,13 @@ class AdminDataTable extends StatelessWidget {
         headingRowColor: WidgetStateProperty.all(
           AppTheme.primarySoft.withValues(alpha: 0.42),
         ),
-        headingTextStyle: const TextStyle(
-          color: AppTheme.muted,
+        headingTextStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
           fontSize: 11,
           fontWeight: FontWeight.w800,
         ),
-        dataTextStyle: const TextStyle(
-          color: AppTheme.muted,
+        dataTextStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -594,7 +594,7 @@ class _AdminMobileRow extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: AppTheme.surface,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(14),
       border: Border.all(color: AppTheme.line),
     ),
@@ -610,8 +610,8 @@ class _AdminMobileRow extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 3),
                   child: Text(
                     columns[index],
-                    style: const TextStyle(
-                      color: AppTheme.muted,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,
                     ),
@@ -739,7 +739,7 @@ class AttendanceStatusPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(color: color.withValues(alpha: 0.55)),
         ),
@@ -777,7 +777,7 @@ class StatusPill extends StatelessWidget {
         : normalized == 'deposit_30'
         ? AppTheme.depositText
         : normalized == 'confirmed'
-        ? AppTheme.muted
+        ? Theme.of(context).colorScheme.secondary
         : normalized == 'completed'
         ? AppTheme.success
         : normalized == 'cancelled' ||
@@ -790,7 +790,7 @@ class StatusPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(color: color.withValues(alpha: 0.55)),
         ),
@@ -860,7 +860,7 @@ class _ActionIcon extends StatelessWidget {
       onPressed: onPressed,
       icon: Icon(icon, size: 18),
       tooltip: tooltip,
-      color: color ?? AppTheme.muted,
+      color: color ?? Theme.of(context).colorScheme.secondary,
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -884,8 +884,8 @@ class _PrimaryCell extends StatelessWidget {
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppTheme.ink,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
@@ -895,7 +895,7 @@ class _PrimaryCell extends StatelessWidget {
           subtitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppTheme.muted, fontSize: 10),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 10),
         ),
       ],
     ),
@@ -922,10 +922,10 @@ class _ImageCell extends StatelessWidget {
           child: imageUrl.isEmpty
               ? Container(
                   color: const Color(0xFFEAF0F5),
-                  child: const Icon(
+                  child: Icon(
                     Icons.image_outlined,
                     size: 18,
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 )
               : Image.network(
@@ -933,10 +933,10 @@ class _ImageCell extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFFEAF0F5),
-                    child: const Icon(
+                    child: Icon(
                       Icons.broken_image_outlined,
                       size: 18,
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -984,7 +984,7 @@ class TableShell extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: double.infinity,
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: AppTheme.line),
       boxShadow: AppTheme.softShadow,

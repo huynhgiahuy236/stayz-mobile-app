@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +31,7 @@ class HelpCenterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(tr('Trung tâm hỗ trợ', 'Help center'))),
       body: SafeArea(
         child: ListView(
@@ -43,7 +42,7 @@ class HelpCenterPage extends StatelessWidget {
               child: Text(
                 tr('Bạn cần hỗ trợ gì?', 'How can we help?'),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppTheme.ink,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -54,7 +53,7 @@ class HelpCenterPage extends StatelessWidget {
                 'Chọn đúng khu vực để xem hoặc xử lý thông tin trong StayZ.',
                 'Choose an area to review or manage it in StayZ.',
               ),
-              style: const TextStyle(color: AppTheme.muted, height: 1.5),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary, height: 1.5),
             ),
             const SizedBox(height: 24),
             ProfileMenuCard(
@@ -133,7 +132,7 @@ class _HelpNote extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: AppTheme.primary, semanticLabel: title),
+              Icon(icon, color: Theme.of(context).colorScheme.primary, semanticLabel: title),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -146,8 +145,8 @@ class _HelpNote extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       body,
-                      style: const TextStyle(
-                        color: AppTheme.muted,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
                         height: 1.45,
                       ),
                     ),

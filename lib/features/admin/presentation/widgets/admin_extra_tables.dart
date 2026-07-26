@@ -61,8 +61,8 @@ class AdminReviewsTable extends StatelessWidget {
                         const SizedBox(width: 3),
                         Text(
                           '${review.rating}',
-                          style: const TextStyle(
-                            color: AppTheme.ink,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -128,8 +128,8 @@ class AdminPaymentsTable extends StatelessWidget {
                 DataCell(
                   Text(
                     '#${payment.orderCode}',
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -139,8 +139,8 @@ class AdminPaymentsTable extends StatelessWidget {
                 DataCell(
                   Text(
                     StayzFormatters.fullVnd(payment.amount),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -199,7 +199,7 @@ class _SmallAction extends StatelessWidget {
       onPressed: enabled ? onTap : null,
       icon: Icon(icon, size: 18),
       tooltip: tooltip,
-      color: color ?? AppTheme.muted,
+      color: color ?? Theme.of(context).colorScheme.secondary,
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

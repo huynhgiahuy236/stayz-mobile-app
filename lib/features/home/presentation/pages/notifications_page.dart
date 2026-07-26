@@ -232,14 +232,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ? FloatingActionButton.extended(
               onPressed: _busy ? null : _deleteSelected,
               backgroundColor: AppTheme.danger,
-              icon: const Icon(
+              icon: Icon(
                 Icons.delete_outline_rounded,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
               label: Text(
                 tr('Xoá (${_selected.length})', 'Delete (${_selected.length})'),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).cardColor,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -393,9 +393,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               color: AppTheme.danger,
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.delete_outline_rounded,
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
             ),
           ),
           onDismissed: (_) => _deleteOne(item),
@@ -428,7 +428,7 @@ class _CircleIconButton extends StatelessWidget {
       icon: Icon(icon, color: AppTheme.accentDark, size: 20),
       tooltip: tooltip,
       style: IconButton.styleFrom(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         minimumSize: const Size(42, 42),
         side: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
       ),

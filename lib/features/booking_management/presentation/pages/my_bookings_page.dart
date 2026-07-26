@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/cancel_booking_dialog.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/payment_plan_picker.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
@@ -116,8 +115,8 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
 
                   if (bookings.isEmpty &&
                       snapshot.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    return Center(
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                     );
                   }
 
@@ -234,7 +233,7 @@ class _TripSummaryCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: AppTheme.ink,
+        color: Theme.of(context).colorScheme.onSurface,
         borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
@@ -246,9 +245,9 @@ class _TripSummaryCard extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.calendar_month_rounded,
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
             ),
           ),
           SizedBox(width: 14 * responsive.widthScale),
@@ -259,7 +258,7 @@ class _TripSummaryCard extends StatelessWidget {
                 Text(
                   tr('$count lịch đặt sắp tới', '$count upcoming bookings'),
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     fontSize: 18 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
@@ -298,7 +297,7 @@ class _UpcomingEmptyState extends StatelessWidget {
           tr('Chưa có đặt phòng sắp tới', 'No upcoming bookings'),
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),

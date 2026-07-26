@@ -1,4 +1,3 @@
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/admin/data/admin_repository.dart';
 import 'package:capstone_mobile/features/admin/models/admin_models.dart';
 import 'package:capstone_mobile/services/api_service.dart';
@@ -135,7 +134,7 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
   Widget build(BuildContext context) {
     final booking = _booking;
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Row(
           children: [
@@ -186,7 +185,7 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
                       child: Text(
                         _scannerErrorMessage(error),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppTheme.danger),
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
                       ),
                     ),
                   ),
@@ -218,7 +217,7 @@ class _AdminCheckInPageState extends State<AdminCheckInPage> {
           if (booking != null) ...[
             const SizedBox(height: 20),
             Card(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(

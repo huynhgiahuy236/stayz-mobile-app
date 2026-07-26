@@ -265,7 +265,7 @@ class _PaymentQrPageState extends State<PaymentQrPage>
         }
       },
       child: Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Column(
             children: [
@@ -290,10 +290,10 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                     Text(
                       tr('Quét VietQR để thanh toán', 'Scan VietQR to pay'),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -303,8 +303,8 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                         'This code is generated for this booking and expires with PayOS.',
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppTheme.muted,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
                         height: 1.4,
                       ),
                     ),
@@ -326,9 +326,9 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                         child: Container(
                           padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: AppTheme.line),
+                            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                             boxShadow: AppTheme.softShadow,
                           ),
                           child: Column(
@@ -339,13 +339,13 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                                   version: QrVersions.auto,
                                   size: (MediaQuery.sizeOf(context).width - 96)
                                       .clamp(180.0, 230.0),
-                                  eyeStyle: const QrEyeStyle(
+                                  eyeStyle: QrEyeStyle(
                                     eyeShape: QrEyeShape.square,
-                                    color: AppTheme.ink,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
-                                  dataModuleStyle: const QrDataModuleStyle(
+                                  dataModuleStyle: QrDataModuleStyle(
                                     dataModuleShape: QrDataModuleShape.square,
-                                    color: AppTheme.ink,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 )
                               else if (args.qrImageUrl.isNotEmpty)
@@ -354,25 +354,25 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                                   width: (MediaQuery.sizeOf(context).width - 96)
                                       .clamp(180.0, 270.0),
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) => const Icon(
+                                  errorBuilder: (_, __, ___) => Icon(
                                     Icons.qr_code_2_rounded,
                                     size: 180,
-                                    color: AppTheme.muted,
+                                    color: Theme.of(context).colorScheme.secondary,
                                   ),
                                 )
                               else
-                                const Icon(
+                                Icon(
                                   Icons.qr_code_2_rounded,
                                   size: 180,
-                                  color: AppTheme.muted,
+                                  color: Theme.of(context).colorScheme.secondary,
                                 ),
                               const SizedBox(height: 14),
                               Text(
                                 StayzFormatters.fullVnd(args.amount),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w900,
-                                  color: AppTheme.accent,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                               if (args.transferDescription.isNotEmpty) ...[
@@ -380,9 +380,9 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                                 Text(
                                   args.transferDescription,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    color: AppTheme.ink,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ],
@@ -445,8 +445,8 @@ class _PaymentQrPageState extends State<PaymentQrPage>
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _status == 'CANCELLED' || _expired
-                            ? AppTheme.danger
-                            : AppTheme.muted,
+                            ? Theme.of(context).colorScheme.error
+                            : Theme.of(context).colorScheme.secondary,
                         fontSize: 12.5,
                         height: 1.4,
                       ),
@@ -468,44 +468,44 @@ class _BankInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget line(String label, String value) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          ),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.primarySoft.withValues(alpha: 0.45),
+        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         children: [
           if (args.accountName.isNotEmpty)
-            _line(tr('Chủ tài khoản', 'Account name'), args.accountName),
+            line(tr('Chủ tài khoản', 'Account name'), args.accountName),
           if (args.accountNumber.isNotEmpty)
-            _line(tr('Số tài khoản', 'Account number'), args.accountNumber),
-          if (args.bankBin.isNotEmpty) _line('BIN', args.bankBin),
+            line(tr('Số tài khoản', 'Account number'), args.accountNumber),
+          if (args.bankBin.isNotEmpty) line('BIN', args.bankBin),
         ],
       ),
     );
   }
-
-  Widget _line(String label, String value) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 5),
-    child: Row(
-      children: [
-        Expanded(
-          child: Text(label, style: const TextStyle(color: AppTheme.muted)),
-        ),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: AppTheme.ink,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class _PaymentExpiryBanner extends StatelessWidget {
@@ -536,7 +536,7 @@ class _PaymentExpiryBanner extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: expired
-              ? AppTheme.danger.withValues(alpha: 0.10)
+              ? Theme.of(context).colorScheme.error.withValues(alpha: 0.10)
               : const Color(0xFFFFE8B0).withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(16),
         ),
@@ -545,7 +545,7 @@ class _PaymentExpiryBanner extends StatelessWidget {
           children: [
             Icon(
               expired ? Icons.timer_off_outlined : Icons.timer_outlined,
-              color: expired ? AppTheme.danger : AppTheme.ink,
+              color: expired ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface,
             ),
             const SizedBox(width: 10),
             Flexible(
@@ -558,7 +558,7 @@ class _PaymentExpiryBanner extends StatelessWidget {
                       ),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: expired ? AppTheme.danger : AppTheme.ink,
+                  color: expired ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w800,
                 ),
               ),

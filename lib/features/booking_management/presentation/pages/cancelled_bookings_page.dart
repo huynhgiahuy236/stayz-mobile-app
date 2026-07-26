@@ -217,7 +217,7 @@ class _CancelledEmptyState extends StatelessWidget {
               tr('Chưa có đặt phòng đã hủy', 'No cancelled bookings'),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20 * responsive.scale,
                 fontWeight: FontWeight.w800,
               ),
@@ -264,7 +264,7 @@ class _CancelledBookingCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.5)),
           boxShadow: [
@@ -330,7 +330,7 @@ class _CancelledBookingCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18 * responsive.scale,
                       fontWeight: FontWeight.w800,
                     ),
@@ -398,7 +398,7 @@ class _CancelledBookingCard extends StatelessWidget {
                           onPressed: () =>
                               Navigator.of(context).pushNamed(AppRoutes.search),
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppTheme.ink,
+                            backgroundColor: Theme.of(context).colorScheme.onSurface,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -409,7 +409,7 @@ class _CancelledBookingCard extends StatelessWidget {
                           child: Text(
                             tr('Tìm phòng khác', 'Find another stay'),
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 13 * responsive.scale,
                               fontWeight: FontWeight.w700,
                             ),

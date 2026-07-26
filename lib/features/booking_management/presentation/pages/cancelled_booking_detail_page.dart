@@ -101,7 +101,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.location_on_outlined,
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         size: 20 * responsive.scale,
                       ),
                       SizedBox(width: 8 * responsive.widthScale),
@@ -111,7 +111,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16 * responsive.scale,
                           ),
                         ),
@@ -250,7 +250,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                       child: Text(
                         tr('Đặt phòng khác', 'Book another room'),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           fontSize: 18 * responsive.scale,
                           fontWeight: FontWeight.w800,
                         ),

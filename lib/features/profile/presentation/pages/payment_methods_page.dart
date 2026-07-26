@@ -1,4 +1,3 @@
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -14,7 +13,7 @@ class PaymentMethodsPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -32,7 +31,7 @@ class PaymentMethodsPage extends StatelessWidget {
                   Text(
                     tr('Thanh toán qua PayOS', 'Payments via PayOS'),
                     style: textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28 * responsive.scale,
                       fontWeight: FontWeight.w800,
                     ),
@@ -44,7 +43,7 @@ class PaymentMethodsPage extends StatelessWidget {
                       'StayZ does not store card or bank-account details. You choose a method in PayOS for each booking payment.',
                     ),
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 16 * responsive.scale,
                       height: 1.55,
                     ),
@@ -53,7 +52,7 @@ class PaymentMethodsPage extends StatelessWidget {
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     size: 56 * responsive.scale,
-                    color: AppTheme.neutral200,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                   SizedBox(height: 20 * responsive.scale),
                   Text(
@@ -63,7 +62,7 @@ class PaymentMethodsPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20 * responsive.scale,
                       fontWeight: FontWeight.w800,
                     ),
@@ -76,7 +75,7 @@ class PaymentMethodsPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 15 * responsive.scale,
                       height: 1.5,
                     ),
@@ -94,7 +93,7 @@ class PaymentMethodsPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppTheme.neutral200,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       fontSize: 16 * responsive.scale,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w700,

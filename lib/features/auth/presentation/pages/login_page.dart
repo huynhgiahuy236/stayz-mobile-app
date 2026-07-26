@@ -211,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       tr('Quên mật khẩu?', 'Forgot password?'),
                       style: TextStyle(
-                        color: AppTheme.accent,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 14 * responsive.scale,
                         fontWeight: FontWeight.w700,
                       ),
@@ -276,7 +276,7 @@ class _GoogleButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: loading ? null : onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppTheme.ink,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           side: const BorderSide(color: AppTheme.neutral200),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

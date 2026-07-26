@@ -88,157 +88,169 @@ class AdminSideNav extends StatelessWidget {
   final VoidCallback onHome;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 240,
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      border: Border(right: BorderSide(color: AppTheme.line)),
-    ),
-    child: Column(
-      children: [
-        Material(
-          color: Colors.white,
-          child: SizedBox(
-            height: 76,
-            child: InkWell(
-              onTap: onHome,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: AppTheme.line)),
-                ),
-                child: Row(
-                  children: [
-                    const _BrandMark(),
-                    const SizedBox(width: 11),
-                    const Expanded(
-                      child: Text(
-                        'StayZ',
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final borderColor = isDark ? AppTheme.borderDark : AppTheme.line;
+    final inkColor = isDark ? AppTheme.inkDark : Theme.of(context).colorScheme.onSurface;
+    final mutedColor = isDark ? AppTheme.mutedDark : Theme.of(context).colorScheme.secondary;
+    final activeBg = isDark ? AppTheme.primarySoftDark : AppTheme.primarySoft;
+
+    return Container(
+      width: 240,
+      decoration: BoxDecoration(
+        color: bg,
+        border: Border(right: BorderSide(color: borderColor)),
+      ),
+      child: Column(
+        children: [
+          Material(
+            color: bg,
+            child: SizedBox(
+              height: 76,
+              child: InkWell(
+                onTap: onHome,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    children: [
+                      const _BrandMark(),
+                      const SizedBox(width: 11),
+                      Expanded(
+                        child: Text(
+                          'StayZ',
+                          style: TextStyle(
+                            color: inkColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        'ADMIN',
                         style: TextStyle(
-                          color: AppTheme.ink,
-                          fontSize: 20,
+                          color: AppTheme.primary,
+                          fontSize: 9,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                    ),
-                    const Text(
-                      'ADMIN',
-                      style: TextStyle(
-                        color: AppTheme.primary,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
+                      const SizedBox(width: 5),
+                      Icon(
+                        Icons.arrow_outward_rounded,
+                        size: 14,
+                        color: mutedColor,
                       ),
-                    ),
-                    const SizedBox(width: 5),
-                    Icon(
-                      Icons.arrow_outward_rounded,
-                      size: 14,
-                      color: AppTheme.muted,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
-                child: Text(
-                  tr('ĐIỀU HƯỚNG', 'NAVIGATION'),
-                  style: const TextStyle(
-                    color: AppTheme.muted,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0,
+          const SizedBox(height: 12),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+                  child: Text(
+                    tr('DIEU HUONG', 'NAVIGATION'),
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0,
+                    ),
                   ),
                 ),
-              ),
-              for (final section in AdminSection.values)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Material(
-                    color: selected == section
-                        ? AppTheme.primarySoft
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
-                    child: InkWell(
+                for (final section in AdminSection.values)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Material(
+                      color: selected == section
+                          ? activeBg
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(14),
-                      onTap: () => onSelect(section),
-                      child: SizedBox(
-                        height: 48,
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 14),
-                            Icon(
-                              section.icon,
-                              size: 20,
-                              color: selected == section
-                                  ? AppTheme.primary
-                                  : AppTheme.muted,
-                            ),
-                            const SizedBox(width: 11),
-                            Expanded(
-                              child: Text(
-                                section.label,
-                                style: TextStyle(
-                                  color: selected == section
-                                      ? AppTheme.primaryDark
-                                      : AppTheme.ink,
-                                  fontSize: 13,
-                                  fontWeight: selected == section
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () => onSelect(section),
+                        child: SizedBox(
+                          height: 48,
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 14),
+                              Icon(
+                                section.icon,
+                                size: 20,
+                                color: selected == section
+                                    ? AppTheme.primary
+                                    : mutedColor,
+                              ),
+                              const SizedBox(width: 11),
+                              Expanded(
+                                child: Text(
+                                  section.label,
+                                  style: TextStyle(
+                                    color: selected == section
+                                        ? AppTheme.primary
+                                        : inkColor,
+                                    fontSize: 13,
+                                    fontWeight: selected == section
+                                        ? FontWeight.w800
+                                        : FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(14),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.primarySoft.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.line),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.shield_outlined,
-                  size: 20,
-                  color: AppTheme.success,
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    tr('Phiên quản trị an toàn', 'Secure admin session'),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-        ),
-      ],
-    ),
-  );
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppTheme.primarySoftDark.withValues(alpha: 0.7)
+                    : AppTheme.primarySoft.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.shield_outlined,
+                    size: 20,
+                    color: AppTheme.success,
+                  ),
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: Text(
+                      tr('Phien quan tri an toan', 'Secure admin session'),
+                      style: TextStyle(
+                        color: inkColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _BrandMark extends StatelessWidget {
@@ -268,6 +280,10 @@ class AdminHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= 820;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inkColor = isDark ? AppTheme.inkDark : Theme.of(context).colorScheme.onSurface;
+    final mutedColor = isDark ? AppTheme.mutedDark : Theme.of(context).colorScheme.secondary;
+
     final title = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -275,10 +291,11 @@ class AdminHeader extends StatelessWidget {
           section.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppTheme.ink,
+          style: TextStyle(
+            color: inkColor,
             fontWeight: FontWeight.w900,
-          ).copyWith(fontSize: wide ? 22 : 18),
+            fontSize: wide ? 22 : 18,
+          ),
         ),
         if (wide) ...[
           const SizedBox(height: 3),
@@ -286,8 +303,8 @@ class AdminHeader extends StatelessWidget {
             section.subtitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppTheme.muted,
+            style: TextStyle(
+              color: mutedColor,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -362,7 +379,7 @@ class AdminHeader extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.fromLTRB(wide ? 24 : 16, 18, wide ? 24 : 16, 14),
-      color: AppTheme.surface,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           Row(
@@ -432,8 +449,8 @@ class _HeaderIcon extends StatelessWidget {
       icon: Icon(icon, size: 20),
       tooltip: tooltip,
       style: IconButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.ink,
+        backgroundColor: Theme.of(context).cardColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         side: const BorderSide(color: AppTheme.line),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
@@ -451,7 +468,7 @@ class _LanguageButton extends StatelessWidget {
         height: 48,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppTheme.line),
         ),
@@ -499,7 +516,7 @@ class _LanguageOption extends StatelessWidget {
         padding: EdgeInsets.zero,
         minimumSize: const Size(48, 40),
         backgroundColor: selected ? AppTheme.primary : Colors.transparent,
-        foregroundColor: selected ? Colors.white : AppTheme.muted,
+        foregroundColor: selected ? Colors.white : Theme.of(context).colorScheme.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: Row(
@@ -528,7 +545,7 @@ class AdminTopTabs extends StatelessWidget {
   final ValueChanged<AdminSection> onSelect;
   @override
   Widget build(BuildContext context) => Container(
-    color: AppTheme.surface,
+    color: Theme.of(context).colorScheme.surface,
     padding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
     child: DropdownButtonFormField<AdminSection>(
       initialValue: selected,
@@ -577,7 +594,7 @@ class AdminEmptyState extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: AppTheme.line),
     ),
@@ -590,13 +607,13 @@ class AdminEmptyState extends StatelessWidget {
             color: const Color(0xFFF0F5F9),
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(icon, size: 25, color: AppTheme.muted),
+          child: Icon(icon, size: 25, color: Theme.of(context).colorScheme.secondary),
         ),
         const SizedBox(height: 13),
         Text(
           title,
-          style: const TextStyle(
-            color: AppTheme.ink,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w800,
           ),

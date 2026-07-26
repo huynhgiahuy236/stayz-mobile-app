@@ -33,7 +33,7 @@ class StayzEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return _StateScaffold(
       icon: icon,
-      iconColor: AppTheme.muted,
+      iconColor: Theme.of(context).colorScheme.secondary,
       title: title,
       message: message,
       actionLabel: actionLabel,
@@ -141,7 +141,7 @@ class _StateScaffold extends StatelessWidget {
                       title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: compact ? 15 : 19,
                         fontWeight: FontWeight.w800,
                       ),
@@ -151,7 +151,7 @@ class _StateScaffold extends StatelessWidget {
                       message,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppTheme.muted,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: compact ? 13 : 14,
                         height: 1.5,
                       ),

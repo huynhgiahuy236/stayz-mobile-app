@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
@@ -116,7 +115,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
     final draft = _draft;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: Container(
         padding: EdgeInsets.fromLTRB(
           responsive.horizontalPadding,
@@ -124,7 +123,7 @@ class _BookingSchedulePageState extends State<BookingSchedulePage> {
           responsive.horizontalPadding,
           22 * responsive.scale,
         ),
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         child: SafeArea(
           top: false,
           child: BookingPrimaryButton(
@@ -257,9 +256,9 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +266,7 @@ class _InfoCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18 * responsive.scale,
               fontWeight: FontWeight.w900,
             ),
@@ -276,7 +275,7 @@ class _InfoCard extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(
-              color: AppTheme.muted,
+              color: Theme.of(context).colorScheme.secondary,
               fontSize: 14 * responsive.scale,
             ),
           ),
@@ -299,9 +298,9 @@ class _BookingRoomHero extends StatelessWidget {
         draft.hotel.hotel.imageUrls.firstOrNull;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -310,9 +309,9 @@ class _BookingRoomHero extends StatelessWidget {
           if (imageUrl == null || imageUrl.isEmpty)
             Container(
               height: 140 * responsive.scale,
-              color: AppTheme.neutral200,
-              child: const Center(
-                child: Icon(Icons.hotel_outlined, color: AppTheme.neutral500),
+              color: Theme.of(context).colorScheme.outlineVariant,
+              child: Center(
+                child: Icon(Icons.hotel_outlined, color: Theme.of(context).colorScheme.secondary),
               ),
             )
           else
@@ -329,7 +328,7 @@ class _BookingRoomHero extends StatelessWidget {
                 Text(
                   draft.hotel.hotel.name,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 19 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
@@ -338,7 +337,7 @@ class _BookingRoomHero extends StatelessWidget {
                 Text(
                   draft.room.name,
                   style: TextStyle(
-                    color: AppTheme.accentDark,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 15 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -347,7 +346,7 @@ class _BookingRoomHero extends StatelessWidget {
                 Text(
                   draft.hotel.hotel.address,
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 13 * responsive.scale,
                     height: 1.4,
                   ),
@@ -403,7 +402,7 @@ class _DetailMiniLine extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: AppTheme.muted,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 13 * responsive.scale,
               ),
             ),
@@ -411,7 +410,7 @@ class _DetailMiniLine extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 13 * responsive.scale,
               fontWeight: FontWeight.w800,
             ),
@@ -433,9 +432,9 @@ class _StateCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Text(message, textAlign: TextAlign.center),
     );
@@ -461,9 +460,9 @@ class _DateButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(14 * responsive.scale),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.line),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,7 +470,7 @@ class _DateButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: AppTheme.muted,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 12 * responsive.scale,
                 fontWeight: FontWeight.w800,
               ),
@@ -480,7 +479,7 @@ class _DateButton extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 15 * responsive.scale,
                 fontWeight: FontWeight.w900,
               ),
@@ -511,9 +510,9 @@ class _GuestStepper extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -521,7 +520,7 @@ class _GuestStepper extends StatelessWidget {
             child: Text(
               tr('Số khách (tối đa $maxGuests)', 'Guests (max $maxGuests)'),
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16 * responsive.scale,
                 fontWeight: FontWeight.w900,
               ),
@@ -567,9 +566,9 @@ class _RoomCountStepper extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -577,7 +576,7 @@ class _RoomCountStepper extends StatelessWidget {
             child: Text(
               tr('Số phòng (còn $maxRooms)', 'Rooms ($maxRooms left)'),
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16 * responsive.scale,
                 fontWeight: FontWeight.w900,
               ),

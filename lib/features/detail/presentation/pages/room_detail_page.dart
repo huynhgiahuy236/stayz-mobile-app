@@ -183,7 +183,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
     // co hoi de hien mot khach san bia dat.
     if (summary == null) {
       return Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(tr('Chi tiết khách sạn', 'Hotel details'))),
         body: StayzEmptyView(
           icon: Icons.hotel_outlined,
@@ -205,7 +205,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
     final amenities = hotel.amenityIds;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: DetailBottomBookingBar(summary: summary),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
@@ -214,7 +214,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
             expandedHeight: 280 * responsive.scale,
             pinned: true,
             stretch: true,
-            backgroundColor: AppTheme.ink,
+            backgroundColor: Theme.of(context).colorScheme.onSurface,
             foregroundColor: Colors.white,
             leading: Padding(
               padding: const EdgeInsets.all(6),
@@ -266,7 +266,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                       'No description for this stay yet.',
                     ),
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 13.5 * responsive.scale,
                     ),
                   )
@@ -278,7 +278,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                         ? null
                         : TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14 * responsive.scale,
                       height: 1.7,
                     ),
@@ -340,7 +340,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
                       'No amenities listed yet.',
                     ),
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 13.5 * responsive.scale,
                     ),
                   )
@@ -421,7 +421,7 @@ class _HotelGalleryState extends State<_HotelGallery> {
   Widget build(BuildContext context) {
     if (widget.images.isEmpty) {
       return Container(
-        color: AppTheme.ink,
+        color: Theme.of(context).colorScheme.onSurface,
         child: const Center(
           child: Icon(
             Icons.image_not_supported_outlined,
@@ -509,9 +509,9 @@ class _HotelHeaderCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +519,7 @@ class _HotelHeaderCard extends StatelessWidget {
           Text(
             summary.hotel.name,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 21 * responsive.scale,
               fontWeight: FontWeight.w800,
               height: 1.25,
@@ -530,7 +530,7 @@ class _HotelHeaderCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.location_on_outlined,
-                color: AppTheme.primary,
+                color: Theme.of(context).colorScheme.primary,
                 size: 16 * responsive.scale,
               ),
               SizedBox(width: 5 * responsive.widthScale),
@@ -540,7 +540,7 @@ class _HotelHeaderCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 12.5 * responsive.scale,
                   ),
                 ),
@@ -563,7 +563,7 @@ class _HotelHeaderCard extends StatelessWidget {
                 Text(
                   tr('Chưa có đánh giá', 'No rating'),
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 12.5 * responsive.scale,
                   ),
                 ),
@@ -574,18 +574,18 @@ class _HotelHeaderCard extends StatelessWidget {
                         '${summary.availableRooms} phòng trống',
                         '${summary.availableRooms} rooms left',
                       ),
-                color: summary.isSoldOut ? AppTheme.danger : AppTheme.success,
+                color: summary.isSoldOut ? Theme.of(context).colorScheme.error : AppTheme.success,
               ),
             ],
           ),
-          Divider(height: 26 * responsive.scale, color: AppTheme.line),
+          Divider(height: 26 * responsive.scale, color: Theme.of(context).colorScheme.outlineVariant),
           Text.rich(
             TextSpan(
               children: [
                 TextSpan(
                   text: tr('từ ', 'from '),
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 12 * responsive.scale,
                   ),
                 ),
@@ -603,7 +603,7 @@ class _HotelHeaderCard extends StatelessWidget {
                   TextSpan(
                     text: tr(' / đêm', ' / night'),
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 12 * responsive.scale,
                     ),
                   ),
@@ -645,8 +645,8 @@ class _RatingRow extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             rating.toStringAsFixed(1),
-            style: const TextStyle(
-              color: AppTheme.ink,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 13.5,
               fontWeight: FontWeight.w800,
             ),
@@ -654,7 +654,7 @@ class _RatingRow extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             '($reviewCount)',
-            style: const TextStyle(color: AppTheme.muted, fontSize: 12.5),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12.5),
           ),
         ],
       ),
@@ -663,17 +663,18 @@ class _RatingRow extends StatelessWidget {
 }
 
 class _Pill extends StatelessWidget {
-  const _Pill({required this.label, this.color = AppTheme.primary});
+  const _Pill({required this.label, this.color});
 
   final String label;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = color ?? Theme.of(context).colorScheme.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: effectiveColor.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
@@ -728,7 +729,7 @@ class _ReviewsSection extends StatelessWidget {
                                         reviews.length)
                                     .toStringAsFixed(1),
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 26 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -736,7 +737,7 @@ class _ReviewsSection extends StatelessWidget {
                           TextSpan(
                             text: ' /5 (${reviews.length})',
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 13 * responsive.scale,
                             ),
                           ),
@@ -753,8 +754,8 @@ class _ReviewsSection extends StatelessWidget {
                 icon: const Icon(Icons.rate_review_outlined, size: 18),
                 label: Text(tr('Viết đánh giá', 'Write a review')),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.primary,
-                  side: const BorderSide(color: AppTheme.primary),
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary),
                   minimumSize: const Size(0, 46),
                 ),
               ),
@@ -771,7 +772,7 @@ class _ReviewsSection extends StatelessWidget {
               Text(
                 tr('Không tải được đánh giá.', 'Could not load reviews.'),
                 style: TextStyle(
-                  color: AppTheme.muted,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 13 * responsive.scale,
                 ),
               )
@@ -782,7 +783,7 @@ class _ReviewsSection extends StatelessWidget {
                   'No reviews yet.',
                 ),
                 style: TextStyle(
-                  color: AppTheme.muted,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 13 * responsive.scale,
                 ),
               )
@@ -859,8 +860,8 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
@@ -875,7 +876,7 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                   width: 44,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppTheme.line,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -888,8 +889,8 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppTheme.ink,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
                 ),
@@ -935,7 +936,7 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                 child: FilledButton(
                   onPressed: _submit,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(tr('Gửi đánh giá', 'Submit review')),
                 ),

@@ -278,8 +278,8 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 22),
               Text(
                 tr('Thành công!', 'Successful!'),
-                style: const TextStyle(
-                  color: AppTheme.ink,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
                 ),
@@ -291,7 +291,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   'Your StayZ account is ready to use.',
                 ),
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.muted, height: 1.5),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary, height: 1.5),
               ),
               const SizedBox(height: 26),
               SizedBox(
@@ -421,14 +421,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
   List<Widget> _verificationStep(AuthResponsive responsive) => [
     const SizedBox(height: 18),
-    const Center(
+    Center(
       child: CircleAvatar(
         radius: 42,
-        backgroundColor: AppTheme.primarySoft,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         child: Icon(
           Icons.verified_outlined,
           size: 42,
-          color: AppTheme.primaryDark,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     ),
@@ -547,7 +547,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Text(
                         '+84',
                         style: TextStyle(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 16 * responsive.scale,
                         ),
                       ),
@@ -727,16 +727,16 @@ class _AgreementRow extends StatelessWidget {
                 TextSpan(text: tr('Tôi đồng ý với ', 'I agree to the ')),
                 TextSpan(
                   text: tr('Điều khoản', 'Terms'),
-                  style: const TextStyle(
-                    color: AppTheme.accent,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const TextSpan(text: ' & '),
                 TextSpan(
                   text: tr('Chính sách bảo mật', 'Privacy Policy'),
-                  style: const TextStyle(
-                    color: AppTheme.accent,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

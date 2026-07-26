@@ -192,7 +192,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
         .toList(growable: false);
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -255,7 +255,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       horizontal: 20 * responsive.widthScale,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppTheme.neutral200),
                     ),
@@ -263,7 +263,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       children: [
                         Icon(
                           Icons.search,
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           size: 24 * responsive.scale,
                         ),
                         SizedBox(width: 16 * responsive.widthScale),
@@ -281,7 +281,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                               focusedBorder: InputBorder.none,
                             ),
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 18 * responsive.scale,
                             ),
                           ),
@@ -308,7 +308,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                           'No matching help article was found.',
                         ),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppTheme.muted),
+                        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                       ),
                     )
                   else
@@ -388,7 +388,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                                   'Your feedback helps us improve StayZ.',
                                 ),
                                 style: TextStyle(
-                                  color: AppTheme.muted,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   fontSize: 18 * responsive.scale,
                                   height: 1.55,
                                 ),
@@ -407,7 +407,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                                   child: Text(
                                     tr('GỬI QUA ZALO', 'SEND VIA ZALO'),
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       fontSize: 16 * responsive.scale,
                                       fontWeight: FontWeight.w800,
                                     ),
@@ -463,7 +463,7 @@ class _FaqTile extends StatelessWidget {
         vertical: 14 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -481,11 +481,11 @@ class _FaqTile extends StatelessWidget {
         shape: const Border(),
         collapsedShape: const Border(),
         iconColor: AppTheme.accentDark,
-        collapsedIconColor: AppTheme.ink,
+        collapsedIconColor: Theme.of(context).colorScheme.onSurface,
         title: Text(
           article.title,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 17 * responsive.scale,
             fontWeight: FontWeight.w700,
           ),
@@ -520,8 +520,8 @@ class _FaqTile extends StatelessWidget {
                     ),
                     child: Text(
                       '${index + 1}',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).cardColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                       ),
@@ -532,7 +532,7 @@ class _FaqTile extends StatelessWidget {
                     child: Text(
                       article.steps[index],
                       style: TextStyle(
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 14 * responsive.scale,
                         height: 1.45,
                       ),
@@ -584,7 +584,7 @@ class _LegalTile extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 17 * responsive.scale,
                 fontWeight: FontWeight.w500,
               ),

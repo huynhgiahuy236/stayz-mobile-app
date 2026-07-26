@@ -9,6 +9,7 @@ import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_shimmer.dart';
 import 'package:flutter/material.dart';
 
 class RealRoomSelectionPage extends StatefulWidget {
@@ -125,7 +126,7 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
     // roi cho nguoi dung dat phong cua mot khach san hoan toan khac.
     if (args == null) {
       return Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(tr('Chọn phòng', 'Select room'))),
         body: StayzEmptyView(
           icon: Icons.meeting_room_outlined,
@@ -145,7 +146,7 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
     final hotel = args.hotel;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -163,8 +164,12 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
                 future: _roomsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    return ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: 3,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemBuilder: (context, _) => const BookingCardSkeleton(),
                     );
                   }
                   if (snapshot.hasError) {
@@ -258,7 +263,7 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
                             '${rooms.length} room types',
                           ),
                           style: TextStyle(
-                            color: AppTheme.muted,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 13 * responsive.scale,
                             fontWeight: FontWeight.w700,
                           ),
@@ -298,7 +303,7 @@ class _RealRoomSelectionPageState extends State<RealRoomSelectionPage> {
               '${room.availableUnits} rooms left',
             ),
       badgeColor: soldOut
-          ? AppTheme.danger
+          ? Theme.of(context).colorScheme.error
           : lowStock
           ? AppTheme.gold
           : AppTheme.success,
@@ -357,14 +362,14 @@ class _FilterToggle extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: open ? AppTheme.ink : Colors.white,
+                color: open ? Theme.of(context).colorScheme.onSurface : Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: open ? AppTheme.ink : AppTheme.line),
+                border: Border.all(color: open ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.outlineVariant),
               ),
               child: Icon(
                 Icons.tune_rounded,
                 size: 19,
-                color: open ? Colors.white : AppTheme.ink,
+                color: open ? Colors.white : Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -405,13 +410,13 @@ class _FilterSummaryRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppTheme.primarySoft.withValues(alpha: 0.6),
+              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               chip,
-              style: const TextStyle(
-                color: AppTheme.primaryDark,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -450,9 +455,9 @@ class _RoomFilterPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -463,7 +468,7 @@ class _RoomFilterPanel extends StatelessWidget {
             max: maxGuests,
             onChanged: onGuestChanged,
           ),
-          const Divider(height: 1, color: AppTheme.line),
+          Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           _Stepper(
             label: tr('Số phòng', 'Rooms'),
             value: roomCount,
@@ -471,7 +476,7 @@ class _RoomFilterPanel extends StatelessWidget {
             max: 5,
             onChanged: onRoomCountChanged,
           ),
-          const Divider(height: 1, color: AppTheme.line),
+          Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Row(
@@ -480,8 +485,8 @@ class _RoomFilterPanel extends StatelessWidget {
                   width: 92,
                   child: Text(
                     tr('Hạng phòng', 'Room class'),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -510,7 +515,7 @@ class _RoomFilterPanel extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: AppTheme.line),
+          Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           SwitchListTile.adaptive(
             value: availableOnly,
             onChanged: onAvailableChanged,
@@ -518,8 +523,8 @@ class _RoomFilterPanel extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             title: Text(
               tr('Chỉ hiện phòng còn trống', 'Available rooms only'),
-              style: const TextStyle(
-                color: AppTheme.ink,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -557,8 +562,8 @@ class _Stepper extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: AppTheme.ink,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -568,15 +573,15 @@ class _Stepper extends StatelessWidget {
             onPressed: value <= min ? null : () => onChanged(value - 1),
             icon: const Icon(Icons.remove_circle_outline),
             tooltip: tr('Giảm $label', 'Decrease $label'),
-            color: AppTheme.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
           SizedBox(
             width: 28,
             child: Text(
               '$value',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppTheme.ink,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 15,
                 fontWeight: FontWeight.w900,
               ),
@@ -586,7 +591,7 @@ class _Stepper extends StatelessWidget {
             onPressed: value >= max ? null : () => onChanged(value + 1),
             icon: const Icon(Icons.add_circle_outline),
             tooltip: tr('Tăng $label', 'Increase $label'),
-            color: AppTheme.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ],
       ),
@@ -611,7 +616,7 @@ class _TypeChip extends StatelessWidget {
       button: true,
       selected: active,
       child: Material(
-        color: active ? AppTheme.ink : Colors.white,
+        color: active ? Theme.of(context).colorScheme.onSurface : Colors.white,
         borderRadius: BorderRadius.circular(999),
         child: InkWell(
           onTap: onTap,
@@ -622,12 +627,12 @@ class _TypeChip extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: active ? AppTheme.ink : AppTheme.line),
+              border: Border.all(color: active ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Text(
               label,
               style: TextStyle(
-                color: active ? Colors.white : AppTheme.ink,
+                color: active ? Colors.white : Theme.of(context).colorScheme.onSurface,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
               ),
@@ -659,9 +664,9 @@ class _StaySummaryCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.line),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -674,7 +679,7 @@ class _StaySummaryCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 15 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -685,7 +690,7 @@ class _StaySummaryCard extends StatelessWidget {
                     Icon(
                       Icons.calendar_today_outlined,
                       size: 13 * responsive.scale,
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     SizedBox(width: 5 * responsive.widthScale),
                     Expanded(
@@ -699,7 +704,7 @@ class _StaySummaryCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 12.5 * responsive.scale,
                         ),
                       ),
@@ -714,13 +719,13 @@ class _StaySummaryCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: AppTheme.primarySoft.withValues(alpha: 0.6),
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 tr('$nights đêm', '$nights nights'),
-                style: const TextStyle(
-                  color: AppTheme.primaryDark,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w800,
                 ),

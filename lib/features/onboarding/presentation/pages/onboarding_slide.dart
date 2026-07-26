@@ -66,6 +66,7 @@ class _FreshBlueSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final heroHeight =
         (responsive.isCompact ? 290.0 : 340.0) * responsive.scale;
     final buttonHeight =
@@ -102,7 +103,9 @@ class _FreshBlueSlide extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [data.palette.sheet, data.palette.inactive],
+                            colors: isDark
+                                ? [data.palette.sheet, Theme.of(context).colorScheme.surface]
+                                : [data.palette.sheet, data.palette.inactive],
                           ),
                           border: Border.all(
                             color: data.palette.border,
@@ -110,9 +113,11 @@ class _FreshBlueSlide extends StatelessWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: data.palette.primaryDark.withValues(
-                                alpha: 0.14,
-                              ),
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.3)
+                                  : data.palette.primaryDark.withValues(
+                                      alpha: 0.14,
+                                    ),
                               blurRadius: 32,
                               offset: const Offset(0, 18),
                             ),
@@ -127,7 +132,21 @@ class _FreshBlueSlide extends StatelessWidget {
                       bottom: 18 * responsive.scale,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(28),
-                        child: _OnboardingImage(source: data.imageAsset),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            _OnboardingImage(source: data.imageAsset),
+                            const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.transparent, Color(0x66000000)],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Positioned(
@@ -148,7 +167,7 @@ class _FreshBlueSlide extends StatelessWidget {
                           style: textTheme.bodyMedium?.copyWith(
                             color: data.palette.primaryDark,
                             fontSize: 13 * responsive.scale,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                             letterSpacing: 2.4,
                           ),
                         ),
@@ -162,7 +181,7 @@ class _FreshBlueSlide extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   horizontalPadding,
-                  20 * responsive.scale,
+                  24 * responsive.scale,
                   horizontalPadding,
                   24 * responsive.scale,
                 ),
@@ -173,9 +192,9 @@ class _FreshBlueSlide extends StatelessWidget {
                       data.title,
                       style: textTheme.displayLarge?.copyWith(
                         color: data.palette.ink,
-                        fontSize: 31 * responsive.scale,
-                        height: 1.12,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 28 * responsive.scale,
+                        height: 1.15,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                     SizedBox(height: 12 * responsive.scale),
@@ -183,8 +202,9 @@ class _FreshBlueSlide extends StatelessWidget {
                       data.description,
                       style: textTheme.bodyLarge?.copyWith(
                         color: data.palette.muted,
-                        fontSize: 16 * responsive.scale,
+                        fontSize: 15 * responsive.scale,
                         height: 1.45,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 16 * responsive.scale),
@@ -208,6 +228,7 @@ class _FreshBlueSlide extends StatelessWidget {
                                 text: tr('Đăng nhập', 'Sign in'),
                                 style: TextStyle(
                                   color: data.palette.primary,
+                                  fontWeight: FontWeight.w800,
                                   decoration: TextDecoration.underline,
                                   decorationThickness: 1.5,
                                 ),
@@ -243,13 +264,15 @@ class _FreshBlueSlide extends StatelessWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18),
                               ),
+                              elevation: 4,
                             ),
                             child: data.showLoginPrompt
                                 ? Text(
                                     data.primaryLabel,
                                     style: textTheme.labelLarge?.copyWith(
                                       color: data.palette.onPrimary,
-                                      fontSize: 17 * responsive.scale,
+                                      fontSize: 16 * responsive.scale,
+                                      fontWeight: FontWeight.w800,
                                     ),
                                   )
                                 : Icon(

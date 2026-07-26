@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/admin/data/admin_repository.dart';
 import 'package:capstone_mobile/features/admin/models/admin_models.dart';
 import 'package:capstone_mobile/features/admin/presentation/widgets/admin_forms.dart';
@@ -398,7 +397,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(backgroundColor: AppTheme.danger),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
             child: Text(tr('Xác nhận', 'Confirm')),
           ),
         ],
@@ -414,20 +413,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildDashboard(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: FutureBuilder<AdminSnapshot>(
           future: _future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting &&
                 _snapshot == null) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    StayZBrandLogo(size: 72, borderRadius: 20),
-                    SizedBox(height: 18),
-                    CircularProgressIndicator(color: AppTheme.primary),
+                    const StayZBrandLogo(size: 72, borderRadius: 20),
+                    const SizedBox(height: 18),
+                    CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                   ],
                 ),
               );
@@ -611,17 +610,17 @@ class _AdminLoadErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-    color: AppTheme.danger.withValues(alpha: 0.08),
+    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
     child: Padding(
       padding: const EdgeInsets.all(14),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_rounded, color: AppTheme.danger),
+          Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.error),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               messages.toSet().join('\n'),
-              style: const TextStyle(color: AppTheme.danger),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
           TextButton(

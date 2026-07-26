@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/services/api_service.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -64,11 +63,11 @@ class _AuthGatePageState extends State<AuthGatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: _loading && _error == null
-              ? const CircularProgressIndicator(color: AppTheme.accent)
+              ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)
               : Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -77,7 +76,7 @@ class _AuthGatePageState extends State<AuthGatePage> {
                       Icon(
                         Icons.sync_problem_rounded,
                         size: 56,
-                        color: AppTheme.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         semanticLabel: tr('Lỗi khởi động', 'Startup error'),
                       ),
                       const SizedBox(height: 16),

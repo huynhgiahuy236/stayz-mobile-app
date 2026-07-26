@@ -77,7 +77,7 @@ class _HotelFormDialogState extends State<HotelFormDialog> {
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       surfaceTintColor: Colors.white,
       titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -365,7 +365,7 @@ class _RoomFormDialogState extends State<RoomFormDialog> {
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       surfaceTintColor: Colors.white,
       titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -639,7 +639,7 @@ class _ImagePickerField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.image_outlined, color: AppTheme.muted, size: 22),
+          Icon(Icons.image_outlined, color: Theme.of(context).colorScheme.secondary, size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -647,8 +647,8 @@ class _ImagePickerField extends StatelessWidget {
               children: [
                 Text(
                   tr('Ảnh đại diện', 'Main image'),
-                  style: const TextStyle(
-                    color: AppTheme.ink,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -658,7 +658,7 @@ class _ImagePickerField extends StatelessWidget {
                   description,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppTheme.muted, fontSize: 11),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 11),
                 ),
               ],
             ),
@@ -734,7 +734,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
   Widget build(BuildContext context) => AlertDialog(
     insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).cardColor,
     surfaceTintColor: Colors.white,
     titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
     contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -1001,7 +1001,7 @@ class _BookingFormDialogState extends State<BookingFormDialog> {
   Widget build(BuildContext context) => AlertDialog(
     insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).cardColor,
     surfaceTintColor: Colors.white,
     titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
     contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -1042,8 +1042,8 @@ class _BookingFormDialogState extends State<BookingFormDialog> {
                           'Booking này có liên kết dữ liệu cũ đã mất. Hệ thống đã chọn dữ liệu hợp lệ thay thế, vui lòng kiểm tra trước khi lưu.',
                           'This booking contains missing legacy references. Valid replacements were selected; review them before saving.',
                         ),
-                        style: const TextStyle(
-                          color: AppTheme.ink,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -1282,7 +1282,7 @@ class _ReviewFormDialogState extends State<ReviewFormDialog> {
   Widget build(BuildContext context) => AlertDialog(
     insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).cardColor,
     surfaceTintColor: Colors.white,
     titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
     contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -1345,7 +1345,7 @@ InputDecoration _adminInputDecoration(String label) {
       fontSize: 12,
       fontWeight: FontWeight.w700,
     ),
-    labelStyle: const TextStyle(color: AppTheme.muted, fontSize: 13),
+    labelStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
     contentPadding: const EdgeInsets.fromLTRB(13, 15, 13, 13),
     border: border,
     enabledBorder: border,

@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/booking_section_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
@@ -21,7 +20,7 @@ class BookingConfirmationPage extends StatelessWidget {
     final summary = args is BookingSummaryArgs ? args.summary : null;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -40,7 +39,7 @@ class BookingConfirmationPage extends StatelessWidget {
                       context,
                     ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
                     icon: const Icon(Icons.close),
-                    color: AppTheme.accentDark,
+                    color: Theme.of(context).colorScheme.primary,
                     tooltip: tr('Đóng và về trang chủ', 'Close and go home'),
                     constraints: const BoxConstraints.tightFor(
                       width: 48,
@@ -52,7 +51,7 @@ class BookingConfirmationPage extends StatelessWidget {
                       tr('Đặt phòng thành công', 'Booking successful'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 20 * responsive.scale,
                         fontWeight: FontWeight.w800,
                       ),
@@ -74,10 +73,10 @@ class BookingConfirmationPage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 38 * responsive.scale,
-                    backgroundColor: AppTheme.primarySoft,
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                     child: Icon(
                       Icons.check_rounded,
-                      color: AppTheme.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 44 * responsive.scale,
                     ),
                   ),
@@ -86,7 +85,7 @@ class BookingConfirmationPage extends StatelessWidget {
                     tr('Đặt phòng thành công!', 'Booking successful!'),
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28 * responsive.scale,
                       fontWeight: FontWeight.w900,
                     ),
@@ -99,7 +98,7 @@ class BookingConfirmationPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 15 * responsive.scale,
                       height: 1.4,
                     ),
@@ -138,7 +137,7 @@ class BookingConfirmationPage extends StatelessWidget {
                             (route) => false,
                           ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppTheme.neutral200),
+                        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -146,7 +145,7 @@ class BookingConfirmationPage extends StatelessWidget {
                       child: Text(
                         tr('Về Trang chủ', 'Go home'),
                         style: TextStyle(
-                          color: AppTheme.accent,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 16 * responsive.scale,
                           fontWeight: FontWeight.w800,
                         ),
@@ -173,10 +172,10 @@ class _CheckInCodeTile extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.neutral200),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
@@ -190,11 +189,11 @@ class _CheckInCodeTile extends StatelessWidget {
           16 * responsive.widthScale,
           18 * responsive.scale,
         ),
-        leading: const Icon(Icons.qr_code_2_rounded, color: AppTheme.primary),
+        leading: Icon(Icons.qr_code_2_rounded, color: Theme.of(context).colorScheme.primary),
         title: Text(
           tr('Mã nhận phòng', 'Check-in code'),
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 15 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),
@@ -202,7 +201,7 @@ class _CheckInCodeTile extends StatelessWidget {
         subtitle: Text(
           tr('Chạm để xem QR', 'Tap to view QR'),
           style: TextStyle(
-            color: AppTheme.muted,
+            color: Theme.of(context).colorScheme.secondary,
             fontSize: 12 * responsive.scale,
           ),
         ),
@@ -210,13 +209,13 @@ class _CheckInCodeTile extends StatelessWidget {
           QrImageView(
             data: 'STAYZ-CHECKIN:$code',
             size: 176 * responsive.widthScale,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).cardColor,
           ),
           SizedBox(height: 8 * responsive.scale),
           Text(
             code,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16 * responsive.scale,
               fontWeight: FontWeight.w900,
               letterSpacing: 2.5,
@@ -278,9 +277,9 @@ class _ConfirmedTicket extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(24 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -298,7 +297,7 @@ class _ConfirmedTicket extends StatelessWidget {
                 child: Text(
                   tr('MÃ ĐẶT PHÒNG', 'BOOKING CODE'),
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16 * responsive.scale,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 3,
@@ -308,18 +307,18 @@ class _ConfirmedTicket extends StatelessWidget {
               Text(
                 _bookingCode,
                 style: TextStyle(
-                  color: AppTheme.ink,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 17 * responsive.scale,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ],
           ),
-          Divider(height: 34 * responsive.scale, color: AppTheme.line),
+          Divider(height: 34 * responsive.scale, color: Theme.of(context).colorScheme.outlineVariant),
           Text(
             hotelName,
             style: TextStyle(
-              color: AppTheme.accentDark,
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 22 * responsive.scale,
               fontWeight: FontWeight.w900,
             ),
@@ -329,7 +328,7 @@ class _ConfirmedTicket extends StatelessWidget {
             children: [
               Icon(
                 Icons.location_on_outlined,
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 size: 22 * responsive.scale,
               ),
               SizedBox(width: 8 * responsive.widthScale),
@@ -337,7 +336,7 @@ class _ConfirmedTicket extends StatelessWidget {
                 child: Text(
                   address,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 17 * responsive.scale,
                   ),
                 ),
@@ -359,7 +358,7 @@ class _ConfirmedTicket extends StatelessWidget {
               ),
             ],
           ),
-          Divider(height: 38 * responsive.scale, color: AppTheme.line),
+          Divider(height: 38 * responsive.scale, color: Theme.of(context).colorScheme.outlineVariant),
           PriceLine(label: tr('Tổng giá phòng', 'Room total'), value: total),
           if (discount > 0)
             PriceLine(
@@ -411,7 +410,7 @@ class _TicketMeta extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 14 * responsive.scale,
             fontWeight: FontWeight.w700,
             letterSpacing: 2,
@@ -422,7 +421,7 @@ class _TicketMeta extends StatelessWidget {
           value,
           textAlign: alignRight ? TextAlign.right : TextAlign.left,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 15 * responsive.scale,
             fontWeight: FontWeight.w700,
           ),

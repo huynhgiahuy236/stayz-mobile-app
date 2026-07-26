@@ -109,7 +109,7 @@ class BookingManageHeader extends StatelessWidget {
           IconButton(
             onPressed: () => Navigator.of(context).maybePop(),
             icon: const Icon(Icons.arrow_back),
-            color: AppTheme.accentDark,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           SizedBox(width: 10 * responsive.widthScale),
           Expanded(
@@ -125,7 +125,7 @@ class BookingManageHeader extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.accentDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 24 * responsive.scale,
                       fontWeight: FontWeight.w700,
                     ),
@@ -137,7 +137,7 @@ class BookingManageHeader extends StatelessWidget {
                 trailing ??
                 Icon(
                   Icons.more_vert,
-                  color: AppTheme.accentDark,
+                  color: Theme.of(context).colorScheme.onSurface,
                   size: 28 * responsive.scale,
                 ),
           ),
@@ -172,7 +172,7 @@ class BookingManageTabs extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.line),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Row(
           children: [
@@ -356,8 +356,8 @@ class UpcomingBookingCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.line),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: AppTheme.softShadow,
       ),
       clipBehavior: Clip.antiAlias,
@@ -644,6 +644,7 @@ class BookingSoftButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
       height: 54 * responsive.scale,
@@ -651,15 +652,22 @@ class BookingSoftButton extends StatelessWidget {
         // Khong co handler thi disable han, thay vi bam roi khong co gi xay ra.
         onPressed: onTap,
         style: FilledButton.styleFrom(
-          backgroundColor: AppTheme.primarySoft,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+          backgroundColor: isDark
+              ? const Color(0xFF3F5E96).withValues(alpha: 0.45)
+              : AppTheme.primarySoft,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isDark ? const Color(0xFF3F5E96) : Colors.transparent,
+            ),
+          ),
         ),
         child: Text(
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: AppTheme.accentDark,
+            color: isDark ? Colors.white : AppTheme.accentDark,
             fontSize: 16 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),
@@ -678,6 +686,7 @@ class BookingOutlineButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
       height: 54 * responsive.scale,
@@ -686,14 +695,14 @@ class BookingOutlineButton extends StatelessWidget {
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppTheme.danger),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: Text(
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: AppTheme.accentDark,
+            color: isDark ? const Color(0xFFFF6B6B) : AppTheme.accentDark,
             fontSize: 16 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),

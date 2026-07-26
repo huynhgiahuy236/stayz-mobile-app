@@ -320,7 +320,16 @@ class SectionLabel extends StatelessWidget {
             onPressed:
                 onAction ??
                 () => Navigator.of(context).pushNamed(AppRoutes.search),
-            child: Text(action!),
+            child: Text(
+              action!,
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF818CF8)
+                    : Theme.of(context).colorScheme.primary,
+                fontSize: 14 * responsive.scale,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
       ],
     );
@@ -339,18 +348,18 @@ class SearchBox extends StatelessWidget {
 
     return Material(
       color: Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppTheme.cardRadius),
       child: InkWell(
         onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.search),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         child: Container(
           constraints: BoxConstraints(minHeight: 60 * responsive.scale),
           padding: EdgeInsets.symmetric(
             horizontal: 16 * responsive.widthScale,
-            vertical: 10 * responsive.scale,
+            vertical: 12 * responsive.scale,
           ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
             border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: AppTheme.softShadow,
           ),
@@ -434,10 +443,18 @@ class FilterPill extends StatelessWidget {
               horizontal: 16 * responsive.widthScale,
             ),
             decoration: BoxDecoration(
-              color: active ? Theme.of(context).colorScheme.primary : Colors.white,
+              color: active
+                  ? Theme.of(context).colorScheme.primary
+                  : (Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF1E2D47)
+                      : Colors.white),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
+                color: active
+                    ? Theme.of(context).colorScheme.primary
+                    : (Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF2B3D5C)
+                        : Theme.of(context).colorScheme.outlineVariant),
               ),
             ),
             child: Row(
@@ -447,14 +464,22 @@ class FilterPill extends StatelessWidget {
                   Icon(
                     icon,
                     size: 17 * responsive.scale,
-                    color: active ? Colors.white : Theme.of(context).colorScheme.primary,
+                    color: active
+                        ? Colors.white
+                        : (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white70
+                            : Theme.of(context).colorScheme.primary),
                   ),
                   SizedBox(width: 7 * responsive.widthScale),
                 ],
                 Text(
                   label,
                   style: TextStyle(
-                    color: active ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                    color: active
+                        ? Colors.white
+                        : (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.onSurface),
                     fontSize: 13 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -514,13 +539,13 @@ class HotelCard extends StatelessWidget {
       width: width,
       child: Material(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppTheme.cardRadius),
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppTheme.cardRadius),
               border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               boxShadow: AppTheme.softShadow,
             ),
@@ -534,7 +559,7 @@ class HotelCard extends StatelessWidget {
                   aspectRatio: AppTheme.cardImageAspectRatio,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(18),
+                      top: Radius.circular(AppTheme.cardRadius),
                     ),
                     child: Stack(
                       fit: StackFit.expand,
@@ -716,153 +741,169 @@ class BookingPreviewCard extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
     final thumbSize = 84 * responsive.scale;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
       color: Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap:
             onTap ??
             () => Navigator.of(context).pushNamed(AppRoutes.myBookings),
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: EdgeInsets.all(16 * responsive.scale),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: SizedBox(
-                      width: thumbSize,
-                      height: thumbSize,
-                      child: (imageUrl != null && imageUrl!.isNotEmpty)
-                          ? StayZNetworkImage(
-                              imageUrl: imageUrl!,
-                              width: thumbSize,
-                              height: thumbSize,
-                            )
-                          : DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: colors),
+        borderRadius: BorderRadius.circular(18),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+            boxShadow: AppTheme.softShadow,
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(16 * responsive.scale),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        width: thumbSize,
+                        height: thumbSize,
+                        child: (imageUrl != null && imageUrl!.isNotEmpty)
+                            ? StayZNetworkImage(
+                                imageUrl: imageUrl!,
+                                width: thumbSize,
+                                height: thumbSize,
+                              )
+                            : DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: colors),
+                                ),
+                                child: Icon(
+                                  Icons.confirmation_number_rounded,
+                                  color: Colors.white,
+                                ),
                               ),
-                              child: Icon(
-                                Icons.confirmation_number_rounded,
-                                color: Theme.of(context).cardColor,
-                              ),
-                            ),
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 14 * responsive.widthScale),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Theme.of(context).cardColor,
-                            fontSize: 17 * responsive.scale,
-                            fontWeight: FontWeight.w900,
-                            height: 1.2,
-                          ),
-                        ),
-                        SizedBox(height: 6 * responsive.scale),
-                        Text(
-                          location,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.5 * responsive.scale,
-                          ),
-                        ),
-                        SizedBox(height: 10 * responsive.scale),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(99),
-                            border: Border.all(
-                              color: (statusTextColor ?? Theme.of(context).colorScheme.primary)
-                                  .withValues(alpha: 0.75),
+                    SizedBox(width: 14 * responsive.widthScale),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 17 * responsive.scale,
+                              fontWeight: FontWeight.w900,
+                              height: 1.2,
                             ),
                           ),
-                          child: Text(
-                            status,
+                          SizedBox(height: 6 * responsive.scale),
+                          Text(
+                            location,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: statusTextColor ?? Theme.of(context).colorScheme.primary,
-                              fontSize: 10.5 * responsive.scale,
-                              fontWeight: FontWeight.w900,
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 12.5 * responsive.scale,
                             ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 10 * responsive.scale),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF141E30)
+                                  : AppTheme.primarySoft,
+                              borderRadius: BorderRadius.circular(99),
+                              border: Border.all(
+                                color: (statusTextColor ?? Theme.of(context).colorScheme.primary)
+                                    .withValues(alpha: 0.75),
+                              ),
+                            ),
+                            child: Text(
+                              status,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: statusTextColor ?? Theme.of(context).colorScheme.primary,
+                                fontSize: 10.5 * responsive.scale,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (statusDescription != null) ...[
+                  SizedBox(height: 14 * responsive.scale),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12 * responsive.scale),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : const Color(0xFFF4F4F8),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.14)
+                            : AppTheme.line,
+                      ),
+                    ),
+                    child: Text(
+                      statusDescription!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 12 * responsive.scale,
+                        height: 1.35,
+                      ),
                     ),
                   ),
                 ],
-              ),
-              if (statusDescription != null) ...[
-                SizedBox(height: 14 * responsive.scale),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12 * responsive.scale),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.14),
+                Divider(
+                  height: 28 * responsive.scale,
+                  color: Theme.of(context).dividerColor,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: _DarkMeta(label: tr('Ngày', 'Dates'), value: date),
                     ),
-                  ),
-                  child: Text(
-                    statusDescription!,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12 * responsive.scale,
-                      height: 1.35,
+                    SizedBox(width: 12 * responsive.widthScale),
+                    Expanded(
+                      flex: 2,
+                      child: _DarkMeta(
+                        label: paymentRecorded
+                            ? tr('Đã trả', 'Paid')
+                            : tr('Tổng', 'Total'),
+                        value: total,
+                        alignEnd: true,
+                        valueColor: !paymentRecorded
+                            ? null
+                            : deposit30
+                            ? AppTheme.depositBorder
+                            : (isDark ? const Color(0xFF69E6A6) : AppTheme.success),
+                        badge: paymentRecorded && deposit30 ? '30%' : null,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
-              Divider(
-                height: 28 * responsive.scale,
-                color: Colors.white.withValues(alpha: 0.16),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: _DarkMeta(label: tr('Ngày', 'Dates'), value: date),
-                  ),
-                  SizedBox(width: 12 * responsive.widthScale),
-                  Expanded(
-                    flex: 2,
-                    child: _DarkMeta(
-                      label: paymentRecorded
-                          ? tr('Đã trả', 'Paid')
-                          : tr('Tổng', 'Total'),
-                      value: total,
-                      alignEnd: true,
-                      valueColor: !paymentRecorded
-                          ? null
-                          : deposit30
-                          ? AppTheme.depositBorder
-                          : const Color(0xFF69E6A6),
-                      badge: paymentRecorded && deposit30 ? '30%' : null,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -1278,7 +1319,7 @@ class _DarkMeta extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.secondary,
             fontSize: 10 * responsive.scale,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
@@ -1298,7 +1339,7 @@ class _DarkMeta extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: alignEnd ? TextAlign.right : TextAlign.left,
                 style: TextStyle(
-                  color: valueColor ?? Colors.white,
+                  color: valueColor ?? Theme.of(context).colorScheme.onSurface,
                   fontSize: 13 * responsive.scale,
                   fontWeight: FontWeight.w900,
                 ),

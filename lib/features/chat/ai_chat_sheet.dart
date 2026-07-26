@@ -286,6 +286,7 @@ class _AiChatSheetState extends State<_AiChatSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final height = MediaQuery.sizeOf(context).height * 0.82;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnimatedPadding(
       duration: const Duration(milliseconds: 180),
@@ -293,9 +294,12 @@ class _AiChatSheetState extends State<_AiChatSheet> {
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         height: height,
-        decoration: const BoxDecoration(
-          color: Color(0xFFFFFCF8),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF141E30) : const Color(0xFFFAFAFD),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
         child: Column(
           children: [
@@ -303,15 +307,17 @@ class _AiChatSheetState extends State<_AiChatSheet> {
               padding: const EdgeInsets.fromLTRB(18, 14, 8, 10),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    backgroundColor: AppTheme.accentDark,
+                  CircleAvatar(
+                    backgroundColor: isDark
+                        ? const Color(0xFF3F5E96)
+                        : AppTheme.accentDark,
                     foregroundColor: Colors.white,
-                    child: Icon(Icons.auto_awesome_rounded),
+                    child: const Icon(Icons.auto_awesome_rounded),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-              tr('StayZ AI', 'StayZ AI'),
+                      tr('StayZ AI', 'StayZ AI'),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
@@ -321,12 +327,18 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_rounded),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1),
+            Divider(
+              height: 1,
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
@@ -366,6 +378,9 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                       controller: _controller,
                       minLines: 1,
                       maxLines: 4,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
                       decoration: InputDecoration(
@@ -375,15 +390,34 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                               'Hỏi về khách sạn, phòng, giá...',
                               'Ask about hotels, rooms, prices...',
                             ),
+                        hintStyle: TextStyle(
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : Colors.black45,
+                        ),
                         filled: true,
-                        fillColor: Theme.of(context).colorScheme.surface,
+                        fillColor: isDark
+                            ? const Color(0xFF1E2D47)
+                            : Theme.of(context).colorScheme.surface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: isDark
+                                ? const Color(0xFF3F5E96)
+                                : AppTheme.accentDark,
+                          ),
                         ),
                       ),
                     ),
@@ -395,11 +429,15 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                     child: FilledButton(
                       onPressed: _sending ? null : _send,
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.accentDark,
+                        backgroundColor: isDark
+                            ? const Color(0xFF3F5E96)
+                            : AppTheme.accentDark,
                         padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Icon(Icons.send_rounded),
+                      child: const Icon(Icons.send_rounded, color: Colors.white),
                     ),
                   ),
                 ],
@@ -419,9 +457,20 @@ class _AiBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final alignment = message.fromUser ? Alignment.centerRight : Alignment.centerLeft;
-    final color = message.fromUser ? AppTheme.accentDark : Theme.of(context).cardColor;
-    final textColor = message.fromUser ? Colors.white : Theme.of(context).colorScheme.onSurface;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final alignment =
+        message.fromUser ? Alignment.centerRight : Alignment.centerLeft;
+    final color = message.fromUser
+        ? (isDark ? const Color(0xFF3F5E96) : AppTheme.accentDark)
+        : (isDark ? const Color(0xFF1E2D47) : Colors.white);
+    final textColor = message.fromUser
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
+    final border = message.fromUser
+        ? null
+        : Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          );
 
     return Align(
       alignment: alignment,
@@ -432,7 +481,7 @@ class _AiBubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
-          border: message.fromUser ? null : Border.all(color: AppTheme.line),
+          border: border,
         ),
         child: Text(
           message.content,
@@ -471,6 +520,7 @@ class _SuggestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final city = _cityNames[suggestion.citySlug] ?? suggestion.citySlug;
     final details = <String>[
       if (suggestion.roomName != null && suggestion.roomName!.isNotEmpty) 'Phòng ${suggestion.roomName}',
@@ -485,9 +535,11 @@ class _SuggestionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: isDark ? const Color(0xFF1E2D47) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.line),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,7 +551,11 @@ class _SuggestionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.place_outlined, size: 15, color: AppTheme.accentDark),
+                Icon(
+                  Icons.place_outlined,
+                  size: 15,
+                  color: isDark ? const Color(0xFF818CF8) : AppTheme.accentDark,
+                ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -528,7 +584,9 @@ class _SuggestionCard extends StatelessWidget {
             Text(
               _availabilityText,
               style: TextStyle(
-                color: suggestion.availableRooms == null ? Theme.of(context).colorScheme.onSurface : AppTheme.accentDark,
+                color: suggestion.availableRooms == null
+                    ? Theme.of(context).colorScheme.onSurface
+                    : (isDark ? const Color(0xFF818CF8) : AppTheme.accentDark),
                 fontSize: 12.5,
                 height: 1.4,
               ),
@@ -540,7 +598,11 @@ class _SuggestionCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                     tr('${StayzFormatters.fullVnd(suggestion.pricePerNight!)}/đêm', '${StayzFormatters.fullVnd(suggestion.pricePerNight!)}/night'),
-                      style: const TextStyle(color: AppTheme.accentDark, fontSize: 15, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        color: isDark ? const Color(0xFF818CF8) : AppTheme.accentDark,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   )
                 else
@@ -548,7 +610,7 @@ class _SuggestionCard extends StatelessWidget {
                 FilledButton(
                   onPressed: enabled ? onSelect : null,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.accentDark,
+                    backgroundColor: isDark ? const Color(0xFF3F5E96) : AppTheme.accentDark,
                     minimumSize: const Size(0, 44),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -571,6 +633,7 @@ class _ContextChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final chips = <String>[
       if (aiContext.guests != null) '${aiContext.guests} khách',
       if (aiContext.checkIn != null && aiContext.checkOut != null)
@@ -590,10 +653,20 @@ class _ContextChips extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           return Chip(
-            label: Text(chips[index]),
+            label: Text(
+              chips[index],
+              style: TextStyle(
+                color: isDark ? Colors.white70 : Colors.black87,
+                fontSize: 12,
+              ),
+            ),
             visualDensity: VisualDensity.compact,
-            backgroundColor: AppTheme.neutral200.withValues(alpha: 0.45),
-            side: BorderSide.none,
+            backgroundColor: isDark
+                ? const Color(0xFF1E2D47)
+                : AppTheme.neutral200.withValues(alpha: 0.45),
+            side: isDark
+                ? const BorderSide(color: Color(0xFF2B3D5C))
+                : BorderSide.none,
           );
         },
       ),

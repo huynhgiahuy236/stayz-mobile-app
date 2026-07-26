@@ -23,7 +23,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
 
     if (summary == null) {
       return Scaffold(
-        backgroundColor: AppTheme.cream,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Center(
             child: Text(
@@ -39,7 +39,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
         summary.hotel.imageUrls.firstOrNull;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

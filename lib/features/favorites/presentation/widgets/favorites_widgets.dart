@@ -48,7 +48,7 @@ class FavoriteHotelCard extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-            border: Border.all(color: AppTheme.line),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: AppTheme.softShadow,
           ),
           child: Column(

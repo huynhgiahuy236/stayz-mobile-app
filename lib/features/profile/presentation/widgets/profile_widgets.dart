@@ -100,8 +100,8 @@ class ProfileMenuCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.neutral200),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(children: children),
     );

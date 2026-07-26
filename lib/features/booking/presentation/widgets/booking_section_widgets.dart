@@ -31,7 +31,9 @@ class BookingTopBar extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.7)),
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
       ),
       child: Row(
@@ -50,7 +52,7 @@ class BookingTopBar extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.arrow_back),
-            color: AppTheme.accentDark,
+            color: Theme.of(context).colorScheme.primary,
           ),
           Expanded(
             child: Text(

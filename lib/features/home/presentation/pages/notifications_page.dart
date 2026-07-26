@@ -211,7 +211,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final responsive = HomeResponsive.of(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -219,7 +219,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           children: [
             _buildHeader(responsive),
             Divider(
-              color: AppTheme.neutral200.withValues(alpha: 0.7),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2B3D5C)
+                  : AppTheme.neutral200.withValues(alpha: 0.7),
               height: 1,
             ),
             SizedBox(height: 12 * responsive.scale),
@@ -286,7 +288,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   : tr('Thông báo', 'Notifications'),
               style: TextStyle(
                 fontFamily: 'Noto Serif JP',
-                color: AppTheme.accentDark,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 26 * responsive.scale,
                 fontWeight: FontWeight.w700,
               ),
@@ -425,12 +427,16 @@ class _CircleIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onTap,
-      icon: Icon(icon, color: AppTheme.accentDark, size: 20),
+      icon: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 20),
       tooltip: tooltip,
       style: IconButton.styleFrom(
         backgroundColor: Theme.of(context).cardColor,
         minimumSize: const Size(42, 42),
-        side: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
+        side: BorderSide(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF2B3D5C)
+              : AppTheme.neutral200.withValues(alpha: 0.6),
+        ),
       ),
     );
   }

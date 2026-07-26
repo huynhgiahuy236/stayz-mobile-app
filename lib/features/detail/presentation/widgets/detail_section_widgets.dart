@@ -21,13 +21,14 @@ class DetailCircleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Semantics(
       button: true,
       label: semanticLabel,
       child: InkResponse(
         onTap: onTap,
         radius: 24,
-        // Vung cham 48dp theo chuan Android; huy hieu tron ben trong 40dp.
         child: SizedBox(
           width: 48,
           height: 48,
@@ -36,17 +37,28 @@ class DetailCircleButton extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.92),
+                color: isDark
+                    ? const Color(0xFF141E30).withValues(alpha: 0.90)
+                    : Colors.white.withValues(alpha: 0.92),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF2B3D5C)
+                      : Colors.white.withValues(alpha: 0.6),
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.10),
+                    color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
                 ],
               ),
-              child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 21),
+              child: Icon(
+                icon,
+                color: isDark ? Colors.white : const Color(0xFF101010),
+                size: 21,
+              ),
             ),
           ),
         ),
@@ -93,17 +105,23 @@ class AmenityTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 52 * responsive.scale,
       padding: EdgeInsets.symmetric(horizontal: 16 * responsive.widthScale),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFAF5),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.neutral200),
+        color: isDark ? const Color(0xFF1E2D47) : const Color(0xFFF4F4F8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.accentDark, size: 22 * responsive.scale),
+          Icon(
+            icon,
+            color: Theme.of(context).colorScheme.primary,
+            size: 22 * responsive.scale,
+          ),
           SizedBox(width: 12 * responsive.widthScale),
           Expanded(
             child: Text(
@@ -111,9 +129,9 @@ class AmenityTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 13 * responsive.scale,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),

@@ -69,7 +69,7 @@ class SearchHotelCard extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-            border: Border.all(color: AppTheme.line),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: AppTheme.softShadow,
           ),
           child: Column(
@@ -256,65 +256,65 @@ class SearchHotelCard extends StatelessWidget {
                       ),
                     ],
                     SizedBox(height: 12 * responsive.scale),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: price,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 17 * responsive.scale,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          TextSpan(
+                            text: tr(' / đêm', ' / night'),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 12 * responsive.scale,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 14 * responsive.scale),
                     Row(
                       children: [
                         Expanded(
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: price,
-                                  style: TextStyle(
-                                    color: AppTheme.accent,
-                                    fontSize: 17 * responsive.scale,
-                                    fontWeight: FontWeight.w900,
-                                  ),
+                          child: SizedBox(
+                            height: 46 * responsive.scale,
+                            child: OutlinedButton(
+                              onPressed: onBookNow,
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(0, 46),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                TextSpan(
-                                  text: tr(' / đêm', ' / night'),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.secondary,
-                                    fontSize: 12 * responsive.scale,
-                                  ),
-                                ),
-                              ],
+                              ),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(tr('Chi tiết', 'Details')),
+                              ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 8 * responsive.widthScale),
-                        SizedBox(
-                          height: 44 * responsive.scale,
-                          child: OutlinedButton(
-                            onPressed: onBookNow,
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 14 * responsive.widthScale,
+                        SizedBox(width: 10 * responsive.widthScale),
+                        Expanded(
+                          child: SizedBox(
+                            height: 46 * responsive.scale,
+                            child: FilledButton(
+                              onPressed: onRoomsTap,
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size(0, 46),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                              minimumSize: const Size(0, 44),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(tr('Xem phòng', 'View rooms')),
                               ),
-                            ),
-                            child: Text(tr('Chi tiết', 'Details')),
-                          ),
-                        ),
-                        SizedBox(width: 8 * responsive.widthScale),
-                        SizedBox(
-                          height: 44 * responsive.scale,
-                          child: FilledButton(
-                            onPressed: onRoomsTap,
-                            style: FilledButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16 * responsive.widthScale,
-                              ),
-                              minimumSize: const Size(0, 44),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(tr('Xem phòng', 'View rooms')),
                             ),
                           ),
                         ),

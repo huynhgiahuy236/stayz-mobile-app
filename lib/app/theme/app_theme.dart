@@ -1,5 +1,7 @@
 import 'package:capstone_mobile/app/theme/light_theme.dart';
 import 'package:capstone_mobile/app/theme/dark_theme.dart';
+import 'package:capstone_mobile/app/theme/app_radius.dart';
+import 'package:capstone_mobile/app/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -9,33 +11,32 @@ class AppTheme {
   // LAYOUT TOKENS
   // ─────────────────────────────────────────────────────────────────
 
-  /// Ti le khung anh dung chung cho MOI the khach san (rong : cao = 16 : 10).
+  /// Standard card image aspect ratio.
   static const double cardImageAspectRatio = 16 / 10;
 
-  /// Duy nhất 1 giá trị borderRadius cho tất cả button trong app.
-  static const double buttonRadius = 16.0;
+  /// Standardized button corner radius across the design system.
+  static const double buttonRadius = AppRadius.button;
 
-  /// Duy nhất 1 giá trị borderRadius cho tất cả text field.
-  static const double inputRadius = 16.0;
+  /// Standardized text input corner radius.
+  static const double inputRadius = AppRadius.input;
 
-  /// Card corners.
-  static const double cardRadius = 20.0;
+  /// Standardized card corner radius.
+  static const double cardRadius = AppRadius.card;
 
-  /// Control (chip, badge, pill) corners.
-  static const double controlRadius = 16.0;
+  /// Control (chip, badge, pill) corner radius.
+  static const double controlRadius = AppRadius.button;
 
-  /// Dialog / Bottom sheet.
-  static const double dialogRadius = 24.0;
-  static const double sheetRadius = 28.0;
+  /// Dialog and bottom sheet corner radius.
+  static const double dialogRadius = AppRadius.dialog;
+  static const double sheetRadius = AppRadius.sheet;
 
-  /// Khoảng cách chuẩn giữa các section dọc.
-  static const double sectionSpacing = 28.0;
+  /// Standard vertical section spacing.
+  static const double sectionSpacing = AppSpacing.space32;
 
-  /// Chiều cao chuẩn cho page-level action button.
-  static const double pageActionHeight = 54.0;
-
-  /// Chiều cao chuẩn cho card-level action button.
+  /// Normalized button height tokens: Primary (56), Medium (48), Small (40).
+  static const double pageActionHeight = 56.0;
   static const double cardActionHeight = 48.0;
+  static const double smallActionHeight = 40.0;
 
   // ─────────────────────────────────────────────────────────────────
   // LIGHT PALETTE
@@ -52,7 +53,7 @@ class AppTheme {
   static const accentDark = primaryDark;
   static const teal = Color(0xFF00BFA5);
   static const gold = Color(0xFFE5C158);
-  static const line = Color(0xFFE1E1E1);
+  static const line = Color(0xFFE8E8F0);
   static const border = Color(0xFFC8C8F4);
   static const muted = Color(0xFF6E6FA6);
   static const neutral200 = line;

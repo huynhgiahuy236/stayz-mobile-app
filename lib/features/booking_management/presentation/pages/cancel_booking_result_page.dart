@@ -98,7 +98,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
     final summary = _summary;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

@@ -72,7 +72,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
 
     if (summary == null) {
       return Scaffold(
-        backgroundColor: AppTheme.cream,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Center(
             child: Text(
@@ -93,7 +93,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
         : tr('Thanh toán toàn bộ', 'Full payment');
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

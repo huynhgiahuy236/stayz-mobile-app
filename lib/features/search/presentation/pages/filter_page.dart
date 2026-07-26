@@ -1,3 +1,4 @@
+import 'package:capstone_mobile/app/theme/app_colors.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
 import 'package:capstone_mobile/shared/data/stayz_taxonomy.dart';
@@ -71,7 +72,7 @@ class _FilterPageState extends State<FilterPage> {
     final activeCount = _filters.activeCount + (range == null ? 0 : 1);
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Align(
           alignment: Alignment.bottomCenter,
@@ -301,51 +302,73 @@ class _ChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final option in options)
-          Semantics(
-            button: true,
-            selected: option.selected,
-            label: option.label,
-            child: Material(
-              color: option.selected ? Theme.of(context).colorScheme.onSurface : Colors.white,
-              borderRadius: BorderRadius.circular(999),
-              child: InkWell(
-                onTap: option.onTap,
-                borderRadius: BorderRadius.circular(999),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 40),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final selectedBg = isDark
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.primary;
+        final unselectedBg = isDark
+            ? Theme.of(context).cardColor
+            : Colors.white;
+        final selectedBorder = selectedBg;
+        final unselectedBorder = isDark
+            ? Theme.of(context).colorScheme.outline
+            : AppTheme.line;
+
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in options)
+              Semantics(
+                button: true,
+                selected: option.selected,
+                label: option.label,
+                child: Material(
+                  color: option.selected ? selectedBg : unselectedBg,
+                  borderRadius: BorderRadius.circular(999),
+                  child: InkWell(
+                    onTap: option.onTap,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: option.selected ? Theme.of(context).colorScheme.onSurface : AppTheme.line),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (option.icon != null) ...[
-                        Icon(option.icon, size: 16, color: option.selected ? Colors.white : AppTheme.primary),
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        option.label,
-                        style: TextStyle(
-                          color: option.selected ? Colors.white : Theme.of(context).colorScheme.onSurface,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: option.selected ? selectedBorder : unselectedBorder,
                         ),
                       ),
-                    ],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (option.icon != null) ...[
+                            Icon(
+                              option.icon,
+                              size: 16,
+                              color: option.selected
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          Text(
+                            option.label,
+                            style: TextStyle(
+                              color: option.selected
+                                  ? Colors.white
+                                  : (isDark ? Colors.white : AppColors.textPrimaryLight),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-      ],
-    );
+          ],
+        );
   }
 }
 

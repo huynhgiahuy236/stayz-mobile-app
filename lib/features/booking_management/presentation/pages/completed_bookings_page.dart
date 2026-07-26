@@ -18,7 +18,7 @@ class CompletedBookingsPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -77,7 +77,7 @@ class CompletedBookingsPage extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: textTheme.headlineMedium?.copyWith(
                                 fontFamily: 'Noto Serif JP',
-                                color: AppTheme.accentDark,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 22 * responsive.scale,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -193,6 +193,6 @@ class _CompletedEmptyState extends StatelessWidget {
 }
 
 const _completedColors = [
-  [Color(0xFF27473D), Color(0xFFE2DCA6)],
-  [Color(0xFF4D2416), Color(0xFFB87938)],
+  [Color(0xFF1B382F), Color(0xFF3F5E96)],
+  [Color(0xFF141E30), Color(0xFF2C3E5E)],
 ];

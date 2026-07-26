@@ -365,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                               separatorBuilder: (_, _) =>
                                   const SizedBox(width: 14),
                               itemBuilder: (context, index) =>
-                                  _hotelCard(topPicks[index], index, fullWidth: true),
+                                  _hotelCard(topPicks[index], index, fullWidth: false),
                             ),
                     ),
                   ),

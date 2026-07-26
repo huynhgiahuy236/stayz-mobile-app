@@ -24,7 +24,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
 
     if (summary == null) {
       return Scaffold(
-        backgroundColor: AppTheme.cream,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Center(
             child: Text(
@@ -40,7 +40,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
         summary.hotel.imageUrls.firstOrNull;
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

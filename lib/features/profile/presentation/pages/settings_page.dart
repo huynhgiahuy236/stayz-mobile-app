@@ -503,11 +503,18 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
         final email = user.email;
         final initials = _initials(displayName);
 
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
         return Container(
           padding: EdgeInsets.all(18 * widget.responsive.scale),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface,
+            color: isDark
+                ? const Color(0xFF1E2D47)
+                : Theme.of(context).colorScheme.onSurface,
             borderRadius: BorderRadius.circular(24),
+            border: isDark
+                ? Border.all(color: const Color(0xFF2B3D5C))
+                : null,
           ),
           child: Row(
             children: [
@@ -524,7 +531,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                         ? Text(
                             initials,
                             style: TextStyle(
-                              color: Theme.of(context).cardColor,
+                              color: Colors.white,
                               fontSize: 22 * widget.responsive.scale,
                               fontWeight: FontWeight.w900,
                             ),
@@ -549,7 +556,9 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                           child: Center(
                             child: CircleAvatar(
                               radius: 16,
-                              backgroundColor: Theme.of(context).cardColor,
+                              backgroundColor: isDark
+                                  ? const Color(0xFF141E30)
+                                  : Theme.of(context).cardColor,
                               child: Icon(
                                 Icons.edit_rounded,
                                 color: Theme.of(context).colorScheme.primary,
@@ -573,7 +582,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontSize: 21 * widget.responsive.scale,
                         fontWeight: FontWeight.w900,
                       ),

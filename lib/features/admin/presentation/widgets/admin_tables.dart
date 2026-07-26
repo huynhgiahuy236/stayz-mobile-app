@@ -874,31 +874,28 @@ class _PrimaryCell extends StatelessWidget {
   final String title;
   final String subtitle;
   @override
-  Widget build(BuildContext context) => ConstrainedBox(
-    constraints: const BoxConstraints(maxWidth: 190),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-          ),
+  Widget build(BuildContext context) => Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
         ),
-        const SizedBox(height: 2),
-        Text(
-          subtitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 10),
-        ),
-      ],
-    ),
+      ),
+      const SizedBox(height: 2),
+      Text(
+        subtitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 10),
+      ),
+    ],
   );
 }
 
@@ -943,7 +940,7 @@ class _ImageCell extends StatelessWidget {
         ),
       ),
       const SizedBox(width: 9),
-      _PrimaryCell(title: title, subtitle: subtitle),
+      Expanded(child: _PrimaryCell(title: title, subtitle: subtitle)),
     ],
   );
 }
@@ -972,7 +969,7 @@ class _AvatarCell extends StatelessWidget {
             : null,
       ),
       const SizedBox(width: 9),
-      _PrimaryCell(title: user.fullName, subtitle: user.email),
+      Expanded(child: _PrimaryCell(title: user.fullName, subtitle: user.email)),
     ],
   );
 }

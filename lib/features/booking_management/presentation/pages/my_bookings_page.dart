@@ -1,4 +1,5 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
+import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/cancel_booking_dialog.dart';
 import 'package:capstone_mobile/features/booking/presentation/widgets/payment_plan_picker.dart';
 import 'package:capstone_mobile/features/booking_management/presentation/widgets/booking_management_widgets.dart';
@@ -230,11 +231,16 @@ class _TripSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSurface,
+        color: isDark ? const Color(0xFF1E2D47) : Colors.white,
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2B3D5C) : AppTheme.line,
+        ),
       ),
       child: Row(
         children: [
@@ -242,12 +248,14 @@ class _TripSummaryCard extends StatelessWidget {
             width: 54 * responsive.scale,
             height: 54 * responsive.scale,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.12),
+              color: isDark
+                  ? const Color(0xFF3F5E96).withValues(alpha: 0.35)
+                  : AppTheme.primarySoft,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Icon(
               Icons.calendar_month_rounded,
-              color: Theme.of(context).cardColor,
+              color: isDark ? Colors.white : AppTheme.primary,
             ),
           ),
           SizedBox(width: 14 * responsive.widthScale),
@@ -258,7 +266,7 @@ class _TripSummaryCard extends StatelessWidget {
                 Text(
                   tr('$count lịch đặt sắp tới', '$count upcoming bookings'),
                   style: TextStyle(
-                    color: Theme.of(context).cardColor,
+                    color: isDark ? Colors.white : AppTheme.accentDark,
                     fontSize: 18 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
@@ -270,7 +278,7 @@ class _TripSummaryCard extends StatelessWidget {
                     'View details, change plans, or cancel your booking when needed.',
                   ),
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: isDark ? Colors.white70 : AppTheme.neutral500,
                     fontSize: 13 * responsive.scale,
                     height: 1.35,
                   ),

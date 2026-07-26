@@ -227,7 +227,7 @@ class _InfoChip extends StatelessWidget {
     decoration: BoxDecoration(
       color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: AppTheme.line),
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -256,7 +256,7 @@ class _PolicyCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppTheme.primarySoft.withValues(alpha: 0.55),
       borderRadius: BorderRadius.circular(AppTheme.controlRadius),
-      border: Border.all(color: AppTheme.line),
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
     ),
     child: Row(
       children: [

@@ -32,7 +32,7 @@ class _CancelledBookingsPageState extends State<CancelledBookingsPage> {
     final responsive = HomeResponsive.of(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -231,7 +231,7 @@ class _CancelledEmptyState extends StatelessWidget {
                   ),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppTheme.neutral500,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 15 * responsive.scale,
                 height: 1.45,
               ),
@@ -429,6 +429,6 @@ class _CancelledBookingCard extends StatelessWidget {
 }
 
 const _cancelledColors = [
-  [Color(0xFF2E4C2F), Color(0xFFE6A735)],
-  [Color(0xFF5D7D8F), Color(0xFF151E24)],
+  [Color(0xFF2C1E30), Color(0xFF3F5E96)],
+  [Color(0xFF141E30), Color(0xFF2C3E5E)],
 ];

@@ -1,5 +1,5 @@
 import 'package:capstone_mobile/app/theme/app_colors.dart';
-import 'package:capstone_mobile/app/theme/app_text_theme.dart';
+import 'package:capstone_mobile/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 final ThemeData lightTheme = ThemeData(
@@ -26,7 +26,7 @@ final ThemeData lightTheme = ThemeData(
     color: AppColors.cardLight,
     elevation: 0,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(24),
       side: const BorderSide(color: AppColors.borderLight, width: 1),
     ),
   ),
@@ -34,7 +34,7 @@ final ThemeData lightTheme = ThemeData(
     backgroundColor: Colors.white,
     modalBackgroundColor: Colors.white,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
     ),
   ),
   dialogTheme: DialogThemeData(
@@ -43,7 +43,7 @@ final ThemeData lightTheme = ThemeData(
       borderRadius: BorderRadius.circular(24),
     ),
   ),
-  textTheme: AppTextTheme.buildTextTheme(
+  textTheme: AppTypography.buildTextTheme(
     AppColors.textPrimaryLight,
     AppColors.textSecondaryLight,
   ),
@@ -61,7 +61,7 @@ final ThemeData lightTheme = ThemeData(
     style: FilledButton.styleFrom(
       backgroundColor: AppColors.primaryLight,
       foregroundColor: Colors.white,
-      minimumSize: const Size.fromHeight(52),
+      minimumSize: const Size.fromHeight(56),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -75,7 +75,7 @@ final ThemeData lightTheme = ThemeData(
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       foregroundColor: AppColors.primaryLight,
-      minimumSize: const Size.fromHeight(52),
+      minimumSize: const Size.fromHeight(56),
       side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -90,7 +90,7 @@ final ThemeData lightTheme = ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: AppColors.surfaceLight,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
       borderSide: const BorderSide(color: AppColors.borderLight),
@@ -101,7 +101,7 @@ final ThemeData lightTheme = ThemeData(
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
-      borderSide: const BorderSide(color: AppColors.primaryLight, width: 1.5),
+      borderSide: const BorderSide(color: AppColors.primaryLight, width: 2.0),
     ),
   ),
 );

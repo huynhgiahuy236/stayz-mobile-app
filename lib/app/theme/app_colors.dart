@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._();
 
-  // Light colors
+  // Light colors (Luxury Morning Theme)
   static const primaryLight = Color(0xFF4C4DDC);
   static const primaryContainerLight = Color(0xFFE4E4FA);
-  static const backgroundLight = Color(0xFFFFFFFF);
-  static const surfaceLight = Color(0xFFF8F8F8);
-  static const cardLight = Color(0xFFFFFFFF);
-  static const borderLight = Color(0xFFE1E1E1);
-  static const textPrimaryLight = Color(0xFF101010);
-  static const textSecondaryLight = Color(0xFF666666);
-  static const successLight = Color(0xFF22C55E);
+  static const backgroundLight = Color(0xFFFAFAFD); // Soft Luxury Pearl White
+  static const surfaceLight = Color(0xFFF4F4F8); // Warm Elevated Light Surface
+  static const cardLight = Color(0xFFFFFFFF); // Clean Crisp White Card
+  static const borderLight = Color(0xFFE8E8F0); // Soft Warm Contour Border
+  static const textPrimaryLight = Color(0xFF0F172A); // Rich Slate Black Text
+  static const textSecondaryLight = Color(0xFF64748B); // Slate Silver Subtext
+  static const successLight = Color(0xFF10B981);
   static const warningLight = Color(0xFFF59E0B);
   static const errorLight = Color(0xFFEF4444);
 

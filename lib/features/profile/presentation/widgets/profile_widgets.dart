@@ -27,7 +27,7 @@ class ProfileHeader extends StatelessWidget {
         16 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
         ),
@@ -53,7 +53,7 @@ class ProfileHeader extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 24 * responsive.scale,
                       fontWeight: FontWeight.w800,
                     ),
@@ -81,7 +81,7 @@ class ProfileSectionLabel extends StatelessWidget {
     return Text(
       label.toUpperCase(),
       style: TextStyle(
-        color: AppTheme.muted,
+        color: Theme.of(context).colorScheme.secondary,
         fontSize: 13 * responsive.scale,
         letterSpacing: 4,
         fontWeight: FontWeight.w600,
@@ -99,7 +99,7 @@ class ProfileMenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -112,6 +112,7 @@ class ProfileMenuTile extends StatelessWidget {
   const ProfileMenuTile({
     required this.icon,
     required this.label,
+    this.iconColor,
     this.trailing,
     this.onTap,
     this.danger = false,
@@ -120,6 +121,7 @@ class ProfileMenuTile extends StatelessWidget {
 
   final IconData icon;
   final String label;
+  final Color? iconColor;
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool danger;
@@ -127,7 +129,14 @@ class ProfileMenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final color = danger ? const Color(0xFFD00000) : AppTheme.accentDark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final defaultIconColor = danger
+        ? const Color(0xFFD00000)
+        : (iconColor ?? AppTheme.accentDark);
+    final labelColor = danger
+        ? const Color(0xFFD00000)
+        : (isDark ? AppTheme.inkDark : Theme.of(context).colorScheme.onSurface);
+    final chevronColor = isDark ? AppTheme.mutedDark : AppTheme.neutral500;
 
     return Semantics(
       button: onTap != null,
@@ -144,13 +153,13 @@ class ProfileMenuTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: color, size: 27 * responsive.scale),
+              Icon(icon, color: defaultIconColor, size: 27 * responsive.scale),
               SizedBox(width: 22 * responsive.widthScale),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: danger ? color : AppTheme.ink,
+                    color: labelColor,
                     fontSize: 19 * responsive.scale,
                     fontWeight: FontWeight.w500,
                   ),
@@ -159,7 +168,7 @@ class ProfileMenuTile extends StatelessWidget {
               trailing ??
                   Icon(
                     Icons.chevron_right,
-                    color: AppTheme.neutral500,
+                    color: chevronColor,
                     size: 28 * responsive.scale,
                   ),
             ],
@@ -200,7 +209,7 @@ class ProfileInputField extends StatelessWidget {
           height: large ? 108 * responsive.scale : 58 * responsive.scale,
           padding: EdgeInsets.symmetric(horizontal: 18 * responsive.widthScale),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: hasError
@@ -216,7 +225,7 @@ class ProfileInputField extends StatelessWidget {
                   maxLines: large ? 3 : 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 17 * responsive.scale,
                   ),
                 ),
@@ -265,7 +274,7 @@ class ProfilePrimaryButton extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             fontSize: 19 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),
@@ -296,7 +305,7 @@ class PaymentAccountTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -324,7 +333,7 @@ class PaymentAccountTile extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
@@ -333,7 +342,7 @@ class PaymentAccountTile extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 16 * responsive.scale,
                     fontWeight: FontWeight.w600,
                   ),

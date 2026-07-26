@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/favorites/presentation/widgets/favorites_widgets.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/shared/data/stayz_formatters.dart';
@@ -8,6 +7,7 @@ import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_shimmer.dart';
 import 'package:flutter/material.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -80,8 +80,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 icon: const Icon(Icons.add_rounded),
                 tooltip: tr('Tìm thêm khách sạn', 'Find more hotels'),
                 style: IconButton.styleFrom(
-                  backgroundColor: AppTheme.primarySoft,
-                  foregroundColor: AppTheme.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -102,8 +102,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
                   if (hotels.isEmpty &&
                       snapshot.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: responsive.horizontalPadding,
+                      ),
+                      child: const HotelListSkeleton(count: 2),
                     );
                   }
 
@@ -175,9 +178,9 @@ class _SavedHero extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: AppTheme.primarySoft,
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.14)),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
@@ -185,7 +188,7 @@ class _SavedHero extends StatelessWidget {
             width: 52 * responsive.scale,
             height: 52 * responsive.scale,
             decoration: BoxDecoration(
-              color: AppTheme.primary,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(18),
             ),
             child: const Icon(Icons.favorite_rounded, color: Colors.white),
@@ -198,7 +201,7 @@ class _SavedHero extends StatelessWidget {
                 Text(
                   tr('Bộ sưu tập cho chuyến đi', 'Collection for your trip'),
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
@@ -210,7 +213,7 @@ class _SavedHero extends StatelessWidget {
                     'Tap a hotel to view rooms and book.',
                   ),
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 13 * responsive.scale,
                     height: 1.35,
                   ),
@@ -239,14 +242,14 @@ class _EmptySavedState extends StatelessWidget {
           children: [
             Icon(
               Icons.favorite_border_rounded,
-              color: AppTheme.primary,
+              color: Theme.of(context).colorScheme.primary,
               size: 52 * responsive.scale,
             ),
             SizedBox(height: 16 * responsive.scale),
             Text(
               tr('Chưa có nơi lưu', 'No saved places'),
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 22 * responsive.scale,
                 fontWeight: FontWeight.w900,
               ),
@@ -259,7 +262,7 @@ class _EmptySavedState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppTheme.muted,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 14 * responsive.scale,
               ),
             ),

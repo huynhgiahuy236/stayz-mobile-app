@@ -312,8 +312,8 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                   Expanded(
                     child: Text(
               tr('StayZ AI', 'StayZ AI'),
-                      style: const TextStyle(
-                        color: AppTheme.ink,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                       ),
@@ -376,14 +376,14 @@ class _AiChatSheetState extends State<_AiChatSheet> {
                               'Ask about hotels, rooms, prices...',
                             ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.line),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.line),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                         ),
                       ),
                     ),
@@ -420,8 +420,8 @@ class _AiBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final alignment = message.fromUser ? Alignment.centerRight : Alignment.centerLeft;
-    final color = message.fromUser ? AppTheme.accentDark : Colors.white;
-    final textColor = message.fromUser ? Colors.white : AppTheme.ink;
+    final color = message.fromUser ? AppTheme.accentDark : Theme.of(context).cardColor;
+    final textColor = message.fromUser ? Colors.white : Theme.of(context).colorScheme.onSurface;
 
     return Align(
       alignment: alignment,
@@ -485,7 +485,7 @@ class _SuggestionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppTheme.line),
         ),
@@ -494,7 +494,7 @@ class _SuggestionCard extends StatelessWidget {
           children: [
             Text(
               suggestion.propertyTitle,
-              style: const TextStyle(color: AppTheme.ink, fontSize: 15, fontWeight: FontWeight.w800),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 4),
             Row(
@@ -504,7 +504,7 @@ class _SuggestionCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     city.isEmpty ? tr('Việt Nam', 'Vietnam') : city,
-                    style: const TextStyle(color: AppTheme.ink, fontSize: 13),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
                   ),
                 ),
                 if (suggestion.rating != null) ...[
@@ -512,7 +512,7 @@ class _SuggestionCard extends StatelessWidget {
                   const SizedBox(width: 2),
                   Text(
                     '${suggestion.rating!.toStringAsFixed(1)} (${suggestion.reviewCount})',
-                    style: const TextStyle(color: AppTheme.ink, fontSize: 13, fontWeight: FontWeight.w700),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ],
               ],
@@ -521,14 +521,14 @@ class _SuggestionCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 details.join(' • '),
-                style: const TextStyle(color: AppTheme.ink, fontSize: 13, height: 1.4),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, height: 1.4),
               ),
             ],
             const SizedBox(height: 6),
             Text(
               _availabilityText,
               style: TextStyle(
-                color: suggestion.availableRooms == null ? AppTheme.ink : AppTheme.accentDark,
+                color: suggestion.availableRooms == null ? Theme.of(context).colorScheme.onSurface : AppTheme.accentDark,
                 fontSize: 12.5,
                 height: 1.4,
               ),

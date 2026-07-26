@@ -9,6 +9,7 @@ import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_alert.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_shimmer.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
@@ -337,10 +338,9 @@ class _HomePageState extends State<HomePage> {
                       // based on horizontal sizing.
                       height: 304 * responsive.widthScale,
                       child: loading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                color: AppTheme.primary,
-                              ),
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const HotelListSkeleton(count: 1),
                             )
                           : topPicks.isEmpty
                           ? StayzEmptyView(
@@ -365,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                               separatorBuilder: (_, _) =>
                                   const SizedBox(width: 14),
                               itemBuilder: (context, index) =>
-                                  _hotelCard(topPicks[index], index),
+                                  _hotelCard(topPicks[index], index, fullWidth: true),
                             ),
                     ),
                   ),
@@ -466,12 +466,12 @@ class _HomePageState extends State<HomePage> {
                         child: Semantics(
                           liveRegion: true,
                           child: Material(
-                            color: AppTheme.danger.withValues(alpha: 0.08),
+                            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(14),
                             child: ListTile(
-                              leading: const Icon(
+                              leading: Icon(
                                 Icons.favorite_border_rounded,
-                                color: AppTheme.danger,
+                                color: Theme.of(context).colorScheme.error,
                               ),
                               title: Text(
                                 tr(
@@ -564,10 +564,17 @@ class _HomeHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: AppTheme.ink,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF141E30), const Color(0xFF2B3D5C)]
+              : [const Color(0xFF1E293B), const Color(0xFF3F5E96)],
+        ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: AppTheme.softShadow,
       ),
@@ -580,13 +587,13 @@ class _HomeHero extends StatelessWidget {
               vertical: 6 * responsive.scale,
             ),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.12),
+              color: Colors.white.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               tr('ĐẶT PHÒNG NHANH', 'QUICK BOOKING'),
               style: TextStyle(
-                color: Colors.white70,
+                color: Colors.white,
                 fontSize: 11 * responsive.scale,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.4,
@@ -625,7 +632,7 @@ class _HomeHero extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.white70,
+              color: Colors.white.withValues(alpha: 0.85),
               fontSize: 14 * responsive.scale,
               height: 1.45,
               fontWeight: FontWeight.w600,
@@ -643,7 +650,8 @@ class _HomeHero extends StatelessWidget {
                   icon: const Icon(Icons.search_rounded),
                   label: Text(tr('Tìm phòng', 'Search stays')),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
                   ),
                 ),
               ),
@@ -654,7 +662,7 @@ class _HomeHero extends StatelessWidget {
                 icon: const Icon(Icons.favorite_rounded),
                 tooltip: tr('Khách sạn yêu thích', 'Favorite hotels'),
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.12),
+                  backgroundColor: Colors.white.withValues(alpha: 0.16),
                   foregroundColor: Colors.white,
                   minimumSize: Size(
                     52 * responsive.scale,

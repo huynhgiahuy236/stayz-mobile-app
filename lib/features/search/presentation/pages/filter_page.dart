@@ -77,8 +77,8 @@ class _FilterPageState extends State<FilterPage> {
           alignment: Alignment.bottomCenter,
           child: Container(
             constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.86),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Column(
@@ -235,12 +235,12 @@ class _Header extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: tr('Quay lại', 'Back'),
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           Expanded(
             child: Text(
               tr('Bộ lọc', 'Filters'),
-              style: const TextStyle(color: AppTheme.ink, fontSize: 18, fontWeight: FontWeight.w900),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w900),
             ),
           ),
           if (activeCount > 0)
@@ -269,7 +269,7 @@ class _SectionTitle extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: AppTheme.ink, fontSize: 14, fontWeight: FontWeight.w800),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.w800),
             ),
           ),
           if (trailing != null)
@@ -311,7 +311,7 @@ class _ChipRow extends StatelessWidget {
             selected: option.selected,
             label: option.label,
             child: Material(
-              color: option.selected ? AppTheme.ink : Colors.white,
+              color: option.selected ? Theme.of(context).colorScheme.onSurface : Colors.white,
               borderRadius: BorderRadius.circular(999),
               child: InkWell(
                 onTap: option.onTap,
@@ -321,7 +321,7 @@ class _ChipRow extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: option.selected ? AppTheme.ink : AppTheme.line),
+                    border: Border.all(color: option.selected ? Theme.of(context).colorScheme.onSurface : AppTheme.line),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -333,7 +333,7 @@ class _ChipRow extends StatelessWidget {
                       Text(
                         option.label,
                         style: TextStyle(
-                          color: option.selected ? Colors.white : AppTheme.ink,
+                          color: option.selected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -363,7 +363,7 @@ class _ToggleTile extends StatelessWidget {
       dense: true,
       title: Text(
         label,
-        style: const TextStyle(color: AppTheme.ink, fontSize: 14, fontWeight: FontWeight.w700),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.w700),
       ),
       value: value,
       onChanged: onChanged,

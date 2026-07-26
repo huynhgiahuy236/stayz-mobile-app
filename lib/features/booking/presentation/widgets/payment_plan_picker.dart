@@ -12,7 +12,7 @@ Future<PaymentPlan?> showPaymentPlanPicker(
   return showModalBottomSheet<PaymentPlan>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).cardColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -25,8 +25,8 @@ Future<PaymentPlan?> showPaymentPlanPicker(
           children: [
             Text(
               tr('Chọn số tiền muốn thanh toán', 'Choose how much to pay'),
-              style: const TextStyle(
-                color: AppTheme.ink,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 21,
                 fontWeight: FontWeight.w900,
               ),
@@ -37,7 +37,7 @@ Future<PaymentPlan?> showPaymentPlanPicker(
                 'Mã PayOS cũ sẽ được thay thế nếu bạn đổi phương án.',
                 'The previous PayOS code will be replaced if you change the option.',
               ),
-              style: const TextStyle(color: AppTheme.muted),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
             const SizedBox(height: 18),
             for (final plan in PaymentPlan.values) ...[
@@ -74,7 +74,7 @@ class _PaymentPlanChoice extends StatelessWidget {
     final quote = PaymentPolicy.quote(plan, totalAmount);
     final deposit = plan == PaymentPlan.deposit30;
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -82,7 +82,7 @@ class _PaymentPlanChoice extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: deposit ? AppTheme.depositBorder : AppTheme.success,
@@ -117,12 +117,12 @@ class _PaymentPlanChoice extends StatelessWidget {
                           'Còn ${StayzFormatters.fullVnd(quote.remaining)} trả tại khách sạn',
                           '${StayzFormatters.fullVnd(quote.remaining)} due at the property',
                         ),
-                        style: const TextStyle(color: AppTheme.muted),
+                        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                       )
                     else
                       Text(
                         tr('Đã áp dụng giảm 10%', '10% discount applied'),
-                        style: const TextStyle(color: AppTheme.muted),
+                        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                       ),
                   ],
                 ),

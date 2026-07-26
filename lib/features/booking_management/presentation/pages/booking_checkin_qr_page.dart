@@ -10,7 +10,7 @@ class BookingCheckInQrPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final code = ModalRoute.of(context)?.settings.arguments as String? ?? '';
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(tr('Mã QR nhận phòng', 'Check-in QR code'))),
       body: Center(
         child: SingleChildScrollView(
@@ -18,7 +18,7 @@ class BookingCheckInQrPage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(24),
               boxShadow: AppTheme.softShadow,
             ),
@@ -31,8 +31,8 @@ class BookingCheckInQrPage extends StatelessWidget {
                     'Show this code to the property or StayZ admin',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppTheme.muted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -40,13 +40,13 @@ class BookingCheckInQrPage extends StatelessWidget {
                 QrImageView(
                   data: 'STAYZ-CHECKIN:$code',
                   size: 250,
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).cardColor,
                 ),
                 const SizedBox(height: 20),
                 Text(
                   code,
-                  style: const TextStyle(
-                    color: AppTheme.ink,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 4,
@@ -59,7 +59,7 @@ class BookingCheckInQrPage extends StatelessWidget {
                     'Enter this code manually if the QR cannot be scanned.',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.muted),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
               ],
             ),

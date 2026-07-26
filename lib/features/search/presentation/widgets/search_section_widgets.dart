@@ -59,7 +59,7 @@ class SearchHotelCard extends StatelessWidget {
     final shownAmenities = amenities.take(4).toList();
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(AppTheme.cardRadius),
       // Cat moi thu ben trong theo bo goc: nen ve (CustomPaint) phia sau anh
       // truoc day loi goc vuong ra ngoai the.
@@ -117,7 +117,7 @@ class SearchHotelCard extends StatelessWidget {
                           child: Text(
                             badge!,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 10 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -142,7 +142,7 @@ class SearchHotelCard extends StatelessWidget {
                             child: Center(
                               child: CircleAvatar(
                                 radius: 18,
-                                backgroundColor: Colors.white.withValues(
+                                backgroundColor: Theme.of(context).cardColor.withValues(
                                   alpha: 0.92,
                                 ),
                                 child: Icon(
@@ -179,7 +179,7 @@ class SearchHotelCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 16 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -196,7 +196,7 @@ class SearchHotelCard extends StatelessWidget {
                           Text(
                             rating!.toStringAsFixed(1),
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 13 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -205,7 +205,7 @@ class SearchHotelCard extends StatelessWidget {
                           Text(
                             '($reviewCount)',
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 12 * responsive.scale,
                             ),
                           ),
@@ -218,7 +218,7 @@ class SearchHotelCard extends StatelessWidget {
                         Icon(
                           Icons.place_outlined,
                           size: 14 * responsive.scale,
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                         SizedBox(width: 3 * responsive.widthScale),
                         Expanded(
@@ -227,7 +227,7 @@ class SearchHotelCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 12.5 * responsive.scale,
                             ),
                           ),
@@ -247,7 +247,7 @@ class SearchHotelCard extends StatelessWidget {
                                 message: StayzTaxonomy.amenityTerm(slug).label,
                                 child: Icon(
                                   StayzTaxonomy.amenityTerm(slug).icon,
-                                  color: AppTheme.muted,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   size: 17 * responsive.scale,
                                 ),
                               ),
@@ -273,7 +273,7 @@ class SearchHotelCard extends StatelessWidget {
                                 TextSpan(
                                   text: tr(' / đêm', ' / night'),
                                   style: TextStyle(
-                                    color: AppTheme.muted,
+                                    color: Theme.of(context).colorScheme.secondary,
                                     fontSize: 12 * responsive.scale,
                                   ),
                                 ),
@@ -364,7 +364,7 @@ class SearchStateScaffold extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: showHeader
           ? const StayZBottomNav(activeTab: HomeTab.search)
           : null,
@@ -406,7 +406,7 @@ class SearchStateScaffold extends StatelessWidget {
                         title,
                         textAlign: TextAlign.center,
                         style: textTheme.headlineMedium?.copyWith(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 24 * responsive.scale,
                           fontWeight: FontWeight.w700,
                           height: 1.15,
@@ -417,7 +417,7 @@ class SearchStateScaffold extends StatelessWidget {
                         body,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 15 * responsive.scale,
                           height: 1.55,
                         ),
@@ -462,7 +462,7 @@ class SearchTopBar extends StatelessWidget {
         20 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(color: AppTheme.neutral200.withValues(alpha: 0.6)),
         ),
@@ -518,7 +518,7 @@ class PrimarySearchButton extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             fontSize: 18 * responsive.scale,
             fontWeight: FontWeight.w700,
           ),
@@ -552,7 +552,7 @@ class SecondarySearchButton extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18 * responsive.scale,
             fontWeight: FontWeight.w500,
           ),

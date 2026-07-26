@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/app/theme/app_theme_notifier.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
@@ -26,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _pickLanguage(BuildContext context) async {
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -39,12 +40,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
                 child: Row(
                   children: [
-                    const Icon(Icons.language_rounded, color: AppTheme.primary),
+                    Icon(Icons.language_rounded, color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 10),
                     Text(
                       tr('Chọn ngôn ngữ', 'Choose language'),
-                      style: const TextStyle(
-                        color: AppTheme.ink,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
@@ -175,20 +176,39 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       Text(
                         '${AppLocale.instance.flag} ${AppLocale.instance.label}',
-                        style: const TextStyle(
-                          color: AppTheme.muted,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(
+                      Icon(
                         Icons.chevron_right_rounded,
-                        color: AppTheme.muted,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ],
                   ),
                   onTap: () => _pickLanguage(context),
+                ),
+                const Divider(height: 1, indent: 72, endIndent: 20),
+                ListenableBuilder(
+                  listenable: AppThemeNotifier.instance,
+                  builder: (context, _) {
+                    final isDark = AppThemeNotifier.instance.isDark(context);
+                    return ProfileMenuTile(
+                      icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      iconColor: isDark ? const Color(0xFF7EB8E0) : AppTheme.gold,
+                      label: tr('Giao diện tối', 'Dark mode'),
+                      trailing: Switch.adaptive(
+                        value: isDark,
+                        activeThumbColor: Colors.white,
+                        activeTrackColor: Theme.of(context).colorScheme.primary,
+                        onChanged: (_) => AppThemeNotifier.instance.toggle(context),
+                      ),
+                      onTap: () => AppThemeNotifier.instance.toggle(context),
+                    );
+                  },
                 ),
                 const Divider(height: 1, indent: 72, endIndent: 20),
                 ProfileMenuTile(
@@ -248,14 +268,14 @@ class _LanguageOption extends StatelessWidget {
       ),
       title: Text(
         label,
-        style: const TextStyle(
-          color: AppTheme.ink,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 15,
           fontWeight: FontWeight.w700,
         ),
       ),
       trailing: selected
-          ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary)
+          ? Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.primary)
           : null,
       onTap: onTap,
     );
@@ -353,7 +373,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       builder: (sheetContext) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
@@ -361,17 +381,17 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.visibility_outlined,
-                  color: AppTheme.primaryDark,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(tr('Xem ảnh đại diện', 'View profile picture')),
                 onTap: () => Navigator.pop(sheetContext, 'view'),
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.photo_camera_outlined,
-                  color: AppTheme.primaryDark,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(tr('Sửa ảnh đại diện', 'Edit profile picture')),
                 onTap: () => Navigator.pop(sheetContext, 'edit'),
@@ -397,7 +417,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: ClipRRect(
@@ -408,12 +428,12 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                             .clamp(180.0, 280.0),
                         height: (MediaQuery.sizeOf(dialogContext).width - 80)
                             .clamp(180.0, 280.0),
-                        color: AppTheme.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         alignment: Alignment.center,
                         child: Text(
                           initials,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).cardColor,
                             fontSize: 72,
                             fontWeight: FontWeight.w900,
                           ),
@@ -456,10 +476,10 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
           );
         }
         if (snapshot.connectionState != ConnectionState.done) {
-          return const SizedBox(
+          return SizedBox(
             height: 160,
             child: Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             ),
           );
         }
@@ -486,7 +506,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
         return Container(
           padding: EdgeInsets.all(18 * widget.responsive.scale),
           decoration: BoxDecoration(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Row(
@@ -496,7 +516,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                 children: [
                   CircleAvatar(
                     radius: 38 * widget.responsive.scale,
-                    backgroundColor: AppTheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     backgroundImage: user.avatarUrl.isEmpty
                         ? null
                         : NetworkImage(user.avatarUrl),
@@ -504,7 +524,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                         ? Text(
                             initials,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 22 * widget.responsive.scale,
                               fontWeight: FontWeight.w900,
                             ),
@@ -523,16 +543,16 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => _openAvatarActions(user, initials),
-                        child: const SizedBox(
+                        child: SizedBox(
                           width: 44,
                           height: 44,
                           child: Center(
                             child: CircleAvatar(
                               radius: 16,
-                              backgroundColor: Colors.white,
+                              backgroundColor: Theme.of(context).cardColor,
                               child: Icon(
                                 Icons.edit_rounded,
-                                color: AppTheme.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 size: 16,
                               ),
                             ),
@@ -553,7 +573,7 @@ class _ProfileHeroRealState extends State<_ProfileHeroReal> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontSize: 21 * widget.responsive.scale,
                         fontWeight: FontWeight.w900,
                       ),
@@ -622,10 +642,10 @@ class _Stat extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: AppTheme.line),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: InkWell(
         onTap: onTap,
@@ -637,7 +657,7 @@ class _Stat extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: AppTheme.ink,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 20 * responsive.scale,
                   fontWeight: FontWeight.w900,
                 ),
@@ -648,7 +668,7 @@ class _Stat extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: AppTheme.muted,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 12 * responsive.scale,
                   fontWeight: FontWeight.w700,
                 ),

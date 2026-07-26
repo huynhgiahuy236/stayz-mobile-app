@@ -17,43 +17,22 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
   final PageController _controller = PageController();
   int _currentPage = 0;
 
-  static const _gardenPalette = OnboardingPalette(
-    background: AppTheme.surface,
-    sheet: Colors.white,
-    primary: AppTheme.primary,
-    primaryDark: AppTheme.primaryDark,
-    ink: AppTheme.ink,
-    muted: AppTheme.muted,
-    border: AppTheme.border,
-    inactive: AppTheme.line,
-    onPrimary: Colors.white,
-  );
+  OnboardingPalette _getPalette(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return OnboardingPalette(
+      background: isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface,
+      sheet: isDark ? Theme.of(context).cardColor : Colors.white,
+      primary: AppTheme.primary,
+      primaryDark: isDark ? AppTheme.accent : AppTheme.primaryDark,
+      ink: isDark ? AppTheme.inkDark : Theme.of(context).colorScheme.onSurface,
+      muted: isDark ? AppTheme.mutedDark : Theme.of(context).colorScheme.secondary,
+      border: isDark ? AppTheme.borderDark : AppTheme.border,
+      inactive: isDark ? AppTheme.borderDark : AppTheme.line,
+      onPrimary: Colors.white,
+    );
+  }
 
-  static const _mistPalette = OnboardingPalette(
-    background: AppTheme.surface,
-    sheet: Colors.white,
-    primary: AppTheme.primary,
-    primaryDark: AppTheme.primaryDark,
-    ink: AppTheme.ink,
-    muted: AppTheme.muted,
-    border: AppTheme.border,
-    inactive: AppTheme.line,
-    onPrimary: Colors.white,
-  );
-
-  static const _clayPalette = OnboardingPalette(
-    background: AppTheme.surface,
-    sheet: Colors.white,
-    primary: AppTheme.primary,
-    primaryDark: AppTheme.primaryDark,
-    ink: AppTheme.ink,
-    muted: AppTheme.muted,
-    border: AppTheme.border,
-    inactive: AppTheme.line,
-    onPrimary: Colors.white,
-  );
-
-  List<OnboardingSlideData> get _slides => [
+  List<OnboardingSlideData> _getSlides(OnboardingPalette palette) => [
     OnboardingSlideData(
       step: '01 / 03',
       title: tr(
@@ -64,10 +43,10 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
         'Từ boutique hotel ẩn mình trong phố cổ đến resort sang trọng ven biển.',
         'From hidden boutique hotels in old towns to luxurious beach resorts.',
       ),
-      imageAsset: 'assets/images/onboarding_pullman_vung_tau.jpg',
+      imageAsset: 'assets/images/luxury_ocean_resort.jpg',
       imageAspectRatio: 570 / 623,
       imageMode: OnboardingImageMode.card,
-      palette: _gardenPalette,
+      palette: palette,
       primaryLabel: tr('Tiếp theo', 'Next'),
     ),
     OnboardingSlideData(
@@ -80,10 +59,10 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
         'Lọc theo giá, vị trí, tiện nghi. Đặt phòng trong vài giây.',
         'Filter by price, location and amenities. Book in seconds.',
       ),
-      imageAsset: 'assets/images/onboarding_hotel_colline_dalat.jpg',
+      imageAsset: 'assets/images/modern_penthouse_suite.jpg',
       imageAspectRatio: 706 / 731,
       imageMode: OnboardingImageMode.card,
-      palette: _mistPalette,
+      palette: palette,
       primaryLabel: tr('Tiếp theo', 'Next'),
     ),
     OnboardingSlideData(
@@ -96,10 +75,10 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
         'Đánh giá thực từ khách hàng. Không bất ngờ khi check-in.',
         'Real guest reviews with no surprises at check-in.',
       ),
-      imageAsset: 'assets/images/onboarding_ana_mandara_dalat.jpg',
+      imageAsset: 'assets/images/tropical_beach_villa.jpg',
       imageAspectRatio: 648 / 580,
       imageMode: OnboardingImageMode.card,
-      palette: _clayPalette,
+      palette: palette,
       primaryLabel: tr('Bắt đầu', 'Get started'),
       showLoginPrompt: true,
     ),
@@ -119,31 +98,36 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
   }
 
   void _goNext() {
-    if (_currentPage == _slides.length - 1) {
+    final palette = _getPalette(context);
+    final slides = _getSlides(palette);
+    if (_currentPage == slides.length - 1) {
       _finishOnboarding();
       return;
     }
 
     _controller.nextPage(
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOutCubic,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final palette = _getPalette(context);
+    final slides = _getSlides(palette);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: palette.background,
       body: PageView.builder(
         controller: _controller,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: _slides.length,
+        physics: const BouncingScrollPhysics(),
+        itemCount: slides.length,
         onPageChanged: (page) => setState(() => _currentPage = page),
         itemBuilder: (context, index) {
           return OnboardingSlide(
-            data: _slides[index],
+            data: slides[index],
             pageIndex: index,
-            pageCount: _slides.length,
+            pageCount: slides.length,
             onNext: _goNext,
           );
         },
@@ -151,3 +135,4 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
     );
   }
 }
+

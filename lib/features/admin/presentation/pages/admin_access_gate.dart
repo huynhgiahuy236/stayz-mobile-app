@@ -1,4 +1,3 @@
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/services/auth_service.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +19,14 @@ class _AdminAccessGateState extends State<AdminAccessGate> {
     future: _access,
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
-        return const Scaffold(
-          backgroundColor: AppTheme.surface,
-          body: Center(child: CircularProgressIndicator()),
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: const Center(child: CircularProgressIndicator()),
         );
       }
       if (snapshot.data == true) return widget.builder(context);
       return Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(tr('Không có quyền', 'Access denied'))),
         body: Center(
           child: Padding(

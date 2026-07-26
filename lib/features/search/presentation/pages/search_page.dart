@@ -10,6 +10,7 @@ import 'package:capstone_mobile/shared/models/booking_flow_models.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
 import 'package:capstone_mobile/shared/repositories/stayz_repository.dart';
 import 'package:capstone_mobile/shared/widgets/stayz_state_views.dart';
+import 'package:capstone_mobile/shared/widgets/stayz_shimmer.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 
@@ -295,7 +296,7 @@ class _SearchPageState extends State<SearchPage> {
     final activeCount = _filters.activeCount;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: const StayZBottomNav(activeTab: HomeTab.search),
       body: SafeArea(
         bottom: false,
@@ -329,8 +330,11 @@ class _SearchPageState extends State<SearchPage> {
                 future: _hotelsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: responsive.horizontalPadding,
+                      ),
+                      child: const HotelListSkeleton(count: 3),
                     );
                   }
 
@@ -522,7 +526,7 @@ class _SuggestionPanel extends StatelessWidget {
       ),
       constraints: BoxConstraints(maxHeight: 220 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.neutral200),
         boxShadow: AppTheme.softShadow,
@@ -537,13 +541,13 @@ class _SuggestionPanel extends StatelessWidget {
           final suggestion = suggestions[index];
           return ListTile(
             dense: true,
-            leading: Icon(suggestion.icon, color: AppTheme.primary),
+            leading: Icon(suggestion.icon, color: Theme.of(context).colorScheme.primary),
             title: Text(
               suggestion.label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppTheme.ink,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -601,7 +605,7 @@ class _SearchBar extends StatelessWidget {
             ),
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: tr('Quay lại', 'Back'),
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           Expanded(
             child: Container(
@@ -611,7 +615,7 @@ class _SearchBar extends StatelessWidget {
                 vertical: 10 * responsive.scale,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: AppTheme.softShadow,
               ),
@@ -629,7 +633,7 @@ class _SearchBar extends StatelessWidget {
                     icon: Icon(
                       Icons.search_rounded,
                       size: 24 * responsive.scale,
-                      color: AppTheme.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   SizedBox(width: 6 * responsive.widthScale),
@@ -642,13 +646,13 @@ class _SearchBar extends StatelessWidget {
                       textInputAction: TextInputAction.search,
                       style: TextStyle(
                         fontSize: 15 * responsive.scale,
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w700,
                       ),
                       decoration: InputDecoration(
                         hintText: tr('Bạn muốn đi đâu?', 'Where to?'),
                         hintStyle: TextStyle(
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 15 * responsive.scale,
                           fontWeight: FontWeight.w700,
                         ),
@@ -674,10 +678,10 @@ class _SearchBar extends StatelessWidget {
                           padding: EdgeInsets.only(
                             right: 6 * responsive.widthScale,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close_rounded,
                             size: 18,
-                            color: AppTheme.muted,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       );
@@ -698,17 +702,17 @@ class _SearchBar extends StatelessWidget {
                       child: Badge(
                         isLabelVisible: activeFilterCount > 0,
                         label: Text('$activeFilterCount'),
-                        backgroundColor: AppTheme.primary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         child: Container(
                           width: 40 * responsive.scale,
                           height: 40 * responsive.scale,
                           decoration: BoxDecoration(
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Icon(
                             Icons.tune_rounded,
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             size: 19 * responsive.scale,
                           ),
                         ),
@@ -851,8 +855,8 @@ class _ResultCount extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4, top: 6),
       child: Text(
         tr('Tìm thấy $count khách sạn', 'Found $count hotels'),
-        style: const TextStyle(
-          color: AppTheme.muted,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
           fontSize: 13,
           fontWeight: FontWeight.w700,
         ),

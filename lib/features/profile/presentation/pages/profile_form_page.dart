@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -30,7 +29,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: null,
       body: SafeArea(
         child: Column(
@@ -43,8 +42,8 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                 future: _profile,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    return Center(
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                     );
                   }
                   if (snapshot.hasError)
@@ -69,7 +68,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                       SizedBox(height: 28 * responsive.scale),
                       CircleAvatar(
                         radius: 58 * responsive.scale,
-                        backgroundColor: AppTheme.neutral200,
+                        backgroundColor: Theme.of(context).colorScheme.outlineVariant,
                         backgroundImage: user.avatarUrl.isNotEmpty
                             ? NetworkImage(user.avatarUrl)
                             : null,
@@ -77,7 +76,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                             ? Icon(
                                 Icons.person,
                                 size: 58 * responsive.scale,
-                                color: AppTheme.accentDark,
+                                color: Theme.of(context).colorScheme.primary,
                               )
                             : null,
                       ),

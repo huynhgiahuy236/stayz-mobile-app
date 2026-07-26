@@ -790,8 +790,10 @@ class ApiStayzRepository implements StayzRepository {
   }
 
   Hotel _hotelFromApi(Map<String, dynamic> json) {
+    final name = _string(json['title'], fallback: 'StayZ Hotel');
+    final nameLower = name.toLowerCase();
     final gallery = json['gallery_images'];
-    final images = <String>[
+    final rawImages = <String>[
       if (_imageUrl(json['main_image_url']).isNotEmpty)
         _imageUrl(json['main_image_url']),
       if (gallery is List)
@@ -801,10 +803,71 @@ class ApiStayzRepository implements StayzRepository {
             .where((url) => url.isNotEmpty),
     ];
 
+    final slug = _string(json['slug']);
+    String? curated;
+    if (slug == 'four-points-by-sheraton-danang' || nameLower.contains('four points')) {
+      curated = 'assets/images/hotels/four_points_sheraton_danang.jpg';
+    } else if (slug == 'risemount-apartment-danang' || nameLower.contains('risemount')) {
+      curated = 'assets/images/hotels/risemount_apartment_danang.jpg';
+    } else if (slug == 'hotel-colline-dalat' || nameLower.contains('colline')) {
+      curated = 'assets/images/hotels/hotel_colline_dalat.jpg';
+    } else if (slug == 'hotel-continental-saigon' || nameLower.contains('continental')) {
+      curated = 'assets/images/hotels/hotel_continental_saigon.jpg';
+    } else if (slug == 'the-reverie-saigon' || nameLower.contains('reverie')) {
+      curated = 'assets/images/hotels/the_reverie_saigon.jpg';
+    } else if (slug == 'sofitel-legend-metropole-hanoi' || nameLower.contains('metropole')) {
+      curated = 'assets/images/hotels/sofitel_metropole_hanoi.jpg';
+    } else if (slug == 'hanoi-lake-side-hostel' || nameLower.contains('lake side') || nameLower.contains('lakeside')) {
+      curated = 'assets/images/hotels/hanoi_lakeside_hostel.jpg';
+    } else if (slug == 'grand-tourane-hotel-danang' || nameLower.contains('grand tourane')) {
+      curated = 'assets/images/hotels/grand_tourane_danang.jpg';
+    } else if (slug == 'ana-mandara-villa-dalat-resort' || nameLower.contains('ana mandara')) {
+      curated = 'assets/images/hotels/ana_mandara_dalat.jpg';
+    } else if (slug == 'hotel-de-lopera-hanoi-mgallery' || nameLower.contains('opera')) {
+      curated = 'assets/images/hotels/hotel_de_lopera_hanoi.jpg';
+    } else if (slug == 'furama-resort-danang' || nameLower.contains('furama')) {
+      curated = 'assets/images/hotels/furama_resort_danang.jpg';
+    } else if (slug == 'novotel-danang-premier-han-river' || nameLower.contains('novotel')) {
+      curated = 'assets/images/hotels/novotel_danang.jpg';
+    } else if (slug == 'intercontinental-danang-sun-peninsula-resort' || nameLower.contains('intercontinental')) {
+      curated = 'assets/images/hotels/intercontinental_danang.jpg';
+    } else if (slug == 'pullman-vung-tau' || nameLower.contains('pullman')) {
+      curated = 'assets/images/hotels/pullman_vung_tau.jpg';
+    } else if (slug == 'muong-thanh-luxury-danang' || nameLower.contains('mường thanh') || nameLower.contains('muong thanh')) {
+      curated = 'assets/images/hotels/muong_thanh_danang.jpg';
+    } else if (slug == 'dalat-palace-heritage-hotel' || nameLower.contains('dalat palace')) {
+      curated = 'assets/images/hotels/dalat_palace.jpg';
+    } else if (slug == 'park-hyatt-saigon' || nameLower.contains('park hyatt')) {
+      curated = 'assets/images/hotels/park_hyatt_saigon.jpg';
+    } else if (slug == 'the-imperial-hotel-vung-tau' || nameLower.contains('imperial')) {
+      curated = 'assets/images/hotels/imperial_vung_tau.jpg';
+    }
+
+    const fallbacks = [
+      'assets/images/hotels/four_points_sheraton_danang.jpg',
+      'assets/images/hotels/hotel_colline_dalat.jpg',
+      'assets/images/hotels/the_reverie_saigon.jpg',
+      'assets/images/hotels/sofitel_metropole_hanoi.jpg',
+      'assets/images/hotels/ana_mandara_dalat.jpg',
+      'assets/images/hotels/furama_resort_danang.jpg',
+      'assets/images/hotels/novotel_danang.jpg',
+      'assets/images/hotels/pullman_vung_tau.jpg',
+    ];
+
+    if (curated == null) {
+      final index = (nameLower.hashCode.abs()) % fallbacks.length;
+      curated = fallbacks[index];
+    }
+
+    final images = <String>[
+      curated,
+      ...rawImages,
+    ];
+
     return Hotel(
       id: _id(json),
       cityId: _string(json['city'], fallback: 'da-lat'),
-      name: _string(json['title'], fallback: 'StayZ Hotel'),
+      name: name,
       description: _string(json['description'], fallback: 'Khach san StayZ'),
       descriptionEn: _string(json['description_en']),
       address: _string(json['address']),

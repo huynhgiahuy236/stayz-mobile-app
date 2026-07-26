@@ -85,7 +85,7 @@ class _ReviewPageState extends State<ReviewPage> {
     final canReview = summary?.booking.isCompleted == true;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -106,7 +106,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   Container(
                     padding: EdgeInsets.all(18 * responsive.scale),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppTheme.neutral200),
                     ),
@@ -132,7 +132,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                   )
                                 : '${summary.hotel.name}\n${summary.city.name}, ${summary.city.region}',
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 21 * responsive.scale,
                               height: 1.45,
                             ),
@@ -161,7 +161,7 @@ class _ReviewPageState extends State<ReviewPage> {
                       'HOW WAS YOUR EXPERIENCE?',
                     ),
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18 * responsive.scale,
                       letterSpacing: 4,
                     ),
@@ -189,7 +189,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   Text(
                     tr('VIẾT NHẬN XÉT CỦA BẠN', 'WRITE YOUR REVIEW'),
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18 * responsive.scale,
                       letterSpacing: 2,
                     ),
@@ -238,7 +238,7 @@ class _ReviewPageState extends State<ReviewPage> {
                             ? tr('Đang gửi...', 'Submitting...')
                             : tr('Gửi đánh giá', 'Submit review'),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           fontSize: 20 * responsive.scale,
                         ),
                       ),

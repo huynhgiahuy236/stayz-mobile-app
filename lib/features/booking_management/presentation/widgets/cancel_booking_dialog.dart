@@ -48,8 +48,8 @@ Future<bool> confirmCancelBooking(
               'Bạn sắp hủy đơn tại ${summary.hotel.name}.',
               'You are about to cancel your booking at ${summary.hotel.name}.',
             ),
-            style: const TextStyle(
-              color: AppTheme.ink,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 14.5,
               height: 1.5,
             ),
@@ -75,8 +75,8 @@ Future<bool> confirmCancelBooking(
                                 'Estimated refund ($rate%)',
                               )
                             : tr('Không hoàn tiền', 'Non-refundable'),
-                        style: const TextStyle(
-                          color: AppTheme.ink,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -98,8 +98,8 @@ Future<bool> confirmCancelBooking(
                     'Thao tác này không thể hoàn tác. Nếu có khoản hoàn, yêu cầu sẽ được xử lý thủ công.',
                     'This action cannot be undone. Any refund request will be processed manually.',
                   ),
-                  style: const TextStyle(
-                    color: AppTheme.muted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 12,
                     height: 1.4,
                   ),

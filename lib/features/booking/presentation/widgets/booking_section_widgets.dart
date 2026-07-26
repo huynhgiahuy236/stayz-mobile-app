@@ -59,7 +59,7 @@ class BookingTopBar extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 18 * responsive.scale,
                 fontWeight: FontWeight.w700,
               ),
@@ -109,14 +109,14 @@ class BookingPrimaryButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 fontSize: 16 * responsive.scale,
                 fontWeight: FontWeight.w800,
               ),
             ),
             if (icon != null) ...[
               SizedBox(width: 12 * responsive.widthScale),
-              Icon(icon, color: Colors.white, size: 22 * responsive.scale),
+              Icon(icon, color: Theme.of(context).cardColor, size: 22 * responsive.scale),
             ],
           ],
         ),
@@ -161,7 +161,7 @@ class RoomOptionCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         border: Border.all(color: AppTheme.neutral200),
         boxShadow: AppTheme.softShadow,
@@ -188,7 +188,7 @@ class RoomOptionCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 17 * responsive.scale,
                           fontWeight: FontWeight.w700,
                         ),
@@ -206,7 +206,7 @@ class RoomOptionCard extends StatelessWidget {
                       child: Text(
                         badge,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           fontSize: 11 * responsive.scale,
                           fontWeight: FontWeight.w700,
                         ),
@@ -305,7 +305,7 @@ class RoomOptionCard extends StatelessWidget {
                                 ? tr('Đặt ngay', 'Book now')
                                 : tr('Hết phòng', 'Sold out'),
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 15 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -412,7 +412,7 @@ class _RoomMeta extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: AppTheme.muted,
+          color: Theme.of(context).colorScheme.secondary,
           fontSize: 11 * responsive.scale,
           fontWeight: FontWeight.w600,
         ),
@@ -455,7 +455,7 @@ class CheckoutField extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 18 * responsive.widthScale),
           alignment: large ? Alignment.topLeft : Alignment.centerLeft,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppTheme.neutral200),
           ),
@@ -466,7 +466,7 @@ class CheckoutField extends StatelessWidget {
               maxLines: large ? 3 : 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: large ? const Color(0xFF697386) : AppTheme.ink,
+                color: large ? const Color(0xFF697386) : Theme.of(context).colorScheme.onSurface,
                 fontSize: 16 * responsive.scale,
                 height: 1.45,
               ),
@@ -498,7 +498,7 @@ class PaymentMethodTile extends StatelessWidget {
       height: 62 * responsive.scale,
       padding: EdgeInsets.symmetric(horizontal: 18 * responsive.widthScale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: active ? AppTheme.accentDark : AppTheme.neutral200,
@@ -512,7 +512,7 @@ class PaymentMethodTile extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 15 * responsive.scale,
                 fontWeight: FontWeight.w600,
               ),
@@ -551,7 +551,7 @@ class PriceLine extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: (total ? 16 : 14) * responsive.scale,
               fontWeight: total ? FontWeight.w700 : FontWeight.w400,
             ),
@@ -560,7 +560,7 @@ class PriceLine extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: total ? AppTheme.accentDark : AppTheme.ink,
+            color: total ? AppTheme.accentDark : Theme.of(context).colorScheme.onSurface,
             fontSize: (total ? 20 : 13) * responsive.scale,
             fontWeight: total ? FontWeight.w800 : FontWeight.w700,
             letterSpacing: total ? 1 : 0,

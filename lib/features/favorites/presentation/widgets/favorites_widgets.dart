@@ -40,7 +40,7 @@ class FavoriteHotelCard extends StatelessWidget {
     final imageHeight = imageWidth / AppTheme.cardImageAspectRatio;
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(AppTheme.cardRadius),
       child: InkWell(
         onTap: onTap,
@@ -85,7 +85,7 @@ class FavoriteHotelCard extends StatelessWidget {
                               child: Center(
                                 child: CircleAvatar(
                                   radius: 18 * responsive.scale,
-                                  backgroundColor: Colors.white.withValues(
+                                  backgroundColor: Theme.of(context).cardColor.withValues(
                                     alpha: 0.92,
                                   ),
                                   child: Icon(
@@ -121,7 +121,7 @@ class FavoriteHotelCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 17 * responsive.scale,
                               fontWeight: FontWeight.w900,
                             ),
@@ -137,7 +137,7 @@ class FavoriteHotelCard extends StatelessWidget {
                           Text(
                             rating!,
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 13 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -150,7 +150,7 @@ class FavoriteHotelCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.location_on_outlined,
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                           size: 16 * responsive.scale,
                         ),
                         SizedBox(width: 5 * responsive.widthScale),
@@ -160,7 +160,7 @@ class FavoriteHotelCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 13 * responsive.scale,
                               fontWeight: FontWeight.w600,
                             ),
@@ -183,7 +183,7 @@ class FavoriteHotelCard extends StatelessWidget {
                           TextSpan(
                   text: tr(' / đêm', ' / night'),
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 12 * responsive.scale,
                               fontWeight: FontWeight.w700,
                             ),

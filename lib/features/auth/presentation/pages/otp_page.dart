@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:capstone_mobile/features/auth/presentation/widgets/auth_widgets.dart';
 import 'package:capstone_mobile/services/api_service.dart';
@@ -238,7 +237,7 @@ class _OtpPageState extends State<OtpPage> {
                             'Resend code in $_secondsLeft seconds',
                           ),
                           style: TextStyle(
-                            color: AppTheme.muted,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 14 * responsive.scale,
                           ),
                         )
@@ -298,10 +297,10 @@ class _OtpBox extends StatelessWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           maxLength: 1,
           onChanged: onChanged,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           decoration: InputDecoration(
             counterText: '',
@@ -310,11 +309,11 @@ class _OtpBox extends StatelessWidget {
             fillColor: Colors.white,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.line),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.primary, width: 1.6),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.6),
             ),
           ),
         ),

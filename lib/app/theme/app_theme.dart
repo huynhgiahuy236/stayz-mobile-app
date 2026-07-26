@@ -1,211 +1,185 @@
+import 'package:capstone_mobile/app/theme/light_theme.dart';
+import 'package:capstone_mobile/app/theme/dark_theme.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
   const AppTheme._();
 
+  // ─────────────────────────────────────────────────────────────────
+  // LAYOUT TOKENS
+  // ─────────────────────────────────────────────────────────────────
+
   /// Ti le khung anh dung chung cho MOI the khach san (rong : cao = 16 : 10).
-  /// Dung AspectRatio thay cho chieu cao cung de anh khong bi cat cut thanh
-  /// dai mong o the rong het man hinh — nguon goc cua hien tuong "bi be".
   static const double cardImageAspectRatio = 16 / 10;
 
-  static const cream = Color(0xFFEAF7FF);
-  static const surface = Color(0xFFF7FBFF);
-  static const ink = Color(0xFF102A43);
-  static const brand = Color(0xFF1D8BD1);
-  static const primary = Color(0xFF0A73B8);
-  static const primaryDark = Color(0xFF0A4E83);
-  static const primarySoft = Color(0xFFDDEEFF);
+  /// Duy nhất 1 giá trị borderRadius cho tất cả button trong app.
+  static const double buttonRadius = 16.0;
+
+  /// Duy nhất 1 giá trị borderRadius cho tất cả text field.
+  static const double inputRadius = 16.0;
+
+  /// Card corners.
+  static const double cardRadius = 20.0;
+
+  /// Control (chip, badge, pill) corners.
+  static const double controlRadius = 16.0;
+
+  /// Dialog / Bottom sheet.
+  static const double dialogRadius = 24.0;
+  static const double sheetRadius = 28.0;
+
+  /// Khoảng cách chuẩn giữa các section dọc.
+  static const double sectionSpacing = 28.0;
+
+  /// Chiều cao chuẩn cho page-level action button.
+  static const double pageActionHeight = 54.0;
+
+  /// Chiều cao chuẩn cho card-level action button.
+  static const double cardActionHeight = 48.0;
+
+  // ─────────────────────────────────────────────────────────────────
+  // LIGHT PALETTE
+  // ─────────────────────────────────────────────────────────────────
+
+  static const cream = Color(0xFFF0F0FF);
+  static const surface = Color(0xFFFAF9FF);
+  static const ink = Color(0xFF101010);
+  static const brand = Color(0xFF4C4DDC);
+  static const primary = Color(0xFF4C4DDC);
+  static const primaryDark = Color(0xFF3334B8);
+  static const primarySoft = Color(0xFFE4E4FA);
   static const accent = brand;
   static const accentDark = primaryDark;
-  static const teal = Color(0xFF2378C9);
-  static const gold = Color(0xFFE9A92F);
-  static const line = Color(0xFFC6E4F7);
-  static const border = Color(0xFFA9CCE3);
-  static const muted = Color(0xFF4B6B83);
+  static const teal = Color(0xFF00BFA5);
+  static const gold = Color(0xFFE5C158);
+  static const line = Color(0xFFE1E1E1);
+  static const border = Color(0xFFC8C8F4);
+  static const muted = Color(0xFF6E6FA6);
   static const neutral200 = line;
   static const neutral500 = muted;
-  static const neutral800 = Color(0xFF12314D);
-  static const success = Color(0xFF17875A);
-  static const successSoft = Color(0xFFE7F6EE);
-  static const warning = Color(0xFFB45309);
+  static const neutral800 = Color(0xFF1A1A24);
+  static const success = Color(0xFF2E7D32);
+  static const successSoft = Color(0xFFE8F5E9);
+  static const warning = Color(0xFFEF6C00);
   static const warningSoft = Color(0xFFFFF3E0);
-  static const danger = Color(0xFFB93832);
-  static const dangerSoft = Color(0xFFFDECEB);
-  static const refund = Color(0xFF6741A5);
-  static const refundSoft = Color(0xFFF1EBFA);
-  static const notificationPendingBorder = Color(0xFFF0B84B);
-  static const notificationPendingText = Color(0xFF9A6500);
-  static const notificationSuccessBorder = Color(0xFF61C996);
-  static const notificationSuccessText = Color(0xFF147A4C);
-  static const notificationDangerBorder = Color(0xFFE46B62);
-  static const notificationDangerText = Color(0xFFB93832);
+  static const danger = Color(0xFFC62828);
+  static const dangerSoft = Color(0xFFFFEBEE);
+  static const refund = Color(0xFF6A1B9A);
+  static const refundSoft = Color(0xFFF3E5F5);
+
+  // Notification semantic colors
+  static const notificationPendingBorder = Color(0xFFFFB74D);
+  static const notificationPendingText = Color(0xFFE65100);
+  static const notificationSuccessBorder = Color(0xFF81C784);
+  static const notificationSuccessText = Color(0xFF1B5E20);
+  static const notificationDangerBorder = Color(0xFFE57373);
+  static const notificationDangerText = Color(0xFFB71C1C);
   static const notificationInfoBorder = Colors.white;
-  static const notificationConfirmedBorder = Color(0xFF64B5E8);
-  static const notificationConfirmedText = Color(0xFF0A5E96);
-  static const notificationOfferBorder = Color(0xFFB79AE8);
-  static const notificationOfferText = Color(0xFF6741A5);
-  static const depositBorder = Color(0xFFF29B38);
+  static const notificationConfirmedBorder = Color(0xFF64B5F6);
+  static const notificationConfirmedText = Color(0xFF0D47A1);
+  static const notificationOfferBorder = Color(0xFFBA68C8);
+  static const notificationOfferText = Color(0xFF4A148C);
+  static const depositBorder = Color(0xFFFFB74D);
   static const depositText = warning;
-  static const double cardRadius = 18;
-  static const double controlRadius = 16;
-  static const double dialogRadius = 20;
-  static const double pageActionHeight = 52;
-  static const double cardActionHeight = 48;
+
+  // ─────────────────────────────────────────────────────────────────
+  // LUMINOUS ROYAL NAVY DARK PALETTE
+  // ─────────────────────────────────────────────────────────────────
+
+  /// Nền scaffold trong dark mode (Midnight Slate Navy).
+  static const surfaceDark = Color(0xFF0F172A);
+
+  /// Nền card/sheet trong dark mode (Luminous Navy Card).
+  static const cardDark = Color(0xFF243048);
+
+  /// Nền elevated surface (dialog, bottom sheet) dark.
+  static const elevatedDark = Color(0xFF1E293B);
+
+  /// Text chính trong dark mode (Pure Crisp White).
+  static const inkDark = Color(0xFFFFFFFF);
+
+  /// Text phụ trong dark mode (Bright Slate-Silver).
+  static const mutedDark = Color(0xFFCBD5E1);
+
+  /// Border trong dark mode.
+  static const borderDark = Color(0xFF334155);
+
+  /// Line / divider trong dark mode.
+  static const lineDark = Color(0xFF334155);
+
+  /// Primary soft trong dark mode.
+  static const primarySoftDark = Color(0xFF312E81);
+
+  // ─────────────────────────────────────────────────────────────────
+  // SHIMMER COLORS
+  // ─────────────────────────────────────────────────────────────────
+
+  static const shimmerBase = Color(0xFFEAEAF5);
+  static const shimmerHighlight = Color(0xFFF4F4FA);
+  static const shimmerBaseDark = Color(0xFF1E293B);
+  static const shimmerHighlightDark = Color(0xFF334155);
+
+  // ─────────────────────────────────────────────────────────────────
+  // GRADIENT TOKENS
+  // ─────────────────────────────────────────────────────────────────
+
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [primary, Color(0xFF6A6BEB)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  static const LinearGradient heroGradient = LinearGradient(
+    colors: [Colors.transparent, Color(0xCC0F172A)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient darkHeroGradient = LinearGradient(
+    colors: [Color(0x000F172A), Color(0xE60F172A)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  // ─────────────────────────────────────────────────────────────────
+  // SHADOWS
+  // ─────────────────────────────────────────────────────────────────
 
   static List<BoxShadow> get softShadow => [
     BoxShadow(
-      color: ink.withValues(alpha: 0.07),
+      color: ink.withValues(alpha: 0.03),
       blurRadius: 24,
       offset: const Offset(0, 12),
     ),
   ];
 
-  static ThemeData get light {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: accent,
-      primary: accent,
-      secondary: neutral800,
-      surface: surface,
-    );
+  static List<BoxShadow> get cardShadow => [
+    BoxShadow(
+      color: ink.withValues(alpha: 0.05),
+      blurRadius: 32,
+      offset: const Offset(0, 16),
+    ),
+  ];
 
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: surface,
-      materialTapTargetSize: MaterialTapTargetSize.padded,
-      visualDensity: VisualDensity.standard,
-      focusColor: primarySoft,
-      hoverColor: primarySoft.withValues(alpha: 0.55),
-      splashFactory: InkSparkle.splashFactory,
-      appBarTheme: const AppBarTheme(
-        centerTitle: false,
-        backgroundColor: surface,
-        foregroundColor: ink,
-        surfaceTintColor: Colors.transparent,
-      ),
-      dividerTheme: const DividerThemeData(color: line, thickness: 1),
-      iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(
-          minimumSize: const Size(48, 48),
-          tapTargetSize: MaterialTapTargetSize.padded,
-        ),
-      ),
-      tooltipTheme: TooltipThemeData(
-        waitDuration: const Duration(milliseconds: 500),
-        showDuration: const Duration(seconds: 4),
-        textStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-        decoration: BoxDecoration(
-          color: ink,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primaryDark,
-          side: const BorderSide(color: border),
-          minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: primary,
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: primary, width: 1.5),
-        ),
-      ),
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 48,
-          height: 1.1,
-          color: ink,
-          fontWeight: FontWeight.w300,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 34,
-          height: 1.15,
-          color: ink,
-          fontWeight: FontWeight.w300,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 22,
-          height: 1.25,
-          color: ink,
-          fontWeight: FontWeight.w500,
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 18,
-          height: 1.45,
-          color: neutral500,
-          fontWeight: FontWeight.w400,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          height: 1.6,
-          color: neutral500,
-          fontWeight: FontWeight.w400,
-        ),
-        labelLarge: TextStyle(
-          fontSize: 18,
-          color: cream,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+  static List<BoxShadow> get darkSoftShadow => [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.45),
+      blurRadius: 24,
+      offset: const Offset(0, 12),
+    ),
+  ];
 
-  static ThemeData get highContrast {
-    final base = light;
-    return base.copyWith(
-      colorScheme: base.colorScheme.copyWith(
-        primary: primaryDark,
-        onPrimary: Colors.white,
-        surface: Colors.white,
-        onSurface: const Color(0xFF061725),
-        error: const Color(0xFFB3261E),
-      ),
-      scaffoldBackgroundColor: Colors.white,
-      dividerTheme: const DividerThemeData(
-        color: Color(0xFF56758D),
-        thickness: 1.5,
-      ),
-    );
-  }
+  // ─────────────────────────────────────────────────────────────────
+  // THEME EXPORTS
+  // ─────────────────────────────────────────────────────────────────
+
+  static ThemeData get light => lightTheme;
+
+  static ThemeData get dark => darkTheme;
+
+  static ThemeData get highContrast => lightTheme.copyWith(
+        colorScheme: lightTheme.colorScheme.copyWith(
+          error: const Color(0xFFB3261E),
+        ),
+      );
 }

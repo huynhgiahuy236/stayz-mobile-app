@@ -119,8 +119,8 @@ BookingStatusPresentation bookingStatusPresentation(Booking booking) {
   }
   return BookingStatusPresentation(
     label: tr('Đã xác nhận – Chờ nhận phòng', 'Confirmed – Awaiting check-in'),
-    background: Colors.white,
-    foreground: AppTheme.ink,
+    background: AppTheme.primarySoft,
+    foreground: AppTheme.primary,
     description: tr(
       'Đặt phòng đã xác nhận và đang chờ ngày nhận phòng.',
       'The booking is confirmed and awaiting check-in.',

@@ -1,5 +1,6 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
 import 'package:capstone_mobile/app/theme/app_theme.dart';
+import 'package:capstone_mobile/app/theme/app_theme_notifier.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,14 +10,19 @@ class StayZApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Doi ngon ngu -> AppLocale notifyListeners -> dung lai toan bo MaterialApp.
+    // Lắng nghe cả ngôn ngữ lẫn theme mode.
     return ListenableBuilder(
-      listenable: AppLocale.instance,
+      listenable: Listenable.merge([
+        AppLocale.instance,
+        AppThemeNotifier.instance,
+      ]),
       builder: (context, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'StayZ',
           theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: AppThemeNotifier.instance.mode,
           highContrastTheme: AppTheme.highContrast,
           locale: AppLocale.instance.locale,
           supportedLocales: StayzLocalizations.supportedLocales,
@@ -55,6 +61,9 @@ class _UnknownRoutePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: Text(tr('Không thể mở trang', 'Page unavailable'))),
       body: SafeArea(
@@ -67,23 +76,33 @@ class _UnknownRoutePage extends StatelessWidget {
                 Icon(
                   Icons.route_outlined,
                   size: 64,
-                  color: AppTheme.primary,
+                  color: cs.primary,
                   semanticLabel: tr('Lỗi điều hướng', 'Navigation error'),
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  tr('Đường dẫn này không còn khả dụng.', 'This page is no longer available.'),
+                  tr(
+                    'Đường dẫn này không còn khả dụng.',
+                    'This page is no longer available.',
+                  ),
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   routeName == null
-                      ? tr('Hãy quay lại và thử thao tác khác.', 'Go back and try another action.')
-                      : tr('Không tìm thấy trang $routeName.', 'Could not find $routeName.'),
+                      ? tr(
+                          'Hãy quay lại và thử thao tác khác.',
+                          'Go back and try another action.',
+                        )
+                      : tr(
+                          'Không tìm thấy trang $routeName.',
+                          'Could not find $routeName.',
+                        ),
                   textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
@@ -92,7 +111,10 @@ class _UnknownRoutePage extends StatelessWidget {
                     if (navigator.canPop()) {
                       navigator.pop();
                     } else {
-                      navigator.pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
+                      navigator.pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (_) => false,
+                      );
                     }
                   },
                   icon: const Icon(Icons.arrow_back_rounded),

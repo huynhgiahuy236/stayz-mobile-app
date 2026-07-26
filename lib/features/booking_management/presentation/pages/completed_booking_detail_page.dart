@@ -39,7 +39,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
         summary.hotel.imageUrls.firstOrNull;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -68,7 +68,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                           'CODE: ${_bookingCode(summary.booking.id)}',
                         ),
                         style: TextStyle(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14 * responsive.scale,
                           letterSpacing: 1.3,
                         ),
@@ -105,7 +105,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                           child: Text(
                             '${summary.hotel.name}\n${summary.city.name}, ${summary.city.region}',
                             style: textTheme.headlineMedium?.copyWith(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 27 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -226,7 +226,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                       child: Text(
                         tr('Đánh giá dịch vụ', 'Review your stay'),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           fontSize: 18 * responsive.scale,
                           fontWeight: FontWeight.w800,
                         ),

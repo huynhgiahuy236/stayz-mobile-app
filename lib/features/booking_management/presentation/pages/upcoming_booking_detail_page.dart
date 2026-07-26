@@ -142,7 +142,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                   Text(
                     summary.hotel.name,
                     style: textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28 * responsive.scale,
                       fontWeight: FontWeight.w700,
                     ),
@@ -161,7 +161,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16 * responsive.scale,
                           ),
                         ),
@@ -347,7 +347,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                         Text(
                           summary.booking.specialRequest!,
                           style: TextStyle(
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 18 * responsive.scale,
                             fontStyle: FontStyle.italic,
                           ),

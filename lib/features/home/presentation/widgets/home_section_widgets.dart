@@ -62,12 +62,12 @@ class StayZBottomNav extends StatelessWidget {
           height: 66 * responsive.scale,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppTheme.line),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.ink.withValues(alpha: 0.08),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                   blurRadius: 18,
                   offset: const Offset(0, -6),
                 ),
@@ -146,7 +146,7 @@ class _NavItem extends StatelessWidget {
         vertical: 5 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: active ? AppTheme.primarySoft : Colors.transparent,
+        color: active ? Theme.of(context).colorScheme.primaryContainer : Colors.transparent,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -154,7 +154,7 @@ class _NavItem extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: active ? AppTheme.primary : AppTheme.muted,
+            color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
             size: 22 * responsive.scale,
           ),
           SizedBox(height: 3 * responsive.scale),
@@ -165,7 +165,7 @@ class _NavItem extends StatelessWidget {
                 label,
                 maxLines: 1,
                 style: TextStyle(
-                  color: active ? AppTheme.primary : AppTheme.muted,
+                  color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
                   fontSize: 10.5 * responsive.scale,
                   fontWeight: active ? FontWeight.w900 : FontWeight.w700,
                 ),
@@ -205,7 +205,7 @@ class StayZLogoRow extends StatelessWidget {
         Text(
           'StayZ',
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 25 * responsive.scale,
             fontWeight: FontWeight.w900,
           ),
@@ -259,7 +259,7 @@ class StayZScreenHeader extends StatelessWidget {
                   Text(
                     subtitle!.toUpperCase(),
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 11 * responsive.scale,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.6,
@@ -272,7 +272,7 @@ class StayZScreenHeader extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 28 * responsive.scale,
                     fontWeight: FontWeight.w900,
                     height: 1.05,
@@ -309,7 +309,7 @@ class SectionLabel extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 19 * responsive.scale,
             fontWeight: FontWeight.w900,
           ),
@@ -338,7 +338,7 @@ class SearchBox extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap ?? () => Navigator.of(context).pushNamed(AppRoutes.search),
@@ -351,7 +351,7 @@ class SearchBox extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.line),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: AppTheme.softShadow,
           ),
           child: Row(
@@ -359,7 +359,7 @@ class SearchBox extends StatelessWidget {
               Icon(
                 Icons.search_rounded,
                 size: 24 * responsive.scale,
-                color: AppTheme.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: 12 * responsive.widthScale),
               Expanded(
@@ -368,7 +368,7 @@ class SearchBox extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 15 * responsive.scale,
                     fontWeight: FontWeight.w700,
                   ),
@@ -380,12 +380,12 @@ class SearchBox extends StatelessWidget {
                   width: 40 * responsive.scale,
                   height: 40 * responsive.scale,
                   decoration: BoxDecoration(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
                     Icons.tune_rounded,
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     size: 19 * responsive.scale,
                   ),
                 ),
@@ -434,10 +434,10 @@ class FilterPill extends StatelessWidget {
               horizontal: 16 * responsive.widthScale,
             ),
             decoration: BoxDecoration(
-              color: active ? AppTheme.primary : Colors.white,
+              color: active ? Theme.of(context).colorScheme.primary : Colors.white,
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: active ? AppTheme.primary : AppTheme.line,
+                color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Row(
@@ -447,14 +447,14 @@ class FilterPill extends StatelessWidget {
                   Icon(
                     icon,
                     size: 17 * responsive.scale,
-                    color: active ? Colors.white : AppTheme.primary,
+                    color: active ? Colors.white : Theme.of(context).colorScheme.primary,
                   ),
                   SizedBox(width: 7 * responsive.widthScale),
                 ],
                 Text(
                   label,
                   style: TextStyle(
-                    color: active ? Colors.white : AppTheme.ink,
+                    color: active ? Colors.white : Theme.of(context).colorScheme.onSurface,
                     fontSize: 13 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -513,7 +513,7 @@ class HotelCard extends StatelessWidget {
     return SizedBox(
       width: width,
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           onTap: onTap,
@@ -521,7 +521,7 @@ class HotelCard extends StatelessWidget {
           child: Ink(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppTheme.line),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               boxShadow: AppTheme.softShadow,
             ),
             child: Column(
@@ -616,7 +616,7 @@ class HotelCard extends StatelessWidget {
                           Icon(
                             Icons.location_on_outlined,
                             size: 14 * responsive.scale,
-                            color: AppTheme.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           SizedBox(width: 5 * responsive.widthScale),
                           Expanded(
@@ -625,7 +625,7 @@ class HotelCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: AppTheme.muted,
+                                color: Theme.of(context).colorScheme.secondary,
                                 fontSize: 11 * responsive.scale,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -639,7 +639,7 @@ class HotelCard extends StatelessWidget {
                         maxLines: fullWidth ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 16 * responsive.scale,
                           height: 1.2,
                           fontWeight: FontWeight.w900,
@@ -654,7 +654,7 @@ class HotelCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: AppTheme.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 14 * responsive.scale,
                                 fontWeight: FontWeight.w900,
                               ),
@@ -662,7 +662,7 @@ class HotelCard extends StatelessWidget {
                           ),
                           Icon(
                             Icons.arrow_forward_rounded,
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             size: 20 * responsive.scale,
                           ),
                         ],
@@ -717,7 +717,7 @@ class BookingPreviewCard extends StatelessWidget {
     final thumbSize = 84 * responsive.scale;
 
     return Material(
-      color: AppTheme.ink,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap:
@@ -747,9 +747,9 @@ class BookingPreviewCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(colors: colors),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.confirmation_number_rounded,
-                                color: Colors.white,
+                                color: Theme.of(context).cardColor,
                               ),
                             ),
                     ),
@@ -764,7 +764,7 @@ class BookingPreviewCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontSize: 17 * responsive.scale,
                             fontWeight: FontWeight.w900,
                             height: 1.2,
@@ -787,10 +787,10 @@ class BookingPreviewCard extends StatelessWidget {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(99),
                             border: Border.all(
-                              color: (statusTextColor ?? AppTheme.primaryDark)
+                              color: (statusTextColor ?? Theme.of(context).colorScheme.primary)
                                   .withValues(alpha: 0.75),
                             ),
                           ),
@@ -799,7 +799,7 @@ class BookingPreviewCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: statusTextColor ?? AppTheme.primaryDark,
+                              color: statusTextColor ?? Theme.of(context).colorScheme.primary,
                               fontSize: 10.5 * responsive.scale,
                               fontWeight: FontWeight.w900,
                             ),
@@ -899,7 +899,7 @@ class NotificationCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: borderColor, width: unread ? 1.8 : 1.2),
         boxShadow: unread ? AppTheme.softShadow : null,
@@ -929,7 +929,7 @@ class NotificationCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 15 * responsive.scale,
                           fontWeight: FontWeight.w900,
                         ),
@@ -939,8 +939,8 @@ class NotificationCard extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.primary,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -950,7 +950,7 @@ class NotificationCard extends StatelessWidget {
                 Text(
                   body,
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 13 * responsive.scale,
                     height: 1.35,
                   ),
@@ -964,7 +964,7 @@ class NotificationCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(99),
                         border: Border.all(
                           color: borderColor.withValues(alpha: 0.7),
@@ -983,7 +983,7 @@ class NotificationCard extends StatelessWidget {
                     Text(
                       time,
                       style: TextStyle(
-                        color: AppTheme.muted,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 12 * responsive.scale,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1010,7 +1010,7 @@ class LuxuryArchitecturalPainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: colors.length >= 2 ? colors : [AppTheme.primary, AppTheme.ink],
+        colors: colors.length >= 2 ? colors : const [Color(0xFF4C4DDC), Color(0xFF6B6EF6)],
       ).createShader(rect);
     canvas.drawRect(rect, bgPaint);
 
@@ -1077,7 +1077,7 @@ class TicketDashedDivider extends StatelessWidget {
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 3),
             height: 1,
-            color: AppTheme.line,
+            color: Theme.of(context).colorScheme.outlineVariant,
           ),
         ),
       ),
@@ -1113,7 +1113,7 @@ class _NotificationBellState extends State<_NotificationBell> {
         return Badge(
           isLabelVisible: unread > 0,
           label: Text(unread > 9 ? '9+' : '$unread'),
-          backgroundColor: AppTheme.danger,
+          backgroundColor: Theme.of(context).colorScheme.error,
           child: _RoundIconButton(
             icon: unread > 0
                 ? Icons.notifications_rounded
@@ -1140,7 +1140,7 @@ class _RoundIconButton extends StatelessWidget {
     final responsive = HomeResponsive.of(context);
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -1150,9 +1150,9 @@ class _RoundIconButton extends StatelessWidget {
           height: 44 * responsive.scale,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.line),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
-          child: Icon(icon, color: AppTheme.ink, size: 22 * responsive.scale),
+          child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 22 * responsive.scale),
         ),
       ),
     );
@@ -1169,6 +1169,7 @@ class _RatingBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
       label: tr(
         'Đánh giá $value trên 5, $reviewCount lượt',
@@ -1180,8 +1181,15 @@ class _RatingBadge extends StatelessWidget {
           vertical: 5 * responsive.scale,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.92),
+          color: isDark
+              ? const Color(0xFF141E30).withValues(alpha: 0.90)
+              : Colors.white.withValues(alpha: 0.94),
           borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: isDark
+                ? const Color(0xFF2B3D5C)
+                : Colors.white.withValues(alpha: 0.6),
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1195,7 +1203,7 @@ class _RatingBadge extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: isDark ? Colors.white : const Color(0xFF101010),
                 fontSize: 11 * responsive.scale,
                 fontWeight: FontWeight.w900,
               ),
@@ -1204,7 +1212,7 @@ class _RatingBadge extends StatelessWidget {
             Text(
               '($reviewCount)',
               style: TextStyle(
-                color: AppTheme.muted,
+                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF666666),
                 fontSize: 10 * responsive.scale,
                 fontWeight: FontWeight.w700,
               ),
@@ -1236,7 +1244,7 @@ class _GlassIcon extends StatelessWidget {
       ),
       child: Icon(
         icon,
-        color: active ? AppTheme.primary : Colors.white,
+        color: active ? Theme.of(context).colorScheme.primary : Colors.white,
         size: 19 * responsive.scale,
       ),
     );

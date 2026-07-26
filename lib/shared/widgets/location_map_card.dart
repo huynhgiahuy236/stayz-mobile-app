@@ -110,7 +110,7 @@ class LocationMapCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(999),
                             boxShadow: [
                               BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 8),
@@ -130,19 +130,19 @@ class LocationMapCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      const Icon(Icons.place_outlined, size: 18, color: AppTheme.muted),
+                      Icon(Icons.place_outlined, size: 18, color: Theme.of(context).colorScheme.secondary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _label,
-                          style: const TextStyle(color: AppTheme.ink, fontSize: 13, height: 1.4),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, height: 1.4),
                         ),
                       ),
-                      const Icon(Icons.chevron_right_rounded, color: AppTheme.muted),
+                      Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.secondary),
                     ],
                   ),
                 ),
@@ -164,7 +164,7 @@ class _MapUnavailable extends StatelessWidget {
     alignment: Alignment.center,
     child: Text(
       tr('Chưa có ảnh vệ tinh', 'Satellite preview unavailable'),
-      style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w700),
+      style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.w700),
     ),
   );
 }

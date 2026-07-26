@@ -146,7 +146,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                     backgroundColor: AppTheme.dangerSoft,
                     child: CircleAvatar(
                       radius: 46 * responsive.scale,
-                      backgroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).cardColor,
                       child: _isCancelling
                           ? const CircularProgressIndicator(
                               color: AppTheme.accent,
@@ -189,7 +189,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                         : 'Đơn tại ${summary.hotel.name} đã chuyển sang trạng thái đã hủy.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppTheme.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 17 * responsive.scale,
                       height: 1.45,
                     ),
@@ -198,7 +198,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                   Container(
                     padding: EdgeInsets.all(20 * responsive.scale),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppTheme.line),
                     ),
@@ -244,7 +244,7 @@ class _CancelBookingResultPageState extends State<CancelBookingResultPage> {
                       ),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppTheme.muted,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 12.5 * responsive.scale,
                         height: 1.5,
                       ),
@@ -307,7 +307,7 @@ class _ResultLine extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16 * responsive.scale,
               letterSpacing: 2,
             ),
@@ -318,7 +318,7 @@ class _ResultLine extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 17 * responsive.scale,
               fontWeight: FontWeight.w700,
             ),
@@ -355,7 +355,7 @@ class _ResultButton extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   fontSize: 18 * responsive.scale,
                   fontWeight: FontWeight.w800,
                 ),

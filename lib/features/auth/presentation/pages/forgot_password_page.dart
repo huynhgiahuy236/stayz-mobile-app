@@ -128,7 +128,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       Navigator.of(context).pushNamed(AppRoutes.helpCenter),
                   icon: const Icon(Icons.support_agent_outlined),
                   label: Text(tr('Trung tâm hỗ trợ', 'Help center')),
-                  style: TextButton.styleFrom(foregroundColor: AppTheme.accent),
+                  style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
                 ),
               ],
             ),
@@ -150,10 +150,10 @@ class _ResetIcon extends StatelessWidget {
       width: 96 * responsive.scale,
       height: 96 * responsive.scale,
       decoration: BoxDecoration(
-        color: AppTheme.accent.withValues(alpha: 0.06),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppTheme.accent.withValues(alpha: 0.15),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
@@ -162,7 +162,7 @@ class _ResetIcon extends StatelessWidget {
           width: 72 * responsive.scale,
           height: 72 * responsive.scale,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
@@ -174,7 +174,7 @@ class _ResetIcon extends StatelessWidget {
           ),
           child: Icon(
             Icons.lock_reset,
-            color: AppTheme.accent,
+            color: Theme.of(context).colorScheme.primary,
             size: 32 * responsive.scale,
           ),
         ),

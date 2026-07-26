@@ -38,7 +38,7 @@ class RoomTypeDetailPage extends StatelessWidget {
     final imageUrl = room.imageUrls.firstOrNull;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
@@ -48,8 +48,8 @@ class RoomTypeDetailPage extends StatelessWidget {
             responsive.horizontalPadding,
             16,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             border: Border(top: BorderSide(color: AppTheme.line)),
           ),
           child: SizedBox(
@@ -107,8 +107,8 @@ class RoomTypeDetailPage extends StatelessWidget {
                   const SizedBox(height: 20),
                   Text(
                     room.name,
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
                     ),
@@ -116,8 +116,8 @@ class RoomTypeDetailPage extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     draft.hotel.hotel.name,
-                    style: const TextStyle(
-                      color: AppTheme.muted,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -155,8 +155,8 @@ class RoomTypeDetailPage extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text(
                     tr('Giới thiệu phòng', 'About this room'),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
@@ -169,8 +169,8 @@ class RoomTypeDetailPage extends StatelessWidget {
                             'No detailed room description yet.',
                           )
                         : room.localizedDescription,
-                    style: const TextStyle(
-                      color: AppTheme.muted,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 14,
                       height: 1.6,
                     ),
@@ -178,8 +178,8 @@ class RoomTypeDetailPage extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text(
                     tr('Tiện ích trong phòng', 'Room amenities'),
-                    style: const TextStyle(
-                      color: AppTheme.ink,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
@@ -188,7 +188,7 @@ class RoomTypeDetailPage extends StatelessWidget {
                   if (room.amenityIds.isEmpty)
                     Text(
                       tr('Chưa cập nhật tiện ích.', 'No amenities listed yet.'),
-                      style: const TextStyle(color: AppTheme.muted),
+                      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                     )
                   else
                     Wrap(
@@ -225,7 +225,7 @@ class _InfoChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: AppTheme.line),
     ),
@@ -236,8 +236,8 @@ class _InfoChip extends StatelessWidget {
         const SizedBox(width: 7),
         Text(
           label,
-          style: const TextStyle(
-            color: AppTheme.ink,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -268,7 +268,7 @@ class _PolicyCard extends StatelessWidget {
               'Còn $availableUnits phòng. Chính sách thanh toán và hủy được hiển thị ở bước xác nhận.',
               '$availableUnits rooms left. Payment and cancellation policies appear at confirmation.',
             ),
-            style: const TextStyle(color: AppTheme.ink, height: 1.4),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, height: 1.4),
           ),
         ),
       ],

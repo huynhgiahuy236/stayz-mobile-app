@@ -1,5 +1,4 @@
 import 'package:capstone_mobile/app/routes/app_routes.dart';
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/search/presentation/widgets/search_section_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -36,7 +35,7 @@ class OfflineErrorPage extends StatelessWidget {
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.info_outline, color: AppTheme.muted, size: 16 * responsive.scale),
+          Icon(Icons.info_outline, color: Theme.of(context).colorScheme.secondary, size: 16 * responsive.scale),
           SizedBox(width: 8 * responsive.widthScale),
           Flexible(
             child: Text(
@@ -45,7 +44,7 @@ class OfflineErrorPage extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               // Truoc day chu nay o alpha 0.6 tren nen kem, khong dat chuan tuong phan.
               style: TextStyle(
-                color: AppTheme.muted,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 13 * responsive.scale,
                 fontWeight: FontWeight.w600,
               ),

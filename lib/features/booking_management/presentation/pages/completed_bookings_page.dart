@@ -182,7 +182,7 @@ class _CompletedEmptyState extends StatelessWidget {
           tr('Chưa có đặt phòng hoàn tất', 'No completed bookings'),
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),

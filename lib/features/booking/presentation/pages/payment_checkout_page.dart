@@ -82,7 +82,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
 
     if (draft == null) {
       return Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(tr('Thanh toán', 'Payment'))),
         body: StayzEmptyView(
           icon: Icons.receipt_long_outlined,
@@ -103,7 +103,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
     final payNow = quote.payNow;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: Container(
         padding: EdgeInsets.fromLTRB(
           responsive.horizontalPadding,
@@ -112,8 +112,8 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
           16 * responsive.scale,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppTheme.line)),
+          color: Theme.of(context).cardColor,
+          border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
         ),
         child: SafeArea(
           top: false,
@@ -126,7 +126,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                     child: Text(
                       tr('Trả ngay', 'Pay now'),
                       style: TextStyle(
-                        color: AppTheme.muted,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 13 * responsive.scale,
                         fontWeight: FontWeight.w700,
                       ),
@@ -135,7 +135,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                   Text(
                     StayzFormatters.fullVnd(payNow),
                     style: TextStyle(
-                      color: AppTheme.accent,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 20 * responsive.scale,
                       fontWeight: FontWeight.w900,
                     ),
@@ -216,7 +216,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                   Container(
                     padding: EdgeInsets.all(12 * responsive.scale),
                     decoration: BoxDecoration(
-                      color: AppTheme.neutral200.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -225,14 +225,14 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                         Icon(
                           Icons.info_outline_rounded,
                           size: 16 * responsive.scale,
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                         SizedBox(width: 8 * responsive.widthScale),
                         Expanded(
                           child: Text(
                             PaymentPolicy.refundDisclaimer,
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 11.5 * responsive.scale,
                               height: 1.5,
                             ),
@@ -272,7 +272,7 @@ class _PlanCard extends StatelessWidget {
     final isFull = plan == PaymentPlan.full100;
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -281,7 +281,7 @@ class _PlanCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? AppTheme.primary : AppTheme.line,
+              color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
               width: selected ? 1.8 : 1,
             ),
           ),
@@ -295,7 +295,7 @@ class _PlanCard extends StatelessWidget {
                     selected
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_unchecked_rounded,
-                    color: selected ? AppTheme.primary : AppTheme.muted,
+                    color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
                     size: 22 * responsive.scale,
                   ),
                   SizedBox(width: 10 * responsive.widthScale),
@@ -306,7 +306,7 @@ class _PlanCard extends StatelessWidget {
                           child: Text(
                             PaymentPolicy.planLabel(plan),
                             style: TextStyle(
-                              color: AppTheme.ink,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 16 * responsive.scale,
                               fontWeight: FontWeight.w900,
                             ),
@@ -325,8 +325,8 @@ class _PlanCard extends StatelessWidget {
                             ),
                             child: Text(
                               tr('Giảm 10%', 'Save 10%'),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Theme.of(context).cardColor,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -339,7 +339,7 @@ class _PlanCard extends StatelessWidget {
                   Text(
                     StayzFormatters.fullVnd(quote.payNow),
                     style: TextStyle(
-                      color: AppTheme.accent,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 17 * responsive.scale,
                       fontWeight: FontWeight.w900,
                     ),
@@ -356,7 +356,7 @@ class _PlanCard extends StatelessWidget {
                       '${StayzFormatters.fullVnd(quote.remaining)} due at the hotel',
                     ),
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 12.5 * responsive.scale,
                     ),
                   ),
@@ -382,7 +382,7 @@ class _PlanCard extends StatelessWidget {
                         child: Text(
                           line,
                           style: TextStyle(
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 12.5 * responsive.scale,
                             height: 1.4,
                           ),
@@ -411,7 +411,7 @@ class _SectionCaption extends StatelessWidget {
     return Text(
       label.toUpperCase(),
       style: TextStyle(
-        color: AppTheme.muted,
+        color: Theme.of(context).colorScheme.secondary,
         fontSize: 12 * responsive.scale,
         fontWeight: FontWeight.w800,
         letterSpacing: 1.5,
@@ -435,9 +435,9 @@ class _CheckoutHotelCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -448,12 +448,12 @@ class _CheckoutHotelCard extends StatelessWidget {
                   width: 78 * responsive.scale,
                   height: 78 * responsive.scale,
                   decoration: BoxDecoration(
-                    color: AppTheme.neutral200,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     borderRadius: BorderRadius.circular(9),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.hotel_outlined,
-                    color: AppTheme.neutral500,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 )
               else
@@ -471,7 +471,7 @@ class _CheckoutHotelCard extends StatelessWidget {
                     Text(
                       draft.hotel.hotel.name,
                       style: TextStyle(
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16 * responsive.scale,
                         fontWeight: FontWeight.w800,
                       ),
@@ -480,7 +480,7 @@ class _CheckoutHotelCard extends StatelessWidget {
                     Text(
                       draft.room.name,
                       style: TextStyle(
-                        color: AppTheme.neutral500,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 14 * responsive.scale,
                       ),
                     ),
@@ -489,7 +489,7 @@ class _CheckoutHotelCard extends StatelessWidget {
               ),
             ],
           ),
-          Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
+          Divider(height: 34 * responsive.scale, color: Theme.of(context).colorScheme.outlineVariant),
           _BookingInfoRow(
             label: tr('Nhận phòng', 'Check-in'),
             value: StayzFormatters.shortDate(draft.checkInDate),
@@ -517,7 +517,7 @@ class _CheckoutHotelCard extends StatelessWidget {
             label: tr('Giá mỗi đêm', 'Price per night'),
             value: StayzFormatters.fullVnd(draft.room.pricePerNight),
           ),
-          Divider(height: 34 * responsive.scale, color: AppTheme.neutral200),
+          Divider(height: 34 * responsive.scale, color: Theme.of(context).colorScheme.outlineVariant),
           _BookingInfoRow(
             label: tr('Tổng giá phòng', 'Room total'),
             value: StayzFormatters.fullVnd(draft.totalAmount),
@@ -546,7 +546,7 @@ class _BookingInfoRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14 * responsive.scale,
               ),
             ),
@@ -556,7 +556,7 @@ class _BookingInfoRow extends StatelessWidget {
               value,
               textAlign: TextAlign.end,
               style: TextStyle(
-                color: AppTheme.ink,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14 * responsive.scale,
                 fontWeight: FontWeight.w700,
               ),

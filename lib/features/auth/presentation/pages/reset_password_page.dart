@@ -146,8 +146,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             Text(
               tr('Đổi mật khẩu thành công!', 'Password updated!'),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppTheme.ink,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 26,
                 fontWeight: FontWeight.w900,
               ),
@@ -159,7 +159,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 'You can now sign in with your new password.',
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.muted, height: 1.5),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary, height: 1.5),
             ),
             const SizedBox(height: 26),
             SizedBox(

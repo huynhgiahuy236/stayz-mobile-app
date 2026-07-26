@@ -97,7 +97,7 @@ class BookingManageHeader extends StatelessWidget {
         16 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(
             color: AppTheme.neutral200.withValues(alpha: 0.65),
@@ -170,7 +170,7 @@ class BookingManageTabs extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(4 * responsive.scale),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppTheme.line),
         ),
@@ -213,6 +213,8 @@ class _BookingTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Expanded(
       child: InkWell(
         onTap: active
@@ -224,7 +226,11 @@ class _BookingTab extends StatelessWidget {
           height: 44 * responsive.scale,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: active ? AppTheme.ink : Colors.transparent,
+            color: active
+                ? (isDark
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : Theme.of(context).colorScheme.onSurface)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Text(
@@ -232,7 +238,11 @@ class _BookingTab extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: active ? Colors.white : AppTheme.muted,
+              color: active
+                  ? Colors.white
+                  : (isDark
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).colorScheme.secondary),
               fontSize: 13 * responsive.scale,
               fontWeight: FontWeight.w800,
             ),
@@ -266,7 +276,7 @@ class BookingStatusPill extends StatelessWidget {
         vertical: 8 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: foreground.withValues(alpha: 0.75),
@@ -345,7 +355,7 @@ class UpcomingBookingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.line),
         boxShadow: AppTheme.softShadow,
@@ -411,7 +421,7 @@ class UpcomingBookingCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 17 * responsive.scale,
                     fontWeight: FontWeight.w900,
                   ),
@@ -421,7 +431,7 @@ class UpcomingBookingCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.location_on_outlined,
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 16 * responsive.scale,
                     ),
                     SizedBox(width: 5 * responsive.widthScale),
@@ -431,7 +441,7 @@ class UpcomingBookingCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 13.5 * responsive.scale,
                         ),
                       ),
@@ -447,7 +457,7 @@ class UpcomingBookingCard extends StatelessWidget {
                       vertical: 9 * responsive.scale,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor ?? AppTheme.surface,
+                      color: statusColor ?? Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: (statusTextColor ?? AppTheme.line).withValues(
@@ -458,7 +468,7 @@ class UpcomingBookingCard extends StatelessWidget {
                     child: Text(
                       statusDescription!,
                       style: TextStyle(
-                        color: statusTextColor ?? AppTheme.ink,
+                        color: statusTextColor ?? Theme.of(context).colorScheme.onSurface,
                         fontSize: 12.5 * responsive.scale,
                         height: 1.35,
                         fontWeight: FontWeight.w700,
@@ -473,7 +483,7 @@ class UpcomingBookingCard extends StatelessWidget {
                       Text(
                         tr('Đã thanh toán', 'Amount paid'),
                         style: TextStyle(
-                          color: AppTheme.muted,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 13 * responsive.scale,
                           fontWeight: FontWeight.w700,
                         ),
@@ -504,7 +514,7 @@ class UpcomingBookingCard extends StatelessWidget {
                             'Remaining at hotel (70%)',
                           ),
                           style: TextStyle(
-                            color: AppTheme.muted,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 13 * responsive.scale,
                             fontWeight: FontWeight.w700,
                           ),
@@ -603,7 +613,7 @@ class _MetaBlock extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: AppTheme.muted,
+            color: Theme.of(context).colorScheme.secondary,
             fontSize: 10.5 * responsive.scale,
             fontWeight: FontWeight.w800,
             letterSpacing: 1,
@@ -615,7 +625,7 @@ class _MetaBlock extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: AppTheme.ink,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 14 * responsive.scale,
             fontWeight: FontWeight.w900,
           ),
@@ -725,7 +735,7 @@ class HistoryBookingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -758,7 +768,7 @@ class HistoryBookingCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: AppTheme.ink,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18 * responsive.scale,
                           fontWeight: FontWeight.w700,
                         ),
@@ -768,7 +778,7 @@ class HistoryBookingCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.calendar_today_outlined,
-                            color: AppTheme.ink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             size: 17 * responsive.scale,
                           ),
                           SizedBox(width: 10 * responsive.widthScale),
@@ -776,7 +786,7 @@ class HistoryBookingCard extends StatelessWidget {
                             child: Text(
                               date,
                               style: TextStyle(
-                                color: AppTheme.ink,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 18 * responsive.scale,
                               ),
                             ),
@@ -849,7 +859,7 @@ class _FilledAction extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             fontSize: 16 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),
@@ -876,7 +886,7 @@ class BookingDetailPanel extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(18 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -926,7 +936,7 @@ class DetailLine extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: total ? AppTheme.accentDark : AppTheme.ink,
+                color: total ? AppTheme.accentDark : Theme.of(context).colorScheme.onSurface,
                 fontSize: (total ? 18 : 16) * responsive.scale,
                 fontWeight: total ? FontWeight.w900 : FontWeight.w500,
               ),
@@ -936,7 +946,7 @@ class DetailLine extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: valueColor ?? (total ? AppTheme.accentDark : AppTheme.ink),
+              color: valueColor ?? (total ? AppTheme.accentDark : Theme.of(context).colorScheme.onSurface),
               fontSize: (total ? 20 : 16) * responsive.scale,
               fontWeight: FontWeight.w900,
               letterSpacing: total ? 1 : 0,

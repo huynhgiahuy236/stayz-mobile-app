@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
 import 'package:capstone_mobile/shared/models/stayz_models.dart';
@@ -180,7 +179,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -190,8 +189,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 future: _profile,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    return Center(
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                     );
                   }
                   if (snapshot.hasError) {
@@ -212,15 +211,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             children: [
                               CircleAvatar(
                                 radius: 58,
-                                backgroundColor: AppTheme.neutral200,
+                                backgroundColor: Theme.of(context).colorScheme.outlineVariant,
                                 backgroundImage: _avatarUrl.isEmpty
                                     ? null
                                     : NetworkImage(_avatarUrl),
                                 child: _avatarUrl.isEmpty
-                                    ? const Icon(
+                                    ? Icon(
                                         Icons.person,
                                         size: 58,
-                                        color: AppTheme.accentDark,
+                                        color: Theme.of(context).colorScheme.primary,
                                       )
                                     : null,
                               ),
@@ -236,11 +235,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     'Upload avatar',
                                   ),
                                   icon: _uploadingAvatar
-                                      ? const SizedBox.square(
+                                      ? SizedBox.square(
                                           dimension: 18,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            color: Colors.white,
+                                            color: Theme.of(context).cardColor,
                                           ),
                                         )
                                       : const Icon(Icons.photo_camera_outlined),

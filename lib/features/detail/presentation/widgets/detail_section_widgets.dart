@@ -46,7 +46,7 @@ class DetailCircleButton extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Icon(icon, color: AppTheme.ink, size: 21),
+              child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 21),
             ),
           ),
         ),
@@ -71,7 +71,7 @@ class DetailSectionTitle extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18 * responsive.scale,
               fontWeight: FontWeight.w700,
             ),
@@ -111,7 +111,7 @@ class AmenityTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: AppTheme.muted,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 13 * responsive.scale,
                 fontWeight: FontWeight.w600,
               ),
@@ -146,7 +146,7 @@ class ReviewCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -171,7 +171,7 @@ class ReviewCard extends StatelessWidget {
                     Text(
                       name,
                       style: TextStyle(
-                        color: AppTheme.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 14 * responsive.scale,
                         fontWeight: FontWeight.w800,
                       ),
@@ -202,7 +202,7 @@ class ReviewCard extends StatelessWidget {
           Text(
             body,
             style: TextStyle(
-              color: AppTheme.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 13 * responsive.scale,
               fontStyle: FontStyle.italic,
               height: 1.55,
@@ -231,7 +231,7 @@ class DetailBottomBookingBar extends StatelessWidget {
         18 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
         border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.7)),
       ),
@@ -262,7 +262,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                           TextSpan(
                             text: tr(' / đêm', ' / night'),
                             style: TextStyle(
-                              color: AppTheme.muted,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 12 * responsive.scale,
                             ),
                           ),
@@ -279,7 +279,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: AppTheme.muted,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 11 * responsive.scale,
                     ),
                   ),
@@ -308,7 +308,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                 child: Text(
                   tr('Chọn phòng', 'Select room'),
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     fontSize: 14 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -347,7 +347,7 @@ class SupportActionCard extends StatelessWidget {
         vertical: 12 * responsive.scale,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.neutral200),
       ),
@@ -368,7 +368,7 @@ class SupportActionCard extends StatelessWidget {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppTheme.muted,
+              color: Theme.of(context).colorScheme.secondary,
               fontSize: 17 * responsive.scale,
               fontWeight: FontWeight.w600,
             ),

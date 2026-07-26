@@ -1,4 +1,3 @@
-import 'package:capstone_mobile/app/theme/app_theme.dart';
 import 'package:capstone_mobile/features/home/presentation/widgets/home_section_widgets.dart';
 import 'package:capstone_mobile/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:capstone_mobile/shared/i18n/app_locale.dart';
@@ -13,7 +12,7 @@ class AddPaymentMethodPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: Padding(
         padding: EdgeInsets.fromLTRB(
           responsive.horizontalPadding,
@@ -52,7 +51,7 @@ class AddPaymentMethodPage extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.accentDark,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 25 * responsive.scale,
                         fontWeight: FontWeight.w800,
                       ),
@@ -92,8 +91,8 @@ class AddPaymentMethodPage extends StatelessWidget {
                     height: 190 * responsive.scale,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.ink, AppTheme.primaryDark],
+                      gradient: LinearGradient(
+                        colors: [Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.primary],
                       ),
                     ),
                   ),
@@ -125,18 +124,18 @@ class _PaymentTypeTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16 * responsive.scale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 24 * responsive.scale,
-            backgroundColor: AppTheme.primarySoft,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             child: Icon(
               icon,
-              color: AppTheme.accentDark,
+              color: Theme.of(context).colorScheme.primary,
               size: 24 * responsive.scale,
             ),
           ),
@@ -148,7 +147,7 @@ class _PaymentTypeTile extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -157,16 +156,16 @@ class _PaymentTypeTile extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: AppTheme.muted,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 13 * responsive.scale,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.info_outline_rounded,
-            color: AppTheme.muted,
+            color: Theme.of(context).colorScheme.secondary,
             size: 22,
           ),
         ],

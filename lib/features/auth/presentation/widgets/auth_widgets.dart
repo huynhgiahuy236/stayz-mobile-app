@@ -47,10 +47,13 @@ class AuthScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? Theme.of(context).colorScheme.surface : Colors.white;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bg,
       body: ColoredBox(
-        color: Colors.white,
+        color: bg,
         child: SafeArea(
           child: Stack(
             children: [
@@ -88,10 +91,11 @@ class AuthScrollBody extends StatelessWidget {
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
+      // Dùng cùng horizontalPadding với AuthTopBar để padding ngang đồng nhất
       padding: EdgeInsets.fromLTRB(
-        16 * responsive.widthScale,
+        responsive.horizontalPadding,
         24 * responsive.scale,
-        16 * responsive.widthScale,
+        responsive.horizontalPadding,
         bottomPadding * responsive.scale,
       ),
       child: Column(crossAxisAlignment: crossAxisAlignment, children: children),
@@ -155,12 +159,12 @@ class AuthTopBar extends StatelessWidget {
                     padding: const EdgeInsets.all(7),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      border: Border.all(color: AppTheme.line),
+                      color: Theme.of(context).cardColor,
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                     ),
                     child: Icon(
                       Icons.arrow_back,
-                      color: AppTheme.accentDark,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 20 * responsive.scale,
                     ),
                   ),
@@ -182,7 +186,7 @@ class AuthTopBar extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: textTheme.titleLarge?.copyWith(
-                    color: AppTheme.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18 * responsive.scale,
                     fontWeight: FontWeight.w800,
                     fontFamily: 'Inter',
@@ -234,7 +238,7 @@ class AuthTitleBlock extends StatelessWidget {
             title,
             textAlign: centered ? TextAlign.center : TextAlign.start,
             style: textTheme.displayLarge?.copyWith(
-              color: accentTitle ? AppTheme.accent : AppTheme.ink,
+              color: accentTitle ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
               fontSize: (titleFontSize ?? 26) * responsive.scale,
               fontWeight: FontWeight.w800,
               height: 1.16,
@@ -302,6 +306,11 @@ class _AuthFieldState extends State<AuthField> {
   Widget build(BuildContext context) {
     final responsive = AuthResponsive.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final fillColor = Theme.of(context).cardColor;
+    final enabledBorderColor = Theme.of(context).colorScheme.outlineVariant;
+    final labelColor = Theme.of(context).colorScheme.secondary;
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final hintColor = Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +318,7 @@ class _AuthFieldState extends State<AuthField> {
         Text(
           widget.label,
           style: textTheme.bodyMedium?.copyWith(
-            color: AppTheme.neutral500,
+            color: labelColor,
             fontSize: 13 * responsive.scale,
             fontWeight: FontWeight.w600,
             letterSpacing: 0,
@@ -325,7 +334,7 @@ class _AuthFieldState extends State<AuthField> {
           inputFormatters: widget.inputFormatters,
           maxLength: widget.maxLength,
           style: textTheme.bodyLarge?.copyWith(
-            color: AppTheme.ink,
+            color: textColor,
             fontSize: 16 * responsive.scale,
           ),
           decoration: InputDecoration(
@@ -334,7 +343,7 @@ class _AuthFieldState extends State<AuthField> {
             errorMaxLines: 2,
             counterText: '',
             hintStyle: textTheme.bodyLarge?.copyWith(
-              color: AppTheme.neutral500.withValues(alpha: 0.4),
+              color: hintColor,
               fontSize: 16 * responsive.scale,
             ),
             prefixIcon: widget.prefix == null
@@ -354,31 +363,32 @@ class _AuthFieldState extends State<AuthField> {
                       _obscureText
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: AppTheme.neutral500,
+                      color: labelColor,
                       size: 22 * responsive.scale,
                     ),
                   )
                 : null,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: fillColor,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 18 * responsive.scale,
+              vertical: 14 * responsive.scale,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.neutral200),
+              borderRadius: BorderRadius.circular(AppTheme.inputRadius),
+              borderSide: BorderSide(color: enabledBorderColor),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+              borderRadius: BorderRadius.circular(AppTheme.inputRadius),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.danger),
+              borderRadius: BorderRadius.circular(AppTheme.inputRadius),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.danger, width: 1.5),
+              borderRadius: BorderRadius.circular(AppTheme.inputRadius),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 1.5),
             ),
           ),
         ),
@@ -414,31 +424,31 @@ class AuthPrimaryButton extends StatelessWidget {
       child: FilledButton(
         onPressed: loading ? null : onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: AppTheme.primary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: AppTheme.accent.withValues(alpha: 0.42),
+          disabledBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.42),
           disabledForegroundColor: Colors.white70,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
           ),
         ),
         child: loading
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                     ),
                   ),
                   SizedBox(width: 12 * responsive.scale),
                   Text(
                     label,
                     style: textTheme.labelLarge?.copyWith(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       fontSize: 17 * responsive.scale,
                       fontWeight: FontWeight.w700,
                     ),
@@ -448,7 +458,7 @@ class AuthPrimaryButton extends StatelessWidget {
             : Text(
                 label,
                 style: textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   fontSize: 17 * responsive.scale,
                   fontWeight: FontWeight.w700,
                 ),
@@ -493,7 +503,7 @@ class AuthInlineLink extends StatelessWidget {
             child: Text(
               actionText,
               style: textTheme.bodyMedium?.copyWith(
-                color: AppTheme.accent,
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 15 * responsive.scale,
                 fontWeight: FontWeight.w700,
               ),
@@ -544,7 +554,7 @@ class AuthHomeIndicator extends StatelessWidget {
         width: 74,
         height: 2,
         decoration: BoxDecoration(
-          color: AppTheme.accent.withValues(alpha: 0.22),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.22),
           borderRadius: BorderRadius.circular(99),
         ),
       ),
@@ -566,6 +576,11 @@ class _AuthCheckboxState extends State<AuthCheckbox> {
   @override
   Widget build(BuildContext context) {
     final responsive = AuthResponsive.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final uncheckedBg = isDark
+        ? Theme.of(context).cardColor.withValues(alpha: 0.8)
+        : Colors.white.withValues(alpha: 0.8);
+    final uncheckedBorder = isDark ? Theme.of(context).colorScheme.outline : AppTheme.neutral200;
 
     return GestureDetector(
       onTap: () => widget.onChanged(!widget.value),
@@ -575,19 +590,17 @@ class _AuthCheckboxState extends State<AuthCheckbox> {
         width: 22 * responsive.scale,
         height: 22 * responsive.scale,
         decoration: BoxDecoration(
-          color: widget.value
-              ? AppTheme.accent
-              : Colors.white.withValues(alpha: 0.8),
+          color: widget.value ? Theme.of(context).colorScheme.primary : uncheckedBg,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: widget.value ? AppTheme.accent : AppTheme.neutral200,
+            color: widget.value ? Theme.of(context).colorScheme.primary : uncheckedBorder,
             width: 1.5,
           ),
         ),
         child: widget.value
             ? Icon(
                 Icons.check,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 size: 15 * responsive.scale,
               )
             : null,

@@ -214,7 +214,8 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
             expandedHeight: 280 * responsive.scale,
             pinned: true,
             stretch: true,
-            backgroundColor: Theme.of(context).colorScheme.onSurface,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor: Colors.transparent,
             foregroundColor: Colors.white,
             leading: Padding(
               padding: const EdgeInsets.all(6),

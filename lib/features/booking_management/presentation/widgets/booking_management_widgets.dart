@@ -746,7 +746,7 @@ class HistoryBookingCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -806,7 +806,7 @@ class HistoryBookingCard extends StatelessWidget {
                       Text(
                         price,
                         style: TextStyle(
-                          color: AppTheme.accentDark,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 19 * responsive.scale,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1,
@@ -818,7 +818,7 @@ class HistoryBookingCard extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 1, color: AppTheme.neutral200),
+          Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           Padding(
             padding: EdgeInsets.all(16 * responsive.scale),
             child: Row(
@@ -860,7 +860,7 @@ class _FilledAction extends StatelessWidget {
       child: FilledButton(
         onPressed: onTap,
         style: FilledButton.styleFrom(
-          backgroundColor: AppTheme.accent,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
         ),
         child: Text(
@@ -868,7 +868,7 @@ class _FilledAction extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: Theme.of(context).cardColor,
+            color: Colors.white,
             fontSize: 16 * responsive.scale,
             fontWeight: FontWeight.w800,
           ),
@@ -897,7 +897,7 @@ class BookingDetailPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

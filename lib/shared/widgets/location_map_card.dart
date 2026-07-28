@@ -80,7 +80,7 @@ class LocationMapCard extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppTheme.line),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
@@ -119,9 +119,9 @@ class LocationMapCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.map_rounded, size: 15, color: AppTheme.primary),
+                              Icon(Icons.map_rounded, size: 15, color: Theme.of(context).colorScheme.primary),
                               const SizedBox(width: 5),
-                              Text(tr('Mở Google Maps', 'Open Google Maps'), style: const TextStyle(color: AppTheme.primary, fontSize: 12, fontWeight: FontWeight.w800)),
+                              Text(tr('Mở Google Maps', 'Open Google Maps'), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, fontWeight: FontWeight.w800)),
                             ],
                           ),
                         ),
@@ -160,7 +160,7 @@ class _MapUnavailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    color: const Color(0xFFE8EEF3),
+    color: Theme.of(context).colorScheme.surface,
     alignment: Alignment.center,
     child: Text(
       tr('Chưa có ảnh vệ tinh', 'Satellite preview unavailable'),

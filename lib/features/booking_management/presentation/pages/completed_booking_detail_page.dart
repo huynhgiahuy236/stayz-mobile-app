@@ -81,7 +81,7 @@ class CompletedBookingDetailPage extends StatelessWidget {
                       height: 280 * responsive.scale,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppTheme.neutral200,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(

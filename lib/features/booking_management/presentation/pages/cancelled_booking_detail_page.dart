@@ -57,7 +57,7 @@ class CancelledBookingDetailPage extends StatelessWidget {
                     Container(
                       height: 284 * responsive.scale,
                       decoration: BoxDecoration(
-                        color: AppTheme.neutral200,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(

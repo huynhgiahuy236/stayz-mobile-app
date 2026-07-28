@@ -207,7 +207,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: AppTheme.neutral200.withValues(alpha: 0.55),
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                 ),
               ),
@@ -216,7 +216,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                   IconButton(
                     onPressed: () => Navigator.of(context).maybePop(),
                     icon: const Icon(Icons.arrow_back),
-                    color: AppTheme.accentDark,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   SizedBox(width: 8 * responsive.widthScale),
                   Expanded(
@@ -225,15 +225,15 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.accentDark,
-                        fontSize: 30 * responsive.scale,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 26 * responsive.scale,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.search,
-                    color: AppTheme.neutral500,
+                    color: Theme.of(context).colorScheme.secondary,
                     size: 28 * responsive.scale,
                   ),
                 ],
@@ -257,7 +257,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.neutral200),
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                     ),
                     child: Row(
                       children: [
@@ -357,10 +357,10 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                   Container(
                     padding: EdgeInsets.all(28 * responsive.scale),
                     decoration: BoxDecoration(
-                      color: AppTheme.primarySoft,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppTheme.neutral200.withValues(alpha: 0.8),
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                     ),
                     child: Row(
@@ -376,7 +376,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                                   'Send us feedback',
                                 ),
                                 style: TextStyle(
-                                  color: AppTheme.accentDark,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 17 * responsive.scale,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -389,7 +389,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                                 ),
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.secondary,
-                                  fontSize: 18 * responsive.scale,
+                                  fontSize: 14 * responsive.scale,
                                   height: 1.55,
                                 ),
                               ),
@@ -399,7 +399,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                                 child: FilledButton(
                                   onPressed: _openZalo,
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: AppTheme.accentDark,
+                                    backgroundColor: Theme.of(context).colorScheme.primary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(999),
                                     ),
@@ -407,8 +407,8 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                                   child: Text(
                                     tr('GỬI QUA ZALO', 'SEND VIA ZALO'),
                                     style: TextStyle(
-                                      color: Theme.of(context).cardColor,
-                                      fontSize: 16 * responsive.scale,
+                                      color: Colors.white,
+                                      fontSize: 15 * responsive.scale,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
@@ -420,7 +420,7 @@ class _HotelInfoFormPageState extends State<HotelInfoFormPage> {
                         SizedBox(width: 12 * responsive.widthScale),
                         Icon(
                           Icons.rate_review_outlined,
-                          color: AppTheme.accentDark.withValues(alpha: 0.22),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
                           size: 42 * responsive.scale,
                         ),
                       ],
@@ -465,7 +465,7 @@ class _FaqTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: ExpansionTile(
         tilePadding: EdgeInsets.symmetric(
@@ -574,7 +574,7 @@ class _LegalTile extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.neutral200.withValues(alpha: 0.35),
+            color: Theme.of(context).colorScheme.outlineVariant,
           ),
         ),
       ),

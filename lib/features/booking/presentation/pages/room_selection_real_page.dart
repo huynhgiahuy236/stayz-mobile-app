@@ -362,9 +362,9 @@ class _FilterToggle extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: open ? Theme.of(context).colorScheme.onSurface : Colors.white,
+                color: open ? Theme.of(context).colorScheme.primary : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: open ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.outlineVariant),
+                border: Border.all(color: open ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant),
               ),
               child: Icon(
                 Icons.tune_rounded,
@@ -583,7 +583,7 @@ class _Stepper extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 15,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -612,11 +612,14 @@ class _TypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeBg = Theme.of(context).colorScheme.primary;
+    final inactiveBg = Theme.of(context).cardColor;
+
     return Semantics(
       button: true,
       selected: active,
       child: Material(
-        color: active ? Theme.of(context).colorScheme.onSurface : Colors.white,
+        color: active ? activeBg : inactiveBg,
         borderRadius: BorderRadius.circular(999),
         child: InkWell(
           onTap: onTap,
@@ -627,7 +630,7 @@ class _TypeChip extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: active ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.outlineVariant),
+              border: Border.all(color: active ? activeBg : Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Text(
               label,

@@ -165,7 +165,7 @@ class RoomOptionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: AppTheme.softShadow,
       ),
       clipBehavior: Clip.antiAlias,
@@ -252,7 +252,7 @@ class RoomOptionCard extends StatelessWidget {
                 ),
                 Divider(
                   height: 28 * responsive.scale,
-                  color: AppTheme.neutral200,
+                  color: Theme.of(context).colorScheme.outlineVariant,
                 ),
                 Text.rich(
                   TextSpan(
@@ -260,7 +260,7 @@ class RoomOptionCard extends StatelessWidget {
                       TextSpan(
                         text: price,
                         style: TextStyle(
-                          color: AppTheme.accent,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 18 * responsive.scale,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1,
@@ -269,7 +269,7 @@ class RoomOptionCard extends StatelessWidget {
                       TextSpan(
                         text: tr(' / đêm', ' / night'),
                         style: TextStyle(
-                          color: AppTheme.neutral800,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 11 * responsive.scale,
                         ),
                       ),
@@ -284,7 +284,7 @@ class RoomOptionCard extends StatelessWidget {
                         height: 44,
                         child: OutlinedButton(
                           onPressed: onDetails,
-                          child: Text(tr('Chi tiáº¿t phÃ²ng', 'Room details')),
+                          child: Text(tr('Chi tiết', 'Details')),
                         ),
                       ),
                     ),
@@ -295,7 +295,7 @@ class RoomOptionCard extends StatelessWidget {
                         child: FilledButton(
                           onPressed: canBook ? onBook : null,
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppTheme.accent,
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 AppTheme.controlRadius,
@@ -307,7 +307,7 @@ class RoomOptionCard extends StatelessWidget {
                                 ? tr('Đặt ngay', 'Book now')
                                 : tr('Hết phòng', 'Sold out'),
                             style: TextStyle(
-                              color: Theme.of(context).cardColor,
+                              color: Colors.white,
                               fontSize: 15 * responsive.scale,
                               fontWeight: FontWeight.w800,
                             ),
@@ -409,7 +409,7 @@ class _RoomMeta extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppTheme.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Text(
         label,

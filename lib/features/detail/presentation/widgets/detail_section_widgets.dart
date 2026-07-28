@@ -166,7 +166,7 @@ class ReviewCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -251,7 +251,7 @@ class DetailBottomBookingBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-        border: Border.all(color: AppTheme.neutral200.withValues(alpha: 0.7)),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: SafeArea(
         top: false,
@@ -271,7 +271,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                               ? tr('Liên hệ', 'Contact')
                               : StayzFormatters.fullVnd(summary!.lowestPrice),
                           style: TextStyle(
-                            color: AppTheme.accent,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 18 * responsive.scale,
                             fontWeight: FontWeight.w900,
                           ),
@@ -318,7 +318,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                         arguments: RoomSelectionArgs(hotel: summary!),
                       ),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.accentDark,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -326,7 +326,7 @@ class DetailBottomBookingBar extends StatelessWidget {
                 child: Text(
                   tr('Chọn phòng', 'Select room'),
                   style: TextStyle(
-                    color: Theme.of(context).cardColor,
+                    color: Colors.white,
                     fontSize: 14 * responsive.scale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -367,7 +367,7 @@ class SupportActionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.neutral200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

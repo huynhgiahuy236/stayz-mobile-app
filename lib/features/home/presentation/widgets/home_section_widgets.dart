@@ -39,14 +39,62 @@ class HomeResponsive {
 
 enum HomeTab { home, search, saved, bookings, profile }
 
-class StayZBottomNav extends StatelessWidget {
+class StayZBottomNav extends StatefulWidget {
   const StayZBottomNav({required this.activeTab, super.key});
 
   final HomeTab activeTab;
 
+  static int _lastIndex = 0;
+
+  static const _navItemsData = [
+    (icon: Icons.home_rounded, labelEn: 'Home', labelVi: 'Trang chủ', route: AppRoutes.home, tab: HomeTab.home),
+    (icon: Icons.travel_explore_rounded, labelEn: 'Search', labelVi: 'Tìm kiếm', route: AppRoutes.search, tab: HomeTab.search),
+    (icon: Icons.favorite_rounded, labelEn: 'Saved', labelVi: 'Đã lưu', route: AppRoutes.favorites, tab: HomeTab.saved),
+    (icon: Icons.calendar_month_rounded, labelEn: 'Trips', labelVi: 'Lịch đặt', route: AppRoutes.myBookings, tab: HomeTab.bookings),
+    (icon: Icons.person_rounded, labelEn: 'Me', labelVi: 'Tôi', route: AppRoutes.settings, tab: HomeTab.profile),
+  ];
+
+  @override
+  State<StayZBottomNav> createState() => _StayZBottomNavState();
+}
+
+class _StayZBottomNavState extends State<StayZBottomNav> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    final targetIndex = HomeTab.values.indexOf(widget.activeTab).clamp(0, 4);
+    _currentIndex = StayZBottomNav._lastIndex;
+    StayZBottomNav._lastIndex = targetIndex;
+
+    if (_currentIndex != targetIndex) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _currentIndex = targetIndex;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(StayZBottomNav oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final targetIndex = HomeTab.values.indexOf(widget.activeTab).clamp(0, 4);
+    if (_currentIndex != targetIndex) {
+      setState(() {
+        _currentIndex = targetIndex;
+      });
+      StayZBottomNav._lastIndex = targetIndex;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
+    final alignmentX = -1.0 + (_currentIndex / 4.0) * 2.0;
 
     return SafeArea(
       top: false,
@@ -78,39 +126,59 @@ class StayZBottomNav extends StatelessWidget {
                 horizontal: 4 * responsive.widthScale,
                 vertical: 4 * responsive.scale,
               ),
-              child: Row(
-                children: [
-                  _NavItem(
-                    icon: Icons.home_rounded,
-                    label: tr('Trang chủ', 'Home'),
-                    active: activeTab == HomeTab.home,
-                    routeName: AppRoutes.home,
-                  ),
-                  _NavItem(
-                    icon: Icons.travel_explore_rounded,
-                    label: tr('Tìm kiếm', 'Search'),
-                    active: activeTab == HomeTab.search,
-                    routeName: AppRoutes.search,
-                  ),
-                  _NavItem(
-                    icon: Icons.favorite_rounded,
-                    label: tr('Đã lưu', 'Saved'),
-                    active: activeTab == HomeTab.saved,
-                    routeName: AppRoutes.favorites,
-                  ),
-                  _NavItem(
-                    icon: Icons.calendar_month_rounded,
-                    label: tr('Lịch đặt', 'Trips'),
-                    active: activeTab == HomeTab.bookings,
-                    routeName: AppRoutes.myBookings,
-                  ),
-                  _NavItem(
-                    icon: Icons.person_rounded,
-                    label: tr('Tôi', 'Me'),
-                    active: activeTab == HomeTab.profile,
-                    routeName: AppRoutes.settings,
-                  ),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final totalWidth = constraints.maxWidth;
+                  final itemWidth = totalWidth / 5;
+
+                  return Stack(
+                    children: [
+                      // Smooth sliding active pill indicator
+                      AnimatedAlign(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.fastOutSlowIn,
+                        alignment: Alignment(alignmentX, 0),
+                        child: Container(
+                          width: itemWidth,
+                          height: 56 * responsive.scale,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Navigation item labels and icons overlay
+                      Row(
+                        children: [
+                          for (final item in StayZBottomNav._navItemsData)
+                            _NavItem(
+                              icon: item.icon,
+                              label: tr(item.labelVi, item.labelEn),
+                              active: widget.activeTab == item.tab,
+                              routeName: item.route,
+                              onTap: () {
+                                final clickedIndex = HomeTab.values.indexOf(item.tab).clamp(0, 4);
+                                if (_currentIndex != clickedIndex) {
+                                  setState(() {
+                                    _currentIndex = clickedIndex;
+                                  });
+                                  StayZBottomNav._lastIndex = clickedIndex;
+                                }
+                                Navigator.of(context).pushReplacementNamed(item.route);
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -126,55 +194,19 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.active,
     required this.routeName,
+    required this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool active;
   final String routeName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final responsive = HomeResponsive.of(context);
-    final content = AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      height: 56 * responsive.scale,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 2 * responsive.widthScale,
-        vertical: 5 * responsive.scale,
-      ),
-      decoration: BoxDecoration(
-        color: active ? Theme.of(context).colorScheme.primaryContainer : Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
-            size: 22 * responsive.scale,
-          ),
-          SizedBox(height: 3 * responsive.scale),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                maxLines: 1,
-                style: TextStyle(
-                  color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
-                  fontSize: 10.5 * responsive.scale,
-                  fontWeight: active ? FontWeight.w900 : FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    final targetColor = active ? Colors.white : Theme.of(context).colorScheme.secondary;
 
     return Expanded(
       child: Semantics(
@@ -182,9 +214,40 @@ class _NavItem extends StatelessWidget {
         button: true,
         label: label,
         child: InkWell(
-          onTap: () => Navigator.of(context).pushReplacementNamed(routeName),
+          onTap: onTap,
           borderRadius: BorderRadius.circular(18),
-          child: Center(child: content),
+          child: Container(
+            height: 56 * responsive.scale,
+            padding: EdgeInsets.symmetric(
+              horizontal: 2 * responsive.widthScale,
+              vertical: 5 * responsive.scale,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: targetColor,
+                  size: 22 * responsive.scale,
+                ),
+                SizedBox(height: 3 * responsive.scale),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: targetColor,
+                        fontSize: 10.5 * responsive.scale,
+                        fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

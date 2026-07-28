@@ -47,15 +47,32 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
         payment: payment,
         fallbackAmount: quote.payNow,
       );
+      if (paymentArgs.qrCode.isEmpty && paymentArgs.qrImageUrl.isEmpty) {
+        throw const ApiException('Không thể tạo mã VietQR. Vui lòng thử lại.');
+      }
       if (!mounted) return;
       await Navigator.of(
         context,
       ).pushNamed(AppRoutes.paymentQr, arguments: paymentArgs);
+      if (mounted) setState(() {});
     } on ApiException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              tr(
+                'Lỗi khởi tạo thanh toán. Vui lòng thử lại.',
+                'Payment error. Please try again.',
+              ),
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _openingPayment = false);
@@ -112,7 +129,7 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                         Container(
                           height: 290 * responsive.scale,
                           decoration: BoxDecoration(
-                            color: AppTheme.neutral200,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
@@ -356,48 +373,103 @@ class _UpcomingBookingDetailPageState extends State<UpcomingBookingDetailPage> {
                     ),
                   ],
                   SizedBox(height: 34 * responsive.scale),
-                  if (!checkedIn)
-                    SizedBox(
-                      height: 58 * responsive.scale,
-                      child: OutlinedButton(
-                        onPressed: summary.booking.isPaymentPending
-                            ? (_openingPayment ||
-                                      summary.booking.isPaymentExpired
-                                  ? null
-                                  : () => _continuePayment(args!))
-                            : () async {
-                                final confirmed = await confirmCancelBooking(
-                                  context,
-                                  summary,
-                                );
-                                if (!confirmed || !context.mounted) return;
-                                await Navigator.of(context).pushNamed(
-                                  AppRoutes.cancelBookingResult,
-                                  arguments: args,
-                                );
-                              },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppTheme.accentDark),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  if (!checkedIn) ...[
+                    if (summary.booking.isPaymentPending) ...[
+                      SizedBox(
+                        height: 54 * responsive.scale,
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _openingPayment ? null : () => _continuePayment(args!),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          summary.booking.isPaymentPending
-                              ? (_openingPayment
-                                    ? tr(
-                                        'Đang mở thanh toán...',
-                                        'Opening payment...',
-                                      )
-                                    : tr('Thanh toán ngay', 'Pay now'))
-                              : tr('Hủy đặt phòng', 'Cancel booking'),
-                          style: TextStyle(
-                            color: AppTheme.accentDark,
-                            fontSize: 18 * responsive.scale,
+                          child: Text(
+                            _openingPayment
+                                ? tr('Đang mở thanh toán...', 'Opening payment...')
+                                : summary.booking.isPaymentExpired
+                                ? tr('Tạo mã thanh toán mới (30% / 100%)', 'New payment code (30% / 100%)')
+                                : tr('Thanh toán ngay', 'Pay now'),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16 * responsive.scale,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      SizedBox(height: 12 * responsive.scale),
+                      SizedBox(
+                        height: 48 * responsive.scale,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            final confirmed = await confirmCancelBooking(
+                              context,
+                              summary,
+                            );
+                            if (!confirmed || !context.mounted) return;
+                            await Navigator.of(context).pushNamed(
+                              AppRoutes.cancelBookingResult,
+                              arguments: args,
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.outlineVariant,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            tr('Hủy đặt phòng', 'Cancel booking'),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 15 * responsive.scale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      SizedBox(
+                        height: 54 * responsive.scale,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            final confirmed = await confirmCancelBooking(
+                              context,
+                              summary,
+                            );
+                            if (!confirmed || !context.mounted) return;
+                            await Navigator.of(context).pushNamed(
+                              AppRoutes.cancelBookingResult,
+                              arguments: args,
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.outlineVariant,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            tr('Hủy đặt phòng', 'Cancel booking'),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 16 * responsive.scale,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                   SizedBox(height: 18 * responsive.scale),
                   Text(
                     checkedIn

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bản đồ kiến trúc và luồng nghiệp vụ StayZ">
+  <title>StayZ · Project Flow Map</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Đi tới nội dung</a>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="StayZ Project Map">
+      <span class="brand-mark">S</span><span>StayZ <small>Project Map</small></span>
+    </a>
+    <div class="top-actions">
+      <button id="themeToggle" class="icon-button" type="button" aria-label="Đổi giao diện sáng tối">◐</button>
+      <button id="menuToggle" class="icon-button menu-button" type="button" aria-label="Mở mục lục" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="Mục lục">
+      <p class="eyebrow">System briefing</p>
+      <nav>
+        <a class="nav-link active" href="#overview">Tổng quan</a>
+        <a class="nav-link" href="#architecture">Kiến trúc</a>
+        <a class="nav-link" href="#pattern">MVC / MVVM</a>
+        <a class="nav-link" href="#screens">Luồng màn hình</a>
+        <a class="nav-link" href="#mechanisms">Cơ chế kỹ thuật</a>
+        <a class="nav-link" href="#business">Nghiệp vụ chính</a>
+        <a class="nav-link" href="#traceability">Truy vết code</a>
+        <a class="nav-link" href="#risks">Điểm cần theo dõi</a>
+      </nav>
+      <div class="side-note">
+        <span class="status-dot"></span>
+        <div><strong>Code-grounded</strong><small>Flutter + Express + MongoDB</small></div>
+      </div>
+    </aside>
+
+    <main id="main">
+      <section id="overview" class="hero section">
+        <div>
+          <p class="eyebrow">StayZ engineering blueprint</p>
+          <h1>Từ thao tác người dùng đến quy tắc backend.</h1>
+          <p class="lede">Bản đồ trực quan của luồng chạy, kiến trúc, cơ chế tối ưu và các điểm kiểm duyệt nghiệp vụ trong project StayZ hiện tại.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="../promt-project.md">Mở prompt đầy đủ</a>
+            <a class="button secondary" href="#screens">Xem luồng booking</a>
+          </div>
+        </div>
+        <div class="system-card" aria-label="Tóm tắt hệ thống">
+          <div class="pulse"></div>
+          <p>Runtime shape</p>
+          <strong>Flutter → REST API → Service → MongoDB</strong>
+          <div class="mini-grid">
+            <span><b>20s</b> API timeout</span>
+            <span><b>1s</b> search debounce</span>
+            <span><b>3s</b> payment poll</span>
+            <span><b>15m</b> payment hold</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="Thông số chính">
+        <article><span>01</span><strong>Source of truth</strong><p>Backend xác minh giá, tồn phòng, quyền và trạng thái.</p></article>
+        <article><span>02</span><strong>Race-safe booking</strong><p>Redis Redlock + kiểm tra khoảng ngày giao nhau.</p></article>
+        <article><span>03</span><strong>Verified payment</strong><p>Chỉ webhook PayOS hợp lệ mới confirm booking.</p></article>
+      </section>
+
+      <section id="architecture" class="section">
+        <div class="section-heading"><p class="eyebrow">Architecture</p><h2>Hai lớp, một đường dữ liệu rõ ràng</h2></div>
+        <div class="architecture-grid">
+          <article class="layer-card flutter">
+            <div class="card-title"><span>Mobile</span><b>Flutter / Dart</b></div>
+            <ol class="stack">
+              <li><b>MaterialApp + AppRoutes</b><small>bootstrap, theme, locale, named routes</small></li>
+              <li><b>Feature presentation</b><small>pages + widgets + local async state</small></li>
+              <li><b>Repository / services</b><small>ApiStayzRepository, AuthService, ApiService</small></li>
+              <li><b>Shared models</b><small>HotelSummary, BookingDraft, BookingSummary</small></li>
+            </ol>
+          </article>
+          <div class="bridge"><span>UTF-8 JSON</span><i>⇄</i><span>Bearer JWT</span></div>
+          <article class="layer-card api">
+            <div class="card-title"><span>Server</span><b>Express / Node.js</b></div>
+            <ol class="stack">
+              <li><b>Router + middleware</b><small>protect, admin, rate limit, upload</small></li>
+              <li><b>Controller</b><small>request / response coordination</small></li>
+              <li><b>Service</b><small>business rules + state transitions</small></li>
+              <li><b>Data & integrations</b><small>MongoDB, Redis, PayOS, Cloudinary</small></li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section id="pattern" class="section pattern-section">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture verdict</p>
+          <h2>Không phải MVVM thuần.</h2>
+        </div>
+        <div class="verdict-grid">
+          <article class="verdict-card">
+            <span class="tag">Flutter</span>
+            <h3>Feature-first layered</h3>
+            <p>View và logic điều phối vẫn cùng nằm trong <code>State&lt;Page&gt;</code>. Repository và Service đảm nhiệm truy cập dữ liệu nhưng chưa có ViewModel riêng.</p>
+            <div class="path-line">Page → Repository → ApiService → REST</div>
+          </article>
+          <article class="verdict-card">
+            <span class="tag">Backend</span>
+            <h3>Layered MVC + Service</h3>
+            <p>Router và middleware nhận request, Controller điều phối, Service giữ nghiệp vụ, Mongoose Model lưu dữ liệu.</p>
+            <div class="path-line">Router → Controller → Service → Model</div>
+          </article>
+        </div>
+        <div class="document-callout">
+          <div>
+            <strong>API Cookbook</strong>
+            <p>Endpoint, JSON body, quyền truy cập, code ví dụ và đường dẫn xử lý đầy đủ.</p>
+          </div>
+          <a class="button primary" href="../docs/stayz-api-cookbook.md">Mở tài liệu API</a>
+        </div>
+      </section>
+
+      <section id="screens" class="section">
+        <div class="section-heading"><p class="eyebrow">Screen journey</p><h2>Luồng chính từ mở app đến nhận phòng</h2></div>
+        <div class="tabs" role="tablist" aria-label="Chọn luồng">
+          <button class="tab active" role="tab" aria-selected="true" data-flow="booking">Booking</button>
+          <button class="tab" role="tab" aria-selected="false" data-flow="auth">Xác thực</button>
+          <button class="tab" role="tab" aria-selected="false" data-flow="admin">Admin</button>
+        </div>
+        <div id="flowCanvas" class="flow-canvas" aria-live="polite"></div>
+      </section>
+
+      <section id="mechanisms" class="section">
+        <div class="section-heading"><p class="eyebrow">Mechanisms</p><h2>Các cơ chế đang vận hành</h2></div>
+        <div class="mechanism-grid">
+          <article><span class="tag">UX</span><h3>Debounce tìm kiếm</h3><p>Gõ chữ cập nhật suggestion ngay, hủy timer cũ và gọi search sau 1 giây. Submit chạy tức thời.</p><code>Timer(Duration(seconds: 1))</code></article>
+          <article><span class="tag">Concurrency</span><h3>Chống overbooking</h3><p>Khóa theo room + ngày, sau đó đếm booking confirmed và pending còn hạn có khoảng ngày giao nhau.</p><code>Redlock · TTL 5s</code></article>
+          <article><span class="tag">Payment</span><h3>Polling có vòng đời</h3><p>QR poll mỗi 3 giây, countdown mỗi giây; dừng khi paid, expired hoặc widget bị dispose.</p><code>3s poll · 15m expiry</code></article>
+          <article><span class="tag">Performance</span><h3>Redis cache</h3><p>Cache property list, featured, city và slug; mutation xóa các key liên quan.</p><code>versioned cache keys</code></article>
+          <article><span class="tag">Resilience</span><h3>HTTP boundary</h3><p>Timeout 20 giây, JSON UTF-8, chuẩn hóa lỗi offline/timeout/status và unwrap response.</p><code>ApiException</code></article>
+          <article><span class="tag">UX</span><h3>Optimistic favorite</h3><p>UI phản hồi ngay; repository cập nhật server; thất bại thì rollback trạng thái.</p><code>update → request → rollback</code></article>
+        </div>
+      </section>
+
+      <section id="business" class="section">
+        <div class="section-heading split">
+          <div><p class="eyebrow">Business audit</p><h2>Kiểm duyệt luồng nghiệp vụ</h2></div>
+          <label class="search-box"><span>⌕</span><input id="ruleSearch" type="search" placeholder="Tìm booking, payment, review..." aria-label="Tìm nghiệp vụ"></label>
+        </div>
+        <div class="filter-row" aria-label="Lọc trạng thái">
+          <button class="filter active" data-filter="all">Tất cả</button>
+          <button class="filter" data-filter="guarded">Đã bảo vệ</button>
+          <button class="filter" data-filter="watch">Cần theo dõi</button>
+        </div>
+        <div id="ruleList" class="rule-list"></div>
+      </section>
+
+      <section id="traceability" class="section">
+        <div class="section-heading"><p class="eyebrow">Traceability</p><h2>Từ feature đến code</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Luồng</th><th>Flutter</th><th>Backend</th></tr></thead>
+            <tbody>
+              <tr><td>Khởi động / auth</td><td>main, app, auth_gate, auth_service</td><td>users/auth routes & services</td></tr>
+              <tr><td>Tìm kiếm</td><td>search_page, stayz_repository</td><td>properties.router/service</td></tr>
+              <tr><td>Phòng / availability</td><td>room_selection_real_page</td><td>room.router/service</td></tr>
+              <tr><td>Booking</td><td>booking pages + flow models</td><td>booking.router/service/model</td></tr>
+              <tr><td>Thanh toán</td><td>payment_checkout / payment_qr</td><td>payment.service + paymentQuote util</td></tr>
+              <tr><td>Review / favorite</td><td>detail, favorites, repository</td><td>review/favorites services</td></tr>
+              <tr><td>Admin</td><td>features/admin</td><td>admin middleware + feature services</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="risks" class="section">
+        <div class="section-heading"><p class="eyebrow">Watch list</p><h2>Ưu tiên kỹ thuật tiếp theo</h2></div>
+        <div class="risk-list">
+          <article><b>01</b><div><h3>Request ordering ở search</h3><p>Debounce giảm request nhưng chưa triệt tiêu khả năng response cũ về sau response mới.</p></div></article>
+          <article><b>02</b><div><h3>Booking expiry cần scheduled job</h3><p>Auto-settle hiện phụ thuộc lần gọi service; production nên có worker định kỳ.</p></div></article>
+          <article><b>03</b><div><h3>Refund vẫn manual</h3><p>Cần workflow đối soát, audit trail và automation trước khi vận hành thật.</p></div></article>
+          <article><b>04</b><div><h3>State phân tán</h3><p>Home, Search, Favorite và Booking tự giữ state; nên có chiến lược đồng bộ khi quy mô tăng.</p></div></article>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer>StayZ Project Map · Generated from the current codebase</footer>
+</body>
+</html>
